@@ -25,13 +25,21 @@ import type {
   FinalClipDesignDecision,
   FinalClipDecisionPort,
   ProviderPreQcDecision,
-  VideoPromptDecision
+  VideoPromptDecision,
+  ClipFallbackDecision,
+  ClipQcDecision,
+  QcFallbackDecisionPort
 } from "@vpf/production-system";
 import {
   FinalClipPipeline,
   type FinalClipClock,
   type FinalClipIdFactory
 } from "@vpf/final-clip";
+import {
+  QcFallbackPipeline,
+  type QcFallbackClock,
+  type QcFallbackIdFactory
+} from "@vpf/qc-fallback";
 import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
@@ -61,6 +69,7 @@ import { SqliteStoryRepository } from "../src/index.js";
 import { SqliteSceneAssetRepository } from "../src/scene-assets.js";
 import { SqlitePreLinkHandoffRepository } from "../src/prelink-handoff.js";
 import { SqliteFinalClipRepository } from "../src/final-clip.js";
+import { SqliteQcFallbackRepository } from "../src/qc-fallback.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -69,6 +78,7 @@ const visualClock: VisualIdentityClock = { nowIso: () => now };
 const assetClock: SceneAssetClock = { nowIso: () => now };
 const linkClock: PreLinkHandoffClock = { nowIso: () => now };
 const finalClipClock: FinalClipClock = { nowIso: () => now };
+const qcFallbackClock: QcFallbackClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -88,6 +98,10 @@ function linkIds(): PreLinkHandoffIdFactory {
 }
 function finalClipIds(): FinalClipIdFactory {
   let n = 4000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function qcFallbackIds(): QcFallbackIdFactory {
+  let n = 5000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -543,7 +557,42 @@ class FinalClipDecisions implements FinalClipDecisionPort {
   }
 }
 
-test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 completes in one project.db through video Candidate", async () => {
+
+class QcFallbackDecisions implements QcFallbackDecisionPort {
+  async runClipQc(): Promise<ProductionDecisionWithMeta<ClipQcDecision>> {
+    return {
+      decision: {
+        status: "TRIM_PASS",
+        severity: "MINOR",
+        confidence: 0.98,
+        usableInMs: 400,
+        usableOutMs: 4400,
+        issues: ["unstable tail"]
+      },
+      status: "SUCCESS",
+      confidence: 0.98,
+      requiresHumanReview: false,
+      warnings: [],
+      decisionId: "dec_clip_qc_sqlite"
+    };
+  }
+
+  async selectClipFallback(): Promise<ProductionDecisionWithMeta<ClipFallbackDecision>> {
+    return {
+      decision: {
+        action: "EDITORIAL_MOVE",
+        rationale: "preserve approved still when generated motion is unusable"
+      },
+      status: "SUCCESS",
+      confidence: 0.98,
+      requiresHumanReview: false,
+      warnings: [],
+      decisionId: "dec_fallback_sqlite"
+    };
+  }
+}
+
+test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 completes in one project.db through approved trimmed video", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
@@ -900,6 +949,61 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 completes in one project.db thro
     assert.equal(sceneAfterFinalClip?.revision, sceneRevisionBeforeLink);
 
     finalRepo.close();
+
+    const qcRepo = new SqliteQcFallbackRepository(dbPath);
+    const qcPipeline = new QcFallbackPipeline(
+      qcRepo,
+      qcRepo,
+      new QcFallbackDecisions(),
+      qcFallbackClock,
+      qcFallbackIds()
+    );
+    const clipQc = await qcPipeline.runClipQc({
+      projectId: "prj_10",
+      clipId: finalDesign.clip.id,
+      candidateMediaId: videoResult.media.id,
+      format: "SHORTFORM"
+    });
+    assert.equal(clipQc.qc.status, "TRIM_PASS");
+    assert.equal(clipQc.qc.usableInMs, 400);
+    assert.equal(clipQc.qc.usableOutMs, 4400);
+    assert.equal(clipQc.clip.clipStatus, "APPROVED");
+    assert.equal(clipQc.clip.approvedMediaId, videoResult.media.id);
+    assert.equal(clipQc.approval?.selectedMediaId, videoResult.media.id);
+
+    const storedQc = qcRepo.db.prepare(
+      `SELECT status, usable_in_ms, usable_out_ms
+       FROM clip_qc_records
+       WHERE project_id = ? AND clip_id = ?
+       ORDER BY rowid DESC LIMIT 1`
+    ).get("prj_10", finalDesign.clip.id) as {
+      status: string;
+      usable_in_ms: number;
+      usable_out_ms: number;
+    };
+    assert.deepEqual(storedQc, {
+      status: "TRIM_PASS",
+      usable_in_ms: 400,
+      usable_out_ms: 4400
+    });
+
+    const approvedVideoCount = qcRepo.db.prepare(
+      `SELECT COUNT(*) AS count
+       FROM approval_records
+       WHERE project_id = ?
+         AND target_type = 'CLIP'
+         AND target_id = ?
+         AND selected_media_id = ?`
+    ).get("prj_10", finalDesign.clip.id, videoResult.media.id) as { count: number };
+    assert.equal(approvedVideoCount.count, 1);
+
+    const sceneAfterQc = await qcRepo.getScene(
+      "prj_10",
+      graph.scenes[0]!.id
+    );
+    assert.equal(sceneAfterQc?.revision, sceneRevisionBeforeLink);
+
+    qcRepo.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
