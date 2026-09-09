@@ -458,14 +458,6 @@ export class PreLinkHandoffPipeline {
         handoffAnchor: [...result.decision.handoffAnchor],
         handoffChannels: [...result.decision.handoffChannels],
         transitionIntent: result.decision.transitionIntent.trim(),
-        preLinkApprovalId: undefined,
-        fromAssetId: undefined,
-        fromAssetRevision: undefined,
-        fromMediaId: undefined,
-        toAssetId: undefined,
-        toAssetRevision: undefined,
-        toMediaId: undefined,
-        handoffQcId: undefined,
         preLinkMatch: "NOT_EVALUATED",
         linkStatus: result.requiresHumanReview
           ? "PRE_LINK_DRAFT"
@@ -473,6 +465,15 @@ export class PreLinkHandoffPipeline {
       },
       now
     );
+
+    delete next.preLinkApprovalId;
+    delete next.fromAssetId;
+    delete next.fromAssetRevision;
+    delete next.fromMediaId;
+    delete next.toAssetId;
+    delete next.toAssetRevision;
+    delete next.toMediaId;
+    delete next.handoffQcId;
 
     let approval: ApprovalRecord | undefined;
     if (!result.requiresHumanReview) {
@@ -648,12 +649,12 @@ export class PreLinkHandoffPipeline {
         toAssetId: toAsset.id,
         toAssetRevision: toAsset.revision,
         toMediaId: toMedia.id,
-        handoffQcId: undefined,
         preLinkMatch: "NOT_EVALUATED",
         linkStatus: "HANDOFF_QC_PENDING"
       },
       this.clock.nowIso()
     );
+    delete next.handoffQcId;
 
     const { event, outbox } = durableEvent(this.ids, this.clock, {
       projectId: input.projectId,
@@ -926,25 +927,26 @@ export class PreLinkHandoffPipeline {
         currentTo.approvedMediaId !== link.toMediaId;
 
       if (assetChanged) {
+        const resetLink = nextLinkRevision(
+          link,
+          {
+            preLinkMatch: "NOT_EVALUATED",
+            linkStatus: link.preLinkApprovalId === undefined
+              ? "PRE_LINK_DRAFT"
+              : "WAITING_FOR_ASSETS"
+          },
+          this.clock.nowIso()
+        );
+        delete resetLink.fromAssetId;
+        delete resetLink.fromAssetRevision;
+        delete resetLink.fromMediaId;
+        delete resetLink.toAssetId;
+        delete resetLink.toAssetRevision;
+        delete resetLink.toMediaId;
+        delete resetLink.handoffQcId;
         resets.push({
           previous: link,
-          next: nextLinkRevision(
-            link,
-            {
-              fromAssetId: undefined,
-              fromAssetRevision: undefined,
-              fromMediaId: undefined,
-              toAssetId: undefined,
-              toAssetRevision: undefined,
-              toMediaId: undefined,
-              handoffQcId: undefined,
-              preLinkMatch: "NOT_EVALUATED",
-              linkStatus: link.preLinkApprovalId === undefined
-                ? "PRE_LINK_DRAFT"
-                : "WAITING_FOR_ASSETS"
-            },
-            this.clock.nowIso()
-          )
+          next: resetLink
         });
       }
     }
