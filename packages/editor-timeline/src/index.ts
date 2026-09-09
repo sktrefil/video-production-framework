@@ -4,6 +4,7 @@ import type {
   EditorMotionDirective,
   GenericEditProject,
   GenericEditorImageItem,
+  GenericEditorImageMotionSpec,
   GenericEditorVideoItem,
   TimelineAssemblyOutput,
   TimelineAssemblyRecord
@@ -128,6 +129,65 @@ function frameAt(ms: number, fps: number): number {
 
 function durationFrames(ms: number, fps: number): number {
   return Math.max(1, frameAt(ms, fps));
+}
+
+function clampMotionStrength(value: number, fallback: number): number {
+  const normalized = Number.isFinite(value) ? value : fallback;
+  return Math.min(12, Math.max(2, normalized));
+}
+
+function motionStrength(cameraMove: string | undefined, fallback: number): number {
+  if (cameraMove === undefined) return fallback;
+  const match = cameraMove.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)/i);
+  return clampMotionStrength(match === null ? fallback : Number(match[1]), fallback);
+}
+
+function compileImageMotion(input: {
+  clipMode: "EDITORIAL_MOVE" | "REUSE_REFRAME";
+  cameraMove?: string;
+  width: number;
+  height: number;
+}): GenericEditorImageMotionSpec {
+  const text = (input.cameraMove ?? "").toLowerCase();
+  const strength = motionStrength(
+    input.cameraMove,
+    input.clipMode === "REUSE_REFRAME" ? 7 : 5
+  );
+  const ratio = strength / 100;
+  const travelX = Math.round(input.width * ratio);
+  const travelY = Math.round(input.height * ratio);
+
+  const left = /(?:pan|move|shift|reframe)\s+(?:to\s+)?(?:the\s+)?left|leftward/.test(text);
+  const right = /(?:pan|move|shift|reframe)\s+(?:to\s+)?(?:the\s+)?right|rightward/.test(text);
+  const up = /(?:pan|move|shift|reframe)\s+(?:to\s+)?(?:the\s+)?(?:up|top)|upward/.test(text);
+  const down = /(?:pan|move|shift|reframe)\s+(?:to\s+)?(?:the\s+)?(?:down|bottom)|downward/.test(text);
+  const directional = left || right || up || down;
+
+  const pushOut = /(?:push|zoom|dolly)[\s-]*out/.test(text);
+  const pushIn = /(?:push|zoom|dolly)[\s-]*in/.test(text);
+  const explicitScale = pushIn || pushOut;
+
+  const from = {
+    x: 0,
+    y: 0,
+    scale: directional && !explicitScale ? 1 + ratio : pushOut ? 1 + ratio : 1,
+    rotation: 0,
+    opacity: 1
+  };
+  const to = {
+    x: left ? -travelX : right ? travelX : 0,
+    y: up ? -travelY : down ? travelY : 0,
+    scale: directional && !explicitScale ? 1 + ratio : pushOut ? 1 : 1 + ratio,
+    rotation: 0,
+    opacity: 1
+  };
+
+  return {
+    kind: "TRANSFORM",
+    from,
+    to,
+    easing: "EASE_IN_OUT"
+  };
 }
 
 function refsEqual(
@@ -302,6 +362,16 @@ export class EditorTimelineAssemblyPipeline {
       }
 
       const frames = durationFrames(item.durationMs, input.profile.fps);
+      const compiledMotion =
+        item.clipMode === "EDITORIAL_MOVE" || item.clipMode === "REUSE_REFRAME"
+          ? compileImageMotion({
+              clipMode: item.clipMode,
+              cameraMove: item.cameraMove,
+              width: input.profile.width,
+              height: input.profile.height
+            })
+          : undefined;
+
       const visual: GenericEditorImageItem = {
         id: itemId,
         type: "IMAGE",
@@ -316,11 +386,15 @@ export class EditorTimelineAssemblyPipeline {
         scale: 1,
         rotation: 0,
         opacity: 1,
-        fit: "cover"
+        fit: "cover",
+        ...(compiledMotion === undefined ? {} : { motion: compiledMotion })
       };
       items.push(visual);
 
-      if (item.clipMode === "EDITORIAL_MOVE" || item.clipMode === "REUSE_REFRAME") {
+      if (
+        compiledMotion !== undefined &&
+        (item.clipMode === "EDITORIAL_MOVE" || item.clipMode === "REUSE_REFRAME")
+      ) {
         motionDirectives.push({
           itemId,
           bindingId: item.bindingId,
@@ -328,9 +402,9 @@ export class EditorTimelineAssemblyPipeline {
           ...(item.cameraMove === undefined ? {} : { cameraMove: item.cameraMove }),
           ...(item.subjectMotion === undefined ? {} : { subjectMotion: item.subjectMotion }),
           ...(item.environmentMotion === undefined ? {} : { environmentMotion: item.environmentMotion }),
-          supportedByCurrentRenderer: false
+          supportedByCurrentRenderer: true,
+          compiledMotion
         });
-        blockers.push("CURRENT_RENDERER_MOTION_UNSUPPORTED:" + item.bindingId);
       }
       cursor += frames;
     }
