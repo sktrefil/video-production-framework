@@ -272,6 +272,83 @@ function compileImageMotion(input: {
   };
 }
 
+function contentRefEqual(
+  a: EditorContentPlanRef | undefined,
+  b: EditorContentPlanRef | undefined
+): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  return (
+    a.contentPlanId === b.contentPlanId &&
+    a.contentPlanRevision === b.contentPlanRevision
+  );
+}
+
+function finiteNonNegative(value: number | undefined, fallback: number): number {
+  return value !== undefined && Number.isFinite(value) && value >= 0
+    ? value
+    : fallback;
+}
+
+function finitePositive(value: number | undefined, fallback: number): number {
+  return value !== undefined && Number.isFinite(value) && value > 0
+    ? value
+    : fallback;
+}
+
+function audioTrackId(type: GenericEditorAudioItem["type"]): string {
+  if (type === "TTS") return "A1";
+  if (type === "CLIP_AUDIO") return "A2";
+  if (type === "BGM") return "A3";
+  return "A4";
+}
+
+function defaultAudioVolume(type: GenericEditorAudioItem["type"]): number {
+  if (type === "TTS") return 1;
+  if (type === "CLIP_AUDIO") return 0.12;
+  if (type === "BGM") return 0.1;
+  return 0.35;
+}
+
+function defaultSubtitleStyle(
+  width: number,
+  height: number,
+  style: EditorContentPlan["subtitles"][number]["style"]
+): Omit<
+  GenericEditorSubtitleItem,
+  | "id"
+  | "type"
+  | "trackId"
+  | "timelineStartFrame"
+  | "durationInFrames"
+  | "enabled"
+  | "locked"
+  | "generationSource"
+  | "generatedFromTtsIds"
+  | "text"
+> {
+  const minimumDimension = Math.min(width, height);
+  return {
+    x: finiteNonNegative(style?.x, width / 2),
+    y: finiteNonNegative(style?.y, height * 0.86),
+    width: finitePositive(style?.width, width * 0.8667),
+    fontFamily: style?.fontFamily?.trim() || "VITRO",
+    fontSize: finitePositive(style?.fontSize, minimumDimension * 0.085),
+    fontWeight: finitePositive(style?.fontWeight, 700),
+    color: style?.color?.trim() || "#FFFDF7",
+    strokeColor: style?.strokeColor?.trim() || "#17130F",
+    strokeWidth: finiteNonNegative(style?.strokeWidth, 4),
+    textAlign: style?.textAlign ?? "center",
+    lineHeight: finitePositive(style?.lineHeight, 1.16),
+    maxLines: Math.max(1, Math.round(finitePositive(style?.maxLines, 2))),
+    backgroundEnabled: style?.backgroundEnabled ?? false,
+    backgroundColor: style?.backgroundColor?.trim() || "#000000",
+    backgroundOpacity: Math.min(
+      1,
+      finiteNonNegative(style?.backgroundOpacity, 0.4)
+    )
+  };
+}
+
 function refsEqual(
   a: TimelineAssemblyRecord["sourceBindingRefs"],
   b: TimelineAssemblyRecord["sourceBindingRefs"]
@@ -308,13 +385,21 @@ function profileEqual(
   );
 }
 
-function baseTracks(): GenericEditProject["tracks"] {
-  return [
+function baseTracks(includeContentLayers: boolean): GenericEditProject["tracks"] {
+  const tracks: GenericEditProject["tracks"] = [
     { id: "V1", type: "VIDEO", name: "Main Visual", enabled: true, locked: false, order: 0 },
     { id: "G1", type: "GRAPHIC", name: "Graphics", enabled: true, locked: false, order: 1 },
-    { id: "T1", type: "TEXT", name: "Subtitles / Text", enabled: true, locked: false, order: 2 },
-    { id: "A1", type: "AUDIO", name: "Audio", enabled: true, locked: false, order: 3 }
+    { id: "T1", type: "TEXT", name: "Subtitles", enabled: true, locked: false, order: 2 },
+    { id: "A1", type: "AUDIO", name: "TTS", enabled: true, locked: false, order: 3 }
   ];
+  if (!includeContentLayers) return tracks;
+  tracks.push(
+    { id: "T2", type: "TEXT", name: "Text", enabled: true, locked: false, order: 4 },
+    { id: "A2", type: "AUDIO", name: "Clip Audio", enabled: true, locked: false, order: 5 },
+    { id: "A3", type: "AUDIO", name: "BGM", enabled: true, locked: false, order: 6 },
+    { id: "A4", type: "AUDIO", name: "SFX", enabled: true, locked: false, order: 7 }
+  );
+  return tracks;
 }
 
 export class EditorTimelineAssemblyPipeline {
