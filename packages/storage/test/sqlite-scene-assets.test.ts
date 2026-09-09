@@ -52,6 +52,11 @@ import {
   type TimelineAssemblyIdFactory
 } from "@vpf/editor-timeline";
 import {
+  FinalRenderPipeline,
+  type FinalRenderClock,
+  type FinalRenderIdFactory
+} from "@vpf/final-render";
+import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
   type PreLinkHandoffIdFactory
@@ -83,6 +88,7 @@ import { SqliteFinalClipRepository } from "../src/final-clip.js";
 import { SqliteQcFallbackRepository } from "../src/qc-fallback.js";
 import { SqliteMediaBindingRepository } from "../src/media-binding.js";
 import { SqliteEditorTimelineRepository } from "../src/editor-timeline.js";
+import { SqliteFinalRenderRepository } from "../src/final-render.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -94,6 +100,7 @@ const finalClipClock: FinalClipClock = { nowIso: () => now };
 const qcFallbackClock: QcFallbackClock = { nowIso: () => now };
 const mediaBindingClock: MediaBindingClock = { nowIso: () => now };
 const editorTimelineClock: TimelineAssemblyClock = { nowIso: () => now };
+const finalRenderClock: FinalRenderClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -125,6 +132,10 @@ function mediaBindingIds(): MediaBindingIdFactory {
 }
 function editorTimelineIds(): TimelineAssemblyIdFactory {
   let n = 7000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function finalRenderIds(): FinalRenderIdFactory {
+  let n = 8000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -615,7 +626,7 @@ class QcFallbackDecisions implements QcFallbackDecisionPort {
   }
 }
 
-test("WF-07 -> WF-16 completes in one project.db through full editor timeline assembly", async () => {
+test("WF-07 -> WF-17 completes in one project.db through delivery-ready final render", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
@@ -1415,6 +1426,148 @@ test("WF-07 -> WF-16 completes in one project.db through full editor timeline as
     assert.equal(sceneAfterTimeline?.revision, sceneRevisionBeforeLink);
 
     timelineRepo.close();
+
+    const renderRepo = new SqliteFinalRenderRepository(dbPath);
+    const renderPipeline = new FinalRenderPipeline(
+      renderRepo,
+      finalRenderClock,
+      finalRenderIds()
+    );
+
+    const preparedRender = await renderPipeline.prepareRender({
+      projectId: "prj_10"
+    });
+    assert.equal(preparedRender.created, true);
+    assert.equal(preparedRender.renderAttempt.status, "READY");
+    assert.equal(preparedRender.renderAttempt.attempt, 1);
+    assert.equal(preparedRender.renderAttempt.expectedAudio, true);
+    assert.equal(
+      preparedRender.renderAttempt.paths.outputPath,
+      "out/prj_10/final.mp4"
+    );
+
+    const runningRender = await renderPipeline.markRunning({
+      projectId: "prj_10",
+      renderAttemptId: preparedRender.renderAttempt.id
+    });
+    assert.equal(runningRender.status, "RUNNING");
+
+    const importedRender = await renderPipeline.importRenderResult({
+      projectId: "prj_10",
+      renderAttemptId: runningRender.id,
+      result: {
+        schemaVersion: 1,
+        status: "RENDERED",
+        compositionId: "GenericFinalRender",
+        projectId: "prj_10",
+        projectSha256: runningRender.projectSha256,
+        renderedAt: now,
+        metadata: {
+          fps: 30,
+          width: 1080,
+          height: 1920,
+          durationInFrames: 120
+        },
+        output: {
+          path: "out/prj_10/final.mp4",
+          sizeBytes: 5000000,
+          sha256: "a".repeat(64),
+          codec: "h264",
+          audioCodec: "aac",
+          pixelFormat: "yuv420p",
+          crf: 18
+        },
+        probe: {
+          container: "mov,mp4,m4a,3gp,3g2,mj2",
+          videoCodec: "h264",
+          audioCodec: "aac",
+          pixelFormat: "yuv420p",
+          width: 1080,
+          height: 1920,
+          fps: 30,
+          durationMs: 4000,
+          hasAudioStream: true
+        }
+      }
+    });
+
+    assert.equal(importedRender.renderAttempt.status, "DELIVERY_READY");
+    assert.equal(importedRender.technicalQc.status, "PASS");
+    assert.deepEqual(importedRender.technicalQc.issueCodes, []);
+    assert.equal(importedRender.delivery.status, "READY");
+    assert.equal(importedRender.delivery.outputPath, "out/prj_10/final.mp4");
+    assert.equal(importedRender.delivery.outputSha256, "a".repeat(64));
+    assert.equal(importedRender.delivery.codec, "h264");
+    assert.equal(importedRender.delivery.audioCodec, "aac");
+    assert.equal(importedRender.delivery.pixelFormat, "yuv420p");
+
+    const storedRender = renderRepo.db.prepare(
+      `SELECT attempt, status, project_sha256, expected_audio
+       FROM final_render_attempts
+       WHERE project_id = ? AND id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10", runningRender.id) as {
+      attempt: number;
+      status: string;
+      project_sha256: string;
+      expected_audio: number;
+    };
+    assert.equal(storedRender.attempt, 1);
+    assert.equal(storedRender.status, "DELIVERY_READY");
+    assert.equal(storedRender.project_sha256, runningRender.projectSha256);
+    assert.equal(storedRender.expected_audio, 1);
+
+    const storedTechnicalQc = renderRepo.db.prepare(
+      `SELECT status, issue_codes_json, output_sha256
+       FROM final_render_technical_qc
+       WHERE project_id = ? AND render_attempt_id = ?
+       ORDER BY rowid DESC LIMIT 1`
+    ).get("prj_10", runningRender.id) as {
+      status: string;
+      issue_codes_json: string;
+      output_sha256: string;
+    };
+    assert.equal(storedTechnicalQc.status, "PASS");
+    assert.deepEqual(JSON.parse(storedTechnicalQc.issue_codes_json), []);
+    assert.equal(storedTechnicalQc.output_sha256, "a".repeat(64));
+
+    const storedDelivery = renderRepo.db.prepare(
+      `SELECT status, output_path, codec, audio_codec, pixel_format,
+              duration_in_frames, duration_ms
+       FROM final_delivery_manifests
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY rowid DESC LIMIT 1`
+    ).get("prj_10") as {
+      status: string;
+      output_path: string;
+      codec: string;
+      audio_codec: string;
+      pixel_format: string;
+      duration_in_frames: number;
+      duration_ms: number;
+    };
+    assert.deepEqual(storedDelivery, {
+      status: "READY",
+      output_path: "out/prj_10/final.mp4",
+      codec: "h264",
+      audio_codec: "aac",
+      pixel_format: "yuv420p",
+      duration_in_frames: 120,
+      duration_ms: 4000
+    });
+
+    const finalReadiness = await renderPipeline.getReadiness("prj_10");
+    assert.equal(finalReadiness.technicalQcPassed, true);
+    assert.equal(finalReadiness.deliveryReady, true);
+    assert.equal(finalReadiness.status, "DELIVERY_READY");
+
+    const sceneAfterFinalRender = await renderRepo.getScene(
+      "prj_10",
+      graph.scenes[0]!.id
+    );
+    assert.equal(sceneAfterFinalRender?.revision, sceneRevisionBeforeLink);
+
+    renderRepo.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
