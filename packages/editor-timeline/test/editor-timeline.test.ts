@@ -597,7 +597,7 @@ test("WF-16 assembles TTS, clip audio, BGM, SFX, subtitles, text, and graphics i
   assert.deepEqual(subtitle.generatedFromTtsIds, ["audio-narration"]);
   assert.equal(subtitle.fontFamily, "VITRO");
   assert.equal(subtitle.x, 540);
-  assert.equal(subtitle.width, 936.036);
+  assert.ok(Math.abs(subtitle.width - 936.036) < 0.000001);
 
   const title = result.output.editProject.items.find(item => item.id === "text-title");
   assert.equal(title?.type, "TEXT");
