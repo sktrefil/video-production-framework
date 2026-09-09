@@ -60,6 +60,13 @@ export interface SceneAssetRepository {
     event: WorkflowEvent;
     outbox: OutboxRecord;
   }): Promise<void>;
+  commitAssetCandidate(input: {
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    media?: MediaArtifact;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void>;
 
   createProviderJob(input: {
     job: ProviderJob;
@@ -158,6 +165,7 @@ export class SceneAssetValidationError extends Error {
       | "ASSET_DESIGN_INVALID"
       | "ASSET_NOT_FOUND"
       | "ASSET_GENERATION_NOT_READY"
+      | "ASSET_SOURCE_STRATEGY_INVALID"
       | "PROVIDER_JOB_NOT_FOUND"
       | "PROVIDER_JOB_NOT_COMPLETE"
       | "PROVIDER_JOB_NOT_FAILED"
@@ -417,6 +425,138 @@ export class SceneAssetPipeline {
     return next;
   }
 
+  async registerImportedImageCandidate(input: {
+    projectId: string;
+    assetId: string;
+    relativePath: string;
+    mimeType: string;
+    checksum: string;
+    width?: number;
+    height?: number;
+  }): Promise<{ asset: ProductionAsset; media: MediaArtifact }> {
+    validateRelativeMediaPath(input.relativePath);
+    if (!input.mimeType.toLowerCase().startsWith("image/")) {
+      throw new SceneAssetValidationError(
+        "MEDIA_TYPE_INVALID",
+        "Imported Asset candidate must use an image MIME type."
+      );
+    }
+    if (!input.checksum.trim()) {
+      throw new SceneAssetValidationError(
+        "MEDIA_CHECKSUM_REQUIRED",
+        "Imported media requires a checksum."
+      );
+    }
+
+    const asset = await this.repository.getLatestAsset(input.projectId, input.assetId);
+    if (asset === null) {
+      throw new SceneAssetValidationError("ASSET_NOT_FOUND", "Asset does not exist.");
+    }
+    if (asset.stale || asset.sourceStrategy !== "IMPORT") {
+      throw new SceneAssetValidationError(
+        "ASSET_SOURCE_STRATEGY_INVALID",
+        "Only current IMPORT Assets can attach an imported candidate."
+      );
+    }
+
+    const now = this.clock.nowIso();
+    const media: MediaArtifact = {
+      id: this.ids.next("med"),
+      projectId: input.projectId,
+      revision: 1,
+      lifecycleStatus: "ACTIVE",
+      createdAt: now,
+      updatedAt: now,
+      mediaType: "IMAGE",
+      relativePath: input.relativePath.replace(/\\/g, "/"),
+      mimeType: input.mimeType,
+      ...(input.width === undefined ? {} : { width: input.width }),
+      ...(input.height === undefined ? {} : { height: input.height }),
+      checksum: input.checksum,
+      mediaStatus: "AVAILABLE"
+    };
+    const nextAsset = nextAssetRevision(
+      asset,
+      {
+        assetStatus: "CANDIDATE_AVAILABLE",
+        candidateMediaIds: [...asset.candidateMediaIds, media.id]
+      },
+      now
+    );
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId: input.projectId,
+      eventType: "IMPORTED_IMAGE_CANDIDATE_REGISTERED",
+      targetType: "ASSET",
+      targetId: asset.id,
+      trigger: "USER",
+      payload: { mediaId: media.id }
+    });
+    await this.repository.commitAssetCandidate({
+      previousAsset: asset,
+      nextAsset,
+      media,
+      event,
+      outbox
+    });
+    return { asset: nextAsset, media };
+  }
+
+  async reuseImageCandidate(input: {
+    projectId: string;
+    assetId: string;
+    mediaId: string;
+  }): Promise<{ asset: ProductionAsset; media: MediaArtifact }> {
+    const asset = await this.repository.getLatestAsset(input.projectId, input.assetId);
+    if (asset === null) {
+      throw new SceneAssetValidationError("ASSET_NOT_FOUND", "Asset does not exist.");
+    }
+    if (asset.stale || asset.sourceStrategy !== "REUSE") {
+      throw new SceneAssetValidationError(
+        "ASSET_SOURCE_STRATEGY_INVALID",
+        "Only current REUSE Assets can attach existing media."
+      );
+    }
+    const media = await this.repository.getMedia(input.projectId, input.mediaId);
+    if (
+      media === null ||
+      media.mediaStatus !== "AVAILABLE" ||
+      media.mediaType !== "IMAGE"
+    ) {
+      throw new SceneAssetValidationError(
+        "MEDIA_NOT_FOUND",
+        "Reusable image media is unavailable."
+      );
+    }
+
+    if (asset.candidateMediaIds.includes(media.id)) {
+      return { asset, media };
+    }
+
+    const nextAsset = nextAssetRevision(
+      asset,
+      {
+        assetStatus: "CANDIDATE_AVAILABLE",
+        candidateMediaIds: [...asset.candidateMediaIds, media.id]
+      },
+      this.clock.nowIso()
+    );
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId: input.projectId,
+      eventType: "EXISTING_IMAGE_CANDIDATE_REUSED",
+      targetType: "ASSET",
+      targetId: asset.id,
+      trigger: "USER",
+      payload: { mediaId: media.id }
+    });
+    await this.repository.commitAssetCandidate({
+      previousAsset: asset,
+      nextAsset,
+      event,
+      outbox
+    });
+    return { asset: nextAsset, media };
+  }
+
   async createImageGenerationJob(input: {
     projectId: string;
     assetId: string;
@@ -428,6 +568,12 @@ export class SceneAssetPipeline {
     const asset = await this.repository.getLatestAsset(input.projectId, input.assetId);
     if (asset === null) {
       throw new SceneAssetValidationError("ASSET_NOT_FOUND", "Asset does not exist.");
+    }
+    if (asset.sourceStrategy !== "GENERATE") {
+      throw new SceneAssetValidationError(
+        "ASSET_SOURCE_STRATEGY_INVALID",
+        "Only GENERATE Assets can create image generation jobs."
+      );
     }
     if (
       asset.stale ||
@@ -1002,6 +1148,59 @@ export class SceneAssetPipeline {
     return { asset: nextAsset, approval };
   }
 
+  async exportImageJobPack(input: {
+    projectId: string;
+    jobIds: string[];
+  }): Promise<ImageJobPack> {
+    const jobs: ImageJobPackItem[] = [];
+    for (const jobId of [...new Set(input.jobIds)]) {
+      const job = await this.repository.getLatestProviderJob(input.projectId, jobId);
+      if (
+        job === null ||
+        job.jobType !== "IMAGE_GENERATION" ||
+        job.executionMode !== "MANUAL_EXTERNAL" ||
+        job.status !== "WAITING_EXTERNAL"
+      ) {
+        throw new SceneAssetValidationError(
+          "PROVIDER_JOB_NOT_COMPLETE",
+          `Job ${jobId} is not an exportable manual image job.`
+        );
+      }
+      const payload =
+        typeof job.inputPayload === "object" &&
+        job.inputPayload !== null
+          ? job.inputPayload as Record<string, unknown>
+          : {};
+      const prompt = typeof payload.prompt === "string" ? payload.prompt : "";
+      const negativePrompt =
+        typeof payload.negativePrompt === "string"
+          ? payload.negativePrompt
+          : undefined;
+      if (!prompt.trim()) {
+        throw new SceneAssetValidationError(
+          "ASSET_DESIGN_INVALID",
+          `Job ${jobId} does not contain an image prompt.`
+        );
+      }
+      jobs.push({
+        jobId: job.id,
+        assetId: job.targetId,
+        assetRevision: job.targetRevision,
+        provider: job.provider,
+        providerProfileVersion: job.providerProfileVersion,
+        prompt,
+        ...(negativePrompt === undefined ? {} : { negativePrompt }),
+        resultKey: job.id
+      });
+    }
+    return {
+      schemaVersion: "1.0",
+      projectId: input.projectId,
+      createdAt: this.clock.nowIso(),
+      jobs
+    };
+  }
+
   async reconcileDependencies(projectId: string): Promise<string[]> {
     const assets = await this.repository.listAssets(projectId);
     const staleIds: string[] = [];
@@ -1127,6 +1326,33 @@ export class SceneAssetPipeline {
   }
 }
 
+export interface ImageJobPackItem {
+  jobId: string;
+  assetId: string;
+  assetRevision: number;
+  provider: string;
+  providerProfileVersion: string;
+  prompt: string;
+  negativePrompt?: string;
+  resultKey: string;
+}
+
+export interface ImageJobPack {
+  schemaVersion: "1.0";
+  projectId: string;
+  createdAt: string;
+  jobs: ImageJobPackItem[];
+}
+
+export interface ImageResultImportItem {
+  jobId: string;
+  relativePath: string;
+  mimeType: string;
+  checksum: string;
+  width?: number;
+  height?: number;
+}
+
 export interface BatchItemResult<T> {
   targetId: string;
   ok: boolean;
@@ -1224,6 +1450,29 @@ export class SceneAssetBatchService {
           : { approvedById: input.approvedById })
       }),
       (item) => item.assetId
+    );
+  }
+
+  async importImageResults(input: {
+    projectId: string;
+    items: ImageResultImportItem[];
+  }): Promise<BatchResult<{
+    asset: ProductionAsset;
+    job: ProviderJob;
+    media: MediaArtifact;
+  }>> {
+    return this.run(
+      input.items,
+      (item) => this.pipeline.registerImageResult({
+        projectId: input.projectId,
+        jobId: item.jobId,
+        relativePath: item.relativePath,
+        mimeType: item.mimeType,
+        checksum: item.checksum,
+        ...(item.width === undefined ? {} : { width: item.width }),
+        ...(item.height === undefined ? {} : { height: item.height })
+      }),
+      (item) => item.jobId
     );
   }
 
@@ -1367,6 +1616,10 @@ function mapSceneAssetError(error: unknown): SceneAssetCommandResult<never> {
     ASSET_GENERATION_NOT_READY: {
       message: "현재 이미지 설계 상태에서는 생성을 시작할 수 없습니다.",
       action: "REVIEW_ASSET_DESIGN"
+    },
+    ASSET_SOURCE_STRATEGY_INVALID: {
+      message: "이 장면 이미지의 소스 방식과 현재 작업이 맞지 않습니다.",
+      action: "REVIEW_ASSET_SOURCE_STRATEGY"
     },
     PROVIDER_JOB_NOT_FOUND: {
       message: "이미지 생성 작업을 찾을 수 없습니다.",
