@@ -17,6 +17,7 @@ AI-assisted video production orchestration framework.
   - WF-15 — Generic Editor Motion Execution: PASS
   - WF-16 — Audio / TTS / Subtitle / BGM / SFX Timeline Assembly: PASS
   - WF-17 — Final Render / Technical QC / Delivery Manifest: PASS
+  - WF-18 — Final Output QC / Packaging / Publish Handoff: PASS
 
 ## Architecture
 
@@ -89,6 +90,16 @@ Technical QC
 delivery_manifest.json
 ↓
 DELIVERY_READY
+↓
+Final Output QC
+↓
+PASS / NEEDS_REVIEW / FIX_REQUIRED / BLOCKED
+↓
+Publish Package
+↓
+publish_handoff.json
+↓
+PUBLISH_HANDOFF_READY
 ```
 
 ## Final implementation policy
@@ -120,6 +131,8 @@ WF-15 resolves the previous motion-renderer bottleneck. EDITORIAL_MOVE / REUSE_R
 WF-16 adds revisioned approved editor-content assembly. Existing AUDIO MediaArtifacts are bound as TTS/Clip Audio/BGM/SFX on A1-A4, subtitle cues retain TTS provenance on T1, text overlays use T2, and graphics use G1. The V1 visual duration remains authoritative; audio/text/graphics cannot silently extend the composition. Only BGM may loop beyond its source window.
 
 WF-17 pins the READY editor timeline by assembly revision and project SHA, tracks render attempts/retries, and accepts a final render only after Technical QC. The actual Generic Editor probes the local MP4 with the bundled @remotion/media-parser, verifies container/video/audio codec, dimensions, fps, duration and audio-stream expectations, and validates the controlled H264/AAC/yuv420p render profile. Only a Technical-QC PASS produces a current delivery manifest with status READY; editor changes stale any previous render/delivery.
+
+WF-18 requires that current WF-17 delivery, pins Final Output QC to its exact output SHA, supports explicit human review approval, normalizes YouTube publish metadata, and creates a revisioned publish-package handoff. The actual editor runtime re-hashes the final MP4, physically copies the approved video/manifests/metadata/optional thumbnail into `out/<project_id>/publish`, hashes the package artifacts, and writes `publish_handoff.json`. Rerender or renewed Final Output QC makes the previous package stale. WF-18 stops before actual platform upload.
 
 ## Validation
 
