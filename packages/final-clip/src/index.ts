@@ -1679,6 +1679,62 @@ export class FinalClipPipeline {
     };
   }
 
+  async getReadiness(
+    projectId: string,
+    clipId: string
+  ): Promise<FinalClipReadiness> {
+    const clip = await this.requireCurrentClip(projectId, clipId);
+    const link = await this.context.getLink(projectId, clip.linkId);
+    const currentLinkMatches =
+      link !== null &&
+      !link.stale &&
+      link.revision === clip.linkRevision &&
+      link.implementationType === "CLIP" &&
+      link.implementationRefId === clip.id;
+
+    let providerPreflightPassed = false;
+    if (clip.providerPreflightId !== undefined) {
+      const preflight = await this.repository.getProviderPreflight(
+        projectId,
+        clip.providerPreflightId
+      );
+      providerPreflightPassed =
+        preflight !== null &&
+        preflight.status === "PASS" &&
+        preflight.safetySafe &&
+        preflight.capabilityCompatible &&
+        !preflight.requiresAlternativeRepresentation;
+    }
+
+    const finalDesignApproved = clip.finalDesignApprovalId !== undefined;
+    return {
+      clipId: clip.id,
+      currentLinkMatches,
+      finalDesignApproved,
+      providerPreflightRequired: clip.providerExecutionRequired,
+      providerPreflightPassed:
+        clip.providerExecutionRequired
+          ? providerPreflightPassed
+          : false,
+      videoGenerationReady:
+        currentLinkMatches &&
+        finalDesignApproved &&
+        clip.providerExecutionRequired &&
+        providerPreflightPassed &&
+        clip.clipStatus === "READY",
+      editorialReady:
+        currentLinkMatches &&
+        finalDesignApproved &&
+        !clip.providerExecutionRequired &&
+        clip.clipStatus === "READY",
+      candidateAvailable:
+        currentLinkMatches &&
+        clip.clipStatus === "CANDIDATE_AVAILABLE" &&
+        clip.candidateMediaIds.length > 0,
+      clipStatus: clip.clipStatus
+    };
+  }
+
   async reconcileDependencies(projectId: string): Promise<string[]> {
     const clips = await this.repository.listActiveClips(projectId);
     const staleClipIds: string[] = [];
@@ -1899,6 +1955,214 @@ export class FinalClipPipeline {
     }
     return media;
   }
+}
+
+export interface FinalClipReadiness {
+  clipId: string;
+  currentLinkMatches: boolean;
+  finalDesignApproved: boolean;
+  providerPreflightRequired: boolean;
+  providerPreflightPassed: boolean;
+  videoGenerationReady: boolean;
+  editorialReady: boolean;
+  candidateAvailable: boolean;
+  clipStatus: ProductionClip["clipStatus"];
+}
+
+export interface FinalClipCommandResult<T> {
+  ok: boolean;
+  value?: T;
+  code?: string;
+  userMessage: string;
+  recommendedAction?: string;
+}
+
+export class FinalClipCommandFacade {
+  constructor(private readonly pipeline: FinalClipPipeline) {}
+
+  async designFinalImplementation(
+    input: Parameters<FinalClipPipeline["designFinalImplementation"]>[0]
+  ): Promise<FinalClipCommandResult<FinalDesignOutcome>> {
+    try {
+      const value = await this.pipeline.designFinalImplementation(input);
+      if (value.kind === "ADDITIONAL_ASSET_REQUIRED") {
+        return {
+          ok: true,
+          value,
+          userMessage: "현재 승인 이미지 쌍만으로는 안정적인 연결이 어려워 추가 이미지가 필요합니다.",
+          recommendedAction: "CREATE_ADDITIONAL_ASSET"
+        };
+      }
+      if (value.kind === "CUT") {
+        return {
+          ok: true,
+          value,
+          userMessage: "AI 영상 생성 없이 편집 전환으로 연결하도록 설계했습니다.",
+          recommendedAction: value.cut.ready
+            ? "CONTINUE_PRODUCTION"
+            : "REVIEW_FINAL_CUT_DESIGN"
+        };
+      }
+      return {
+        ok: true,
+        value,
+        userMessage: value.clip.providerExecutionRequired
+          ? "영상 클립 설계를 준비했습니다."
+          : "편집형 클립 설계를 준비했습니다.",
+        recommendedAction:
+          value.clip.finalDesignApprovalId === undefined
+            ? "REVIEW_FINAL_CLIP_DESIGN"
+            : value.clip.providerExecutionRequired
+              ? "RUN_PROVIDER_PRE_QC"
+              : "CONTINUE_PRODUCTION"
+      };
+    } catch (error) {
+      return mapFinalClipError(error);
+    }
+  }
+
+  async createVideoGenerationJob(
+    input: Parameters<FinalClipPipeline["createVideoGenerationJob"]>[0]
+  ): Promise<FinalClipCommandResult<Awaited<ReturnType<FinalClipPipeline["createVideoGenerationJob"]>>>> {
+    try {
+      const value = await this.pipeline.createVideoGenerationJob(input);
+      return {
+        ok: true,
+        value,
+        userMessage:
+          value.job.executionMode === "MANUAL_EXTERNAL"
+            ? "외부 영상 생성용 작업을 준비했습니다."
+            : "영상 생성 작업을 준비했습니다.",
+        recommendedAction:
+          value.job.executionMode === "MANUAL_EXTERNAL"
+            ? "EXPORT_VIDEO_JOB_PACK"
+            : "START_PROVIDER_JOB"
+      };
+    } catch (error) {
+      return mapFinalClipError(error);
+    }
+  }
+}
+
+function mapFinalClipError(error: unknown): FinalClipCommandResult<never> {
+  if (!(error instanceof FinalClipValidationError)) {
+    return {
+      ok: false,
+      code: "FINAL_CLIP_SYSTEM_ERROR",
+      userMessage: "영상 클립 처리 중 시스템 오류가 발생했습니다.",
+      recommendedAction: "RETRY"
+    };
+  }
+
+  const map: Record<
+    FinalClipValidationError["code"],
+    { message: string; action: string }
+  > = {
+    LINK_NOT_FOUND: {
+      message: "장면 연결 정보를 찾을 수 없습니다.",
+      action: "REBUILD_LINK_GRAPH"
+    },
+    HANDOFF_PASS_REQUIRED: {
+      message: "먼저 실제 승인 이미지 사이의 연결 검사를 통과해야 합니다.",
+      action: "RUN_HANDOFF_QC"
+    },
+    LINK_BOUND_ASSETS_REQUIRED: {
+      message: "연결에 사용된 승인 이미지가 현재 상태와 맞지 않습니다.",
+      action: "REBIND_APPROVED_ASSETS"
+    },
+    LINK_BOUND_MEDIA_REQUIRED: {
+      message: "연결에 필요한 승인 이미지 파일을 찾을 수 없습니다.",
+      action: "RESTORE_OR_RESELECT_MEDIA"
+    },
+    FINAL_CLIP_DECISION_INVALID: {
+      message: "최종 클립 설계 결과가 불완전합니다.",
+      action: "REGENERATE_FINAL_CLIP_DESIGN"
+    },
+    ADDITIONAL_ASSET_REQUIRED: {
+      message: "안정적인 연결을 위해 추가 이미지가 필요합니다.",
+      action: "CREATE_ADDITIONAL_ASSET"
+    },
+    CLIP_NOT_FOUND: {
+      message: "영상 클립 설계를 찾을 수 없습니다.",
+      action: "REFRESH_CLIPS"
+    },
+    CUT_NOT_FOUND: {
+      message: "편집 전환 설계를 찾을 수 없습니다.",
+      action: "REFRESH_CLIPS"
+    },
+    FINAL_DESIGN_APPROVAL_REQUIRED: {
+      message: "Provider 실행 전에 최종 클립 설계를 승인해야 합니다.",
+      action: "REVIEW_FINAL_CLIP_DESIGN"
+    },
+    FINAL_DESIGN_NOT_REVIEWABLE: {
+      message: "현재 최종 설계는 수동 승인 대상이 아닙니다.",
+      action: "REFRESH_CLIP"
+    },
+    PROVIDER_EXECUTION_NOT_REQUIRED: {
+      message: "이 클립은 AI 영상 생성 없이 편집 단계에서 처리합니다.",
+      action: "CONTINUE_PRODUCTION"
+    },
+    PROVIDER_PREFLIGHT_NOT_READY: {
+      message: "현재 Provider/Profile의 실행 전 검사를 통과하지 못했습니다.",
+      action: "RUN_PROVIDER_PRE_QC"
+    },
+    PROVIDER_PREFLIGHT_BLOCKED: {
+      message: "현재 Provider에서는 이 영상 설계를 실행할 수 없습니다.",
+      action: "REVIEW_SAFE_ALTERNATIVE"
+    },
+    PROVIDER_PREFLIGHT_REVIEW_NOT_APPROVABLE: {
+      message: "안전하지 않거나 호환되지 않는 Provider 결과는 승인으로 우회할 수 없습니다.",
+      action: "REVISE_FINAL_CLIP_OR_PROVIDER"
+    },
+    PROVIDER_PREFLIGHT_NOT_FOUND: {
+      message: "Provider 실행 전 검사 기록을 찾을 수 없습니다.",
+      action: "RUN_PROVIDER_PRE_QC"
+    },
+    VIDEO_JOB_NOT_READY: {
+      message: "현재 클립은 영상 생성 작업을 시작할 준비가 되지 않았습니다.",
+      action: "CHECK_PROVIDER_PRE_QC"
+    },
+    PROVIDER_JOB_NOT_FOUND: {
+      message: "영상 생성 작업을 찾을 수 없습니다.",
+      action: "REFRESH_PROVIDER_JOBS"
+    },
+    PROVIDER_JOB_NOT_FAILED: {
+      message: "실패한 영상 생성 작업만 재시도할 수 있습니다.",
+      action: "REFRESH_PROVIDER_JOBS"
+    },
+    PROVIDER_JOB_RESULT_NOT_ALLOWED: {
+      message: "현재 상태의 영상 생성 작업에는 결과를 등록할 수 없습니다.",
+      action: "REFRESH_PROVIDER_JOBS"
+    },
+    MEDIA_PATH_INVALID: {
+      message: "영상 파일 경로가 안전한 프로젝트 상대경로가 아닙니다.",
+      action: "IMPORT_VIDEO_AGAIN"
+    },
+    VIDEO_MEDIA_REQUIRED: {
+      message: "등록된 결과가 영상 파일 형식이 아닙니다.",
+      action: "IMPORT_VIDEO_AGAIN"
+    },
+    MEDIA_CHECKSUM_REQUIRED: {
+      message: "영상 파일 검증 정보가 없습니다.",
+      action: "IMPORT_VIDEO_AGAIN"
+    },
+    VIDEO_DURATION_INVALID: {
+      message: "영상 길이 정보가 올바르지 않습니다.",
+      action: "IMPORT_VIDEO_AGAIN"
+    },
+    IMPLEMENTATION_STALE: {
+      message: "이 영상 결과는 이전 장면 연결 또는 클립 설계를 기준으로 만들어졌습니다.",
+      action: "REBUILD_OR_REGENERATE_CLIP"
+    }
+  };
+
+  const item = map[error.code];
+  return {
+    ok: false,
+    code: error.code,
+    userMessage: item.message,
+    recommendedAction: item.action
+  };
 }
 
 export class FinalClipBatchService {
