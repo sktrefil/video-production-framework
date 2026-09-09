@@ -105,6 +105,28 @@ function moveItem(order = 2) {
   };
 }
 
+function reframeItem(order = 2) {
+  return {
+    order,
+    bindingId: "bind-reframe",
+    bindingRevision: 1,
+    linkId: "link-reframe",
+    linkRevision: 3,
+    implementationType: "CLIP" as const,
+    implementationId: "clip-reframe",
+    implementationRevision: 2,
+    bindingKind: "EDITORIAL" as const,
+    clipMode: "REUSE_REFRAME" as const,
+    mediaId: "img3",
+    relativePath: "images/reframe.png",
+    durationMs: 3000,
+    transitionMethod: "DIRECT" as const,
+    cameraMove: "slow 6 percent pan left",
+    subjectMotion: "none",
+    environmentMotion: "none"
+  };
+}
+
 function manifest(items: EditorHandoffManifest["items"]): EditorHandoffManifest {
   return {
     schemaVersion: "1.0",
@@ -242,7 +264,7 @@ test("WF-14 keeps CUT as a zero-duration boundary instead of a fake media item",
   assert.equal(result.output.editProject.project.durationInFrames, 180);
 });
 
-test("WF-14 preserves unsupported editorial motion as a directive and blocks Remotion-ready", async () => {
+test("WF-15 compiles EDITORIAL_MOVE into executable Generic Editor motion", async () => {
   const repo = new FakeRepo();
   const handoff = new FakeHandoff();
   handoff.current = manifest([videoItem(1), moveItem(2)]);
@@ -254,19 +276,49 @@ test("WF-14 preserves unsupported editorial motion as a directive and blocks Rem
     profile
   });
 
-  assert.equal(result.output.status, "PARTIAL");
+  assert.equal(result.output.status, "READY");
   assert.equal(result.output.motionDirectives.length, 1);
   assert.equal(result.output.motionDirectives[0]?.clipMode, "EDITORIAL_MOVE");
-  assert.equal(result.output.motionDirectives[0]?.supportedByCurrentRenderer, false);
-  assert.ok(
-    result.output.blockers.includes(
-      "CURRENT_RENDERER_MOTION_UNSUPPORTED:bind-move"
-    )
-  );
+  assert.equal(result.output.motionDirectives[0]?.supportedByCurrentRenderer, true);
+  assert.deepEqual(result.output.motionDirectives[0]?.compiledMotion, {
+    kind: "TRANSFORM",
+    from: { x: 0, y: 0, scale: 1, rotation: 0, opacity: 1 },
+    to: { x: 0, y: 0, scale: 1.05, rotation: 0, opacity: 1 },
+    easing: "EASE_IN_OUT"
+  });
+
+  const image = result.output.editProject.items[1];
+  assert.equal(image?.type, "IMAGE");
+  if (image?.type !== "IMAGE") throw new Error("Expected IMAGE");
+  assert.deepEqual(image.motion, result.output.motionDirectives[0]?.compiledMotion);
 
   const readiness = await pipeline.getReadiness("p1");
   assert.equal(readiness.timelineAssemblyReady, true);
-  assert.equal(readiness.remotionHandoffReady, false);
+  assert.equal(readiness.remotionHandoffReady, true);
+});
+
+test("WF-15 compiles REUSE_REFRAME directional motion without exposing frame edges", async () => {
+  const repo = new FakeRepo();
+  const handoff = new FakeHandoff();
+  handoff.current = manifest([reframeItem(1)]);
+  const pipeline = new EditorTimelineAssemblyPipeline(repo, handoff, clock, ids());
+
+  const result = await pipeline.assembleProject({
+    projectId: "p1",
+    projectName: "History Project",
+    profile
+  });
+
+  assert.equal(result.output.status, "READY");
+  const image = result.output.editProject.items[0];
+  assert.equal(image?.type, "IMAGE");
+  if (image?.type !== "IMAGE") throw new Error("Expected IMAGE");
+  assert.deepEqual(image.motion, {
+    kind: "TRANSFORM",
+    from: { x: 0, y: 0, scale: 1.06, rotation: 0, opacity: 1 },
+    to: { x: -65, y: 0, scale: 1.06, rotation: 0, opacity: 1 },
+    easing: "EASE_IN_OUT"
+  });
 });
 
 test("WF-14 is idempotent for identical bindings and timeline profile", async () => {
