@@ -13,6 +13,7 @@ AI-assisted video production orchestration framework.
   - WF-11 — Final Clip / Provider Job Pipeline: PASS
   - WF-12 — QC / Fallback Engine: PASS
   - WF-13 — Final Media Binding / Editor Handoff: PASS
+  - WF-14 — Editor / Timeline Assembly: PASS
 
 ## Architecture
 
@@ -58,7 +59,11 @@ Final Media Binding
 ↓
 media_binding.json
 ↓
-Editor / Remotion Handoff READY
+Editor / Timeline Assembly
+↓
+Generic Editor edit_project.json
+↓
+Remotion-ready visual timeline
 ```
 
 ## Final implementation policy
@@ -82,6 +87,8 @@ CUT
 Generated Provider media remains a Candidate until WF-12 QC and approval. TRIM_PASS preserves the approved usable range instead of discarding an otherwise usable clip.
 
 WF-13 binds only current approved implementations. Provider video bindings require the durable selected-media approval and PASS/TRIM_PASS QC; editorial modes bind the approved START image; CUT is emitted as a media-free editor instruction. The editor handoff is exported as a `media_binding.json`-shaped manifest and becomes READY only when every current implementation is bound.
+
+WF-14 converts that handoff into the existing Generic Editor schemaVersion 1 visual timeline and produces an `edit_project.json`-compatible project. VIDEO trim windows are converted to source frames, STATIC_HOLD becomes IMAGE, and CUT remains a zero-duration boundary. EDITORIAL_MOVE / REUSE_REFRAME motion intent is preserved as a directive and Remotion readiness is blocked until the current Generic Editor gains executable motion support.
 
 ## Validation
 
