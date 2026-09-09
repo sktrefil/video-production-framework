@@ -290,6 +290,19 @@ test("WF-14 is idempotent for identical bindings and timeline profile", async ()
   assert.equal(second.assembly.id, first.assembly.id);
   assert.equal(second.assembly.revision, first.assembly.revision);
   assert.equal(repo.history.length, 1);
+
+  const changedProfile = await pipeline.assembleProject({
+    projectId: "p1",
+    projectName: "History Project",
+    profile: { ...profile, videoVolume: 0.25 }
+  });
+  assert.equal(changedProfile.created, true);
+  assert.equal(changedProfile.assembly.id, first.assembly.id);
+  assert.equal(changedProfile.assembly.revision, first.assembly.revision + 1);
+  const changedVideo = changedProfile.output.editProject.items[0];
+  assert.equal(changedVideo?.type, "VIDEO");
+  if (changedVideo?.type !== "VIDEO") throw new Error("Expected VIDEO");
+  assert.equal(changedVideo.volume, 0.25);
 });
 
 test("WF-14 marks an existing assembly stale when a source binding revision changes", async () => {
