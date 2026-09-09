@@ -67,6 +67,7 @@ export type ApprovalTargetType =
   | "PROJECT_STYLE"
   | "IDENTITY_ANCHOR"
   | "ASSET"
+  | "LINK"
   | "CLIP";
 
 export interface ApprovalRecord {
@@ -337,4 +338,51 @@ export interface QcResult extends BaseEntity {
   rootCause?: string;
   recommendedAction?: string;
   fallback?: string;
+}
+
+
+export type LinkScope =
+  | "SEQUENCE_LOCAL"
+  | "SEQUENCE_BOUNDARY"
+  | "CHAPTER_BOUNDARY"
+  | "FULL_VIDEO_PRIMARY";
+
+export type LinkStatus =
+  | "NOT_PLANNED"
+  | "PRE_LINK_DRAFT"
+  | "PRE_LINK_APPROVED"
+  | "WAITING_FOR_ASSETS"
+  | "HANDOFF_QC_PENDING"
+  | "HANDOFF_PASS"
+  | "HANDOFF_NEEDS_REVIEW"
+  | "FINAL_DESIGN_READY"
+  | "IMPLEMENTED"
+  | "REWORK_REQUIRED";
+
+export type HandoffChannel = "VISUAL" | "AUDIO" | "EDIT";
+export type PreLinkMatch = "MATCH" | "PARTIAL" | "MISMATCH" | "NOT_EVALUATED";
+
+export interface ProductionLink extends BaseEntity, VisualFreshness {
+  fromSceneId: string;
+  fromSceneRevision: number;
+  toSceneId: string;
+  toSceneRevision: number;
+  linkScope: LinkScope;
+  preLinkRequired: boolean;
+  continuityLevel: string;
+  stateChange: string;
+  handoffIntent: string;
+  handoffAnchor: string[];
+  handoffChannels: HandoffChannel[];
+  transitionIntent: string;
+  preLinkApprovalId?: string;
+  fromAssetId?: string;
+  fromAssetRevision?: number;
+  fromMediaId?: string;
+  toAssetId?: string;
+  toAssetRevision?: number;
+  toMediaId?: string;
+  handoffQcId?: string;
+  preLinkMatch: PreLinkMatch;
+  linkStatus: LinkStatus;
 }
