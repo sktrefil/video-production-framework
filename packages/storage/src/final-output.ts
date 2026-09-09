@@ -142,7 +142,7 @@ export class SqliteFinalOutputRepository
       if (input.previousQc !== null) {
         this.supersedeQc(input.previousQc, input.event.createdAt);
       }
-      this.insertQc(input.nextQc);
+      this.insertFinalOutputQc(input.nextQc);
       if (input.approval !== undefined) {
         insertFinalOutputApproval(this.db, input.approval);
       }
@@ -178,7 +178,7 @@ export class SqliteFinalOutputRepository
     })();
   }
 
-  private insertQc(qc: FinalOutputQcRecord): void {
+  private insertFinalOutputQc(qc: FinalOutputQcRecord): void {
     this.db.prepare(
       "INSERT INTO final_output_qc_records (id, project_id, revision, lifecycle_status, render_attempt_id, render_attempt_revision, delivery_manifest_id, delivery_manifest_revision, project_sha256, output_path, output_sha256, status, confidence, issue_codes_json, notes_json, review_required, review_approval_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(
