@@ -361,7 +361,7 @@ export class SqlitePreLinkHandoffRepository
     this.db.transaction(() => {
       this.supersedeLink(input.previous, input.event.createdAt);
       this.insertLink(input.next);
-      this.insertQc(input.qc);
+      this.insertLinkQc(input.qc);
       insertEvent(this.db, input.event, input.outbox);
     })();
   }
@@ -464,7 +464,7 @@ export class SqlitePreLinkHandoffRepository
       );
   }
 
-  private insertQc(qc: QcResult): void {
+  private insertLinkQc(qc: QcResult): void {
     this.db.prepare(`INSERT INTO qc_results
       (id, project_id, revision, lifecycle_status, qc_type, target_type,
        target_id, target_revision, media_id, qc_status, severity, confidence,
