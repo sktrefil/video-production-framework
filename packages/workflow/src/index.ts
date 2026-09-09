@@ -43,6 +43,7 @@ export interface WorkflowEvent {
   targetType: string;
   targetId: string;
   trigger: "USER" | "SYSTEM" | "PROVIDER_RESULT" | "QC_RESULT" | "WORKFLOW_ENGINE" | "MIGRATION";
+  payload?: unknown;
   createdAt: string;
 }
 
