@@ -2,11 +2,15 @@
   "name": "@vpf/storage",
   "version": "0.1.0",
   "type": "module",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./visual-identity": "./dist/visual-identity.js"
+  },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",
     "@vpf/story": "0.1.0",
+    "@vpf/visual-identity": "0.1.0",
     "@vpf/workflow": "0.1.0",
     "better-sqlite3": "^11.10.0"
   },
