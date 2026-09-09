@@ -77,6 +77,21 @@ export interface SceneAssetRepository {
     event: WorkflowEvent;
     outbox: OutboxRecord;
   }): Promise<void>;
+  commitProviderJobFailure(input: {
+    previousJob: ProviderJob;
+    nextJob: ProviderJob;
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void>;
+  createRetryProviderJob(input: {
+    job: ProviderJob;
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void>;
 
   getMedia(projectId: string, mediaId: string): Promise<MediaArtifact | null>;
   getLatestQcForMedia(
@@ -144,6 +159,7 @@ export class SceneAssetValidationError extends Error {
       | "ASSET_GENERATION_NOT_READY"
       | "PROVIDER_JOB_NOT_FOUND"
       | "PROVIDER_JOB_NOT_COMPLETE"
+      | "PROVIDER_JOB_NOT_FAILED"
       | "MEDIA_PATH_INVALID"
       | "MEDIA_TYPE_INVALID"
       | "MEDIA_CHECKSUM_REQUIRED"
@@ -406,10 +422,14 @@ export class SceneAssetPipeline {
     if (asset === null) {
       throw new SceneAssetValidationError("ASSET_NOT_FOUND", "Asset does not exist.");
     }
-    if (asset.stale || asset.assetStatus !== "DESIGNED") {
+    if (
+      asset.stale ||
+      (asset.assetStatus !== "DESIGNED" &&
+        asset.assetStatus !== "REGENERATE_REQUIRED")
+    ) {
       throw new SceneAssetValidationError(
         "ASSET_GENERATION_NOT_READY",
-        "Asset must be current and DESIGNED before image generation."
+        "Asset must be current and DESIGNED or REGENERATE_REQUIRED before image generation."
       );
     }
 
@@ -475,6 +495,185 @@ export class SceneAssetPipeline {
     await this.repository.createProviderJob({
       job,
       asset: nextAsset,
+      event,
+      outbox
+    });
+    return { asset: nextAsset, job };
+  }
+
+  async markImageJobFailed(input: {
+    projectId: string;
+    jobId: string;
+    errorCode: string;
+    errorDetail?: string;
+  }): Promise<{ asset: ProductionAsset; job: ProviderJob }> {
+    const previousJob = await this.repository.getLatestProviderJob(
+      input.projectId,
+      input.jobId
+    );
+    if (previousJob === null) {
+      throw new SceneAssetValidationError(
+        "PROVIDER_JOB_NOT_FOUND",
+        "Provider Job does not exist."
+      );
+    }
+    if (
+      previousJob.status === "COMPLETE" ||
+      previousJob.status === "CANCELLED"
+    ) {
+      throw new SceneAssetValidationError(
+        "PROVIDER_JOB_NOT_COMPLETE",
+        "Completed or cancelled Provider Job cannot be marked failed."
+      );
+    }
+    const previousAsset = await this.repository.getLatestAsset(
+      input.projectId,
+      previousJob.targetId
+    );
+    if (previousAsset === null) {
+      throw new SceneAssetValidationError("ASSET_NOT_FOUND", "Target Asset does not exist.");
+    }
+
+    const now = this.clock.nowIso();
+    const nextJob: ProviderJob = {
+      ...previousJob,
+      revision: previousJob.revision + 1,
+      updatedAt: now,
+      status: "FAILED",
+      errorCode: input.errorCode,
+      ...(input.errorDetail === undefined
+        ? {}
+        : { errorDetail: input.errorDetail })
+    };
+    const nextAsset = nextAssetRevision(
+      previousAsset,
+      { assetStatus: "REGENERATE_REQUIRED" },
+      now
+    );
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId: input.projectId,
+      eventType: "IMAGE_GENERATION_JOB_FAILED",
+      targetType: "ASSET",
+      targetId: previousAsset.id,
+      trigger: "PROVIDER_RESULT",
+      payload: {
+        jobId: previousJob.id,
+        errorCode: input.errorCode
+      }
+    });
+    await this.repository.commitProviderJobFailure({
+      previousJob,
+      nextJob,
+      previousAsset,
+      nextAsset,
+      event,
+      outbox
+    });
+    return { asset: nextAsset, job: nextJob };
+  }
+
+  async retryImageGenerationJob(input: {
+    projectId: string;
+    failedJobId: string;
+    format: ProjectFormat;
+    executionMode?: ProviderExecutionMode;
+  }): Promise<{ asset: ProductionAsset; job: ProviderJob }> {
+    const failedJob = await this.repository.getLatestProviderJob(
+      input.projectId,
+      input.failedJobId
+    );
+    if (failedJob === null) {
+      throw new SceneAssetValidationError(
+        "PROVIDER_JOB_NOT_FOUND",
+        "Failed Provider Job does not exist."
+      );
+    }
+    if (failedJob.status !== "FAILED") {
+      throw new SceneAssetValidationError(
+        "PROVIDER_JOB_NOT_FAILED",
+        "Only FAILED Provider Jobs can use Retry Failed."
+      );
+    }
+    const asset = await this.repository.getLatestAsset(
+      input.projectId,
+      failedJob.targetId
+    );
+    if (
+      asset === null ||
+      asset.stale ||
+      asset.assetStatus !== "REGENERATE_REQUIRED"
+    ) {
+      throw new SceneAssetValidationError(
+        "ASSET_GENERATION_NOT_READY",
+        "Target Asset is not ready for a failed-job retry."
+      );
+    }
+
+    const resolved = await this.resolveContext({
+      projectId: input.projectId,
+      sceneId: asset.owner.id,
+      format: input.format,
+      formatProfileVersion: asset.formatProfileVersion
+    });
+    const prompt = await this.decisions.compileImagePrompt({
+      ...resolved,
+      asset
+    });
+    if (!prompt.prompt.trim()) {
+      throw new SceneAssetValidationError(
+        "ASSET_DESIGN_INVALID",
+        "IMAGE_PROMPT returned an empty provider execution prompt."
+      );
+    }
+
+    const executionMode = input.executionMode ?? failedJob.executionMode;
+    const now = this.clock.nowIso();
+    const job: ProviderJob = {
+      id: this.ids.next("job"),
+      projectId: input.projectId,
+      revision: 1,
+      lifecycleStatus: "ACTIVE",
+      createdAt: now,
+      updatedAt: now,
+      jobType: "IMAGE_GENERATION",
+      provider: failedJob.provider,
+      providerProfileVersion: failedJob.providerProfileVersion,
+      targetType: "ASSET",
+      targetId: asset.id,
+      targetRevision: asset.revision,
+      executionMode,
+      status: executionMode === "AUTOMATED" ? "READY" : "WAITING_EXTERNAL",
+      attempt: failedJob.attempt + 1,
+      retryOfJobId: failedJob.id,
+      inputPayload: {
+        prompt: prompt.prompt,
+        ...(prompt.negativePrompt === undefined
+          ? {}
+          : { negativePrompt: prompt.negativePrompt })
+      },
+      resultMediaIds: []
+    };
+    const nextAsset = nextAssetRevision(
+      asset,
+      { assetStatus: "GENERATING" },
+      now
+    );
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId: input.projectId,
+      eventType: "IMAGE_GENERATION_JOB_RETRIED",
+      targetType: "ASSET",
+      targetId: asset.id,
+      trigger: "USER",
+      payload: {
+        failedJobId: failedJob.id,
+        retryJobId: job.id,
+        attempt: job.attempt
+      }
+    });
+    await this.repository.createRetryProviderJob({
+      job,
+      previousAsset: asset,
+      nextAsset,
       event,
       outbox
     });
@@ -918,6 +1117,161 @@ export class SceneAssetPipeline {
   }
 }
 
+export interface BatchItemResult<T> {
+  targetId: string;
+  ok: boolean;
+  value?: T;
+  code?: string;
+  message?: string;
+}
+
+export interface BatchResult<T> {
+  status: "COMPLETE" | "PARTIAL_COMPLETE" | "FAILED";
+  total: number;
+  succeeded: number;
+  failed: number;
+  items: BatchItemResult<T>[];
+}
+
+export class SceneAssetBatchService {
+  constructor(private readonly pipeline: SceneAssetPipeline) {}
+
+  async designPrimarySceneAssets(input: {
+    projectId: string;
+    sceneIds: string[];
+    format: ProjectFormat;
+    formatProfileVersion: string;
+  }): Promise<BatchResult<ProductionAsset>> {
+    return this.run(
+      [...new Set(input.sceneIds)],
+      (sceneId) => this.pipeline.designPrimarySceneAsset({
+        projectId: input.projectId,
+        sceneId,
+        format: input.format,
+        formatProfileVersion: input.formatProfileVersion
+      })
+    );
+  }
+
+  async createImageGenerationJobs(input: {
+    projectId: string;
+    assetIds: string[];
+    format: ProjectFormat;
+    provider: string;
+    providerProfileVersion: string;
+    executionMode: ProviderExecutionMode;
+  }): Promise<BatchResult<{ asset: ProductionAsset; job: ProviderJob }>> {
+    return this.run(
+      [...new Set(input.assetIds)],
+      (assetId) => this.pipeline.createImageGenerationJob({
+        projectId: input.projectId,
+        assetId,
+        format: input.format,
+        provider: input.provider,
+        providerProfileVersion: input.providerProfileVersion,
+        executionMode: input.executionMode
+      })
+    );
+  }
+
+  async runImageQc(input: {
+    projectId: string;
+    items: Array<{ assetId: string; mediaId: string }>;
+    format: ProjectFormat;
+  }): Promise<BatchResult<{
+    asset: ProductionAsset;
+    qc: QcResult;
+    approval?: ApprovalRecord;
+  }>> {
+    return this.run(
+      input.items,
+      (item) => this.pipeline.runImageQc({
+        projectId: input.projectId,
+        assetId: item.assetId,
+        mediaId: item.mediaId,
+        format: input.format
+      }),
+      (item) => item.assetId
+    );
+  }
+
+  async approveAssets(input: {
+    projectId: string;
+    items: Array<{ assetId: string; mediaId: string }>;
+    approvedById?: string;
+  }): Promise<BatchResult<{
+    asset: ProductionAsset;
+    approval: ApprovalRecord;
+  }>> {
+    return this.run(
+      input.items,
+      (item) => this.pipeline.approveAsset({
+        projectId: input.projectId,
+        assetId: item.assetId,
+        mediaId: item.mediaId,
+        ...(input.approvedById === undefined
+          ? {}
+          : { approvedById: input.approvedById })
+      }),
+      (item) => item.assetId
+    );
+  }
+
+  async retryFailedJobs(input: {
+    projectId: string;
+    failedJobIds: string[];
+    format: ProjectFormat;
+  }): Promise<BatchResult<{ asset: ProductionAsset; job: ProviderJob }>> {
+    return this.run(
+      [...new Set(input.failedJobIds)],
+      (jobId) => this.pipeline.retryImageGenerationJob({
+        projectId: input.projectId,
+        failedJobId: jobId,
+        format: input.format
+      })
+    );
+  }
+
+  private async run<TInput, TOutput>(
+    inputs: TInput[],
+    runner: (input: TInput) => Promise<TOutput>,
+    targetId: (input: TInput) => string = (input) => String(input)
+  ): Promise<BatchResult<TOutput>> {
+    const items: BatchItemResult<TOutput>[] = [];
+    for (const input of inputs) {
+      try {
+        items.push({
+          targetId: targetId(input),
+          ok: true,
+          value: await runner(input)
+        });
+      } catch (error) {
+        items.push({
+          targetId: targetId(input),
+          ok: false,
+          ...(error instanceof SceneAssetValidationError
+            ? { code: error.code, message: error.message }
+            : { code: "SCENE_ASSET_SYSTEM_ERROR", message: "Unexpected error" })
+        });
+      }
+    }
+    const succeeded = items.filter((item) => item.ok).length;
+    const failed = items.length - succeeded;
+    return {
+      status:
+        failed === 0
+          ? "COMPLETE"
+          : succeeded === 0
+            ? "FAILED"
+            : "PARTIAL_COMPLETE",
+      total: items.length,
+      succeeded,
+      failed,
+      items
+    };
+  }
+}
+
 export interface SceneAssetCommandResult<T> {
   ok: boolean;
   value?: T;
@@ -1011,6 +1365,10 @@ function mapSceneAssetError(error: unknown): SceneAssetCommandResult<never> {
     PROVIDER_JOB_NOT_COMPLETE: {
       message: "이 생성 작업에는 결과를 등록할 수 없습니다.",
       action: "RETRY_IMAGE_JOB"
+    },
+    PROVIDER_JOB_NOT_FAILED: {
+      message: "실패한 작업만 '실패 작업 재시도'를 사용할 수 있습니다.",
+      action: "REFRESH_PROVIDER_JOBS"
     },
     MEDIA_PATH_INVALID: {
       message: "가져온 이미지 파일 경로가 안전한 프로젝트 경로가 아닙니다.",
