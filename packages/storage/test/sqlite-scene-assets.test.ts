@@ -46,6 +46,11 @@ import {
   type MediaBindingIdFactory
 } from "@vpf/media-binding";
 import {
+  EditorTimelineAssemblyPipeline,
+  type TimelineAssemblyClock,
+  type TimelineAssemblyIdFactory
+} from "@vpf/editor-timeline";
+import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
   type PreLinkHandoffIdFactory
@@ -76,6 +81,7 @@ import { SqlitePreLinkHandoffRepository } from "../src/prelink-handoff.js";
 import { SqliteFinalClipRepository } from "../src/final-clip.js";
 import { SqliteQcFallbackRepository } from "../src/qc-fallback.js";
 import { SqliteMediaBindingRepository } from "../src/media-binding.js";
+import { SqliteEditorTimelineRepository } from "../src/editor-timeline.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -86,6 +92,7 @@ const linkClock: PreLinkHandoffClock = { nowIso: () => now };
 const finalClipClock: FinalClipClock = { nowIso: () => now };
 const qcFallbackClock: QcFallbackClock = { nowIso: () => now };
 const mediaBindingClock: MediaBindingClock = { nowIso: () => now };
+const editorTimelineClock: TimelineAssemblyClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -113,6 +120,10 @@ function qcFallbackIds(): QcFallbackIdFactory {
 }
 function mediaBindingIds(): MediaBindingIdFactory {
   let n = 6000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function editorTimelineIds(): TimelineAssemblyIdFactory {
+  let n = 7000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -603,7 +614,7 @@ class QcFallbackDecisions implements QcFallbackDecisionPort {
   }
 }
 
-test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 completes in one project.db through editor handoff", async () => {
+test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 completes in one project.db through timeline assembly", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
@@ -1043,6 +1054,7 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 completes in o
     assert.equal(manifest.items[0]?.relativePath, "07_generated_clips/wf11_clip_1.mp4");
     assert.equal(manifest.items[0]?.sourceInMs, 400);
     assert.equal(manifest.items[0]?.sourceOutMs, 4400);
+    assert.equal(manifest.items[0]?.sourceAssetDurationMs, 5000);
 
     const storedBinding = bindingRepo.db.prepare(
       `SELECT binding_kind, media_id, source_in_ms, source_out_ms, duration_ms, stale
@@ -1077,6 +1089,94 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 completes in o
     assert.equal(sceneAfterBinding?.revision, sceneRevisionBeforeLink);
 
     bindingRepo.close();
+
+    const timelineRepo = new SqliteEditorTimelineRepository(dbPath);
+    const timelineBindingSource = new MediaBindingPipeline(
+      timelineRepo,
+      timelineRepo,
+      mediaBindingClock,
+      mediaBindingIds()
+    );
+    const timelinePipeline = new EditorTimelineAssemblyPipeline(
+      timelineRepo,
+      timelineBindingSource,
+      editorTimelineClock,
+      editorTimelineIds()
+    );
+
+    const timeline = await timelinePipeline.assembleProject({
+      projectId: "prj_10",
+      projectName: "WF-14 Integration Project",
+      profile: {
+        fps: 30,
+        width: 1080,
+        height: 1920
+      }
+    });
+
+    assert.equal(timeline.output.status, "READY");
+    assert.equal(timeline.output.recommendedFileName, "edit_project.json");
+    assert.equal(timeline.output.editProject.schemaVersion, 1);
+    assert.equal(timeline.output.editProject.project.durationInFrames, 120);
+    assert.deepEqual(
+      timeline.output.editProject.tracks.map(track => track.id),
+      ["V1", "G1", "T1", "A1"]
+    );
+    assert.equal(timeline.output.editProject.items.length, 1);
+
+    const timelineVideo = timeline.output.editProject.items[0]!;
+    assert.equal(timelineVideo.type, "VIDEO");
+    if (timelineVideo.type !== "VIDEO") {
+      throw new Error("Expected VIDEO timeline item");
+    }
+    assert.equal(timelineVideo.src, "07_generated_clips/wf11_clip_1.mp4");
+    assert.equal(timelineVideo.timelineStartFrame, 0);
+    assert.equal(timelineVideo.sourceStartFrame, 12);
+    assert.equal(timelineVideo.sourceDurationInFrames, 120);
+    assert.equal(timelineVideo.sourceAssetDurationInFrames, 150);
+    assert.equal(timelineVideo.durationInFrames, 120);
+    assert.equal(timelineVideo.volume, 0);
+
+    const storedAssembly = timelineRepo.db.prepare(
+      `SELECT revision, assembly_status, stale, fps, width, height, edit_project_json
+       FROM editor_timeline_assemblies
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10") as {
+      revision: number;
+      assembly_status: string;
+      stale: number;
+      fps: number;
+      width: number;
+      height: number;
+      edit_project_json: string;
+    };
+
+    assert.equal(storedAssembly.revision, 1);
+    assert.equal(storedAssembly.assembly_status, "READY");
+    assert.equal(storedAssembly.stale, 0);
+    assert.equal(storedAssembly.fps, 30);
+    assert.equal(storedAssembly.width, 1080);
+    assert.equal(storedAssembly.height, 1920);
+    const storedEditProject = JSON.parse(storedAssembly.edit_project_json) as {
+      project: { durationInFrames: number };
+      items: Array<{ type: string }>;
+    };
+    assert.equal(storedEditProject.project.durationInFrames, 120);
+    assert.equal(storedEditProject.items[0]?.type, "VIDEO");
+
+    const timelineReadiness = await timelinePipeline.getReadiness("prj_10");
+    assert.equal(timelineReadiness.timelineAssemblyReady, true);
+    assert.equal(timelineReadiness.remotionHandoffReady, true);
+    assert.equal(timelineReadiness.status, "READY");
+
+    const sceneAfterTimeline = await timelineRepo.getScene(
+      "prj_10",
+      graph.scenes[0]!.id
+    );
+    assert.equal(sceneAfterTimeline?.revision, sceneRevisionBeforeLink);
+
+    timelineRepo.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
