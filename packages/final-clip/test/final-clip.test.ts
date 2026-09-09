@@ -246,6 +246,8 @@ class MemoryStore implements FinalClipRepository, FinalClipContextPort {
   async commitAdditionalAssetRequirement(input: {
     previousLink: ProductionLink;
     nextLink: ProductionLink;
+    previousClip: ProductionClip | null;
+    previousCut: LinkCutImplementation | null;
     reason: string;
     decisionId: string;
     event: WorkflowEvent;
@@ -253,6 +255,8 @@ class MemoryStore implements FinalClipRepository, FinalClipContextPort {
   }) {
     this.supersedeLink(input.previousLink);
     this.links.push(input.nextLink);
+    if (input.previousClip) this.supersedeClip(input.previousClip);
+    if (input.previousCut) this.supersedeCut(input.previousCut);
     this.record(input.event, input.outbox);
   }
 
