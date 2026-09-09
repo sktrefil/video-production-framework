@@ -6,7 +6,6 @@
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",
-    "@vpf/final-clip": "0.1.0",
     "@vpf/production-system": "0.1.0",
     "@vpf/workflow": "0.1.0"
   },
