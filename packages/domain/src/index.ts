@@ -1030,6 +1030,7 @@ export interface FinalRenderProbe {
   videoCodec: string;
   audioCodec?: string;
   pixelFormat: string;
+  pixelFormatVerification?: "PROBED" | "RENDER_PROFILE";
   width: number;
   height: number;
   fps: number;
