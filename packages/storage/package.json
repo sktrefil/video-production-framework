@@ -10,7 +10,8 @@
     "./final-clip": "./dist/final-clip.js",
     "./qc-fallback": "./dist/qc-fallback.js",
     "./media-binding": "./dist/media-binding.js",
-    "./editor-timeline": "./dist/editor-timeline.js"
+    "./editor-timeline": "./dist/editor-timeline.js",
+    "./final-render": "./dist/final-render.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -24,7 +25,8 @@
     "better-sqlite3": "^12.10.0",
     "@vpf/qc-fallback": "0.1.0",
     "@vpf/media-binding": "0.1.0",
-    "@vpf/editor-timeline": "0.1.0"
+    "@vpf/editor-timeline": "0.1.0",
+    "@vpf/final-render": "0.1.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13"
