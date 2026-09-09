@@ -7,7 +7,8 @@
     "./visual-identity": "./dist/visual-identity.js",
     "./scene-assets": "./dist/scene-assets.js",
     "./prelink-handoff": "./dist/prelink-handoff.js",
-    "./final-clip": "./dist/final-clip.js"
+    "./final-clip": "./dist/final-clip.js",
+    "./qc-fallback": "./dist/qc-fallback.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -18,9 +19,12 @@
     "@vpf/prelink-handoff": "0.1.0",
     "@vpf/final-clip": "0.1.0",
     "@vpf/workflow": "0.1.0",
-    "better-sqlite3": "^11.10.0"
+    "better-sqlite3": "^11.10.0",
+    "@vpf/qc-fallback": "0.1.0"
   },
-  "devDependencies": {"@types/better-sqlite3": "^7.6.13"},
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
