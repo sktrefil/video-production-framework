@@ -223,6 +223,22 @@ test("WF-07 story and WF-08 visual identity share one project DB without Scene r
     ).get() as { count: number };
     assert.equal(relationCount.count, 2);
 
+    const revisedAnchor = await visual.reviseAnchor({
+      projectId: "prj_1",
+      anchorId: anchors[0]!.id,
+      patch: { rationale: "수정된 반복 인물 연속성 기준" }
+    });
+    const relationRevisions = visualRepo.db.prepare(
+      `SELECT anchor_revision
+       FROM scene_identity_anchor_requirements
+       WHERE project_id = ? AND anchor_id = ?
+       ORDER BY scene_id`
+    ).all("prj_1", revisedAnchor.id) as Array<{ anchor_revision: number }>;
+    assert.deepEqual(
+      relationRevisions.map(row => row.anchor_revision),
+      [revisedAnchor.revision, revisedAnchor.revision]
+    );
+
     const styleApprovalCount = visualRepo.db.prepare(
       "SELECT COUNT(*) AS count FROM approval_records WHERE target_type = 'PROJECT_STYLE'"
     ).get() as { count: number };
