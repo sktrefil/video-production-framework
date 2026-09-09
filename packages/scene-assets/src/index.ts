@@ -139,6 +139,7 @@ export interface SceneAssetReadiness {
   requiredAnchorIds: string[];
   approvedAnchorIds: string[];
   missingAnchorApprovalIds: string[];
+  channelVisualBibleResolved: boolean;
   formatProfileResolved: boolean;
   ready: boolean;
 }
@@ -300,6 +301,10 @@ export class SceneAssetPipeline {
     const missingAnchorApprovalIds = requiredAnchorIds.filter(
       (anchorId) => !approved.has(anchorId)
     );
+    const channelVisualBible =
+      style === null
+        ? null
+        : await this.bible.resolve(style.channelVisualBibleVersion);
     const formatProfile = await this.formatProfiles.resolve(input.formatProfileVersion);
     const sceneApproved =
       scene !== null &&
@@ -312,11 +317,13 @@ export class SceneAssetPipeline {
       requiredAnchorIds,
       approvedAnchorIds,
       missingAnchorApprovalIds,
+      channelVisualBibleResolved: channelVisualBible !== null,
       formatProfileResolved: formatProfile !== null,
       ready:
         sceneApproved &&
         style !== null &&
         missingAnchorApprovalIds.length === 0 &&
+        channelVisualBible !== null &&
         formatProfile !== null
     };
   }
@@ -519,6 +526,7 @@ export class SceneAssetPipeline {
     }
     if (
       previousJob.status === "COMPLETE" ||
+      previousJob.status === "FAILED" ||
       previousJob.status === "CANCELLED"
     ) {
       throw new SceneAssetValidationError(
@@ -847,7 +855,9 @@ export class SceneAssetPipeline {
     let status: ProductionAsset["assetStatus"];
     if (decision.qcStatus === "PASS" || decision.qcStatus === "PASS_WITH_NOTE") {
       status = "NEEDS_REVIEW";
-    } else if (decision.qcStatus === "REGENERATE" || decision.qcStatus === "FIXABLE") {
+    } else if (decision.qcStatus === "FIXABLE") {
+      status = "NEEDS_REVIEW";
+    } else if (decision.qcStatus === "REGENERATE") {
       status = "REGENERATE_REQUIRED";
     } else if (decision.qcStatus === "REDESIGN") {
       status = "REDESIGN_REQUIRED";
