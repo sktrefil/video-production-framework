@@ -15,6 +15,7 @@ AI-assisted video production orchestration framework.
   - WF-13 — Final Media Binding / Editor Handoff: PASS
   - WF-14 — Editor / Timeline Assembly: PASS
   - WF-15 — Generic Editor Motion Execution: PASS
+  - WF-16 — Audio / TTS / Subtitle / BGM / SFX Timeline Assembly: PASS
 
 ## Architecture
 
@@ -68,7 +69,13 @@ Executable EDITORIAL_MOVE / REUSE_REFRAME motion
 ↓
 Shared Preview / Final ProjectRenderer
 ↓
-Remotion-ready visual timeline
+Approved Editor Content Plan
+↓
+A1 TTS / A2 Clip Audio / A3 BGM / A4 SFX
+↓
+T1 Subtitles / T2 Text / G1 Graphics
+↓
+Remotion-ready full editor timeline
 ```
 
 ## Final implementation policy
@@ -96,6 +103,8 @@ WF-13 binds only current approved implementations. Provider video bindings requi
 WF-14 converts that handoff into the existing Generic Editor schemaVersion 1 visual timeline and produces an `edit_project.json`-compatible project. VIDEO trim windows are converted to source frames, STATIC_HOLD becomes IMAGE, and CUT remains a zero-duration boundary.
 
 WF-15 resolves the previous motion-renderer bottleneck. EDITORIAL_MOVE / REUSE_REFRAME are compiled once into deterministic IMAGE `motion.from / motion.to / easing` transforms, and the actual Generic Editor executes them with Remotion frame interpolation in the shared ProjectRenderer used by both Preview and GenericFinalRender. Invalid motion data is blocked by the production gate.
+
+WF-16 adds revisioned approved editor-content assembly. Existing AUDIO MediaArtifacts are bound as TTS/Clip Audio/BGM/SFX on A1-A4, subtitle cues retain TTS provenance on T1, text overlays use T2, and graphics use G1. The V1 visual duration remains authoritative; audio/text/graphics cannot silently extend the composition. Only BGM may loop beyond its source window.
 
 ## Validation
 
