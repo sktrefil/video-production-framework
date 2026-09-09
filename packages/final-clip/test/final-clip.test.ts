@@ -239,6 +239,10 @@ class MemoryStore implements FinalClipRepository, FinalClipContextPort {
       .sort((a, b) => b.revision - a.revision)[0] ?? null;
   }
 
+  async listActiveCuts() {
+    return this.cuts.filter(item => item.lifecycleStatus === "ACTIVE");
+  }
+
   async commitAdditionalAssetRequirement(input: {
     previousLink: ProductionLink;
     nextLink: ProductionLink;
@@ -882,4 +886,54 @@ test("Additional Asset requirement stops provider path and returns Link to rewor
   assert.equal(result.link.linkStatus, "REWORK_REQUIRED");
   assert.equal(store.clips.length, 0);
   assert.equal(store.jobs.length, 0);
+});
+
+
+test("late Provider result is rejected after Clip execution revision changes", async () => {
+  const { store, pipeline } = setup();
+  const designed = await pipeline.designFinalImplementation({
+    projectId: "prj_1",
+    linkId: "lnk_1",
+    format: "LONGFORM"
+  });
+  assert.equal(designed.kind, "CLIP");
+  if (designed.kind !== "CLIP") return;
+
+  await pipeline.runProviderPreQc({
+    projectId: "prj_1",
+    clipId: designed.clip.id,
+    format: "LONGFORM",
+    provider: "GOOGLE_FLOW",
+    providerProfileVersion: "flow-v1"
+  });
+  const created = await pipeline.createVideoGenerationJob({
+    projectId: "prj_1",
+    clipId: designed.clip.id,
+    format: "LONGFORM",
+    provider: "GOOGLE_FLOW",
+    providerProfileVersion: "flow-v1",
+    executionMode: "MANUAL_EXTERNAL"
+  });
+
+  const current = await store.getLatestClip("prj_1", designed.clip.id);
+  assert.ok(current);
+  store.clips = store.clips.map(item =>
+    item.id === current.id && item.revision === current.revision
+      ? { ...item, revision: item.revision + 1 }
+      : item
+  );
+
+  await assert.rejects(
+    () => pipeline.registerVideoResult({
+      projectId: "prj_1",
+      jobId: created.job.id,
+      relativePath: "07_generated_clips/late.mp4",
+      mimeType: "video/mp4",
+      checksum: "sha256:late",
+      durationMs: 5000
+    }),
+    (error: unknown) =>
+      error instanceof FinalClipValidationError &&
+      error.code === "IMPLEMENTATION_STALE"
+  );
 });
