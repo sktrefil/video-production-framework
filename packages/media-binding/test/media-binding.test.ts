@@ -295,17 +295,18 @@ test("WF-13 rejects an approvedMediaId without durable media approval", async ()
 
 test("WF-13 binds approved editorial Clip to its START image without video QC", async () => {
   const store = new FakeStore();
-  store.clip = {
+  const editorialClip: ProductionClip = {
     ...baseClip(),
     revision: 2,
     clipMode: "EDITORIAL_MOVE",
     providerExecutionRequired: false,
-    providerPreflightId: undefined,
     candidateMediaIds: [],
-    approvedMediaId: undefined,
     clipStatus: "READY",
     durationMs: 4200
   };
+  delete editorialClip.providerPreflightId;
+  delete editorialClip.approvedMediaId;
+  store.clip = editorialClip;
   store.qc = null;
   const pipeline = new MediaBindingPipeline(store, store, clock, ids());
   const result = await pipeline.bindClip({ projectId: "p1", clipId: "clip1" });
