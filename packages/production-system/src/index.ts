@@ -1,4 +1,12 @@
-import type { FactRecord, ProjectFormat, ScriptVersion } from "@vpf/domain";
+import type {
+  FactRecord,
+  IdentityAnchorType,
+  ProductionPriority,
+  ProjectFormat,
+  ProjectStyle,
+  Scene,
+  ScriptVersion
+} from "@vpf/domain";
 
 export type ProductionTaskType =
   | "PROJECT_SETUP"
@@ -27,7 +35,7 @@ export interface ProductionTaskRequest<TContext = unknown> {
   taskType: ProductionTaskType;
   projectId: string;
   target: {
-    type: "PROJECT" | "SCRIPT" | "SEQUENCE" | "SCENE" | "ASSET" | "LINK" | "CLIP";
+    type: "PROJECT" | "SCRIPT" | "SEQUENCE" | "SCENE" | "PROJECT_STYLE" | "IDENTITY_ANCHOR" | "ASSET" | "LINK" | "CLIP";
     id: string;
     revision?: number;
   };
@@ -171,6 +179,132 @@ export class ProductionStoryPlanner implements StoryDecisionPort {
     }
     if (response.status === "FAILED") {
       throw new ProductionDecisionError("PRODUCTION_DECISION_FAILED", response.decisionSummary);
+    }
+    if (response.decision === undefined) {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_INVALID",
+        "Production decision did not include a structured decision payload."
+      );
+    }
+    return response.decision;
+  }
+}
+
+
+export interface ChannelVisualBibleSnapshot {
+  version: string;
+  resourceId: string;
+  contentHash: string;
+  payload: unknown;
+}
+
+export interface VisualIdentityBaseContext {
+  projectId: string;
+  format: ProjectFormat;
+  script: ScriptVersion;
+  facts: FactRecord[];
+  scenes: Scene[];
+  channelVisualBible: ChannelVisualBibleSnapshot;
+}
+
+export interface ProjectStyleDecision {
+  eraRegion: string;
+  visualApproach: string;
+  realismLevel: string;
+  colorLanguage: string;
+  lightingLanguage: string;
+  materialLanguage: string;
+  environmentLanguage: string;
+  characterRenderingPrinciple: string;
+  cameraCompositionTendency: string;
+  moodRange: string[];
+  factualConstraints: string[];
+  avoidances: string[];
+}
+
+export interface AnchorPlanDecision {
+  anchors: Array<{
+    key: string;
+    anchorType: IdentityAnchorType;
+    name: string;
+    rationale: string;
+    continuityReason: "RECURRING" | "CRITICAL_CONTINUITY";
+    productionPriority: ProductionPriority;
+    requiredBySceneIds: string[];
+    specification: {
+      locked: string[];
+      contextual: string[];
+      temporary: string[];
+    };
+  }>;
+}
+
+export interface VisualIdentityDecisionPort {
+  designProjectStyle(
+    input: VisualIdentityBaseContext
+  ): Promise<ProjectStyleDecision>;
+  planIdentityAnchors(
+    input: VisualIdentityBaseContext & { projectStyle: ProjectStyle }
+  ): Promise<AnchorPlanDecision>;
+}
+
+export class ProductionVisualIdentityPlanner implements VisualIdentityDecisionPort {
+  constructor(
+    private readonly adapter: ProductionSystemAdapter,
+    private readonly taskIds: TaskIdFactory
+  ) {}
+
+  async designProjectStyle(
+    input: VisualIdentityBaseContext
+  ): Promise<ProjectStyleDecision> {
+    return this.executeDecision<ProjectStyleDecision, VisualIdentityBaseContext>(
+      "PROJECT_STYLE",
+      input,
+      { type: "PROJECT", id: input.projectId }
+    );
+  }
+
+  async planIdentityAnchors(
+    input: VisualIdentityBaseContext & { projectStyle: ProjectStyle }
+  ): Promise<AnchorPlanDecision> {
+    return this.executeDecision<
+      AnchorPlanDecision,
+      VisualIdentityBaseContext & { projectStyle: ProjectStyle }
+    >(
+      "ANCHOR_PLAN",
+      input,
+      {
+        type: "PROJECT_STYLE",
+        id: input.projectStyle.id,
+        revision: input.projectStyle.revision
+      }
+    );
+  }
+
+  private async executeDecision<TDecision, TContext extends { projectId: string }>(
+    taskType: ProductionTaskType,
+    context: TContext,
+    target: ProductionTaskRequest["target"]
+  ): Promise<TDecision> {
+    const response = await this.adapter.execute<TDecision, TContext>({
+      taskId: this.taskIds.nextTaskId(),
+      taskType,
+      projectId: context.projectId,
+      target,
+      context
+    });
+
+    if (response.status === "BLOCKED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_BLOCKED",
+        response.decisionSummary
+      );
+    }
+    if (response.status === "FAILED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_FAILED",
+        response.decisionSummary
+      );
     }
     if (response.decision === undefined) {
       throw new ProductionDecisionError(
