@@ -1132,12 +1132,32 @@ export class EditorTimelineAssemblyPipeline {
       bindingId: item.bindingId,
       bindingRevision: item.bindingRevision
     }));
+    const currentContentPlan =
+      this.contentSource === undefined
+        ? null
+        : await this.contentSource.getLatestEditorContentPlan(projectId);
+    const currentContentRef: EditorContentPlanRef | undefined =
+      currentContentPlan === null
+        ? undefined
+        : {
+            contentPlanId: currentContentPlan.id,
+            contentPlanRevision: currentContentPlan.revision
+          };
     const reason =
       source.status !== "READY"
         ? "MEDIA_BINDING_NOT_READY"
-        : refsEqual(previous.sourceBindingRefs, currentRefs)
-          ? null
-          : "SOURCE_BINDING_REVISION_CHANGED";
+        : !refsEqual(previous.sourceBindingRefs, currentRefs)
+          ? "SOURCE_BINDING_REVISION_CHANGED"
+          : this.contentSource !== undefined &&
+              currentContentPlan !== null &&
+              currentContentPlan.planStatus !== "APPROVED"
+            ? "CONTENT_PLAN_NOT_APPROVED"
+            : !contentRefEqual(
+                  previous.sourceContentPlanRef,
+                  currentContentRef
+                )
+              ? "SOURCE_CONTENT_PLAN_REVISION_CHANGED"
+              : null;
 
     if (reason === null) return previous;
 
