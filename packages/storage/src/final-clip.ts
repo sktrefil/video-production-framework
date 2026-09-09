@@ -265,6 +265,15 @@ export class SqliteFinalClipRepository
     return row === undefined ? null : mapCut(row);
   }
 
+  async listActiveCuts(projectId: string): Promise<LinkCutImplementation[]> {
+    const rows = this.db.prepare(
+      `SELECT * FROM link_cut_implementations
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY rowid`
+    ).all(projectId) as any[];
+    return rows.map(mapCut);
+  }
+
   async commitAdditionalAssetRequirement(input: {
     previousLink: ProductionLink;
     nextLink: ProductionLink;
