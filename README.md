@@ -5,7 +5,9 @@ AI-assisted video production orchestration framework.
 ## Status
 
 - PHASE 1 — FOUNDATION: FINAL / VALIDATED / FOUNDATION_LOCK
-- PHASE 2 — PRODUCTION CORE: starting with WF-07
+- PHASE 2 — PRODUCTION CORE
+  - WF-07 — Research / Script / Story Pipeline: PASS
+  - WF-08 — Visual Identity Pipeline: NEXT
 
 ## Architecture
 
@@ -14,4 +16,15 @@ AI-assisted video production orchestration framework.
 - Media providers: execution plane
 - Editor Binding + Remotion: editorial plane
 
-This repository contains application code, schemas, migrations, tests, and documentation. Runtime project media is stored outside the Git repository.
+## Validation
+
+The repository is validated by GitHub Actions using Node.js 22:
+
+```bash
+npm install
+npm run build
+npm run typecheck
+npm test
+```
+
+Runtime project media is stored outside this Git repository.
