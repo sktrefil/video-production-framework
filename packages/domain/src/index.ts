@@ -666,6 +666,23 @@ export interface GenericEditorVideoItem extends GenericEditorBaseVisualItem {
   fit: "cover" | "contain";
 }
 
+export type GenericEditorImageMotionEasing = "LINEAR" | "EASE_IN_OUT";
+
+export interface GenericEditorImageMotionTransform {
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+  opacity: number;
+}
+
+export interface GenericEditorImageMotionSpec {
+  kind: "TRANSFORM";
+  from: GenericEditorImageMotionTransform;
+  to: GenericEditorImageMotionTransform;
+  easing: GenericEditorImageMotionEasing;
+}
+
 export interface GenericEditorImageItem extends GenericEditorBaseVisualItem {
   type: "IMAGE";
   src: string;
@@ -675,6 +692,7 @@ export interface GenericEditorImageItem extends GenericEditorBaseVisualItem {
   rotation: number;
   opacity: number;
   fit: "cover" | "contain";
+  motion?: GenericEditorImageMotionSpec;
 }
 
 export type GenericEditorVisualItem =
@@ -704,7 +722,8 @@ export interface EditorMotionDirective {
   cameraMove?: string;
   subjectMotion?: string;
   environmentMotion?: string;
-  supportedByCurrentRenderer: false;
+  supportedByCurrentRenderer: boolean;
+  compiledMotion?: GenericEditorImageMotionSpec;
 }
 
 export type TimelineAssemblyStatus = "READY" | "PARTIAL" | "BLOCKED";
