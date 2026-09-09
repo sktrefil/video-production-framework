@@ -589,12 +589,31 @@ export class EditorTimelineAssemblyPipeline {
       cursor += frames;
     }
 
-    if (items.length === 0) {
+    const visualItemCount = items.length;
+
+    if (contentPlan !== null) {
+      if (contentPlan.planStatus !== "APPROVED") {
+        blockers.push("CONTENT_PLAN_NOT_APPROVED");
+      } else if (this.contentSource === undefined) {
+        blockers.push("CONTENT_SOURCE_UNAVAILABLE");
+      } else {
+        await this.appendContentPlan({
+          projectId: input.projectId,
+          plan: contentPlan,
+          profile: input.profile,
+          projectDurationInFrames: cursor,
+          items,
+          blockers
+        });
+      }
+    }
+
+    if (visualItemCount === 0) {
       blockers.push("NO_RENDERABLE_VISUAL_ITEMS");
     }
 
     const status: TimelineAssemblyRecord["assemblyStatus"] =
-      items.length === 0
+      visualItemCount === 0
         ? "BLOCKED"
         : blockers.length === 0
           ? "READY"
@@ -610,7 +629,7 @@ export class EditorTimelineAssemblyPipeline {
         height: input.profile.height,
         durationInFrames: cursor
       },
-      tracks: baseTracks(),
+      tracks: baseTracks(contentPlan !== null),
       items,
       settings: {
         snapEnabled: input.profile.snapEnabled ?? true,
@@ -628,6 +647,7 @@ export class EditorTimelineAssemblyPipeline {
       createdAt: previous?.createdAt ?? now,
       updatedAt: now,
       sourceBindingRefs,
+      ...(sourceContentPlanRef === undefined ? {} : { sourceContentPlanRef }),
       fps: input.profile.fps,
       width: input.profile.width,
       height: input.profile.height,
@@ -652,7 +672,17 @@ export class EditorTimelineAssemblyPipeline {
         durationInFrames: cursor,
         itemCount: items.length,
         cutBoundaryCount: cutBoundaries.length,
-        motionDirectiveCount: motionDirectives.length
+        motionDirectiveCount: motionDirectives.length,
+        contentPlanRevision: sourceContentPlanRef?.contentPlanRevision ?? null,
+        audioItemCount: items.filter(item =>
+          item.type === "TTS" ||
+          item.type === "CLIP_AUDIO" ||
+          item.type === "BGM" ||
+          item.type === "SFX"
+        ).length,
+        subtitleItemCount: items.filter(item => item.type === "SUBTITLE").length,
+        textItemCount: items.filter(item => item.type === "TEXT").length,
+        graphicItemCount: items.filter(item => item.type === "GRAPHIC").length
       }
     });
     await this.repository.commitAssembly({
