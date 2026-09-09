@@ -543,7 +543,7 @@ class FinalClipDecisions implements FinalClipDecisionPort {
   }
 }
 
-test("WF-07 -> WF-08 -> WF-09 -> WF-10 completes in one project.db through actual Handoff QC", async () => {
+test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 completes in one project.db through video Candidate", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
