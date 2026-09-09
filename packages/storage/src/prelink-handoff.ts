@@ -414,7 +414,7 @@ export class SqlitePreLinkHandoffRepository
     })();
   }
 
-  private supersedeLink(link: ProductionLink, updatedAt: string): void {
+  protected supersedeLink(link: ProductionLink, updatedAt: string): void {
     this.db.prepare(
       `UPDATE production_links
        SET lifecycle_status = 'SUPERSEDED', updated_at = ?
@@ -422,7 +422,7 @@ export class SqlitePreLinkHandoffRepository
     ).run(updatedAt, link.id, link.revision);
   }
 
-  private insertLink(link: ProductionLink): void {
+  protected insertLink(link: ProductionLink): void {
     this.db.prepare(`INSERT INTO production_links
       (id, project_id, revision, lifecycle_status,
        from_scene_id, from_scene_revision, from_state_entity_type,
