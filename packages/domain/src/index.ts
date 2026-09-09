@@ -538,3 +538,75 @@ export interface AggregateQcSummary {
   blockedImplementationIds: string[];
   pendingImplementationIds: string[];
 }
+export type FinalMediaBindingKind = "VIDEO" | "EDITORIAL" | "CUT";
+export type FinalMediaBindingStatus = "READY" | "STALE" | "BLOCKED";
+
+export interface FinalMediaBinding extends BaseEntity {
+  linkId: string;
+  linkRevision: number;
+  implementationType: "CLIP" | "CUT";
+  implementationId: string;
+  implementationRevision: number;
+  bindingKind: FinalMediaBindingKind;
+  bindingStatus: FinalMediaBindingStatus;
+  stale: boolean;
+  staleReason?: string;
+  clipMode?: ClipMode;
+  mediaId?: string;
+  sourceAssetId?: string;
+  sourceQcId?: string;
+  sourceInMs?: number;
+  sourceOutMs?: number;
+  durationMs: number;
+  transitionMethod: TransitionMethod;
+  cameraMove?: string;
+  subjectMotion?: string;
+  environmentMotion?: string;
+}
+
+export interface CurrentImplementationRef {
+  linkId: string;
+  linkRevision: number;
+  implementationType: "CLIP" | "CUT";
+  implementationId: string;
+}
+
+export interface EditorHandoffItem {
+  order: number;
+  bindingId: string;
+  bindingRevision: number;
+  linkId: string;
+  linkRevision: number;
+  implementationType: "CLIP" | "CUT";
+  implementationId: string;
+  implementationRevision: number;
+  bindingKind: FinalMediaBindingKind;
+  clipMode?: ClipMode;
+  mediaId?: string;
+  relativePath?: string;
+  sourceInMs?: number;
+  sourceOutMs?: number;
+  durationMs: number;
+  transitionMethod: TransitionMethod;
+  cameraMove?: string;
+  subjectMotion?: string;
+  environmentMotion?: string;
+}
+
+export type EditorHandoffStatus = "READY" | "PARTIAL" | "BLOCKED";
+
+export interface EditorHandoffManifest {
+  schemaVersion: "1.0";
+  projectId: string;
+  createdAt: string;
+  recommendedFileName: "media_binding.json";
+  status: EditorHandoffStatus;
+  totalImplementations: number;
+  boundImplementations: number;
+  items: EditorHandoffItem[];
+  blockers: Array<{
+    implementationType: "CLIP" | "CUT";
+    implementationId: string;
+    reason: string;
+  }>;
+}
