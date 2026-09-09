@@ -38,6 +38,8 @@ export interface FinalClipRepository {
   commitAdditionalAssetRequirement(input: {
     previousLink: ProductionLink;
     nextLink: ProductionLink;
+    previousClip: ProductionClip | null;
+    previousCut: LinkCutImplementation | null;
     reason: string;
     decisionId: string;
     event: WorkflowEvent;
@@ -527,6 +529,8 @@ export class FinalClipPipeline {
       await this.repository.commitAdditionalAssetRequirement({
         previousLink: resolved.link,
         nextLink,
+        previousClip,
+        previousCut,
         reason,
         decisionId: result.decisionId,
         event,
