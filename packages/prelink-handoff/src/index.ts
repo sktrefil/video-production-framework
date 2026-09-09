@@ -90,6 +90,13 @@ export interface PreLinkHandoffRepository {
     event: WorkflowEvent;
     outbox: OutboxRecord;
   }): Promise<void>;
+  commitHandoffReviewApproval(input: {
+    previous: ProductionLink;
+    next: ProductionLink;
+    approval: ApprovalRecord;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void>;
 
   commitDependencyReconciliation(input: {
     staleLinkIds: string[];
@@ -134,6 +141,7 @@ export class PreLinkHandoffValidationError extends Error {
       | "APPROVED_MEDIA_REQUIRED"
       | "HANDOFF_QC_NOT_READY"
       | "HANDOFF_QC_DECISION_INVALID"
+      | "HANDOFF_REVIEW_NOT_APPROVABLE"
       | "BOUND_ASSET_STALE",
     message: string
   ) {
@@ -474,6 +482,8 @@ export class PreLinkHandoffPipeline {
     delete next.toAssetRevision;
     delete next.toMediaId;
     delete next.handoffQcId;
+    delete next.handoffUsable;
+    delete next.handoffReviewApprovalId;
 
     let approval: ApprovalRecord | undefined;
     if (!result.requiresHumanReview) {
@@ -655,6 +665,8 @@ export class PreLinkHandoffPipeline {
       this.clock.nowIso()
     );
     delete next.handoffQcId;
+    delete next.handoffUsable;
+    delete next.handoffReviewApprovalId;
 
     const { event, outbox } = durableEvent(this.ids, this.clock, {
       projectId: input.projectId,
@@ -792,6 +804,11 @@ export class PreLinkHandoffPipeline {
 
     let linkStatus: ProductionLink["linkStatus"];
     if (
+      result.requiresHumanReview &&
+      result.decision.continuityUsable
+    ) {
+      linkStatus = "HANDOFF_NEEDS_REVIEW";
+    } else if (
       result.decision.qcStatus === "PASS" ||
       result.decision.qcStatus === "PASS_WITH_NOTE"
     ) {
@@ -809,11 +826,13 @@ export class PreLinkHandoffPipeline {
       link,
       {
         handoffQcId: qc.id,
+        handoffUsable: result.decision.continuityUsable,
         preLinkMatch: result.decision.preLinkMatch,
         linkStatus
       },
       now
     );
+    delete next.handoffReviewApprovalId;
     const { event, outbox } = durableEvent(this.ids, this.clock, {
       projectId: input.projectId,
       eventType: "HANDOFF_QC_COMPLETED",
@@ -839,6 +858,69 @@ export class PreLinkHandoffPipeline {
     return { link: next, qc, decisionMeta: result };
   }
 
+  async approveHandoffReview(input: {
+    projectId: string;
+    linkId: string;
+    approvedById?: string;
+  }): Promise<{ link: ProductionLink; approval: ApprovalRecord }> {
+    const link = await this.requireCurrentLink(input.projectId, input.linkId);
+    if (
+      link.linkStatus !== "HANDOFF_NEEDS_REVIEW" ||
+      link.handoffQcId === undefined ||
+      link.handoffUsable !== true
+    ) {
+      throw new PreLinkHandoffValidationError(
+        "HANDOFF_REVIEW_NOT_APPROVABLE",
+        "Only a usable Handoff QC review item can be accepted."
+      );
+    }
+
+    const now = this.clock.nowIso();
+    let next = nextLinkRevision(
+      link,
+      { linkStatus: "HANDOFF_PASS" },
+      now
+    );
+    const approval: ApprovalRecord = {
+      id: this.ids.next("apr"),
+      projectId: input.projectId,
+      targetType: "LINK",
+      targetId: next.id,
+      targetRevision: next.revision,
+      approvalState: "HUMAN_APPROVED",
+      reason: "HANDOFF_QC_REVIEW_ACCEPTED",
+      approvedByType: "USER",
+      ...(input.approvedById === undefined
+        ? {}
+        : { approvedById: input.approvedById }),
+      createdAt: now
+    };
+    next = {
+      ...next,
+      handoffReviewApprovalId: approval.id
+    };
+
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId: input.projectId,
+      eventType: "HANDOFF_QC_REVIEW_ACCEPTED",
+      targetType: "LINK",
+      targetId: next.id,
+      trigger: "USER",
+      payload: {
+        revision: next.revision,
+        handoffQcId: next.handoffQcId
+      }
+    });
+    await this.repository.commitHandoffReviewApproval({
+      previous: link,
+      next,
+      approval,
+      event,
+      outbox
+    });
+    return { link: next, approval };
+  }
+
   async getReadiness(
     projectId: string,
     linkId: string
@@ -848,6 +930,12 @@ export class PreLinkHandoffPipeline {
       throw new PreLinkHandoffValidationError(
         "LINK_NOT_FOUND",
         "Link does not exist."
+      );
+    }
+    if (link.stale) {
+      throw new PreLinkHandoffValidationError(
+        "LINK_STALE",
+        "Link readiness cannot be evaluated from stale production state."
       );
     }
     const preLinkReady =
@@ -944,6 +1032,8 @@ export class PreLinkHandoffPipeline {
         delete resetLink.toAssetRevision;
         delete resetLink.toMediaId;
         delete resetLink.handoffQcId;
+        delete resetLink.handoffUsable;
+        delete resetLink.handoffReviewApprovalId;
         resets.push({
           previous: link,
           next: resetLink
@@ -1198,6 +1288,10 @@ function mapError(error: unknown): PreLinkHandoffCommandResult<never> {
     HANDOFF_QC_DECISION_INVALID: {
       message: "장면 연결 품질 검사 결과가 서로 모순됩니다.",
       action: "RERUN_HANDOFF_QC"
+    },
+    HANDOFF_REVIEW_NOT_APPROVABLE: {
+      message: "이 연결 결과는 현재 상태로 승인할 수 없습니다.",
+      action: "FOLLOW_HANDOFF_REWORK_ACTION"
     },
     BOUND_ASSET_STALE: {
       message: "연결 검사 전에 승인 이미지가 변경되었습니다.",
