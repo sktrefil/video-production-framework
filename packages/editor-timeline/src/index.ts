@@ -366,7 +366,7 @@ export class EditorTimelineAssemblyPipeline {
         item.clipMode === "EDITORIAL_MOVE" || item.clipMode === "REUSE_REFRAME"
           ? compileImageMotion({
               clipMode: item.clipMode,
-              cameraMove: item.cameraMove,
+              ...(item.cameraMove === undefined ? {} : { cameraMove: item.cameraMove }),
               width: input.profile.width,
               height: input.profile.height
             })
