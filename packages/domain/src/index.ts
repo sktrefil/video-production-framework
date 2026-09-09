@@ -979,3 +979,153 @@ export interface TimelineAssemblyOutput {
   motionDirectives: EditorMotionDirective[];
   blockers: string[];
 }
+export type FinalRenderAttemptStatus =
+  | "READY"
+  | "RUNNING"
+  | "RENDERED"
+  | "FAILED"
+  | "TECHNICAL_QC_FAILED"
+  | "DELIVERY_READY"
+  | "STALE";
+
+export interface FinalRenderProfile {
+  compositionId: "GenericFinalRender";
+  codec: "h264";
+  audioCodec: "aac";
+  pixelFormat: "yuv420p";
+  crf: number;
+}
+
+export interface FinalRenderPaths {
+  outputPath: string;
+  gateReportPath: string;
+  renderPropsPath: string;
+  renderManifestPath: string;
+  technicalQcPath: string;
+  deliveryManifestPath: string;
+}
+
+export interface FinalRenderAttempt extends BaseEntity {
+  assemblyId: string;
+  assemblyRevision: number;
+  projectSha256: string;
+  attempt: number;
+  retryOfRenderAttemptId?: string;
+  status: FinalRenderAttemptStatus;
+  profile: FinalRenderProfile;
+  paths: FinalRenderPaths;
+  expectedFps: number;
+  expectedWidth: number;
+  expectedHeight: number;
+  expectedDurationInFrames: number;
+  expectedAudio: boolean;
+  startedAt?: string;
+  completedAt?: string;
+  errorCode?: string;
+  errorDetail?: string;
+}
+
+export interface FinalRenderProbe {
+  container: string;
+  videoCodec: string;
+  audioCodec?: string;
+  pixelFormat: string;
+  width: number;
+  height: number;
+  fps: number;
+  durationMs: number;
+  hasAudioStream: boolean;
+}
+
+export interface FinalRenderResultImport {
+  schemaVersion: 1;
+  status: "RENDERED";
+  compositionId: "GenericFinalRender";
+  projectId: string;
+  projectSha256: string;
+  renderedAt: string;
+  metadata: {
+    fps: number;
+    width: number;
+    height: number;
+    durationInFrames: number;
+  };
+  output: {
+    path: string;
+    sizeBytes: number;
+    sha256: string;
+    codec: string;
+    audioCodec: string;
+    pixelFormat: string;
+    crf: number;
+  };
+  probe: FinalRenderProbe;
+}
+
+export type FinalRenderTechnicalQcStatus = "PASS" | "FAIL";
+
+export interface FinalRenderTechnicalQcRecord extends BaseEntity {
+  renderAttemptId: string;
+  renderAttemptRevision: number;
+  assemblyId: string;
+  assemblyRevision: number;
+  status: FinalRenderTechnicalQcStatus;
+  issueCodes: string[];
+  expected: {
+    projectSha256: string;
+    fps: number;
+    width: number;
+    height: number;
+    durationInFrames: number;
+    durationMs: number;
+    audioExpected: boolean;
+    codec: "h264";
+    audioCodec: "aac";
+    pixelFormat: "yuv420p";
+  };
+  actual: FinalRenderProbe;
+  outputPath: string;
+  outputSizeBytes: number;
+  outputSha256: string;
+}
+
+export type DeliveryManifestStatus = "READY" | "BLOCKED" | "STALE";
+
+export interface FinalDeliveryManifest extends BaseEntity {
+  renderAttemptId: string;
+  renderAttemptRevision: number;
+  technicalQcId: string;
+  technicalQcRevision: number;
+  assemblyId: string;
+  assemblyRevision: number;
+  projectSha256: string;
+  status: DeliveryManifestStatus;
+  outputPath: string;
+  outputSizeBytes: number;
+  outputSha256: string;
+  codec: "h264";
+  audioCodec?: "aac";
+  pixelFormat: "yuv420p";
+  fps: number;
+  width: number;
+  height: number;
+  durationInFrames: number;
+  durationMs: number;
+  createdFromRenderManifestPath: string;
+  technicalQcPath: string;
+}
+
+export interface FinalRenderReadiness {
+  renderReady: boolean;
+  technicalQcPassed: boolean;
+  deliveryReady: boolean;
+  status:
+    | "NOT_PREPARED"
+    | "READY"
+    | "RUNNING"
+    | "FAILED"
+    | "TECHNICAL_QC_FAILED"
+    | "DELIVERY_READY"
+    | "STALE";
+  blockers: string[];
+}
