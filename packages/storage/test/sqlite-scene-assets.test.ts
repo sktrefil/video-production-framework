@@ -319,6 +319,10 @@ test("WF-07 -> WF-08 -> WF-09 completes in one project.db with separate Asset/Me
     assert.equal(asset.assetStatus, "DESIGNED");
     assert.deepEqual(asset.design.identityAnchorIds, anchors.map(anchor => anchor.id));
 
+    const sceneWithPrimary = await assetRepo.getScene("prj_1", graph.scenes[0]!.id);
+    assert.equal(sceneWithPrimary?.primaryAssetId, asset.id);
+    assert.equal(sceneWithPrimary?.revision, sourceSceneRevision);
+
     const job = await pipeline.createImageGenerationJob({
       projectId: "prj_1",
       assetId: asset.id,
