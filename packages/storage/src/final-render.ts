@@ -191,7 +191,7 @@ export class SqliteFinalRenderRepository
     this.db.transaction(() => {
       this.supersedeAttempt(input.previousAttempt, input.event.createdAt);
       this.insertAttempt(input.nextAttempt);
-      this.insertQc(input.technicalQc);
+      this.insertTechnicalQc(input.technicalQc);
       if (input.previousDelivery !== null) {
         this.supersedeDelivery(input.previousDelivery, input.event.createdAt);
       }
@@ -262,7 +262,7 @@ export class SqliteFinalRenderRepository
     );
   }
 
-  private insertQc(qc: FinalRenderTechnicalQcRecord): void {
+  private insertTechnicalQc(qc: FinalRenderTechnicalQcRecord): void {
     this.db.prepare(
       "INSERT INTO final_render_technical_qc (id, project_id, revision, lifecycle_status, render_attempt_id, render_attempt_revision, assembly_id, assembly_revision, status, issue_codes_json, expected_json, actual_json, output_path, output_size_bytes, output_sha256, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(
