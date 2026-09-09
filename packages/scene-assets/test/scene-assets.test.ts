@@ -325,15 +325,17 @@ class Decisions implements SceneAssetDecisionPort {
     confidence: 0.95
   };
 
+  planDecision: AssetPlanDecision = {
+    assetClass: "PRIMARY_SCENE",
+    assetRole: "STANDARD",
+    productionPriority: "CRITICAL",
+    sourceStrategy: "GENERATE",
+    stateField: "STATE_CURRENT",
+    rationale: "기본 장면 이미지"
+  };
+
   async planAsset(): Promise<AssetPlanDecision> {
-    return {
-      assetClass: "PRIMARY_SCENE",
-      assetRole: "STANDARD",
-      productionPriority: "CRITICAL",
-      sourceStrategy: "GENERATE",
-      stateField: "STATE_CURRENT",
-      rationale: "기본 장면 이미지"
-    };
+    return { ...this.planDecision };
   }
   async designImageAsset(): Promise<ImageAssetDesignDecision> {
     return {
@@ -590,4 +592,107 @@ test("failed Provider Job retries as a new Job and batch operations preserve par
   assert.notEqual(retryJob.id, failed.job.id);
   assert.equal(retryJob.retryOfJobId, failed.job.id);
   assert.equal(retryJob.attempt, 2);
+});
+
+
+test("IMPORT and REUSE source strategies attach candidates without Provider Jobs", async () => {
+  const repository = new MemoryRepository();
+  const context = new MemoryContext();
+  const decisions = new Decisions();
+  const { service } = makePipeline({ repository, context, decisions });
+
+  decisions.planDecision = {
+    ...decisions.planDecision,
+    sourceStrategy: "IMPORT"
+  };
+  const importedAsset = await service.designPrimarySceneAsset({
+    projectId: "prj_1",
+    sceneId: "sc_1",
+    format: "SHORTFORM",
+    formatProfileVersion: "shorts-v1"
+  });
+  const imported = await service.registerImportedImageCandidate({
+    projectId: "prj_1",
+    assetId: importedAsset.id,
+    relativePath: "06_generated_assets/images/imported.png",
+    mimeType: "image/png",
+    checksum: "sha256:imported"
+  });
+  assert.equal(imported.asset.assetStatus, "CANDIDATE_AVAILABLE");
+  assert.equal(repository.jobs.length, 0);
+
+  decisions.planDecision = {
+    ...decisions.planDecision,
+    sourceStrategy: "REUSE"
+  };
+  const reuseAsset = await service.designPrimarySceneAsset({
+    projectId: "prj_1",
+    sceneId: "sc_2",
+    format: "SHORTFORM",
+    formatProfileVersion: "shorts-v1"
+  });
+  const reused = await service.reuseImageCandidate({
+    projectId: "prj_1",
+    assetId: reuseAsset.id,
+    mediaId: imported.media.id
+  });
+  assert.equal(reused.asset.assetStatus, "CANDIDATE_AVAILABLE");
+  assert.deepEqual(reused.asset.candidateMediaIds, [imported.media.id]);
+  assert.equal(repository.media.length, 1);
+});
+
+test("manual Image Job Pack exports prompts and batch result import isolates failures", async () => {
+  const { service } = makePipeline();
+  const batch = new SceneAssetBatchService(service);
+
+  const designed = await batch.designPrimarySceneAssets({
+    projectId: "prj_1",
+    sceneIds: ["sc_1", "sc_2"],
+    format: "SHORTFORM",
+    formatProfileVersion: "shorts-v1"
+  });
+  assert.equal(designed.status, "COMPLETE");
+  const assetIds = designed.items.map(item => item.value!.id);
+
+  const jobs = await batch.createImageGenerationJobs({
+    projectId: "prj_1",
+    assetIds,
+    format: "SHORTFORM",
+    provider: "GOOGLE_FLOW",
+    providerProfileVersion: "flow-v1",
+    executionMode: "MANUAL_EXTERNAL"
+  });
+  assert.equal(jobs.status, "COMPLETE");
+
+  const jobIds = jobs.items.map(item => item.value!.job.id);
+  const pack = await service.exportImageJobPack({
+    projectId: "prj_1",
+    jobIds
+  });
+  assert.equal(pack.schemaVersion, "1.0");
+  assert.equal(pack.jobs.length, 2);
+  assert.equal(pack.jobs.every(item => item.prompt.length > 0), true);
+  assert.deepEqual(pack.jobs.map(item => item.resultKey), jobIds);
+
+  const imported = await batch.importImageResults({
+    projectId: "prj_1",
+    items: [
+      {
+        jobId: jobIds[0]!,
+        relativePath: "06_generated_assets/images/job1.png",
+        mimeType: "image/png",
+        checksum: "sha256:job1"
+      },
+      {
+        jobId: jobIds[1]!,
+        relativePath: "../unsafe.png",
+        mimeType: "image/png",
+        checksum: "sha256:job2"
+      }
+    ]
+  });
+  assert.equal(imported.status, "PARTIAL_COMPLETE");
+  assert.equal(imported.succeeded, 1);
+  assert.equal(imported.failed, 1);
+  assert.equal(imported.items[1]?.code, "MEDIA_PATH_INVALID");
 });
