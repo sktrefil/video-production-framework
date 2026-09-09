@@ -16,6 +16,7 @@ AI-assisted video production orchestration framework.
   - WF-14 — Editor / Timeline Assembly: PASS
   - WF-15 — Generic Editor Motion Execution: PASS
   - WF-16 — Audio / TTS / Subtitle / BGM / SFX Timeline Assembly: PASS
+  - WF-17 — Final Render / Technical QC / Delivery Manifest: PASS
 
 ## Architecture
 
@@ -76,6 +77,18 @@ A1 TTS / A2 Clip Audio / A3 BGM / A4 SFX
 T1 Subtitles / T2 Text / G1 Graphics
 ↓
 Remotion-ready full editor timeline
+↓
+Production Gate
+↓
+GenericFinalRender
+↓
+final.mp4
+↓
+Technical QC
+↓
+delivery_manifest.json
+↓
+DELIVERY_READY
 ```
 
 ## Final implementation policy
@@ -105,6 +118,8 @@ WF-14 converts that handoff into the existing Generic Editor schemaVersion 1 vis
 WF-15 resolves the previous motion-renderer bottleneck. EDITORIAL_MOVE / REUSE_REFRAME are compiled once into deterministic IMAGE `motion.from / motion.to / easing` transforms, and the actual Generic Editor executes them with Remotion frame interpolation in the shared ProjectRenderer used by both Preview and GenericFinalRender. Invalid motion data is blocked by the production gate.
 
 WF-16 adds revisioned approved editor-content assembly. Existing AUDIO MediaArtifacts are bound as TTS/Clip Audio/BGM/SFX on A1-A4, subtitle cues retain TTS provenance on T1, text overlays use T2, and graphics use G1. The V1 visual duration remains authoritative; audio/text/graphics cannot silently extend the composition. Only BGM may loop beyond its source window.
+
+WF-17 pins the READY editor timeline by assembly revision and project SHA, tracks render attempts/retries, and accepts a final render only after Technical QC. The actual Generic Editor probes the local MP4 with the bundled @remotion/media-parser, verifies container/video/audio codec, dimensions, fps, duration and audio-stream expectations, and validates the controlled H264/AAC/yuv420p render profile. Only a Technical-QC PASS produces a current delivery manifest with status READY; editor changes stale any previous render/delivery.
 
 ## Validation
 
