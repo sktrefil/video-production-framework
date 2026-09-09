@@ -21,8 +21,17 @@ import type {
   HandoffQcDecision,
   LinkDecisionPort,
   PreLinkDecision,
-  ProductionDecisionWithMeta
+  ProductionDecisionWithMeta,
+  FinalClipDesignDecision,
+  FinalClipDecisionPort,
+  ProviderPreQcDecision,
+  VideoPromptDecision
 } from "@vpf/production-system";
+import {
+  FinalClipPipeline,
+  type FinalClipClock,
+  type FinalClipIdFactory
+} from "@vpf/final-clip";
 import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
@@ -51,6 +60,7 @@ import {
 import { SqliteStoryRepository } from "../src/index.js";
 import { SqliteSceneAssetRepository } from "../src/scene-assets.js";
 import { SqlitePreLinkHandoffRepository } from "../src/prelink-handoff.js";
+import { SqliteFinalClipRepository } from "../src/final-clip.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -58,6 +68,7 @@ const storyClock: StoryClock = { nowIso: () => now };
 const visualClock: VisualIdentityClock = { nowIso: () => now };
 const assetClock: SceneAssetClock = { nowIso: () => now };
 const linkClock: PreLinkHandoffClock = { nowIso: () => now };
+const finalClipClock: FinalClipClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -73,6 +84,10 @@ function assetIds(): SceneAssetIdFactory {
 }
 function linkIds(): PreLinkHandoffIdFactory {
   let n = 3000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function finalClipIds(): FinalClipIdFactory {
+  let n = 4000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -468,6 +483,66 @@ class LinkDecisions implements LinkDecisionPort {
   }
 }
 
+class FinalClipDecisions implements FinalClipDecisionPort {
+  async designFinalClip(): Promise<
+    ProductionDecisionWithMeta<FinalClipDesignDecision>
+  > {
+    return {
+      decision: {
+        implementationType: "CLIP",
+        clipMode: "DIRECT_START_END_I2V",
+        transitionMethod: "DIRECT",
+        durationMs: 5000,
+        cameraMove: "LOW",
+        subjectMotion: "LOW",
+        environmentMotion: "LOW",
+        rationale: "approved START and END state transition",
+        additionalAssetRequired: false
+      },
+      status: "SUCCESS",
+      confidence: 0.99,
+      requiresHumanReview: false,
+      warnings: [],
+      decisionId: "dec_final_clip_sqlite"
+    };
+  }
+
+  async runProviderPreQc(): Promise<
+    ProductionDecisionWithMeta<ProviderPreQcDecision>
+  > {
+    return {
+      decision: {
+        status: "PASS",
+        safetySafe: true,
+        capabilityCompatible: true,
+        requiresAlternativeRepresentation: false,
+        issueCodes: []
+      },
+      status: "SUCCESS",
+      confidence: 0.99,
+      requiresHumanReview: false,
+      warnings: [],
+      decisionId: "dec_provider_pre_qc_sqlite"
+    };
+  }
+
+  async compileVideoPrompt(): Promise<
+    ProductionDecisionWithMeta<VideoPromptDecision>
+  > {
+    return {
+      decision: {
+        prompt: "Use the approved START and END images exactly. Preserve identity and restrained motion.",
+        negativePrompt: "new character, identity drift, modern objects"
+      },
+      status: "SUCCESS",
+      confidence: 0.99,
+      requiresHumanReview: false,
+      warnings: [],
+      decisionId: "dec_video_prompt_sqlite"
+    };
+  }
+}
+
 test("WF-07 -> WF-08 -> WF-09 -> WF-10 completes in one project.db through actual Handoff QC", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
@@ -701,6 +776,130 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 completes in one project.db through actua
     assert.ok(outboxCount.count >= 20);
 
     linkRepo.close();
+
+    const finalRepo = new SqliteFinalClipRepository(dbPath);
+    const finalPipeline = new FinalClipPipeline(
+      finalRepo,
+      finalRepo,
+      new FinalClipDecisions(),
+      finalClipClock,
+      finalClipIds()
+    );
+
+    const finalDesign = await finalPipeline.designFinalImplementation({
+      projectId: "prj_10",
+      linkId: links[0]!.id,
+      format: "SHORTFORM"
+    });
+    assert.equal(finalDesign.kind, "CLIP");
+    if (finalDesign.kind !== "CLIP") {
+      throw new Error("Expected CLIP implementation");
+    }
+    assert.equal(finalDesign.clip.clipMode, "DIRECT_START_END_I2V");
+    assert.equal(finalDesign.clip.providerExecutionRequired, true);
+    assert.equal(finalDesign.clip.clipStatus, "DESIGNED");
+    assert.equal(finalDesign.approval?.approvalState, "AUTO_APPROVED");
+    assert.equal(finalDesign.link.linkStatus, "FINAL_DESIGN_READY");
+
+    const currentLink = await finalRepo.getLink("prj_10", links[0]!.id);
+    assert.equal(currentLink?.implementationType, "CLIP");
+    assert.equal(currentLink?.implementationRefId, finalDesign.clip.id);
+
+    const preflight = await finalPipeline.runProviderPreQc({
+      projectId: "prj_10",
+      clipId: finalDesign.clip.id,
+      format: "SHORTFORM",
+      provider: "GOOGLE_FLOW",
+      providerProfileVersion: "flow-v1"
+    });
+    assert.equal(preflight.preflight.status, "PASS");
+    assert.equal(preflight.clip.clipStatus, "READY");
+
+    const videoJob = await finalPipeline.createVideoGenerationJob({
+      projectId: "prj_10",
+      clipId: finalDesign.clip.id,
+      format: "SHORTFORM",
+      provider: "GOOGLE_FLOW",
+      providerProfileVersion: "flow-v1",
+      executionMode: "MANUAL_EXTERNAL"
+    });
+    assert.equal(videoJob.job.status, "WAITING_EXTERNAL");
+
+    const videoPack = await finalPipeline.exportVideoJobPack({
+      projectId: "prj_10",
+      jobIds: [videoJob.job.id]
+    });
+    assert.equal(videoPack.jobs.length, 1);
+    assert.equal(videoPack.jobs[0]!.clipMode, "DIRECT_START_END_I2V");
+    assert.ok(videoPack.jobs[0]!.startMediaPath.includes("wf10_scene_1.png"));
+    assert.ok(videoPack.jobs[0]!.endMediaPath?.includes("wf10_scene_2.png"));
+
+    const videoResult = await finalPipeline.registerVideoResult({
+      projectId: "prj_10",
+      jobId: videoJob.job.id,
+      relativePath: "07_generated_clips/wf11_clip_1.mp4",
+      mimeType: "video/mp4",
+      checksum: "sha256:wf11-clip-1",
+      durationMs: 5000,
+      width: 1080,
+      height: 1920
+    });
+    assert.equal(videoResult.job.status, "COMPLETE");
+    assert.equal(videoResult.clip.clipStatus, "CANDIDATE_AVAILABLE");
+    assert.equal(videoResult.clip.approvedMediaId, undefined);
+    assert.deepEqual(
+      videoResult.clip.candidateMediaIds,
+      [videoResult.media.id]
+    );
+
+    const clipRows = finalRepo.db.prepare(
+      `SELECT revision, lifecycle_status, clip_status
+       FROM production_clips
+       WHERE id = ?
+       ORDER BY revision`
+    ).all(finalDesign.clip.id) as Array<{
+      revision: number;
+      lifecycle_status: string;
+      clip_status: string;
+    }>;
+    assert.deepEqual(clipRows, [
+      { revision: 1, lifecycle_status: "SUPERSEDED", clip_status: "SUPERSEDED" },
+      { revision: 2, lifecycle_status: "SUPERSEDED", clip_status: "SUPERSEDED" },
+      { revision: 3, lifecycle_status: "SUPERSEDED", clip_status: "SUPERSEDED" },
+      { revision: 4, lifecycle_status: "ACTIVE", clip_status: "CANDIDATE_AVAILABLE" }
+    ]);
+
+    const preflightCount = finalRepo.db.prepare(
+      `SELECT COUNT(*) AS count
+       FROM provider_preflights
+       WHERE project_id = ? AND clip_id = ? AND status = 'PASS'`
+    ).get("prj_10", finalDesign.clip.id) as { count: number };
+    assert.equal(preflightCount.count, 1);
+
+    const clipQcCount = finalRepo.db.prepare(
+      `SELECT COUNT(*) AS count
+       FROM qc_results
+       WHERE project_id = ? AND qc_type = 'CLIP_QC' AND target_id = ?`
+    ).get("prj_10", finalDesign.clip.id) as { count: number };
+    assert.equal(clipQcCount.count, 0);
+
+    const clipMediaApprovalCount = finalRepo.db.prepare(
+      `SELECT COUNT(*) AS count
+       FROM approval_records
+       WHERE project_id = ?
+         AND target_type = 'CLIP'
+         AND target_id = ?
+         AND selected_media_id IS NOT NULL`
+    ).get("prj_10", finalDesign.clip.id) as { count: number };
+    assert.equal(clipMediaApprovalCount.count, 0);
+
+    const sceneAfterFinalClip = await finalRepo.getScene(
+      "prj_10",
+      graph.scenes[0]!.id
+    );
+    assert.equal(sceneAfterFinalClip?.revision, sceneRevisionBeforeLink);
+
+    finalRepo.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
