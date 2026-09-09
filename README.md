@@ -8,7 +8,8 @@ AI-assisted video production orchestration framework.
 - PHASE 2 — PRODUCTION CORE
   - WF-07 — Research / Script / Story Pipeline: PASS
   - WF-08 — Visual Identity Pipeline: PASS
-  - WF-09 — Scene Asset Pipeline: NEXT
+  - WF-09 — Scene Asset Pipeline: PASS
+  - WF-10 — Pre-Link / Handoff Pipeline: NEXT
 
 ## Architecture
 
@@ -28,8 +29,26 @@ Channel Visual Bible + Project Style
 ↓
 Identity Anchors
 ↓
-Scene Assets (WF-09)
+Scene Asset
+↓
+Image Candidate
+↓
+Image QC
+↓
+Approved Scene Asset
+↓
+Pre-Link / Handoff (WF-10)
 ```
+
+## Scene Asset source strategies
+
+```
+GENERATE
+IMPORT
+REUSE
+```
+
+Manual external generation supports Image Job Pack export and batch result import.
 
 ## Validation
 
