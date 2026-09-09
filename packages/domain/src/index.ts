@@ -64,6 +64,8 @@ export type ApprovalTargetType =
   | "SCRIPT"
   | "STORY_STRUCTURE"
   | "SCENE"
+  | "PROJECT_STYLE"
+  | "IDENTITY_ANCHOR"
   | "ASSET"
   | "CLIP";
 
@@ -142,4 +144,52 @@ export interface ProjectRecord extends BaseEntity {
   title: string;
   format: ProjectFormat;
   versions: VersionPins;
+}
+
+
+export interface VisualFreshness {
+  stale: boolean;
+  staleReason?: string;
+}
+
+export interface ProjectStyle extends BaseEntity, VisualFreshness {
+  channelVisualBibleVersion: string;
+  sourceScriptId: string;
+  sourceScriptRevision: number;
+  eraRegion: string;
+  visualApproach: string;
+  realismLevel: string;
+  colorLanguage: string;
+  lightingLanguage: string;
+  materialLanguage: string;
+  environmentLanguage: string;
+  characterRenderingPrinciple: string;
+  cameraCompositionTendency: string;
+  moodRange: string[];
+  factualConstraints: string[];
+  avoidances: string[];
+}
+
+export type IdentityAnchorType = "CHARACTER" | "LOCATION" | "PROP";
+export type AnchorContinuityReason = "RECURRING" | "CRITICAL_CONTINUITY";
+export type ProductionPriority = "CRITICAL" | "IMPORTANT" | "SUPPORTING";
+
+export interface IdentitySpecification {
+  locked: string[];
+  contextual: string[];
+  temporary: string[];
+}
+
+export interface IdentityAnchor extends BaseEntity, VisualFreshness {
+  anchorType: IdentityAnchorType;
+  name: string;
+  rationale: string;
+  continuityReason: AnchorContinuityReason;
+  productionPriority: ProductionPriority;
+  specification: IdentitySpecification;
+  requiredBySceneIds: string[];
+  referenceMediaIds: string[];
+  sourceProjectStyleId: string;
+  sourceProjectStyleRevision: number;
+  sourceChannelVisualBibleVersion: string;
 }
