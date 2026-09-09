@@ -14,7 +14,7 @@ import type {
 import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
 import { FOUNDATION_MIGRATION_SQL } from "./index.js";
 
-export const VISUAL_IDENTITY_MIGRATION_SQL = "PRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS project_styles (\n  id TEXT NOT NULL,\n  project_id TEXT NOT NULL,\n  revision INTEGER NOT NULL,\n  lifecycle_status TEXT NOT NULL,\n  channel_visual_bible_version TEXT NOT NULL,\n  source_script_id TEXT NOT NULL,\n  source_script_revision INTEGER NOT NULL,\n  era_region TEXT NOT NULL,\n  visual_approach TEXT NOT NULL,\n  realism_level TEXT NOT NULL,\n  color_language TEXT NOT NULL,\n  lighting_language TEXT NOT NULL,\n  material_language TEXT NOT NULL,\n  environment_language TEXT NOT NULL,\n  character_rendering_principle TEXT NOT NULL,\n  camera_composition_tendency TEXT NOT NULL,\n  mood_range_json TEXT NOT NULL,\n  factual_constraints_json TEXT NOT NULL,\n  avoidances_json TEXT NOT NULL,\n  stale INTEGER NOT NULL DEFAULT 0,\n  stale_reason TEXT,\n  created_at TEXT NOT NULL,\n  updated_at TEXT NOT NULL,\n  PRIMARY KEY(id, revision)\n);\n\nCREATE TABLE IF NOT EXISTS identity_anchors (\n  id TEXT NOT NULL,\n  project_id TEXT NOT NULL,\n  revision INTEGER NOT NULL,\n  lifecycle_status TEXT NOT NULL,\n  anchor_type TEXT NOT NULL,\n  name TEXT NOT NULL,\n  rationale TEXT NOT NULL,\n  continuity_reason TEXT NOT NULL,\n  production_priority TEXT NOT NULL,\n  locked_spec_json TEXT NOT NULL,\n  contextual_spec_json TEXT NOT NULL,\n  temporary_spec_json TEXT NOT NULL,\n  required_by_scene_ids_json TEXT NOT NULL,\n  reference_media_ids_json TEXT NOT NULL,\n  source_project_style_id TEXT NOT NULL,\n  source_project_style_revision INTEGER NOT NULL,\n  source_channel_visual_bible_version TEXT NOT NULL,\n  stale INTEGER NOT NULL DEFAULT 0,\n  stale_reason TEXT,\n  created_at TEXT NOT NULL,\n  updated_at TEXT NOT NULL,\n  PRIMARY KEY(id, revision)\n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_project_style\n  ON project_styles(project_id) WHERE lifecycle_status = 'ACTIVE';\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_identity_anchor\n  ON identity_anchors(id) WHERE lifecycle_status = 'ACTIVE';\n\nCREATE INDEX IF NOT EXISTS idx_project_styles_project\n  ON project_styles(project_id);\n\nCREATE INDEX IF NOT EXISTS idx_identity_anchors_project\n  ON identity_anchors(project_id);\n";
+export const VISUAL_IDENTITY_MIGRATION_SQL = "PRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS project_styles (\n  id TEXT NOT NULL,\n  project_id TEXT NOT NULL,\n  revision INTEGER NOT NULL,\n  lifecycle_status TEXT NOT NULL,\n  channel_visual_bible_version TEXT NOT NULL,\n  source_script_id TEXT NOT NULL,\n  source_script_revision INTEGER NOT NULL,\n  era_region TEXT NOT NULL,\n  visual_approach TEXT NOT NULL,\n  realism_level TEXT NOT NULL,\n  color_language TEXT NOT NULL,\n  lighting_language TEXT NOT NULL,\n  material_language TEXT NOT NULL,\n  environment_language TEXT NOT NULL,\n  character_rendering_principle TEXT NOT NULL,\n  camera_composition_tendency TEXT NOT NULL,\n  mood_range_json TEXT NOT NULL,\n  factual_constraints_json TEXT NOT NULL,\n  avoidances_json TEXT NOT NULL,\n  stale INTEGER NOT NULL DEFAULT 0,\n  stale_reason TEXT,\n  created_at TEXT NOT NULL,\n  updated_at TEXT NOT NULL,\n  PRIMARY KEY(id, revision)\n);\n\nCREATE TABLE IF NOT EXISTS identity_anchors (\n  id TEXT NOT NULL,\n  project_id TEXT NOT NULL,\n  revision INTEGER NOT NULL,\n  lifecycle_status TEXT NOT NULL,\n  anchor_type TEXT NOT NULL,\n  name TEXT NOT NULL,\n  rationale TEXT NOT NULL,\n  continuity_reason TEXT NOT NULL,\n  production_priority TEXT NOT NULL,\n  locked_spec_json TEXT NOT NULL,\n  contextual_spec_json TEXT NOT NULL,\n  temporary_spec_json TEXT NOT NULL,\n  required_by_scene_ids_json TEXT NOT NULL,\n  reference_media_ids_json TEXT NOT NULL,\n  source_project_style_id TEXT NOT NULL,\n  source_project_style_revision INTEGER NOT NULL,\n  source_channel_visual_bible_version TEXT NOT NULL,\n  stale INTEGER NOT NULL DEFAULT 0,\n  stale_reason TEXT,\n  created_at TEXT NOT NULL,\n  updated_at TEXT NOT NULL,\n  PRIMARY KEY(id, revision)\n);\n\nCREATE TABLE IF NOT EXISTS scene_identity_anchor_requirements (\n  project_id TEXT NOT NULL,\n  scene_id TEXT NOT NULL,\n  anchor_id TEXT NOT NULL,\n  anchor_revision INTEGER NOT NULL,\n  PRIMARY KEY(project_id, scene_id, anchor_id)\n);\n\nCREATE INDEX IF NOT EXISTS idx_scene_identity_requirements_scene\n  ON scene_identity_anchor_requirements(project_id, scene_id);\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_project_style\n  ON project_styles(project_id) WHERE lifecycle_status = 'ACTIVE';\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_identity_anchor\n  ON identity_anchors(id) WHERE lifecycle_status = 'ACTIVE';\n\nCREATE INDEX IF NOT EXISTS idx_project_styles_project\n  ON project_styles(project_id);\n\nCREATE INDEX IF NOT EXISTS idx_identity_anchors_project\n  ON identity_anchors(project_id);\n";
 
 const encode = (values: string[]) => JSON.stringify(values);
 const decode = (value: string): string[] => JSON.parse(value) as string[];
@@ -259,7 +259,7 @@ export class SqliteVisualIdentityRepository
          AND stale = 0
        ORDER BY sequence_id, display_number`
     ).all(projectId) as any[];
-    return rows.map(mapScene);
+    return rows.map((row) => this.withAnchorRequirements(mapScene(row)));
   }
 
   async listApprovedScenes(projectId: string): Promise<Scene[]> {
@@ -279,7 +279,7 @@ export class SqliteVisualIdentityRepository
          )
        ORDER BY s.sequence_id, s.display_number`
     ).all(projectId) as any[];
-    return rows.map(mapScene);
+    return rows.map((row) => this.withAnchorRequirements(mapScene(row)));
   }
 
   async getLatestProjectStyle(projectId: string): Promise<ProjectStyle | null> {
@@ -386,6 +386,26 @@ export class SqliteVisualIdentityRepository
       ).run(input.event.createdAt, projectId);
 
       for (const anchor of input.nextAnchors) this.insertAnchor(anchor);
+
+      this.db.prepare(
+        "DELETE FROM scene_identity_anchor_requirements WHERE project_id = ?"
+      ).run(projectId);
+      const requirementInsert = this.db.prepare(
+        `INSERT INTO scene_identity_anchor_requirements
+         (project_id, scene_id, anchor_id, anchor_revision)
+         VALUES (?, ?, ?, ?)`
+      );
+      for (const anchor of input.nextAnchors) {
+        for (const sceneId of anchor.requiredBySceneIds) {
+          requirementInsert.run(
+            projectId,
+            sceneId,
+            anchor.id,
+            anchor.revision
+          );
+        }
+      }
+
       insertEvent(this.db, input.event, input.outbox);
     })();
   }
@@ -436,6 +456,31 @@ export class SqliteVisualIdentityRepository
     })();
   }
 
+  async markProjectStyleAndAnchorsStale(input: {
+    projectStyleId: string;
+    anchorIds: string[];
+    reason: string;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void> {
+    this.db.transaction(() => {
+      this.db.prepare(
+        `UPDATE project_styles
+         SET stale = 1, stale_reason = ?
+         WHERE id = ? AND lifecycle_status = 'ACTIVE'`
+      ).run(input.reason, input.projectStyleId);
+
+      for (const anchorId of input.anchorIds) {
+        this.db.prepare(
+          `UPDATE identity_anchors
+           SET stale = 1, stale_reason = ?
+           WHERE id = ? AND lifecycle_status = 'ACTIVE'`
+        ).run(input.reason, anchorId);
+      }
+      insertEvent(this.db, input.event, input.outbox);
+    })();
+  }
+
   async getLatestApproval(
     projectId: string,
     targetType: ApprovalRecord["targetType"],
@@ -447,6 +492,19 @@ export class SqliteVisualIdentityRepository
        ORDER BY created_at DESC, rowid DESC LIMIT 1`
     ).get(projectId, targetType, targetId) as any;
     return row === undefined ? null : mapApproval(row);
+  }
+
+  private withAnchorRequirements(scene: Scene): Scene {
+    const rows = this.db.prepare(
+      `SELECT anchor_id FROM scene_identity_anchor_requirements
+       WHERE project_id = ? AND scene_id = ?
+       ORDER BY anchor_id`
+    ).all(scene.projectId, scene.id) as Array<{ anchor_id: string }>;
+    if (rows.length === 0) return scene;
+    return {
+      ...scene,
+      requiredIdentityAnchorIds: rows.map((row) => row.anchor_id)
+    };
   }
 
   private insertProjectStyle(style: ProjectStyle): void {
