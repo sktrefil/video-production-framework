@@ -19,7 +19,6 @@ export interface VisualIdentityContextPort {
   getLatestApprovedFinalScript(projectId: string): Promise<ScriptVersion | null>;
   listApprovedFacts(projectId: string): Promise<FactRecord[]>;
   listActiveScenes(projectId: string): Promise<Scene[]>;
-  listApprovedScenes(projectId: string): Promise<Scene[]>;
 }
 
 export interface ChannelVisualBiblePort {
@@ -67,6 +66,13 @@ export interface VisualIdentityRepository {
     event: WorkflowEvent;
     outbox: OutboxRecord;
   }): Promise<void>;
+  markProjectStyleAndAnchorsStale(input: {
+    projectStyleId: string;
+    anchorIds: string[];
+    reason: string;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void>;
   getLatestApproval(
     projectId: string,
     targetType: ApprovalRecord["targetType"],
@@ -98,7 +104,6 @@ export class VisualIdentityValidationError extends Error {
     public readonly code:
       | "FINAL_SCRIPT_APPROVAL_REQUIRED"
       | "STORY_SCENES_REQUIRED"
-      | "APPROVED_SCENES_REQUIRED"
       | "CHANNEL_VISUAL_BIBLE_NOT_FOUND"
       | "PROJECT_STYLE_NOT_FOUND"
       | "PROJECT_STYLE_APPROVAL_REQUIRED"
@@ -385,10 +390,12 @@ export class VisualIdentityPipeline {
 
   async reviseProjectStyle(input: {
     projectId: string;
-    patch: Partial<Omit<
+    patch: Partial<Pick<
       ProjectStyle,
-      "id" | "projectId" | "revision" | "lifecycleStatus" |
-      "createdAt" | "updatedAt" | "stale"
+      "eraRegion" | "visualApproach" | "realismLevel" | "colorLanguage" |
+      "lightingLanguage" | "materialLanguage" | "environmentLanguage" |
+      "characterRenderingPrinciple" | "cameraCompositionTendency" |
+      "moodRange" | "factualConstraints" | "avoidances"
     >>;
   }): Promise<ProjectStyle> {
     const previous = await this.repository.getLatestProjectStyle(input.projectId);
@@ -490,11 +497,11 @@ export class VisualIdentityPipeline {
         "Approved final script is required for Identity Anchor planning."
       );
     }
-    const scenes = await this.context.listApprovedScenes(input.projectId);
+    const scenes = await this.context.listActiveScenes(input.projectId);
     if (scenes.length === 0) {
       throw new VisualIdentityValidationError(
-        "APPROVED_SCENES_REQUIRED",
-        "Approve Scene designs before planning Identity Anchors."
+        "STORY_SCENES_REQUIRED",
+        "Generate the story Scenes before planning Identity Anchors."
       );
     }
     const channelVisualBible = await this.bible.resolve(
@@ -590,7 +597,7 @@ export class VisualIdentityPipeline {
         requiredBySceneIds: next.requiredBySceneIds,
         specification: next.specification
       }]
-    }, await this.context.listApprovedScenes(input.projectId));
+    }, await this.context.listActiveScenes(input.projectId));
 
     const { event, outbox } = durableEvent(this.ids, this.clock, {
       projectId: input.projectId,
@@ -659,7 +666,7 @@ export class VisualIdentityPipeline {
 
   async reconcileStoryChange(projectId: string): Promise<string[]> {
     const approvedSceneIds = new Set(
-      (await this.context.listApprovedScenes(projectId)).map((scene) => scene.id)
+      (await this.context.listActiveScenes(projectId)).map((scene) => scene.id)
     );
     const anchors = await this.repository.listActiveAnchors(projectId);
     const staleAnchorIds = anchors
@@ -685,6 +692,48 @@ export class VisualIdentityPipeline {
       outbox
     });
     return staleAnchorIds;
+  }
+
+  async reconcileApprovedScriptChange(projectId: string): Promise<{
+    projectStyleStale: boolean;
+    staleAnchorIds: string[];
+  }> {
+    const style = await this.repository.getLatestProjectStyle(projectId);
+    if (style === null) {
+      return { projectStyleStale: false, staleAnchorIds: [] };
+    }
+    const script = await this.context.getLatestApprovedFinalScript(projectId);
+    if (
+      script === null ||
+      (style.sourceScriptId === script.id &&
+        style.sourceScriptRevision === script.revision)
+    ) {
+      return { projectStyleStale: false, staleAnchorIds: [] };
+    }
+
+    const staleAnchorIds = (await this.repository.listActiveAnchors(projectId))
+      .map((anchor) => anchor.id);
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId,
+      eventType: "VISUAL_IDENTITY_STALE_FROM_SCRIPT_CHANGE",
+      targetType: "PROJECT_STYLE",
+      targetId: style.id,
+      trigger: "WORKFLOW_ENGINE",
+      payload: {
+        projectStyleRevision: style.revision,
+        approvedScriptId: script.id,
+        approvedScriptRevision: script.revision,
+        staleAnchorIds
+      }
+    });
+    await this.repository.markProjectStyleAndAnchorsStale({
+      projectStyleId: style.id,
+      anchorIds: staleAnchorIds,
+      reason: "FINAL_SCRIPT_CHANGED",
+      event,
+      outbox
+    });
+    return { projectStyleStale: true, staleAnchorIds };
   }
 
   async getReadiness(projectId: string): Promise<IdentityReadiness> {
@@ -803,10 +852,6 @@ function mapVisualIdentityError(
     STORY_SCENES_REQUIRED: {
       message: "먼저 장면 구성을 생성해야 합니다.",
       action: "GENERATE_STORY_STRUCTURE"
-    },
-    APPROVED_SCENES_REQUIRED: {
-      message: "기준 대상 계획 전에 장면 구성을 승인해야 합니다.",
-      action: "APPROVE_SCENES"
     },
     CHANNEL_VISUAL_BIBLE_NOT_FOUND: {
       message: "프로젝트에 지정된 채널 비주얼 바이블 버전을 찾을 수 없습니다.",
