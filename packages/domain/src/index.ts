@@ -557,7 +557,6 @@ export interface FinalMediaBinding extends BaseEntity {
   sourceQcId?: string;
   sourceInMs?: number;
   sourceOutMs?: number;
-  sourceAssetDurationMs?: number;
   durationMs: number;
   transitionMethod: TransitionMethod;
   cameraMove?: string;
@@ -587,6 +586,7 @@ export interface EditorHandoffItem {
   relativePath?: string;
   sourceInMs?: number;
   sourceOutMs?: number;
+  sourceAssetDurationMs?: number;
   durationMs: number;
   transitionMethod: TransitionMethod;
   cameraMove?: string;
