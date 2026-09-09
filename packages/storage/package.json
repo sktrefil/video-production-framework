@@ -6,7 +6,8 @@
     ".": "./dist/index.js",
     "./visual-identity": "./dist/visual-identity.js",
     "./scene-assets": "./dist/scene-assets.js",
-    "./prelink-handoff": "./dist/prelink-handoff.js"
+    "./prelink-handoff": "./dist/prelink-handoff.js",
+    "./final-clip": "./dist/final-clip.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -15,6 +16,7 @@
     "@vpf/visual-identity": "0.1.0",
     "@vpf/scene-assets": "0.1.0",
     "@vpf/prelink-handoff": "0.1.0",
+    "@vpf/final-clip": "0.1.0",
     "@vpf/workflow": "0.1.0",
     "better-sqlite3": "^11.10.0"
   },
