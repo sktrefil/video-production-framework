@@ -121,16 +121,22 @@ function isFiniteConfidence(value: number): boolean {
 }
 
 function normalizeMetadata(input: PublishMetadata): PublishMetadata {
-  const title = input.title.trim();
-  const description = input.description;
-  const tags = [...new Set(input.tags.map(tag => tag.trim()).filter(Boolean))];
-  const language = input.language?.trim();
-  const categoryId = input.categoryId?.trim();
-
-  if (!title) {
+  if (input.platform !== "YOUTUBE") {
+    throw new FinalOutputValidationError(
+      "PUBLISH_METADATA_INVALID",
+      "WF-18 currently supports YOUTUBE publish handoff."
+    );
+  }
+  if (typeof input.title !== "string" || !input.title.trim()) {
     throw new FinalOutputValidationError(
       "PUBLISH_METADATA_INVALID",
       "Publish title is required."
+    );
+  }
+  if (typeof input.description !== "string") {
+    throw new FinalOutputValidationError(
+      "PUBLISH_METADATA_INVALID",
+      "Publish description must be a string."
     );
   }
   if (!Array.isArray(input.tags)) {
@@ -139,12 +145,34 @@ function normalizeMetadata(input: PublishMetadata): PublishMetadata {
       "Publish tags must be an array."
     );
   }
-  if (input.platform !== "YOUTUBE") {
+  if (!["PRIVATE", "UNLISTED", "PUBLIC"].includes(input.visibility)) {
     throw new FinalOutputValidationError(
       "PUBLISH_METADATA_INVALID",
-      "WF-18 currently supports YOUTUBE publish handoff."
+      "Publish visibility is invalid."
     );
   }
+  if (typeof input.madeForKids !== "boolean") {
+    throw new FinalOutputValidationError(
+      "PUBLISH_METADATA_INVALID",
+      "madeForKids must be boolean."
+    );
+  }
+  if (
+    input.thumbnail !== undefined &&
+    (typeof input.thumbnail.relativePath !== "string" ||
+      !input.thumbnail.relativePath.trim())
+  ) {
+    throw new FinalOutputValidationError(
+      "PUBLISH_METADATA_INVALID",
+      "thumbnail.relativePath is required."
+    );
+  }
+
+  const title = input.title.trim();
+  const description = input.description;
+  const tags = [...new Set(input.tags.map(tag => String(tag).trim()).filter(Boolean))];
+  const language = input.language?.trim();
+  const categoryId = input.categoryId?.trim();
 
   return {
     platform: "YOUTUBE",
@@ -158,7 +186,7 @@ function normalizeMetadata(input: PublishMetadata): PublishMetadata {
     ...(input.thumbnail
       ? {
           thumbnail: {
-            relativePath: input.thumbnail.relativePath,
+            relativePath: input.thumbnail.relativePath.trim(),
             ...(input.thumbnail.sizeBytes === undefined
               ? {}
               : {sizeBytes: input.thumbnail.sizeBytes}),
