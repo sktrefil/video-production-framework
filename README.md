@@ -7,7 +7,8 @@ AI-assisted video production orchestration framework.
 - PHASE 1 — FOUNDATION: FINAL / VALIDATED / FOUNDATION_LOCK
 - PHASE 2 — PRODUCTION CORE
   - WF-07 — Research / Script / Story Pipeline: PASS
-  - WF-08 — Visual Identity Pipeline: NEXT
+  - WF-08 — Visual Identity Pipeline: PASS
+  - WF-09 — Scene Asset Pipeline: NEXT
 
 ## Architecture
 
@@ -15,6 +16,20 @@ AI-assisted video production orchestration framework.
 - AI VIDEO PRODUCTION SYSTEM v2.0.0: decision plane
 - Media providers: execution plane
 - Editor Binding + Remotion: editorial plane
+
+## Current production graph
+
+```
+Approved Script
+↓
+Chapter / Sequence / Scene
+↓
+Channel Visual Bible + Project Style
+↓
+Identity Anchors
+↓
+Scene Assets (WF-09)
+```
 
 ## Validation
 
