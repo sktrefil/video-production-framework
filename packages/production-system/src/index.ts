@@ -5,6 +5,7 @@ import type {
   MediaArtifact,
   ProductionAsset,
   ProductionLink,
+  ProductionClip,
   ProductionPriority,
   ProjectFormat,
   ProjectStyle,
@@ -624,6 +625,193 @@ export class ProductionLinkPlanner implements LinkDecisionPort {
       );
     }
 
+    return {
+      decision: response.decision,
+      status: response.status,
+      confidence: response.confidence,
+      requiresHumanReview:
+        response.requiresHumanReview || response.status === "NEEDS_REVIEW",
+      warnings: [...response.warnings],
+      decisionId: response.decisionId
+    };
+  }
+}
+
+
+export interface FinalClipBaseContext {
+  projectId: string;
+  format: ProjectFormat;
+  link: ProductionLink;
+  fromScene: Scene;
+  toScene: Scene;
+  fromAsset: ProductionAsset;
+  fromMedia: MediaArtifact;
+  toAsset: ProductionAsset;
+  toMedia: MediaArtifact;
+}
+
+export interface FinalClipDesignDecision {
+  implementationType: "CLIP" | "CUT";
+  clipMode?: 
+    | "DIRECT_START_END_I2V"
+    | "SINGLE_IMAGE_I2V"
+    | "EDITORIAL_MOVE"
+    | "STATIC_HOLD"
+    | "REUSE_REFRAME";
+  singleImageSource?: "FROM" | "TO";
+  transitionMethod:
+    | "DIRECT"
+    | "HARD_CUT"
+    | "MATCH_CUT"
+    | "OBJECT_MATCH"
+    | "DIRECTION_MATCH"
+    | "OCCLUSION"
+    | "SOUND_BRIDGE"
+    | "LIGHT_SHIFT"
+    | "RESET";
+  durationMs?: number;
+  cameraMove?: string;
+  subjectMotion?: string;
+  environmentMotion?: string;
+  rationale: string;
+  additionalAssetRequired: boolean;
+  additionalAssetReason?: string;
+}
+
+export interface ProviderPreQcDecision {
+  status: "PASS" | "NEEDS_REVIEW" | "BLOCKED";
+  safetySafe: boolean;
+  capabilityCompatible: boolean;
+  requiresAlternativeRepresentation: boolean;
+  issueCodes: string[];
+  recommendedAction?: string;
+}
+
+export interface VideoPromptDecision {
+  prompt: string;
+  negativePrompt?: string;
+}
+
+export interface FinalClipDecisionPort {
+  designFinalClip(
+    input: FinalClipBaseContext
+  ): Promise<ProductionDecisionWithMeta<FinalClipDesignDecision>>;
+  runProviderPreQc(
+    input: FinalClipBaseContext & {
+      clip: ProductionClip;
+      provider: string;
+      providerProfileVersion: string;
+    }
+  ): Promise<ProductionDecisionWithMeta<ProviderPreQcDecision>>;
+  compileVideoPrompt(
+    input: FinalClipBaseContext & {
+      clip: ProductionClip;
+      provider: string;
+      providerProfileVersion: string;
+    }
+  ): Promise<ProductionDecisionWithMeta<VideoPromptDecision>>;
+}
+
+export class ProductionFinalClipPlanner implements FinalClipDecisionPort {
+  constructor(
+    private readonly adapter: ProductionSystemAdapter,
+    private readonly taskIds: TaskIdFactory
+  ) {}
+
+  async designFinalClip(
+    input: FinalClipBaseContext
+  ): Promise<ProductionDecisionWithMeta<FinalClipDesignDecision>> {
+    return this.execute<FinalClipDesignDecision, FinalClipBaseContext>(
+      "FINAL_CLIP_DESIGN",
+      input,
+      {
+        type: "LINK",
+        id: input.link.id,
+        revision: input.link.revision
+      }
+    );
+  }
+
+  async runProviderPreQc(
+    input: FinalClipBaseContext & {
+      clip: ProductionClip;
+      provider: string;
+      providerProfileVersion: string;
+    }
+  ): Promise<ProductionDecisionWithMeta<ProviderPreQcDecision>> {
+    return this.execute<
+      ProviderPreQcDecision,
+      FinalClipBaseContext & {
+        clip: ProductionClip;
+        provider: string;
+        providerProfileVersion: string;
+      }
+    >(
+      "PROVIDER_PRE_QC",
+      input,
+      {
+        type: "CLIP",
+        id: input.clip.id,
+        revision: input.clip.revision
+      }
+    );
+  }
+
+  async compileVideoPrompt(
+    input: FinalClipBaseContext & {
+      clip: ProductionClip;
+      provider: string;
+      providerProfileVersion: string;
+    }
+  ): Promise<ProductionDecisionWithMeta<VideoPromptDecision>> {
+    return this.execute<
+      VideoPromptDecision,
+      FinalClipBaseContext & {
+        clip: ProductionClip;
+        provider: string;
+        providerProfileVersion: string;
+      }
+    >(
+      "VIDEO_PROMPT",
+      input,
+      {
+        type: "CLIP",
+        id: input.clip.id,
+        revision: input.clip.revision
+      }
+    );
+  }
+
+  private async execute<TDecision, TContext extends { projectId: string }>(
+    taskType: ProductionTaskType,
+    context: TContext,
+    target: ProductionTaskRequest["target"]
+  ): Promise<ProductionDecisionWithMeta<TDecision>> {
+    const response = await this.adapter.execute<TDecision, TContext>({
+      taskId: this.taskIds.nextTaskId(),
+      taskType,
+      projectId: context.projectId,
+      target,
+      context
+    });
+    if (response.status === "BLOCKED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_BLOCKED",
+        response.decisionSummary
+      );
+    }
+    if (response.status === "FAILED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_FAILED",
+        response.decisionSummary
+      );
+    }
+    if (response.decision === undefined) {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_INVALID",
+        "Production decision did not include a structured decision payload."
+      );
+    }
     return {
       decision: response.decision,
       status: response.status,
