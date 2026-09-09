@@ -14,6 +14,7 @@ AI-assisted video production orchestration framework.
   - WF-12 — QC / Fallback Engine: PASS
   - WF-13 — Final Media Binding / Editor Handoff: PASS
   - WF-14 — Editor / Timeline Assembly: PASS
+  - WF-15 — Generic Editor Motion Execution: PASS
 
 ## Architecture
 
@@ -63,6 +64,10 @@ Editor / Timeline Assembly
 ↓
 Generic Editor edit_project.json
 ↓
+Executable EDITORIAL_MOVE / REUSE_REFRAME motion
+↓
+Shared Preview / Final ProjectRenderer
+↓
 Remotion-ready visual timeline
 ```
 
@@ -88,7 +93,9 @@ Generated Provider media remains a Candidate until WF-12 QC and approval. TRIM_P
 
 WF-13 binds only current approved implementations. Provider video bindings require the durable selected-media approval and PASS/TRIM_PASS QC; editorial modes bind the approved START image; CUT is emitted as a media-free editor instruction. The editor handoff is exported as a `media_binding.json`-shaped manifest and becomes READY only when every current implementation is bound.
 
-WF-14 converts that handoff into the existing Generic Editor schemaVersion 1 visual timeline and produces an `edit_project.json`-compatible project. VIDEO trim windows are converted to source frames, STATIC_HOLD becomes IMAGE, and CUT remains a zero-duration boundary. EDITORIAL_MOVE / REUSE_REFRAME motion intent is preserved as a directive and Remotion readiness is blocked until the current Generic Editor gains executable motion support.
+WF-14 converts that handoff into the existing Generic Editor schemaVersion 1 visual timeline and produces an `edit_project.json`-compatible project. VIDEO trim windows are converted to source frames, STATIC_HOLD becomes IMAGE, and CUT remains a zero-duration boundary.
+
+WF-15 resolves the previous motion-renderer bottleneck. EDITORIAL_MOVE / REUSE_REFRAME are compiled once into deterministic IMAGE `motion.from / motion.to / easing` transforms, and the actual Generic Editor executes them with Remotion frame interpolation in the shared ProjectRenderer used by both Preview and GenericFinalRender. Invalid motion data is blocked by the production gate.
 
 ## Validation
 
