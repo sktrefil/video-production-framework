@@ -178,6 +178,19 @@ class MemoryRepository implements SceneAssetRepository {
     this.record(input.event, input.outbox);
   }
 
+  async commitAssetCandidate(input: {
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    media?: MediaArtifact;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }) {
+    this.supersedeAsset(input.previousAsset);
+    this.assets.push(input.nextAsset);
+    if (input.media) this.media.push(input.media);
+    this.record(input.event, input.outbox);
+  }
+
   async createProviderJob(input: {
     job: ProviderJob;
     asset: ProductionAsset;
