@@ -385,6 +385,8 @@ export interface ProductionLink extends BaseEntity, VisualFreshness {
   toAssetRevision?: number;
   toMediaId?: string;
   handoffQcId?: string;
+  handoffUsable?: boolean;
+  handoffReviewApprovalId?: string;
   preLinkMatch: PreLinkMatch;
   linkStatus: LinkStatus;
 }
