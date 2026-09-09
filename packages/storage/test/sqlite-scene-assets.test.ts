@@ -1,0 +1,411 @@
+import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import type {
+  AssetPlanDecision,
+  ChannelVisualBibleSnapshot,
+  FormatProfileSnapshot,
+  ImageAssetDesignDecision,
+  ImagePromptDecision,
+  ImageQcDecision,
+  SceneAssetDecisionPort,
+  SceneDesignDecision,
+  SequenceDesignDecision,
+  StoryDecisionPort,
+  StructureDesignDecision,
+  VisualIdentityDecisionPort,
+  ProjectStyleDecision,
+  AnchorPlanDecision
+} from "@vpf/production-system";
+import {
+  SceneAssetPipeline,
+  type ChannelVisualBiblePort as AssetBiblePort,
+  type FormatProfilePort,
+  type ImageApprovalPolicy,
+  type SceneAssetClock,
+  type SceneAssetIdFactory
+} from "@vpf/scene-assets";
+import {
+  StoryGenerationService,
+  StoryPipeline,
+  type IdFactory,
+  type StoryClock
+} from "@vpf/story";
+import {
+  VisualIdentityPipeline,
+  type ChannelVisualBiblePort as VisualBiblePort,
+  type VisualIdentityClock,
+  type VisualIdentityIdFactory
+} from "@vpf/visual-identity";
+import { SqliteStoryRepository } from "../src/index.js";
+import { SqliteSceneAssetRepository } from "../src/scene-assets.js";
+import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
+
+const now = "2026-09-09T12:00:00.000Z";
+const storyClock: StoryClock = { nowIso: () => now };
+const visualClock: VisualIdentityClock = { nowIso: () => now };
+const assetClock: SceneAssetClock = { nowIso: () => now };
+
+function storyIds(): IdFactory {
+  let n = 0;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function visualIds(): VisualIdentityIdFactory {
+  let n = 1000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function assetIds(): SceneAssetIdFactory {
+  let n = 2000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+
+const storyDecisions: StoryDecisionPort = {
+  async designStructure(): Promise<StructureDesignDecision> {
+    return { chapters: [{ key: "c1", displayNumber: 1, title: "1장" }] };
+  },
+  async designSequences(): Promise<SequenceDesignDecision> {
+    return {
+      sequences: [{
+        key: "q1",
+        chapterKey: "c1",
+        displayNumber: 1,
+        title: "시퀀스",
+        storyPurpose: "인물의 두 장면"
+      }]
+    };
+  },
+  async designScenes(): Promise<SceneDesignDecision> {
+    return {
+      scenes: [
+        {
+          key: "s1",
+          sequenceKey: "q1",
+          displayNumber: 1,
+          scriptSegment: "첫 장면.",
+          stateIn: "A",
+          stateCurrent: "B",
+          stateOut: "C",
+          primaryVisualIdea: "인물이 등장한다",
+          mustBeSeen: ["인물"],
+          canBeNarrated: [],
+          canBeImplied: [],
+          requiredIdentityAnchorIds: []
+        },
+        {
+          key: "s2",
+          sequenceKey: "q1",
+          displayNumber: 2,
+          scriptSegment: "둘째 장면.",
+          stateIn: "C",
+          stateCurrent: "D",
+          stateOut: "E",
+          primaryVisualIdea: "같은 인물이 다시 등장한다",
+          mustBeSeen: ["같은 인물"],
+          canBeNarrated: [],
+          canBeImplied: [],
+          requiredIdentityAnchorIds: []
+        }
+      ]
+    };
+  }
+};
+
+const styleDecision: ProjectStyleDecision = {
+  eraRegion: "조선 후기",
+  visualApproach: "역사 다큐 재현",
+  realismLevel: "사실적",
+  colorLanguage: "저채도",
+  lightingLanguage: "자연광",
+  materialLanguage: "목재와 한지",
+  environmentLanguage: "고증 공간",
+  characterRenderingPrinciple: "동일 인물 유지",
+  cameraCompositionTendency: "관찰형",
+  moodRange: ["절제"],
+  factualConstraints: [],
+  avoidances: ["현대 물건"]
+};
+
+function visualDecisions(sceneIds: string[]): VisualIdentityDecisionPort {
+  return {
+    async designProjectStyle() {
+      return styleDecision;
+    },
+    async planIdentityAnchors(): Promise<AnchorPlanDecision> {
+      return {
+        anchors: [{
+          key: "person",
+          anchorType: "CHARACTER",
+          name: "반복 인물",
+          rationale: "두 장면 동일 인물",
+          continuityReason: "RECURRING",
+          productionPriority: "CRITICAL",
+          requiredBySceneIds: sceneIds,
+          specification: {
+            locked: ["얼굴 구조", "연령대", "기본 복식"],
+            contextual: ["표정"],
+            temporary: []
+          }
+        }]
+      };
+    }
+  };
+}
+
+class AssetDecisions implements SceneAssetDecisionPort {
+  async planAsset(): Promise<AssetPlanDecision> {
+    return {
+      assetClass: "PRIMARY_SCENE",
+      assetRole: "STANDARD",
+      productionPriority: "CRITICAL",
+      sourceStrategy: "GENERATE",
+      stateField: "STATE_CURRENT",
+      rationale: "Scene 기본 이미지"
+    };
+  }
+  async designImageAsset(): Promise<ImageAssetDesignDecision> {
+    return {
+      visualGoal: "Scene의 현재 상태를 보여준다",
+      composition: "중경",
+      continuityRequirements: ["반복 인물 동일성"],
+      identityAnchorIds: [],
+      factualConstraints: [],
+      avoidances: ["현대 물건"]
+    };
+  }
+  async compileImagePrompt(input: Parameters<SceneAssetDecisionPort["compileImagePrompt"]>[0]): Promise<ImagePromptDecision> {
+    return {
+      prompt: `render scene ${input.scene.id} with approved style and identity`,
+      negativePrompt: "modern objects"
+    };
+  }
+  async runImageQc(): Promise<ImageQcDecision> {
+    return {
+      qcStatus: "PASS",
+      severity: "MINOR",
+      confidence: 0.97
+    };
+  }
+}
+
+const bibleSnapshot: ChannelVisualBibleSnapshot = {
+  version: "2.0.0",
+  resourceId: "history-channel",
+  contentHash: "sha256:bible",
+  payload: { canonical: true }
+};
+
+const visualBible: VisualBiblePort = {
+  async resolve(version: string) {
+    return version === "2.0.0" ? bibleSnapshot : null;
+  }
+};
+const assetBible: AssetBiblePort = {
+  async resolve(version: string) {
+    return version === "2.0.0" ? bibleSnapshot : null;
+  }
+};
+
+const formatProfile: FormatProfileSnapshot = {
+  version: "shorts-v1",
+  resourceId: "shorts",
+  contentHash: "sha256:format",
+  payload: { aspectRatio: "9:16" }
+};
+const formats: FormatProfilePort = {
+  async resolve(version: string) {
+    return version === "shorts-v1" ? formatProfile : null;
+  }
+};
+
+const manualApproval: ImageApprovalPolicy = {
+  shouldAutoApprove: () => false
+};
+
+test("WF-07 -> WF-08 -> WF-09 completes in one project.db with separate Asset/Media/QC/Approval history", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "vpf-wf09-"));
+  const dbPath = join(dir, "project.db");
+
+  try {
+    const storyRepo = new SqliteStoryRepository(dbPath);
+    const sid = storyIds();
+    const story = new StoryPipeline(storyRepo, storyClock, sid);
+    const storyGeneration = new StoryGenerationService(
+      storyRepo,
+      storyDecisions,
+      storyClock,
+      sid
+    );
+
+    const script = await story.createScript({
+      projectId: "prj_1",
+      body: "첫 장면. 둘째 장면.",
+      kind: "FINAL"
+    });
+    await story.approveFinalScript({ projectId: "prj_1", scriptId: script.id });
+    const graph = await storyGeneration.generate({
+      projectId: "prj_1",
+      format: "SHORTFORM"
+    });
+    await storyGeneration.approveStructure({ projectId: "prj_1" });
+    await storyGeneration.approveScenes({
+      projectId: "prj_1",
+      sceneIds: graph.scenes.map(scene => scene.id)
+    });
+    storyRepo.close();
+
+    const visualRepo = new SqliteVisualIdentityRepository(dbPath);
+    const vid = visualIds();
+    const visual = new VisualIdentityPipeline(
+      visualRepo,
+      visualRepo,
+      visualBible,
+      visualDecisions(graph.scenes.map(scene => scene.id)),
+      visualClock,
+      vid
+    );
+    await visual.generateProjectStyle({
+      projectId: "prj_1",
+      format: "SHORTFORM",
+      channelVisualBibleVersion: "2.0.0"
+    });
+    await visual.approveProjectStyle({ projectId: "prj_1" });
+    const anchors = await visual.planIdentityAnchors({
+      projectId: "prj_1",
+      format: "SHORTFORM"
+    });
+    await visual.approveAnchors({
+      projectId: "prj_1",
+      anchorIds: anchors.map(anchor => anchor.id)
+    });
+    visualRepo.close();
+
+    const assetRepo = new SqliteSceneAssetRepository(dbPath);
+    const aid = assetIds();
+    const decisions = new AssetDecisions();
+
+    // The real adapter must return every required Anchor ID in IMAGE_ASSET_DESIGN.
+    decisions.designImageAsset = async () => ({
+      visualGoal: "Scene의 현재 상태를 보여준다",
+      composition: "중경",
+      continuityRequirements: ["반복 인물 동일성"],
+      identityAnchorIds: anchors.map(anchor => anchor.id),
+      factualConstraints: [],
+      avoidances: ["현대 물건"]
+    });
+
+    const pipeline = new SceneAssetPipeline(
+      assetRepo,
+      assetRepo,
+      assetBible,
+      formats,
+      decisions,
+      manualApproval,
+      assetClock,
+      aid
+    );
+
+    const sourceScene = await assetRepo.getScene("prj_1", graph.scenes[0]!.id);
+    assert.equal(sourceScene?.sceneStatus, "APPROVED");
+    const sourceSceneRevision = sourceScene!.revision;
+
+    const asset = await pipeline.designPrimarySceneAsset({
+      projectId: "prj_1",
+      sceneId: graph.scenes[0]!.id,
+      format: "SHORTFORM",
+      formatProfileVersion: "shorts-v1"
+    });
+    assert.equal(asset.assetStatus, "DESIGNED");
+    assert.deepEqual(asset.design.identityAnchorIds, anchors.map(anchor => anchor.id));
+
+    const job = await pipeline.createImageGenerationJob({
+      projectId: "prj_1",
+      assetId: asset.id,
+      format: "SHORTFORM",
+      provider: "GOOGLE_FLOW",
+      providerProfileVersion: "flow-v1",
+      executionMode: "MANUAL_EXTERNAL"
+    });
+    assert.equal(job.job.status, "WAITING_EXTERNAL");
+
+    const result = await pipeline.registerImageResult({
+      projectId: "prj_1",
+      jobId: job.job.id,
+      relativePath: "06_generated_assets/images/med_scene_1.png",
+      mimeType: "image/png",
+      checksum: "sha256:image",
+      width: 1080,
+      height: 1920
+    });
+
+    const qc = await pipeline.runImageQc({
+      projectId: "prj_1",
+      assetId: asset.id,
+      mediaId: result.media.id,
+      format: "SHORTFORM"
+    });
+    assert.equal(qc.asset.assetStatus, "NEEDS_REVIEW");
+    assert.equal(qc.qc.qcStatus, "PASS");
+
+    const approved = await pipeline.approveAsset({
+      projectId: "prj_1",
+      assetId: asset.id,
+      mediaId: result.media.id
+    });
+    assert.equal(approved.asset.assetStatus, "APPROVED");
+    assert.equal(approved.asset.approvedMediaId, result.media.id);
+    assert.equal(approved.approval.selectedMediaId, result.media.id);
+
+    const sceneAfter = await assetRepo.getScene("prj_1", graph.scenes[0]!.id);
+    assert.equal(sceneAfter?.revision, sourceSceneRevision);
+
+    const activeAssetCount = assetRepo.db.prepare(
+      "SELECT COUNT(*) AS count FROM production_assets WHERE id = ? AND lifecycle_status = 'ACTIVE'"
+    ).get(asset.id) as { count: number };
+    assert.equal(activeAssetCount.count, 1);
+
+    const assetRevisionCount = assetRepo.db.prepare(
+      "SELECT COUNT(*) AS count FROM production_assets WHERE id = ?"
+    ).get(asset.id) as { count: number };
+    assert.equal(assetRevisionCount.count, 5);
+
+    const mediaCount = assetRepo.db.prepare(
+      "SELECT COUNT(*) AS count FROM media_artifacts WHERE id = ?"
+    ).get(result.media.id) as { count: number };
+    const qcCount = assetRepo.db.prepare(
+      "SELECT COUNT(*) AS count FROM qc_results WHERE target_id = ? AND media_id = ?"
+    ).get(asset.id, result.media.id) as { count: number };
+    const approvalRow = assetRepo.db.prepare(
+      `SELECT selected_media_id
+       FROM approval_records
+       WHERE target_type = 'ASSET' AND target_id = ?
+       ORDER BY rowid DESC LIMIT 1`
+    ).get(asset.id) as { selected_media_id: string };
+
+    assert.equal(mediaCount.count, 1);
+    assert.equal(qcCount.count, 1);
+    assert.equal(approvalRow.selected_media_id, result.media.id);
+
+    const jobRevisions = assetRepo.db.prepare(
+      "SELECT revision, status, lifecycle_status FROM provider_jobs WHERE id = ? ORDER BY revision"
+    ).all(job.job.id) as Array<{
+      revision: number;
+      status: string;
+      lifecycle_status: string;
+    }>;
+    assert.deepEqual(jobRevisions, [
+      { revision: 1, status: "WAITING_EXTERNAL", lifecycle_status: "SUPERSEDED" },
+      { revision: 2, status: "COMPLETE", lifecycle_status: "ACTIVE" }
+    ]);
+
+    const outboxCount = assetRepo.db.prepare(
+      "SELECT COUNT(*) AS count FROM event_outbox WHERE status = 'PENDING'"
+    ).get() as { count: number };
+    assert.ok(outboxCount.count >= 10);
+
+    assetRepo.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
