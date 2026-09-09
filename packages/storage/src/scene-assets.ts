@@ -662,7 +662,7 @@ export class SqliteSceneAssetRepository
       );
   }
 
-  private insertMedia(media: MediaArtifact): void {
+  protected insertMedia(media: MediaArtifact): void {
     this.db.prepare(`INSERT INTO media_artifacts
       (id, project_id, revision, lifecycle_status, media_type, relative_path, mime_type,
        width, height, duration_ms, checksum, source_job_id, media_status, created_at, updated_at)
@@ -686,7 +686,7 @@ export class SqliteSceneAssetRepository
       );
   }
 
-  private insertJob(job: ProviderJob): void {
+  protected insertJob(job: ProviderJob): void {
     this.db.prepare(`INSERT INTO provider_jobs
       (id, project_id, revision, lifecycle_status, job_type, provider,
        provider_profile_version, target_type, target_id, target_revision,
