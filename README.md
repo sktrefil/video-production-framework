@@ -11,7 +11,7 @@ AI-assisted video production orchestration framework.
   - WF-09 — Scene Asset Pipeline: PASS
   - WF-10 — Pre-Link / Handoff Pipeline: PASS
   - WF-11 — Final Clip / Provider Job Pipeline: PASS
-  - WF-12 — QC / Fallback Engine: NEXT
+  - WF-12 — QC / Fallback Engine: PASS
 
 ## Architecture
 
@@ -47,7 +47,11 @@ Video Provider Job
 ↓
 Candidate Video
 ↓
-Clip QC / Fallback (WF-12)
+Clip QC / Fallback
+↓
+PASS / TRIM_PASS / Editorial or Regeneration Recovery
+↓
+Approved Clip Media / Editorial-ready Clip
 ```
 
 ## Final implementation policy
@@ -68,7 +72,7 @@ REUSE_REFRAME
 CUT
 ```
 
-Generated Provider media remains a Candidate until WF-12 QC and approval.
+Generated Provider media remains a Candidate until WF-12 QC and approval. TRIM_PASS preserves the approved usable range instead of discarding an otherwise usable clip.
 
 ## Validation
 
