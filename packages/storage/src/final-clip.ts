@@ -277,6 +277,8 @@ export class SqliteFinalClipRepository
   async commitAdditionalAssetRequirement(input: {
     previousLink: ProductionLink;
     nextLink: ProductionLink;
+    previousClip: ProductionClip | null;
+    previousCut: LinkCutImplementation | null;
     reason: string;
     decisionId: string;
     event: WorkflowEvent;
@@ -285,6 +287,11 @@ export class SqliteFinalClipRepository
     this.db.transaction(() => {
       this.supersedeLink(input.previousLink, input.event.createdAt);
       this.insertLink(input.nextLink);
+      this.supersedeExistingImplementations(
+        input.previousClip,
+        input.previousCut,
+        input.event.createdAt
+      );
       insertEvent(this.db, input.event, input.outbox);
     })();
   }
