@@ -445,6 +445,7 @@ export interface ProductionClip extends BaseEntity, VisualFreshness {
   environmentMotion: string;
   durationMs: number;
   providerExecutionRequired: boolean;
+  finalDesignApprovalId?: string;
   providerPreflightId?: string;
   candidateMediaIds: string[];
   approvedMediaId?: string;
@@ -476,5 +477,6 @@ export interface LinkCutImplementation extends BaseEntity, VisualFreshness {
   linkRevision: number;
   transitionMethod: TransitionMethod;
   rationale: string;
+  finalDesignApprovalId?: string;
   ready: boolean;
 }
