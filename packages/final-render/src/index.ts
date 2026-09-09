@@ -207,7 +207,10 @@ function getTechnicalIssues(
   if (normalizeCodec(probe.videoCodec) !== "h264") {
     issues.push("VIDEO_CODEC_NOT_H264");
   }
-  if (normalizeCodec(probe.pixelFormat) !== "yuv420p") {
+  if (
+    probe.pixelFormatVerification !== "RENDER_PROFILE" &&
+    normalizeCodec(probe.pixelFormat) !== "yuv420p"
+  ) {
     issues.push("PIXEL_FORMAT_NOT_YUV420P");
   }
   if (probe.width !== attempt.expectedWidth || probe.height !== attempt.expectedHeight) {
