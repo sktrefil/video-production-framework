@@ -557,6 +557,7 @@ export interface FinalMediaBinding extends BaseEntity {
   sourceQcId?: string;
   sourceInMs?: number;
   sourceOutMs?: number;
+  sourceAssetDurationMs?: number;
   durationMs: number;
   transitionMethod: TransitionMethod;
   cameraMove?: string;
@@ -609,4 +610,130 @@ export interface EditorHandoffManifest {
     implementationId: string;
     reason: string;
   }>;
+}
+export type GenericEditorTrackType = "VIDEO" | "AUDIO" | "TEXT" | "GRAPHIC";
+export type GenericEditorVisualItemType = "VIDEO" | "IMAGE";
+
+export interface GenericEditorTrack {
+  id: string;
+  type: GenericEditorTrackType;
+  name: string;
+  enabled: boolean;
+  locked: boolean;
+  order: number;
+}
+
+export interface GenericEditorProjectMetadata {
+  id: string;
+  name: string;
+  fps: number;
+  width: number;
+  height: number;
+  durationInFrames: number;
+}
+
+export interface GenericEditorProjectSettings {
+  snapEnabled: boolean;
+  snapToleranceFrames: number;
+  timelineZoom: number;
+  masterVolume: number;
+}
+
+export interface GenericEditorBaseVisualItem {
+  id: string;
+  type: GenericEditorVisualItemType;
+  trackId: string;
+  timelineStartFrame: number;
+  durationInFrames: number;
+  enabled: boolean;
+  locked: boolean;
+  zIndex?: number;
+}
+
+export interface GenericEditorVideoItem extends GenericEditorBaseVisualItem {
+  type: "VIDEO";
+  src: string;
+  sourceStartFrame: number;
+  sourceDurationInFrames: number;
+  sourceAssetDurationInFrames: number;
+  playbackRate: number;
+  volume: number;
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+  opacity: number;
+  fit: "cover" | "contain";
+}
+
+export interface GenericEditorImageItem extends GenericEditorBaseVisualItem {
+  type: "IMAGE";
+  src: string;
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+  opacity: number;
+  fit: "cover" | "contain";
+}
+
+export type GenericEditorVisualItem =
+  | GenericEditorVideoItem
+  | GenericEditorImageItem;
+
+export interface GenericEditProject {
+  schemaVersion: 1;
+  project: GenericEditorProjectMetadata;
+  tracks: GenericEditorTrack[];
+  items: GenericEditorVisualItem[];
+  settings: GenericEditorProjectSettings;
+}
+
+export interface EditorCutBoundary {
+  order: number;
+  timelineFrame: number;
+  linkId: string;
+  implementationId: string;
+  transitionMethod: TransitionMethod;
+}
+
+export interface EditorMotionDirective {
+  itemId: string;
+  bindingId: string;
+  clipMode: "EDITORIAL_MOVE" | "REUSE_REFRAME";
+  cameraMove?: string;
+  subjectMotion?: string;
+  environmentMotion?: string;
+  supportedByCurrentRenderer: false;
+}
+
+export type TimelineAssemblyStatus = "READY" | "PARTIAL" | "BLOCKED";
+
+export interface TimelineAssemblyRecord extends BaseEntity {
+  sourceBindingRefs: Array<{
+    bindingId: string;
+    bindingRevision: number;
+  }>;
+  fps: number;
+  width: number;
+  height: number;
+  assemblyStatus: TimelineAssemblyStatus;
+  stale: boolean;
+  staleReason?: string;
+  editProject: GenericEditProject;
+  cutBoundaries: EditorCutBoundary[];
+  motionDirectives: EditorMotionDirective[];
+  blockers: string[];
+}
+
+export interface TimelineAssemblyOutput {
+  schemaVersion: "1.0";
+  projectId: string;
+  createdAt: string;
+  recommendedFileName: "edit_project.json";
+  status: TimelineAssemblyStatus;
+  editProject: GenericEditProject;
+  cutBoundaries: EditorCutBoundary[];
+  motionDirectives: EditorMotionDirective[];
+  blockers: string[];
 }
