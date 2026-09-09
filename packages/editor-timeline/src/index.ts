@@ -1,11 +1,18 @@
 import type {
+  EditorContentPlan,
+  EditorContentPlanRef,
   EditorCutBoundary,
   EditorHandoffManifest,
   EditorMotionDirective,
   GenericEditProject,
+  GenericEditorAudioItem,
+  GenericEditorGraphicItem,
   GenericEditorImageItem,
   GenericEditorImageMotionSpec,
+  GenericEditorSubtitleItem,
+  GenericEditorTextItem,
   GenericEditorVideoItem,
+  MediaArtifact,
   TimelineAssemblyOutput,
   TimelineAssemblyRecord
 } from "@vpf/domain";
@@ -13,6 +20,20 @@ import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
 
 export interface EditorHandoffSourcePort {
   buildEditorHandoff(projectId: string): Promise<EditorHandoffManifest>;
+}
+
+export interface EditorContentSourcePort {
+  getLatestEditorContentPlan(projectId: string): Promise<EditorContentPlan | null>;
+  getMedia(projectId: string, mediaId: string): Promise<MediaArtifact | null>;
+}
+
+export interface EditorContentPlanRepository extends EditorContentSourcePort {
+  commitEditorContentPlan(input: {
+    previousPlan: EditorContentPlan | null;
+    plan: EditorContentPlan;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void>;
 }
 
 export interface TimelineAssemblyRepository {
@@ -36,7 +57,7 @@ export interface TimelineAssemblyClock {
 }
 
 export interface TimelineAssemblyIdFactory {
-  next(prefix: "assembly" | "evt" | "outbox"): string;
+  next(prefix: "assembly" | "content-plan" | "evt" | "outbox"): string;
 }
 
 export interface TimelineProfile {
@@ -70,6 +91,67 @@ export interface TimelineAssemblyOutcome {
   output: TimelineAssemblyOutput;
   created: boolean;
 }
+
+export interface EditorContentPlanInput {
+  projectId: string;
+  planStatus: EditorContentPlan["planStatus"];
+  audio: EditorContentPlan["audio"];
+  subtitles: EditorContentPlan["subtitles"];
+  textOverlays: EditorContentPlan["textOverlays"];
+  graphics: EditorContentPlan["graphics"];
+}
+
+export class EditorContentPlanService {
+  constructor(
+    private readonly repository: EditorContentPlanRepository,
+    private readonly clock: TimelineAssemblyClock,
+    private readonly ids: TimelineAssemblyIdFactory
+  ) {}
+
+  async savePlan(input: EditorContentPlanInput): Promise<EditorContentPlan> {
+    const previous = await this.repository.getLatestEditorContentPlan(input.projectId);
+    const now = this.clock.nowIso();
+    const plan: EditorContentPlan = {
+      id: previous?.id ?? this.ids.next("content-plan"),
+      projectId: input.projectId,
+      revision: previous === null ? 1 : previous.revision + 1,
+      lifecycleStatus: "ACTIVE",
+      createdAt: previous?.createdAt ?? now,
+      updatedAt: now,
+      planStatus: input.planStatus,
+      audio: structuredClone(input.audio),
+      subtitles: structuredClone(input.subtitles),
+      textOverlays: structuredClone(input.textOverlays),
+      graphics: structuredClone(input.graphics)
+    };
+
+    const { event, outbox } = durableEvent(this.ids, this.clock, {
+      projectId: input.projectId,
+      eventType: "EDITOR_CONTENT_PLAN_SAVED",
+      targetType: "PROJECT",
+      targetId: input.projectId,
+      trigger: "WORKFLOW_ENGINE",
+      payload: {
+        contentPlanId: plan.id,
+        contentPlanRevision: plan.revision,
+        planStatus: plan.planStatus,
+        audioCount: plan.audio.length,
+        subtitleCount: plan.subtitles.length,
+        textOverlayCount: plan.textOverlays.length,
+        graphicCount: plan.graphics.length
+      }
+    });
+
+    await this.repository.commitEditorContentPlan({
+      previousPlan: previous,
+      plan,
+      event,
+      outbox
+    });
+    return plan;
+  }
+}
+
 
 function durableEvent(
   ids: TimelineAssemblyIdFactory,
