@@ -387,6 +387,94 @@ export interface ProductionLink extends BaseEntity, VisualFreshness {
   handoffQcId?: string;
   handoffUsable?: boolean;
   handoffReviewApprovalId?: string;
+  implementationType?: "CLIP" | "CUT";
+  implementationRefId?: string;
   preLinkMatch: PreLinkMatch;
   linkStatus: LinkStatus;
+}
+
+
+export type ClipMode =
+  | "DIRECT_START_END_I2V"
+  | "SINGLE_IMAGE_I2V"
+  | "EDITORIAL_MOVE"
+  | "STATIC_HOLD"
+  | "REUSE_REFRAME";
+
+export type TransitionMethod =
+  | "DIRECT"
+  | "HARD_CUT"
+  | "MATCH_CUT"
+  | "OBJECT_MATCH"
+  | "DIRECTION_MATCH"
+  | "OCCLUSION"
+  | "SOUND_BRIDGE"
+  | "LIGHT_SHIFT"
+  | "RESET";
+
+export type ClipStatus =
+  | "NOT_DESIGNED"
+  | "DESIGNED"
+  | "READY"
+  | "GENERATING"
+  | "CANDIDATE_AVAILABLE"
+  | "QC_PENDING"
+  | "NEEDS_REVIEW"
+  | "APPROVED"
+  | "EDITORIAL_FIX_REQUIRED"
+  | "REGENERATE_REQUIRED"
+  | "FALLBACK_REQUIRED"
+  | "BLOCKED"
+  | "SUPERSEDED";
+
+export interface ProductionClip extends BaseEntity, VisualFreshness {
+  linkId: string;
+  linkRevision: number;
+  clipMode: ClipMode;
+  clipStartStateRef: StateRef;
+  clipEndStateTarget: StateRef;
+  startAssetId: string;
+  startAssetRevision: number;
+  startMediaId: string;
+  endAssetId?: string;
+  endAssetRevision?: number;
+  endMediaId?: string;
+  transitionMethod: TransitionMethod;
+  cameraMove: string;
+  subjectMotion: string;
+  environmentMotion: string;
+  durationMs: number;
+  providerExecutionRequired: boolean;
+  providerPreflightId?: string;
+  candidateMediaIds: string[];
+  approvedMediaId?: string;
+  clipStatus: ClipStatus;
+}
+
+export type ProviderPreflightStatus =
+  | "PASS"
+  | "NEEDS_REVIEW"
+  | "BLOCKED";
+
+export interface ProviderPreflightRecord extends BaseEntity {
+  clipId: string;
+  clipRevision: number;
+  provider: string;
+  providerProfileVersion: string;
+  status: ProviderPreflightStatus;
+  safetySafe: boolean;
+  capabilityCompatible: boolean;
+  requiresAlternativeRepresentation: boolean;
+  issueCodes: string[];
+  recommendedAction?: string;
+  decisionId: string;
+  reviewApprovalId?: string;
+}
+
+export interface LinkCutImplementation extends BaseEntity, VisualFreshness {
+  linkId: string;
+  linkRevision: number;
+  transitionMethod: TransitionMethod;
+  rationale: string;
+  ready: boolean;
 }
