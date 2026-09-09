@@ -4,13 +4,15 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.js",
-    "./visual-identity": "./dist/visual-identity.js"
+    "./visual-identity": "./dist/visual-identity.js",
+    "./scene-assets": "./dist/scene-assets.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",
     "@vpf/story": "0.1.0",
     "@vpf/visual-identity": "0.1.0",
+    "@vpf/scene-assets": "0.1.0",
     "@vpf/workflow": "0.1.0",
     "better-sqlite3": "^11.10.0"
   },
