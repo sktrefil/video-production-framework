@@ -10,7 +10,8 @@ AI-assisted video production orchestration framework.
   - WF-08 — Visual Identity Pipeline: PASS
   - WF-09 — Scene Asset Pipeline: PASS
   - WF-10 — Pre-Link / Handoff Pipeline: PASS
-  - WF-11 — Final Clip / Provider Job Pipeline: NEXT
+  - WF-11 — Final Clip / Provider Job Pipeline: PASS
+  - WF-12 — QC / Fallback Engine: NEXT
 
 ## Architecture
 
@@ -38,26 +39,36 @@ Actual Asset Handoff QC
 ↓
 HANDOFF_PASS
 ↓
-Final Clip / Provider Job (WF-11)
-```
-
-## Link model
-
-```
-SCENE_A.STATE_OUT
+Final Clip Design
 ↓
-LINK
+Provider Pre-QC
 ↓
-SCENE_B.STATE_IN
+Video Provider Job
+↓
+Candidate Video
+↓
+Clip QC / Fallback (WF-12)
 ```
 
-Actual Handoff QC uses the canonical Production System contract:
+## Final implementation policy
+
+Provider execution is required for:
 
 ```
-task = QC
-target = LINK
-qcType = HANDOFF_QC
+DIRECT_START_END_I2V
+SINGLE_IMAGE_I2V
 ```
+
+Provider execution is bypassed for:
+
+```
+EDITORIAL_MOVE
+STATIC_HOLD
+REUSE_REFRAME
+CUT
+```
+
+Generated Provider media remains a Candidate until WF-12 QC and approval.
 
 ## Validation
 
