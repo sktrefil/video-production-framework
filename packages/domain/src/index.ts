@@ -480,3 +480,61 @@ export interface LinkCutImplementation extends BaseEntity, VisualFreshness {
   finalDesignApprovalId?: string;
   ready: boolean;
 }
+
+export type ClipQcStatus =
+  | "PASS"
+  | "TRIM_PASS"
+  | "EDITORIAL_FIX"
+  | "REGENERATE"
+  | "FALLBACK"
+  | "BLOCKED";
+
+export interface ClipQcRecord extends BaseEntity {
+  clipId: string;
+  clipRevision: number;
+  candidateMediaId: string;
+  status: ClipQcStatus;
+  severity: QcSeverity;
+  confidence: number;
+  usableInMs?: number;
+  usableOutMs?: number;
+  issues: string[];
+  regenerationReason?: string;
+  editorialInstruction?: string;
+  fallbackReason?: string;
+  decisionId: string;
+}
+
+export type ClipFallbackAction =
+  | "REGENERATE"
+  | "EDITORIAL_MOVE"
+  | "STATIC_HOLD"
+  | "REUSE_REFRAME"
+  | "CUT"
+  | "ADDITIONAL_ASSET_REQUIRED"
+  | "BLOCK";
+
+export interface ClipFallbackRecord extends BaseEntity {
+  clipId: string;
+  clipRevision: number;
+  sourceQcId: string;
+  action: ClipFallbackAction;
+  rationale: string;
+  decisionId: string;
+  requiresHumanReview: boolean;
+  applied: boolean;
+  resultingImplementationType?: "CLIP" | "CUT";
+  resultingImplementationRefId?: string;
+}
+
+export type AggregateQcStatus = "PASS" | "PARTIAL" | "BLOCKED";
+
+export interface AggregateQcSummary {
+  scopeType: "SEQUENCE" | "CHAPTER" | "PROJECT";
+  scopeId: string;
+  status: AggregateQcStatus;
+  readyImplementations: number;
+  totalImplementations: number;
+  blockedImplementationIds: string[];
+  pendingImplementationIds: string[];
+}
