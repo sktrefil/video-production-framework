@@ -12,6 +12,7 @@ AI-assisted video production orchestration framework.
   - WF-10 — Pre-Link / Handoff Pipeline: PASS
   - WF-11 — Final Clip / Provider Job Pipeline: PASS
   - WF-12 — QC / Fallback Engine: PASS
+  - WF-13 — Final Media Binding / Editor Handoff: PASS
 
 ## Architecture
 
@@ -52,6 +53,12 @@ Clip QC / Fallback
 PASS / TRIM_PASS / Editorial or Regeneration Recovery
 ↓
 Approved Clip Media / Editorial-ready Clip
+↓
+Final Media Binding
+↓
+media_binding.json
+↓
+Editor / Remotion Handoff READY
 ```
 
 ## Final implementation policy
@@ -74,9 +81,11 @@ CUT
 
 Generated Provider media remains a Candidate until WF-12 QC and approval. TRIM_PASS preserves the approved usable range instead of discarding an otherwise usable clip.
 
+WF-13 binds only current approved implementations. Provider video bindings require the durable selected-media approval and PASS/TRIM_PASS QC; editorial modes bind the approved START image; CUT is emitted as a media-free editor instruction. The editor handoff is exported as a `media_binding.json`-shaped manifest and becomes READY only when every current implementation is bound.
+
 ## Validation
 
-The repository is validated by GitHub Actions using Node.js 22:
+The repository is validated by GitHub Actions using Node.js 22 and 24:
 
 ```bash
 npm install
