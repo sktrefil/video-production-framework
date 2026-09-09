@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS production_links (
   to_media_id TEXT,
 
   handoff_qc_id TEXT,
+  handoff_usable INTEGER,
+  handoff_review_approval_id TEXT,
   pre_link_match TEXT NOT NULL,
   link_status TEXT NOT NULL,
 
