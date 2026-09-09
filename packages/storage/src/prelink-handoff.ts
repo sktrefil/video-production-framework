@@ -13,7 +13,7 @@ import type {
 import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
 import { SqliteSceneAssetRepository } from "./scene-assets.js";
 
-export const PRELINK_HANDOFF_MIGRATION_SQL = "PRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS production_links (\n  id TEXT NOT NULL,\n  project_id TEXT NOT NULL,\n  revision INTEGER NOT NULL,\n  lifecycle_status TEXT NOT NULL,\n\n  from_scene_id TEXT NOT NULL,\n  from_scene_revision INTEGER NOT NULL,\n  from_state_entity_type TEXT NOT NULL,\n  from_state_entity_id TEXT NOT NULL,\n  from_state_field TEXT NOT NULL,\n  from_state_entity_revision INTEGER,\n\n  to_scene_id TEXT NOT NULL,\n  to_scene_revision INTEGER NOT NULL,\n  to_state_entity_type TEXT NOT NULL,\n  to_state_entity_id TEXT NOT NULL,\n  to_state_field TEXT NOT NULL,\n  to_state_entity_revision INTEGER,\n\n  link_scope TEXT NOT NULL,\n  pre_link_required INTEGER NOT NULL DEFAULT 0,\n  continuity_level TEXT NOT NULL,\n  state_change TEXT NOT NULL,\n  handoff_intent TEXT NOT NULL,\n  handoff_anchor_json TEXT NOT NULL,\n  handoff_channels_json TEXT NOT NULL,\n  transition_intent TEXT NOT NULL,\n  pre_link_approval_id TEXT,\n\n  from_asset_id TEXT,\n  from_asset_revision INTEGER,\n  from_media_id TEXT,\n  to_asset_id TEXT,\n  to_asset_revision INTEGER,\n  to_media_id TEXT,\n\n  handoff_qc_id TEXT,\n  pre_link_match TEXT NOT NULL,\n  link_status TEXT NOT NULL,\n\n  stale INTEGER NOT NULL DEFAULT 0,\n  stale_reason TEXT,\n  created_at TEXT NOT NULL,\n  updated_at TEXT NOT NULL,\n\n  PRIMARY KEY(id, revision)\n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_link\n  ON production_links(id)\n  WHERE lifecycle_status = 'ACTIVE';\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_link_pair\n  ON production_links(project_id, from_scene_id, to_scene_id)\n  WHERE lifecycle_status = 'ACTIVE';\n\nCREATE INDEX IF NOT EXISTS idx_links_project\n  ON production_links(project_id);\n\nCREATE INDEX IF NOT EXISTS idx_links_from_scene\n  ON production_links(project_id, from_scene_id);\n\nCREATE INDEX IF NOT EXISTS idx_links_to_scene\n  ON production_links(project_id, to_scene_id);\n\nCREATE INDEX IF NOT EXISTS idx_links_bound_assets\n  ON production_links(project_id, from_asset_id, to_asset_id);\n";
+export const PRELINK_HANDOFF_MIGRATION_SQL = "PRAGMA foreign_keys = ON;\n\nCREATE TABLE IF NOT EXISTS production_links (\n  id TEXT NOT NULL,\n  project_id TEXT NOT NULL,\n  revision INTEGER NOT NULL,\n  lifecycle_status TEXT NOT NULL,\n\n  from_scene_id TEXT NOT NULL,\n  from_scene_revision INTEGER NOT NULL,\n  from_state_entity_type TEXT NOT NULL,\n  from_state_entity_id TEXT NOT NULL,\n  from_state_field TEXT NOT NULL,\n  from_state_entity_revision INTEGER,\n\n  to_scene_id TEXT NOT NULL,\n  to_scene_revision INTEGER NOT NULL,\n  to_state_entity_type TEXT NOT NULL,\n  to_state_entity_id TEXT NOT NULL,\n  to_state_field TEXT NOT NULL,\n  to_state_entity_revision INTEGER,\n\n  link_scope TEXT NOT NULL,\n  pre_link_required INTEGER NOT NULL DEFAULT 0,\n  continuity_level TEXT NOT NULL,\n  state_change TEXT NOT NULL,\n  handoff_intent TEXT NOT NULL,\n  handoff_anchor_json TEXT NOT NULL,\n  handoff_channels_json TEXT NOT NULL,\n  transition_intent TEXT NOT NULL,\n  pre_link_approval_id TEXT,\n\n  from_asset_id TEXT,\n  from_asset_revision INTEGER,\n  from_media_id TEXT,\n  to_asset_id TEXT,\n  to_asset_revision INTEGER,\n  to_media_id TEXT,\n\n  handoff_qc_id TEXT,\n  handoff_usable INTEGER,\n  handoff_review_approval_id TEXT,\n  pre_link_match TEXT NOT NULL,\n  link_status TEXT NOT NULL,\n\n  stale INTEGER NOT NULL DEFAULT 0,\n  stale_reason TEXT,\n  created_at TEXT NOT NULL,\n  updated_at TEXT NOT NULL,\n\n  PRIMARY KEY(id, revision)\n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_link\n  ON production_links(id)\n  WHERE lifecycle_status = 'ACTIVE';\n\nCREATE UNIQUE INDEX IF NOT EXISTS idx_active_link_pair\n  ON production_links(project_id, from_scene_id, to_scene_id)\n  WHERE lifecycle_status = 'ACTIVE';\n\nCREATE INDEX IF NOT EXISTS idx_links_project\n  ON production_links(project_id);\n\nCREATE INDEX IF NOT EXISTS idx_links_from_scene\n  ON production_links(project_id, from_scene_id);\n\nCREATE INDEX IF NOT EXISTS idx_links_to_scene\n  ON production_links(project_id, to_scene_id);\n\nCREATE INDEX IF NOT EXISTS idx_links_bound_assets\n  ON production_links(project_id, from_asset_id, to_asset_id);\n";
 
 const encode = (value: unknown) => JSON.stringify(value);
 const decodeStrings = (value: string): string[] => JSON.parse(value) as string[];
@@ -131,6 +131,12 @@ function mapLink(row: any): ProductionLink {
     ...(row.to_media_id == null ? {} : { toMediaId: row.to_media_id }),
 
     ...(row.handoff_qc_id == null ? {} : { handoffQcId: row.handoff_qc_id }),
+    ...(row.handoff_usable == null
+      ? {}
+      : { handoffUsable: row.handoff_usable === 1 }),
+    ...(row.handoff_review_approval_id == null
+      ? {}
+      : { handoffReviewApprovalId: row.handoff_review_approval_id }),
     preLinkMatch: row.pre_link_match,
     linkStatus: row.link_status
   };
@@ -366,6 +372,21 @@ export class SqlitePreLinkHandoffRepository
     })();
   }
 
+  async commitHandoffReviewApproval(input: {
+    previous: ProductionLink;
+    next: ProductionLink;
+    approval: ApprovalRecord;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void> {
+    this.db.transaction(() => {
+      this.supersedeLink(input.previous, input.event.createdAt);
+      this.insertLink(input.next);
+      insertApproval(this.db, input.approval);
+      insertEvent(this.db, input.event, input.outbox);
+    })();
+  }
+
   async commitDependencyReconciliation(input: {
     staleLinkIds: string[];
     resets: Array<{
@@ -413,9 +434,10 @@ export class SqlitePreLinkHandoffRepository
        transition_intent, pre_link_approval_id,
        from_asset_id, from_asset_revision, from_media_id,
        to_asset_id, to_asset_revision, to_media_id,
-       handoff_qc_id, pre_link_match, link_status,
+       handoff_qc_id, handoff_usable, handoff_review_approval_id,
+       pre_link_match, link_status,
        stale, stale_reason, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .run(
         link.id,
         link.projectId,
@@ -454,6 +476,8 @@ export class SqlitePreLinkHandoffRepository
         link.toMediaId ?? null,
 
         link.handoffQcId ?? null,
+        link.handoffUsable === undefined ? null : (link.handoffUsable ? 1 : 0),
+        link.handoffReviewApprovalId ?? null,
         link.preLinkMatch,
         link.linkStatus,
 
