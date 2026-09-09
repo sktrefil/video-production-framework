@@ -19,8 +19,15 @@ import type {
   ProductionDecisionWithMeta,
   QcFallbackDecisionPort
 } from "@vpf/production-system";
-import type { FinalClipContextPort, FinalClipRepository } from "@vpf/final-clip";
 import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
+
+export interface QcFallbackContextPort {
+  getLatestClip(projectId: string, clipId: string): Promise<ProductionClip | null>;
+  getLink(projectId: string, linkId: string): Promise<ProductionLink | null>;
+  getScene(projectId: string, sceneId: string): Promise<Scene | null>;
+  getAsset(projectId: string, assetId: string): Promise<ProductionAsset | null>;
+  getMedia(projectId: string, mediaId: string): Promise<MediaArtifact | null>;
+}
 
 export interface QcFallbackRepository {
   getLatestClipQc(projectId: string, clipId: string): Promise<ClipQcRecord | null>;
@@ -264,8 +271,7 @@ function fallbackNextAction(action: ClipFallbackAction, applied: boolean): ClipF
 export class QcFallbackPipeline {
   constructor(
     private readonly repository: QcFallbackRepository,
-    private readonly finalClips: FinalClipRepository,
-    private readonly context: FinalClipContextPort,
+    private readonly context: QcFallbackContextPort,
     private readonly decisions: QcFallbackDecisionPort,
     private readonly clock: QcFallbackClock,
     private readonly ids: QcFallbackIdFactory
@@ -792,7 +798,7 @@ export class QcFallbackPipeline {
   }
 
   private async requireClip(projectId: string, clipId: string): Promise<ProductionClip> {
-    const clip = await this.finalClips.getLatestClip(projectId, clipId);
+    const clip = await this.context.getLatestClip(projectId, clipId);
     if (clip === null) {
       throw new QcFallbackValidationError("CLIP_NOT_FOUND", "Clip does not exist.");
     }
