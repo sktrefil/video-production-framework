@@ -57,6 +57,11 @@ import {
   type FinalRenderIdFactory
 } from "@vpf/final-render";
 import {
+  FinalOutputPipeline,
+  type FinalOutputClock,
+  type FinalOutputIdFactory
+} from "@vpf/final-output";
+import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
   type PreLinkHandoffIdFactory
@@ -89,6 +94,7 @@ import { SqliteQcFallbackRepository } from "../src/qc-fallback.js";
 import { SqliteMediaBindingRepository } from "../src/media-binding.js";
 import { SqliteEditorTimelineRepository } from "../src/editor-timeline.js";
 import { SqliteFinalRenderRepository } from "../src/final-render.js";
+import { SqliteFinalOutputRepository } from "../src/final-output.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -101,6 +107,7 @@ const qcFallbackClock: QcFallbackClock = { nowIso: () => now };
 const mediaBindingClock: MediaBindingClock = { nowIso: () => now };
 const editorTimelineClock: TimelineAssemblyClock = { nowIso: () => now };
 const finalRenderClock: FinalRenderClock = { nowIso: () => now };
+const finalOutputClock: FinalOutputClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -136,6 +143,10 @@ function editorTimelineIds(): TimelineAssemblyIdFactory {
 }
 function finalRenderIds(): FinalRenderIdFactory {
   let n = 8000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function finalOutputIds(): FinalOutputIdFactory {
+  let n = 9000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -626,7 +637,7 @@ class QcFallbackDecisions implements QcFallbackDecisionPort {
   }
 }
 
-test("WF-07 -> WF-17 completes in one project.db through delivery-ready final render", async () => {
+test("WF-07 -> WF-18 completes in one project.db through publish handoff readiness", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
@@ -1568,6 +1579,156 @@ test("WF-07 -> WF-17 completes in one project.db through delivery-ready final re
     assert.equal(sceneAfterFinalRender?.revision, sceneRevisionBeforeLink);
 
     renderRepo.close();
+
+    const outputRepo = new SqliteFinalOutputRepository(dbPath);
+    const outputPipeline = new FinalOutputPipeline(
+      outputRepo,
+      finalOutputClock,
+      finalOutputIds()
+    );
+
+    const finalOutputQc = await outputPipeline.recordFinalOutputQc({
+      projectId: "prj_10",
+      status: "PASS",
+      confidence: 0.98,
+      notes: ["final output watched end-to-end"]
+    });
+    assert.equal(finalOutputQc.status, "PASS");
+    assert.equal(
+      finalOutputQc.deliveryManifestId,
+      importedRender.delivery.id
+    );
+    assert.equal(
+      finalOutputQc.deliveryManifestRevision,
+      importedRender.delivery.revision
+    );
+    assert.equal(finalOutputQc.outputSha256, "a".repeat(64));
+
+    const publishPackage = await outputPipeline.createPublishPackage({
+      projectId: "prj_10",
+      metadata: {
+        platform: "YOUTUBE",
+        title: "WF-18 Integration Project",
+        description: "Final publish handoff integration fixture",
+        tags: ["history", "mystery", "history"],
+        visibility: "PRIVATE",
+        madeForKids: false,
+        language: "ko",
+        thumbnail: {
+          relativePath: "09_publish/thumbnail.png",
+          sizeBytes: 1234,
+          sha256: "b".repeat(64)
+        }
+      }
+    });
+
+    assert.equal(publishPackage.created, true);
+    assert.equal(publishPackage.manifest.packageStatus, "READY");
+    assert.equal(publishPackage.output.status, "READY");
+    assert.equal(
+      publishPackage.output.recommendedFileName,
+      "publish_handoff.json"
+    );
+    assert.equal(
+      publishPackage.output.packageDirectory,
+      "out/prj_10/publish"
+    );
+    assert.equal(
+      publishPackage.manifest.metadata.title,
+      "WF-18 Integration Project"
+    );
+    assert.deepEqual(
+      publishPackage.manifest.metadata.tags,
+      ["history", "mystery"]
+    );
+    assert.ok(
+      publishPackage.manifest.files.some(file => file.role === "VIDEO")
+    );
+    assert.ok(
+      publishPackage.manifest.files.some(file => file.role === "THUMBNAIL")
+    );
+
+    const storedFinalOutputQc = outputRepo.db.prepare(
+      `SELECT status, confidence, delivery_manifest_id,
+              delivery_manifest_revision, output_sha256
+       FROM final_output_qc_records
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10") as {
+      status: string;
+      confidence: number;
+      delivery_manifest_id: string;
+      delivery_manifest_revision: number;
+      output_sha256: string;
+    };
+    assert.equal(storedFinalOutputQc.status, "PASS");
+    assert.equal(storedFinalOutputQc.confidence, 0.98);
+    assert.equal(
+      storedFinalOutputQc.delivery_manifest_id,
+      importedRender.delivery.id
+    );
+    assert.equal(
+      storedFinalOutputQc.delivery_manifest_revision,
+      importedRender.delivery.revision
+    );
+    assert.equal(
+      storedFinalOutputQc.output_sha256,
+      "a".repeat(64)
+    );
+
+    const storedPublishPackage = outputRepo.db.prepare(
+      `SELECT package_status, package_directory, package_sha256,
+              metadata_json, files_json, recommended_file_name
+       FROM publish_package_manifests
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10") as {
+      package_status: string;
+      package_directory: string;
+      package_sha256: string;
+      metadata_json: string;
+      files_json: string;
+      recommended_file_name: string;
+    };
+    assert.equal(storedPublishPackage.package_status, "READY");
+    assert.equal(
+      storedPublishPackage.package_directory,
+      "out/prj_10/publish"
+    );
+    assert.match(
+      storedPublishPackage.package_sha256,
+      /^[a-f0-9]{64}$/
+    );
+    assert.equal(
+      JSON.parse(storedPublishPackage.metadata_json).platform,
+      "YOUTUBE"
+    );
+    assert.ok(
+      JSON.parse(storedPublishPackage.files_json).some(
+        (file: { role: string }) => file.role === "VIDEO"
+      )
+    );
+    assert.equal(
+      storedPublishPackage.recommended_file_name,
+      "publish_handoff.json"
+    );
+
+    const outputReadiness = await outputPipeline.getReadiness("prj_10");
+    assert.equal(outputReadiness.finalOutputQcPassed, true);
+    assert.equal(outputReadiness.packageReady, true);
+    assert.equal(outputReadiness.publishHandoffReady, true);
+    assert.equal(outputReadiness.status, "PACKAGE_READY");
+
+    const sceneAfterPublishHandoff = await outputRepo.getScene(
+      "prj_10",
+      graph.scenes[0]!.id
+    );
+    assert.equal(
+      sceneAfterPublishHandoff?.revision,
+      sceneRevisionBeforeLink
+    );
+
+    outputRepo.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
