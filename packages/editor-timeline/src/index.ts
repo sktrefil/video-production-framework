@@ -407,7 +407,8 @@ export class EditorTimelineAssemblyPipeline {
     private readonly repository: TimelineAssemblyRepository,
     private readonly handoff: EditorHandoffSourcePort,
     private readonly clock: TimelineAssemblyClock,
-    private readonly ids: TimelineAssemblyIdFactory
+    private readonly ids: TimelineAssemblyIdFactory,
+    private readonly contentSource?: EditorContentSourcePort
   ) {}
 
   async assembleProject(input: {
@@ -417,16 +418,28 @@ export class EditorTimelineAssemblyPipeline {
   }): Promise<TimelineAssemblyOutcome> {
     validateProfile(input.profile);
     const source = await this.handoff.buildEditorHandoff(input.projectId);
+    const contentPlan =
+      this.contentSource === undefined
+        ? null
+        : await this.contentSource.getLatestEditorContentPlan(input.projectId);
     const sourceBindingRefs = source.items.map(item => ({
       bindingId: item.bindingId,
       bindingRevision: item.bindingRevision
     }));
+    const sourceContentPlanRef: EditorContentPlanRef | undefined =
+      contentPlan === null
+        ? undefined
+        : {
+            contentPlanId: contentPlan.id,
+            contentPlanRevision: contentPlan.revision
+          };
     const previous = await this.repository.getLatestAssembly(input.projectId);
 
     if (
       previous !== null &&
       !previous.stale &&
       refsEqual(previous.sourceBindingRefs, sourceBindingRefs) &&
+      contentRefEqual(previous.sourceContentPlanRef, sourceContentPlanRef) &&
       profileEqual(previous, input)
     ) {
       return {
