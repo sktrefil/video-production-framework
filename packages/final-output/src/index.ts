@@ -358,11 +358,10 @@ export class FinalOutputPipeline {
       targetType: "FINAL_OUTPUT",
       targetId: current.id,
       targetRevision: current.revision,
-      approvalState: "APPROVED",
+      approvalState: "HUMAN_APPROVED",
       reason: input.reason ?? "Final Output QC approved after review.",
       approvedByType: "USER",
       ...(input.approvedById ? {approvedById: input.approvedById} : {}),
-      selectedMediaId: undefined,
       createdAt: now
     };
     const next: FinalOutputQcRecord = {
