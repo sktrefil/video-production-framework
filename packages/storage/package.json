@@ -19,7 +19,7 @@
     "@vpf/prelink-handoff": "0.1.0",
     "@vpf/final-clip": "0.1.0",
     "@vpf/workflow": "0.1.0",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.10.0",
     "@vpf/qc-fallback": "0.1.0"
   },
   "devDependencies": {
