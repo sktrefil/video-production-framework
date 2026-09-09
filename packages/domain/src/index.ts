@@ -365,8 +365,10 @@ export type PreLinkMatch = "MATCH" | "PARTIAL" | "MISMATCH" | "NOT_EVALUATED";
 export interface ProductionLink extends BaseEntity, VisualFreshness {
   fromSceneId: string;
   fromSceneRevision: number;
+  fromStateRef: StateRef;
   toSceneId: string;
   toSceneRevision: number;
+  toStateRef: StateRef;
   linkScope: LinkScope;
   preLinkRequired: boolean;
   continuityLevel: string;
