@@ -193,3 +193,148 @@ export interface IdentityAnchor extends BaseEntity, VisualFreshness {
   sourceProjectStyleRevision: number;
   sourceChannelVisualBibleVersion: string;
 }
+
+
+export type AssetClass =
+  | "PRIMARY_SCENE"
+  | "EXTRA_START"
+  | "SPECIAL_END"
+  | "BRIDGE"
+  | "REFERENCE";
+
+export type AssetRole = "HERO" | "STORY_ANCHOR" | "STANDARD";
+export type AssetSourceStrategy = "GENERATE" | "IMPORT" | "REUSE";
+export type AssetOwnerType = "SCENE" | "SEQUENCE" | "LINK";
+
+export type AssetStatus =
+  | "PLANNED"
+  | "DESIGNED"
+  | "GENERATING"
+  | "CANDIDATE_AVAILABLE"
+  | "QC_PENDING"
+  | "NEEDS_REVIEW"
+  | "APPROVED"
+  | "REGENERATE_REQUIRED"
+  | "REDESIGN_REQUIRED"
+  | "BLOCKED"
+  | "SUPERSEDED";
+
+export interface AssetOwner {
+  type: AssetOwnerType;
+  id: string;
+}
+
+export interface AssetDesignSpec {
+  visualGoal: string;
+  composition: string;
+  continuityRequirements: string[];
+  identityAnchorIds: string[];
+  factualConstraints: string[];
+  avoidances: string[];
+  imagePrompt?: string;
+  negativePrompt?: string;
+}
+
+export interface ProductionAsset extends BaseEntity, VisualFreshness {
+  assetClass: AssetClass;
+  assetRole: AssetRole;
+  productionPriority: ProductionPriority;
+  sourceStrategy: AssetSourceStrategy;
+  owner: AssetOwner;
+  stateRef: StateRef;
+  design: AssetDesignSpec;
+  candidateMediaIds: string[];
+  approvedMediaId?: string;
+  assetStatus: AssetStatus;
+  sourceSceneRevision: number;
+  sourceProjectStyleId: string;
+  sourceProjectStyleRevision: number;
+  sourceIdentityAnchorRevisions: Record<string, number>;
+  formatProfileVersion: string;
+}
+
+export type MediaType = "IMAGE" | "VIDEO" | "AUDIO" | "DOCUMENT" | "OTHER";
+export type MediaStatus = "AVAILABLE" | "INVALID" | "MISSING" | "SUPERSEDED";
+
+export interface MediaArtifact extends BaseEntity {
+  mediaType: MediaType;
+  relativePath: string;
+  mimeType: string;
+  width?: number;
+  height?: number;
+  durationMs?: number;
+  checksum: string;
+  sourceJobId?: string;
+  mediaStatus: MediaStatus;
+}
+
+export type ProviderJobType =
+  | "IMAGE_GENERATION"
+  | "VIDEO_GENERATION"
+  | "TTS_GENERATION"
+  | "OTHER";
+
+export type ProviderExecutionMode = "AUTOMATED" | "MANUAL_EXTERNAL";
+
+export type ProviderJobStatus =
+  | "QUEUED"
+  | "READY"
+  | "RUNNING"
+  | "WAITING_EXTERNAL"
+  | "COMPLETE"
+  | "FAILED"
+  | "BLOCKED"
+  | "CANCELLED";
+
+export interface ProviderJob extends BaseEntity {
+  jobType: ProviderJobType;
+  provider: string;
+  providerProfileVersion: string;
+  targetType: "ASSET" | "CLIP" | "AUDIO";
+  targetId: string;
+  targetRevision: number;
+  executionMode: ProviderExecutionMode;
+  status: ProviderJobStatus;
+  attempt: number;
+  retryOfJobId?: string;
+  inputPayload: unknown;
+  resultMediaIds: string[];
+  errorCode?: string;
+  errorDetail?: string;
+}
+
+export type QcType =
+  | "STRUCTURE_QC"
+  | "SCENE_QC"
+  | "IMAGE_QC"
+  | "HANDOFF_QC"
+  | "CLIP_QC"
+  | "SEQUENCE_QC"
+  | "CHAPTER_QC"
+  | "FULL_VIDEO_QC"
+  | "BINDING_QC";
+
+export type QcStatus =
+  | "PASS"
+  | "PASS_WITH_NOTE"
+  | "FIXABLE"
+  | "REGENERATE"
+  | "REDESIGN"
+  | "REJECT";
+
+export type QcSeverity = "CRITICAL" | "MAJOR" | "MINOR";
+
+export interface QcResult extends BaseEntity {
+  qcType: QcType;
+  targetType: "SCENE" | "ASSET" | "LINK" | "CLIP" | "SEQUENCE" | "CHAPTER" | "PROJECT";
+  targetId: string;
+  targetRevision: number;
+  mediaId?: string;
+  qcStatus: QcStatus;
+  severity: QcSeverity;
+  confidence: number;
+  symptom?: string;
+  rootCause?: string;
+  recommendedAction?: string;
+  fallback?: string;
+}
