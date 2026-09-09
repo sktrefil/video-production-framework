@@ -57,27 +57,75 @@ export interface FactRecord extends BaseEntity {
 export interface ScriptVersion extends BaseEntity {
   kind: "DRAFT" | "FINAL";
   body: string;
-  approvalState: ApprovalState;
+  supersedesRevision?: number;
 }
 
-export interface Chapter extends BaseEntity {
+export type ApprovalTargetType =
+  | "SCRIPT"
+  | "STORY_STRUCTURE"
+  | "SCENE"
+  | "ASSET"
+  | "CLIP";
+
+export interface ApprovalRecord {
+  id: string;
+  projectId: string;
+  targetType: ApprovalTargetType;
+  targetId: string;
+  targetRevision: number;
+  approvalState: ApprovalState;
+  reason: string;
+  approvedByType: "USER" | "SYSTEM";
+  approvedById?: string;
+  selectedMediaId?: string;
+  createdAt: string;
+}
+
+export interface StoryFreshness {
+  stale: boolean;
+  staleReason?: string;
+}
+
+export interface Chapter extends BaseEntity, StoryFreshness {
   displayNumber: number;
   title: string;
+  sourceScriptId: string;
+  sourceScriptRevision: number;
   sequenceIds: string[];
 }
 
-export interface Sequence extends BaseEntity {
+export interface Sequence extends BaseEntity, StoryFreshness {
   chapterId: string;
   displayNumber: number;
   title: string;
   storyPurpose: string;
+  sourceScriptId: string;
+  sourceScriptRevision: number;
   sceneIds: string[];
 }
 
-export interface Scene extends BaseEntity {
+export type SceneLifecycleState =
+  | "DRAFT"
+  | "DESIGNED"
+  | "NEEDS_REVIEW"
+  | "APPROVED"
+  | "IN_PRODUCTION"
+  | "PRODUCTION_COMPLETE"
+  | "REWORK_REQUIRED"
+  | "SUPERSEDED";
+
+export interface ScriptSegmentRef {
+  scriptId: string;
+  scriptRevision: number;
+  startChar?: number;
+  endChar?: number;
+}
+
+export interface Scene extends BaseEntity, StoryFreshness {
   sequenceId: string;
   displayNumber: number;
   scriptSegment: string;
+  scriptRef: ScriptSegmentRef;
   stateIn: string;
   stateCurrent: string;
   stateOut: string;
@@ -87,6 +135,7 @@ export interface Scene extends BaseEntity {
   canBeImplied: string[];
   requiredIdentityAnchorIds: string[];
   primaryAssetId?: string;
+  sceneStatus: SceneLifecycleState;
 }
 
 export interface ProjectRecord extends BaseEntity {
