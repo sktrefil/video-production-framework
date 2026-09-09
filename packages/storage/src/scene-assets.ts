@@ -463,6 +463,42 @@ export class SqliteSceneAssetRepository
     })();
   }
 
+  async commitProviderJobFailure(input: {
+    previousJob: ProviderJob;
+    nextJob: ProviderJob;
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void> {
+    this.db.transaction(() => {
+      this.db.prepare(
+        `UPDATE provider_jobs
+         SET lifecycle_status = 'SUPERSEDED', updated_at = ?
+         WHERE id = ? AND revision = ?`
+      ).run(input.event.createdAt, input.previousJob.id, input.previousJob.revision);
+      this.supersedeAsset(input.previousAsset, input.event.createdAt);
+      this.insertJob(input.nextJob);
+      this.insertAsset(input.nextAsset);
+      insertEvent(this.db, input.event, input.outbox);
+    })();
+  }
+
+  async createRetryProviderJob(input: {
+    job: ProviderJob;
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void> {
+    this.db.transaction(() => {
+      this.supersedeAsset(input.previousAsset, input.event.createdAt);
+      this.insertAsset(input.nextAsset);
+      this.insertJob(input.job);
+      insertEvent(this.db, input.event, input.outbox);
+    })();
+  }
+
   async getMedia(projectId: string, mediaId: string): Promise<MediaArtifact | null> {
     const row = this.db.prepare(
       `SELECT * FROM media_artifacts
