@@ -695,3 +695,34 @@ test("Handoff QC requiring human review does not open Final Clip readiness until
     true
   );
 });
+
+
+test("Pre-Link can be explicitly NOT_REQUIRED without forcing a continuity gate", async () => {
+  const { decisions, pipeline } = setup();
+  decisions.preLinkDecision = {
+    preLinkRequired: false,
+    continuityLevel: "RESET_ALLOWED",
+    stateChange: "sequence boundary state reset",
+    handoffIntent: "no direct visual continuity required",
+    handoffAnchor: [],
+    handoffChannels: [],
+    transitionIntent: "RESET"
+  };
+
+  const links = await pipeline.buildLinkGraph({
+    projectId: "prj_1",
+    format: "LONGFORM"
+  });
+  const boundary = links.find(link => link.linkScope === "SEQUENCE_BOUNDARY");
+  assert.ok(boundary);
+
+  const result = await pipeline.designPreLink({
+    projectId: "prj_1",
+    linkId: boundary.id,
+    format: "LONGFORM"
+  });
+  assert.equal(result.link.preLinkRequired, false);
+  assert.equal(result.link.linkStatus, "WAITING_FOR_ASSETS");
+  assert.equal(result.approval?.approvalState, "NOT_REQUIRED");
+  assert.equal(result.approval?.reason, "PRE_LINK_NOT_REQUIRED");
+});
