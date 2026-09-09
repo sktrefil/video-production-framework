@@ -52,6 +52,17 @@ CREATE TABLE IF NOT EXISTS identity_anchors (
   PRIMARY KEY(id, revision)
 );
 
+CREATE TABLE IF NOT EXISTS scene_identity_anchor_requirements (
+  project_id TEXT NOT NULL,
+  scene_id TEXT NOT NULL,
+  anchor_id TEXT NOT NULL,
+  anchor_revision INTEGER NOT NULL,
+  PRIMARY KEY(project_id, scene_id, anchor_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_scene_identity_requirements_scene
+  ON scene_identity_anchor_requirements(project_id, scene_id);
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_active_project_style
   ON project_styles(project_id) WHERE lifecycle_status = 'ACTIVE';
 
