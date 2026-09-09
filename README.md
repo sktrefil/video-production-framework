@@ -9,7 +9,8 @@ AI-assisted video production orchestration framework.
   - WF-07 — Research / Script / Story Pipeline: PASS
   - WF-08 — Visual Identity Pipeline: PASS
   - WF-09 — Scene Asset Pipeline: PASS
-  - WF-10 — Pre-Link / Handoff Pipeline: NEXT
+  - WF-10 — Pre-Link / Handoff Pipeline: PASS
+  - WF-11 — Final Clip / Provider Job Pipeline: NEXT
 
 ## Architecture
 
@@ -29,26 +30,34 @@ Channel Visual Bible + Project Style
 ↓
 Identity Anchors
 ↓
-Scene Asset
+Approved Scene Assets
 ↓
-Image Candidate
+Pre-Link
 ↓
-Image QC
+Actual Asset Handoff QC
 ↓
-Approved Scene Asset
+HANDOFF_PASS
 ↓
-Pre-Link / Handoff (WF-10)
+Final Clip / Provider Job (WF-11)
 ```
 
-## Scene Asset source strategies
+## Link model
 
 ```
-GENERATE
-IMPORT
-REUSE
+SCENE_A.STATE_OUT
+↓
+LINK
+↓
+SCENE_B.STATE_IN
 ```
 
-Manual external generation supports Image Job Pack export and batch result import.
+Actual Handoff QC uses the canonical Production System contract:
+
+```
+task = QC
+target = LINK
+qcType = HANDOFF_QC
+```
 
 ## Validation
 
