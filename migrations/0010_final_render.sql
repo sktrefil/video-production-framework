@@ -31,7 +31,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_active_final_render_attempt_revision
   ON final_render_attempts(id) WHERE lifecycle_status = 'ACTIVE';
 
 CREATE INDEX IF NOT EXISTS idx_final_render_project
-  ON final_render_attempts(project_id, rowid);
+  ON final_render_attempts(project_id);
 
 CREATE TABLE IF NOT EXISTS final_render_technical_qc (
   id TEXT NOT NULL,
@@ -58,7 +58,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_active_final_render_qc
   ON final_render_technical_qc(id) WHERE lifecycle_status = 'ACTIVE';
 
 CREATE INDEX IF NOT EXISTS idx_final_render_qc_attempt
-  ON final_render_technical_qc(project_id, render_attempt_id, rowid);
+  ON final_render_technical_qc(project_id, render_attempt_id);
 
 CREATE TABLE IF NOT EXISTS final_delivery_manifests (
   id TEXT NOT NULL,
@@ -95,4 +95,4 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_active_delivery_manifest
   ON final_delivery_manifests(id) WHERE lifecycle_status = 'ACTIVE';
 
 CREATE INDEX IF NOT EXISTS idx_delivery_project
-  ON final_delivery_manifests(project_id, rowid);
+  ON final_delivery_manifests(project_id);
