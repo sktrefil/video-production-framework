@@ -699,12 +699,234 @@ export type GenericEditorVisualItem =
   | GenericEditorVideoItem
   | GenericEditorImageItem;
 
+export type GenericEditorAudioItemType =
+  | "TTS"
+  | "CLIP_AUDIO"
+  | "BGM"
+  | "SFX";
+
+export interface GenericEditorAudioItem {
+  id: string;
+  type: GenericEditorAudioItemType;
+  trackId: string;
+  timelineStartFrame: number;
+  durationInFrames: number;
+  enabled: boolean;
+  locked: boolean;
+  zIndex?: number;
+  src: string;
+  sourceStartFrame: number;
+  sourceDurationInFrames: number;
+  sourceAssetDurationInFrames: number;
+  volume: number;
+  muted: boolean;
+  fadeInFrames: number;
+  fadeOutFrames: number;
+  loop?: boolean;
+}
+
+export interface GenericEditorTextStyleFields {
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: number;
+  color: string;
+  strokeColor: string;
+  strokeWidth: number;
+  textAlign: "left" | "center" | "right";
+  lineHeight: number;
+  maxLines: number;
+  backgroundEnabled: boolean;
+  backgroundColor: string;
+  backgroundOpacity: number;
+}
+
+export type GenericEditorSubtitleGenerationSource =
+  | "TTS_TRANSCRIBE"
+  | "SCRIPT_TTS_ALIGN"
+  | "SCRIPT_TIMING"
+  | "MANUAL";
+
+export interface GenericEditorSubtitleItem
+  extends GenericEditorTextStyleFields {
+  id: string;
+  type: "SUBTITLE";
+  trackId: string;
+  timelineStartFrame: number;
+  durationInFrames: number;
+  enabled: boolean;
+  locked: boolean;
+  zIndex?: number;
+  generationSource?: GenericEditorSubtitleGenerationSource;
+  generatedFromTtsIds?: string[];
+}
+
+export type GenericEditorTextRole =
+  | "TOP_TITLE"
+  | "LOWER_THIRD"
+  | "SOURCE"
+  | "LABEL"
+  | "FREE_TEXT";
+
+export interface GenericEditorTextItem
+  extends GenericEditorTextStyleFields {
+  id: string;
+  type: "TEXT";
+  trackId: string;
+  timelineStartFrame: number;
+  durationInFrames: number;
+  enabled: boolean;
+  locked: boolean;
+  zIndex?: number;
+  textRole: GenericEditorTextRole;
+}
+
+export type GenericEditorGraphicType =
+  | "BLUR_PANEL"
+  | "GRADIENT"
+  | "SOLID_PANEL"
+  | "DIM_LAYER";
+
+export interface GenericEditorGraphicItem {
+  id: string;
+  type: "GRAPHIC";
+  trackId: string;
+  timelineStartFrame: number;
+  durationInFrames: number;
+  enabled: boolean;
+  locked: boolean;
+  zIndex?: number;
+  graphicType: GenericEditorGraphicType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+  blurPx: number;
+  backgroundColor: string;
+  borderRadius: number;
+  gradientStartColor?: string;
+  gradientEndColor?: string;
+  gradientAngleDeg?: number;
+}
+
+export type GenericEditorTimelineItem =
+  | GenericEditorVisualItem
+  | GenericEditorAudioItem
+  | GenericEditorSubtitleItem
+  | GenericEditorTextItem
+  | GenericEditorGraphicItem;
+
 export interface GenericEditProject {
   schemaVersion: 1;
   project: GenericEditorProjectMetadata;
   tracks: GenericEditorTrack[];
-  items: GenericEditorVisualItem[];
+  items: GenericEditorTimelineItem[];
   settings: GenericEditorProjectSettings;
+}
+
+export type EditorContentPlanStatus = "DRAFT" | "APPROVED";
+
+export interface EditorAudioPlacement {
+  id: string;
+  type: GenericEditorAudioItemType;
+  mediaId: string;
+  timelineStartMs: number;
+  sourceInMs?: number;
+  sourceOutMs?: number;
+  durationMs?: number;
+  volume?: number;
+  muted?: boolean;
+  fadeInMs?: number;
+  fadeOutMs?: number;
+  loop?: boolean;
+}
+
+export interface EditorSubtitleStyle {
+  x?: number;
+  y?: number;
+  width?: number;
+  fontFamily?: string;
+  fontSize?: number;
+  fontWeight?: number;
+  color?: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  textAlign?: "left" | "center" | "right";
+  lineHeight?: number;
+  maxLines?: number;
+  backgroundEnabled?: boolean;
+  backgroundColor?: string;
+  backgroundOpacity?: number;
+}
+
+export interface EditorSubtitleCue {
+  id: string;
+  startMs: number;
+  endMs: number;
+  text: string;
+  generationSource?: GenericEditorSubtitleGenerationSource;
+  generatedFromAudioPlacementIds?: string[];
+  style?: EditorSubtitleStyle;
+}
+
+export interface EditorTextOverlay {
+  id: string;
+  startMs: number;
+  endMs: number;
+  text: string;
+  textRole: GenericEditorTextRole;
+  x: number;
+  y: number;
+  width: number;
+  fontFamily?: string;
+  fontSize: number;
+  fontWeight?: number;
+  color?: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  textAlign?: "left" | "center" | "right";
+  lineHeight?: number;
+  maxLines?: number;
+  backgroundEnabled?: boolean;
+  backgroundColor?: string;
+  backgroundOpacity?: number;
+  zIndex?: number;
+}
+
+export interface EditorGraphicOverlay {
+  id: string;
+  startMs: number;
+  endMs: number;
+  graphicType: GenericEditorGraphicType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+  blurPx?: number;
+  backgroundColor: string;
+  borderRadius?: number;
+  gradientStartColor?: string;
+  gradientEndColor?: string;
+  gradientAngleDeg?: number;
+  zIndex?: number;
+}
+
+export interface EditorContentPlan extends BaseEntity {
+  planStatus: EditorContentPlanStatus;
+  audio: EditorAudioPlacement[];
+  subtitles: EditorSubtitleCue[];
+  textOverlays: EditorTextOverlay[];
+  graphics: EditorGraphicOverlay[];
+}
+
+export interface EditorContentPlanRef {
+  contentPlanId: string;
+  contentPlanRevision: number;
 }
 
 export interface EditorCutBoundary {
@@ -733,6 +955,7 @@ export interface TimelineAssemblyRecord extends BaseEntity {
     bindingId: string;
     bindingRevision: number;
   }>;
+  sourceContentPlanRef?: EditorContentPlanRef;
   fps: number;
   width: number;
   height: number;
