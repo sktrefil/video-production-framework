@@ -699,11 +699,11 @@ export function analyzeScriptChangeImpact(
   const staleSceneIds: string[] = [];
   const preservedSceneIds: string[] = [];
   for (const scene of graph.scenes) {
-    const segment = scene.scriptSegment.trim();
-    const first = script.body.indexOf(segment);
-    const second = first < 0 ? -1 : script.body.indexOf(segment, first + segment.length);
-    if (segment.length > 0 && first >= 0 && second < 0) preservedSceneIds.push(scene.id);
-    else staleSceneIds.push(scene.id);
+    if (containsExactSentenceSpan(script.body, scene.scriptSegment)) {
+      preservedSceneIds.push(scene.id);
+    } else {
+      staleSceneIds.push(scene.id);
+    }
   }
 
   return {
@@ -713,6 +713,32 @@ export function analyzeScriptChangeImpact(
     staleSceneIds,
     preservedSceneIds
   };
+}
+
+function normalizeSentenceText(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function sentenceUnits(value: string): string[] {
+  return value
+    .split(/(?<=[.!?。？！])\s*/)
+    .map(normalizeSentenceText)
+    .filter((unit) => unit.length > 0);
+}
+
+function containsExactSentenceSpan(scriptBody: string, segment: string): boolean {
+  const scriptUnits = sentenceUnits(scriptBody);
+  const segmentUnits = sentenceUnits(segment);
+  if (segmentUnits.length === 0 || segmentUnits.length > scriptUnits.length) return false;
+
+  const expected = segmentUnits.join(" ");
+  for (let start = 0; start <= scriptUnits.length - segmentUnits.length; start += 1) {
+    const candidate = scriptUnits
+      .slice(start, start + segmentUnits.length)
+      .join(" ");
+    if (candidate === expected) return true;
+  }
+  return false;
 }
 
 function validateStructureDecision(decision: StructureDesignDecision): void {
