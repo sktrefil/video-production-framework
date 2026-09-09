@@ -338,7 +338,7 @@ export interface SceneAssetBaseContext {
 }
 
 export interface AssetPlanDecision {
-  assetClass: "PRIMARY_SCENE" | "EXTRA_START" | "SPECIAL_END" | "BRIDGE";
+  assetClass: "PRIMARY_SCENE" | "EXTRA_START" | "SPECIAL_END" | "BRIDGE" | "REFERENCE";
   assetRole: "HERO" | "STORY_ANCHOR" | "STANDARD";
   productionPriority: ProductionPriority;
   sourceStrategy: "GENERATE" | "IMPORT" | "REUSE";
