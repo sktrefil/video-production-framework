@@ -699,6 +699,430 @@ export class EditorTimelineAssemblyPipeline {
     };
   }
 
+  private async appendContentPlan(input: {
+    projectId: string;
+    plan: EditorContentPlan;
+    profile: TimelineProfile;
+    projectDurationInFrames: number;
+    items: GenericEditProject["items"];
+    blockers: string[];
+  }): Promise<void> {
+    if (this.contentSource === undefined) {
+      input.blockers.push("CONTENT_SOURCE_UNAVAILABLE");
+      return;
+    }
+
+    const fps = input.profile.fps;
+    const usedPlanIds = new Set<string>();
+    const ttsWindows = new Map<
+      string,
+      { itemId: string; startFrame: number; endFrame: number }
+    >();
+
+    for (const placement of input.plan.audio) {
+      if (!placement.id.trim() || usedPlanIds.has("audio:" + placement.id)) {
+        input.blockers.push("CONTENT_AUDIO_ID_INVALID:" + placement.id);
+        continue;
+      }
+      usedPlanIds.add("audio:" + placement.id);
+
+      if (
+        !Number.isFinite(placement.timelineStartMs) ||
+        placement.timelineStartMs < 0
+      ) {
+        input.blockers.push("CONTENT_AUDIO_START_INVALID:" + placement.id);
+        continue;
+      }
+      if (placement.loop === true && placement.type !== "BGM") {
+        input.blockers.push("CONTENT_AUDIO_LOOP_INVALID:" + placement.id);
+        continue;
+      }
+
+      const media = await this.contentSource.getMedia(
+        input.projectId,
+        placement.mediaId
+      );
+      if (
+        media === null ||
+        media.lifecycleStatus !== "ACTIVE" ||
+        media.mediaStatus !== "AVAILABLE" ||
+        media.mediaType !== "AUDIO" ||
+        media.durationMs === undefined ||
+        !Number.isFinite(media.durationMs) ||
+        media.durationMs <= 0 ||
+        !media.relativePath.trim()
+      ) {
+        input.blockers.push("CONTENT_AUDIO_MEDIA_INVALID:" + placement.id);
+        continue;
+      }
+
+      const sourceInMs = placement.sourceInMs ?? 0;
+      const sourceOutMs = placement.sourceOutMs ?? media.durationMs;
+      if (
+        !Number.isFinite(sourceInMs) ||
+        !Number.isFinite(sourceOutMs) ||
+        sourceInMs < 0 ||
+        sourceOutMs <= sourceInMs ||
+        sourceOutMs > media.durationMs
+      ) {
+        input.blockers.push("CONTENT_AUDIO_SOURCE_WINDOW_INVALID:" + placement.id);
+        continue;
+      }
+
+      const sourceStartFrame = frameAt(sourceInMs, fps);
+      const sourceOutFrame = frameAt(sourceOutMs, fps);
+      const sourceDurationInFrames = sourceOutFrame - sourceStartFrame;
+      const sourceAssetDurationInFrames = frameAt(media.durationMs, fps);
+      if (
+        sourceStartFrame < 0 ||
+        sourceDurationInFrames <= 0 ||
+        sourceAssetDurationInFrames <= 0 ||
+        sourceStartFrame + sourceDurationInFrames >
+          sourceAssetDurationInFrames
+      ) {
+        input.blockers.push("CONTENT_AUDIO_SOURCE_FRAME_INVALID:" + placement.id);
+        continue;
+      }
+
+      const timelineStartFrame = frameAt(placement.timelineStartMs, fps);
+      const remainingFrames =
+        input.projectDurationInFrames - timelineStartFrame;
+      if (timelineStartFrame < 0 || remainingFrames <= 0) {
+        input.blockers.push("CONTENT_AUDIO_OUTSIDE_TIMELINE:" + placement.id);
+        continue;
+      }
+
+      const requestedDurationMs =
+        placement.durationMs ??
+        (placement.type === "BGM" && placement.loop === true
+          ? (remainingFrames / fps) * 1000
+          : sourceOutMs - sourceInMs);
+      if (
+        !Number.isFinite(requestedDurationMs) ||
+        requestedDurationMs <= 0
+      ) {
+        input.blockers.push("CONTENT_AUDIO_DURATION_INVALID:" + placement.id);
+        continue;
+      }
+
+      const timelineDurationInFrames = frameAt(requestedDurationMs, fps);
+      if (
+        timelineDurationInFrames <= 0 ||
+        timelineDurationInFrames > remainingFrames
+      ) {
+        input.blockers.push("CONTENT_AUDIO_EXCEEDS_TIMELINE:" + placement.id);
+        continue;
+      }
+      if (
+        placement.loop !== true &&
+        timelineDurationInFrames > sourceDurationInFrames
+      ) {
+        input.blockers.push("CONTENT_AUDIO_EXCEEDS_SOURCE:" + placement.id);
+        continue;
+      }
+
+      const fadeInFrames = Math.min(
+        timelineDurationInFrames,
+        Math.max(
+          0,
+          frameAt(
+            placement.fadeInMs ??
+              (placement.type === "BGM" ? 500 : 0),
+            fps
+          )
+        )
+      );
+      const fadeOutFrames = Math.min(
+        timelineDurationInFrames,
+        Math.max(
+          0,
+          frameAt(
+            placement.fadeOutMs ??
+              (placement.type === "BGM"
+                ? 1200
+                : placement.type === "SFX"
+                  ? 80
+                  : 0),
+            fps
+          )
+        )
+      );
+      const audioItemId = "audio-" + placement.id;
+      const audio: GenericEditorAudioItem = {
+        id: audioItemId,
+        type: placement.type,
+        trackId: audioTrackId(placement.type),
+        timelineStartFrame,
+        durationInFrames: timelineDurationInFrames,
+        enabled: true,
+        locked: false,
+        src: media.relativePath,
+        sourceStartFrame,
+        sourceDurationInFrames,
+        sourceAssetDurationInFrames,
+        volume: finiteNonNegative(
+          placement.volume,
+          defaultAudioVolume(placement.type)
+        ),
+        muted: placement.muted ?? false,
+        fadeInFrames,
+        fadeOutFrames,
+        ...(placement.loop === undefined ? {} : { loop: placement.loop })
+      };
+      input.items.push(audio);
+
+      if (placement.type === "TTS") {
+        ttsWindows.set(placement.id, {
+          itemId: audioItemId,
+          startFrame: timelineStartFrame,
+          endFrame: timelineStartFrame + timelineDurationInFrames
+        });
+      }
+    }
+
+    const orderedSubtitles = [...input.plan.subtitles].sort(
+      (left, right) =>
+        left.startMs - right.startMs || left.id.localeCompare(right.id)
+    );
+    let previousSubtitleEnd = -1;
+
+    for (const cue of orderedSubtitles) {
+      if (!cue.id.trim() || usedPlanIds.has("subtitle:" + cue.id)) {
+        input.blockers.push("CONTENT_SUBTITLE_ID_INVALID:" + cue.id);
+        continue;
+      }
+      usedPlanIds.add("subtitle:" + cue.id);
+
+      const startFrame = frameAt(cue.startMs, fps);
+      const endFrame = frameAt(cue.endMs, fps);
+      if (
+        !Number.isFinite(cue.startMs) ||
+        !Number.isFinite(cue.endMs) ||
+        cue.startMs < 0 ||
+        cue.endMs <= cue.startMs ||
+        startFrame < 0 ||
+        endFrame <= startFrame ||
+        endFrame > input.projectDurationInFrames ||
+        !cue.text.trim()
+      ) {
+        input.blockers.push("CONTENT_SUBTITLE_TIMING_INVALID:" + cue.id);
+        continue;
+      }
+      if (startFrame < previousSubtitleEnd) {
+        input.blockers.push("CONTENT_SUBTITLE_OVERLAP:" + cue.id);
+        continue;
+      }
+
+      const referencePlacementIds =
+        cue.generatedFromAudioPlacementIds ?? [];
+      const generatedFromTtsIds: string[] = [];
+      const referencedWindows: Array<{
+        startFrame: number;
+        endFrame: number;
+      }> = [];
+      let referenceInvalid = false;
+
+      for (const placementId of referencePlacementIds) {
+        const reference = ttsWindows.get(placementId);
+        if (reference === undefined) {
+          input.blockers.push(
+            "CONTENT_SUBTITLE_TTS_REFERENCE_INVALID:" +
+              cue.id +
+              ":" +
+              placementId
+          );
+          referenceInvalid = true;
+          continue;
+        }
+        generatedFromTtsIds.push(reference.itemId);
+        referencedWindows.push(reference);
+      }
+
+      const generationSource =
+        cue.generationSource ??
+        (generatedFromTtsIds.length > 0
+          ? "SCRIPT_TTS_ALIGN"
+          : "MANUAL");
+      if (
+        generationSource !== "MANUAL" &&
+        generatedFromTtsIds.length === 0
+      ) {
+        input.blockers.push("CONTENT_SUBTITLE_TTS_REFERENCE_REQUIRED:" + cue.id);
+        referenceInvalid = true;
+      }
+
+      if (referencedWindows.length > 0) {
+        const referenceStart = Math.min(
+          ...referencedWindows.map(window => window.startFrame)
+        );
+        const referenceEnd = Math.max(
+          ...referencedWindows.map(window => window.endFrame)
+        );
+        const tolerance = 2;
+        if (
+          startFrame < referenceStart - tolerance ||
+          endFrame > referenceEnd + tolerance
+        ) {
+          input.blockers.push(
+            "CONTENT_SUBTITLE_OUTSIDE_TTS_RANGE:" + cue.id
+          );
+          referenceInvalid = true;
+        }
+      }
+
+      if (referenceInvalid) continue;
+
+      const style = defaultSubtitleStyle(
+        input.profile.width,
+        input.profile.height,
+        cue.style
+      );
+      const subtitle: GenericEditorSubtitleItem = {
+        id: "subtitle-" + cue.id,
+        type: "SUBTITLE",
+        trackId: "T1",
+        timelineStartFrame: startFrame,
+        durationInFrames: endFrame - startFrame,
+        enabled: true,
+        locked: false,
+        text: cue.text,
+        ...style,
+        generationSource,
+        ...(generatedFromTtsIds.length === 0
+          ? {}
+          : { generatedFromTtsIds })
+      };
+      input.items.push(subtitle);
+      previousSubtitleEnd = endFrame;
+    }
+
+    for (const overlay of input.plan.textOverlays) {
+      if (!overlay.id.trim() || usedPlanIds.has("text:" + overlay.id)) {
+        input.blockers.push("CONTENT_TEXT_ID_INVALID:" + overlay.id);
+        continue;
+      }
+      usedPlanIds.add("text:" + overlay.id);
+      const startFrame = frameAt(overlay.startMs, fps);
+      const endFrame = frameAt(overlay.endMs, fps);
+      if (
+        !Number.isFinite(overlay.startMs) ||
+        !Number.isFinite(overlay.endMs) ||
+        overlay.startMs < 0 ||
+        overlay.endMs <= overlay.startMs ||
+        startFrame < 0 ||
+        endFrame <= startFrame ||
+        endFrame > input.projectDurationInFrames ||
+        !overlay.text.trim() ||
+        !Number.isFinite(overlay.x) ||
+        !Number.isFinite(overlay.y) ||
+        !Number.isFinite(overlay.width) ||
+        overlay.width <= 0 ||
+        !Number.isFinite(overlay.fontSize) ||
+        overlay.fontSize <= 0
+      ) {
+        input.blockers.push("CONTENT_TEXT_INVALID:" + overlay.id);
+        continue;
+      }
+
+      const text: GenericEditorTextItem = {
+        id: "text-" + overlay.id,
+        type: "TEXT",
+        trackId: "T2",
+        timelineStartFrame: startFrame,
+        durationInFrames: endFrame - startFrame,
+        enabled: true,
+        locked: false,
+        ...(overlay.zIndex === undefined ? {} : { zIndex: overlay.zIndex }),
+        text: overlay.text,
+        textRole: overlay.textRole,
+        x: overlay.x,
+        y: overlay.y,
+        width: overlay.width,
+        fontFamily: overlay.fontFamily?.trim() || "VITRO",
+        fontSize: overlay.fontSize,
+        fontWeight: finitePositive(overlay.fontWeight, 800),
+        color: overlay.color?.trim() || "#FFFDF7",
+        strokeColor: overlay.strokeColor?.trim() || "#17130F",
+        strokeWidth: finiteNonNegative(overlay.strokeWidth, 3),
+        textAlign: overlay.textAlign ?? "center",
+        lineHeight: finitePositive(overlay.lineHeight, 1.12),
+        maxLines: Math.max(
+          1,
+          Math.round(finitePositive(overlay.maxLines, 2))
+        ),
+        backgroundEnabled: overlay.backgroundEnabled ?? false,
+        backgroundColor: overlay.backgroundColor?.trim() || "#000000",
+        backgroundOpacity: Math.min(
+          1,
+          finiteNonNegative(overlay.backgroundOpacity, 0.35)
+        )
+      };
+      input.items.push(text);
+    }
+
+    for (const overlay of input.plan.graphics) {
+      if (!overlay.id.trim() || usedPlanIds.has("graphic:" + overlay.id)) {
+        input.blockers.push("CONTENT_GRAPHIC_ID_INVALID:" + overlay.id);
+        continue;
+      }
+      usedPlanIds.add("graphic:" + overlay.id);
+      const startFrame = frameAt(overlay.startMs, fps);
+      const endFrame = frameAt(overlay.endMs, fps);
+      if (
+        !Number.isFinite(overlay.startMs) ||
+        !Number.isFinite(overlay.endMs) ||
+        overlay.startMs < 0 ||
+        overlay.endMs <= overlay.startMs ||
+        startFrame < 0 ||
+        endFrame <= startFrame ||
+        endFrame > input.projectDurationInFrames ||
+        !Number.isFinite(overlay.x) ||
+        !Number.isFinite(overlay.y) ||
+        !Number.isFinite(overlay.width) ||
+        !Number.isFinite(overlay.height) ||
+        overlay.width <= 0 ||
+        overlay.height <= 0 ||
+        !Number.isFinite(overlay.opacity) ||
+        overlay.opacity < 0 ||
+        overlay.opacity > 1 ||
+        !overlay.backgroundColor.trim()
+      ) {
+        input.blockers.push("CONTENT_GRAPHIC_INVALID:" + overlay.id);
+        continue;
+      }
+
+      const graphic: GenericEditorGraphicItem = {
+        id: "graphic-" + overlay.id,
+        type: "GRAPHIC",
+        trackId: "G1",
+        timelineStartFrame: startFrame,
+        durationInFrames: endFrame - startFrame,
+        enabled: true,
+        locked: false,
+        ...(overlay.zIndex === undefined ? {} : { zIndex: overlay.zIndex }),
+        graphicType: overlay.graphicType,
+        x: overlay.x,
+        y: overlay.y,
+        width: overlay.width,
+        height: overlay.height,
+        opacity: overlay.opacity,
+        blurPx: finiteNonNegative(overlay.blurPx, 0),
+        backgroundColor: overlay.backgroundColor,
+        borderRadius: finiteNonNegative(overlay.borderRadius, 0),
+        ...(overlay.gradientStartColor === undefined
+          ? {}
+          : { gradientStartColor: overlay.gradientStartColor }),
+        ...(overlay.gradientEndColor === undefined
+          ? {}
+          : { gradientEndColor: overlay.gradientEndColor }),
+        ...(overlay.gradientAngleDeg === undefined
+          ? {}
+          : { gradientAngleDeg: overlay.gradientAngleDeg })
+      };
+      input.items.push(graphic);
+    }
+  }
+
   async reconcileStaleAssembly(projectId: string): Promise<TimelineAssemblyRecord | null> {
     const previous = await this.repository.getLatestAssembly(projectId);
     if (previous === null || previous.stale) return previous;
