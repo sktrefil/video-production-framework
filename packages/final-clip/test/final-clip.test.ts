@@ -941,3 +941,78 @@ test("late Provider result is rejected after Clip execution revision changes", a
       error.code === "IMPLEMENTATION_STALE"
   );
 });
+
+
+test("readiness distinguishes editorial-ready, provider-ready, and candidate states", async () => {
+  const editorialSetup = setup();
+  editorialSetup.decisions.finalDecision = {
+    implementationType: "CLIP",
+    clipMode: "STATIC_HOLD",
+    singleImageSource: "FROM",
+    transitionMethod: "DIRECT",
+    durationMs: 3000,
+    cameraMove: "NONE",
+    subjectMotion: "NONE",
+    environmentMotion: "NONE",
+    rationale: "hold approved image",
+    additionalAssetRequired: false
+  };
+  const editorial = await editorialSetup.pipeline.designFinalImplementation({
+    projectId: "prj_1",
+    linkId: "lnk_1",
+    format: "LONGFORM"
+  });
+  assert.equal(editorial.kind, "CLIP");
+  if (editorial.kind !== "CLIP") return;
+  const editorialReady = await editorialSetup.pipeline.getReadiness(
+    "prj_1",
+    editorial.clip.id
+  );
+  assert.equal(editorialReady.editorialReady, true);
+  assert.equal(editorialReady.videoGenerationReady, false);
+
+  const providerSetup = setup();
+  const provider = await providerSetup.pipeline.designFinalImplementation({
+    projectId: "prj_1",
+    linkId: "lnk_1",
+    format: "LONGFORM"
+  });
+  assert.equal(provider.kind, "CLIP");
+  if (provider.kind !== "CLIP") return;
+  await providerSetup.pipeline.runProviderPreQc({
+    projectId: "prj_1",
+    clipId: provider.clip.id,
+    format: "LONGFORM",
+    provider: "GOOGLE_FLOW",
+    providerProfileVersion: "flow-v1"
+  });
+  const providerReady = await providerSetup.pipeline.getReadiness(
+    "prj_1",
+    provider.clip.id
+  );
+  assert.equal(providerReady.videoGenerationReady, true);
+  assert.equal(providerReady.providerPreflightPassed, true);
+
+  const job = await providerSetup.pipeline.createVideoGenerationJob({
+    projectId: "prj_1",
+    clipId: provider.clip.id,
+    format: "LONGFORM",
+    provider: "GOOGLE_FLOW",
+    providerProfileVersion: "flow-v1",
+    executionMode: "MANUAL_EXTERNAL"
+  });
+  const result = await providerSetup.pipeline.registerVideoResult({
+    projectId: "prj_1",
+    jobId: job.job.id,
+    relativePath: "07_generated_clips/readiness.mp4",
+    mimeType: "video/mp4",
+    checksum: "sha256:readiness",
+    durationMs: 5000
+  });
+  const candidateReady = await providerSetup.pipeline.getReadiness(
+    "prj_1",
+    result.clip.id
+  );
+  assert.equal(candidateReady.candidateAvailable, true);
+  assert.equal(candidateReady.videoGenerationReady, false);
+});
