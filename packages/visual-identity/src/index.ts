@@ -297,7 +297,12 @@ function materializeAnchors(input: {
         temporary: [...design.specification.temporary]
       },
       requiredBySceneIds: [...new Set(design.requiredBySceneIds)],
-      referenceMediaIds: previous?.referenceMediaIds ?? [],
+      referenceMediaIds:
+        previous !== undefined &&
+        previous.sourceProjectStyleId === input.projectStyle.id &&
+        previous.sourceProjectStyleRevision === input.projectStyle.revision
+          ? [...previous.referenceMediaIds]
+          : [],
       sourceProjectStyleId: input.projectStyle.id,
       sourceProjectStyleRevision: input.projectStyle.revision,
       sourceChannelVisualBibleVersion: input.channelVisualBibleVersion,
