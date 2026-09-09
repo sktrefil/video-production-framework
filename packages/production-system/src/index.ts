@@ -4,6 +4,7 @@ import type {
   IdentityAnchorType,
   MediaArtifact,
   ProductionAsset,
+  ProductionLink,
   ProductionPriority,
   ProjectFormat,
   ProjectStyle,
@@ -478,5 +479,159 @@ export class ProductionSceneAssetPlanner implements SceneAssetDecisionPort {
       );
     }
     return response.decision;
+  }
+}
+
+
+export interface PreLinkBaseContext {
+  projectId: string;
+  format: ProjectFormat;
+  link: ProductionLink;
+  fromScene: Scene;
+  toScene: Scene;
+}
+
+export interface PreLinkDecision {
+  preLinkRequired: boolean;
+  continuityLevel: string;
+  stateChange: string;
+  handoffIntent: string;
+  handoffAnchor: string[];
+  handoffChannels: Array<"VISUAL" | "AUDIO" | "EDIT">;
+  transitionIntent: string;
+}
+
+export interface HandoffQcDecision {
+  qcStatus:
+    | "PASS"
+    | "PASS_WITH_NOTE"
+    | "FIXABLE"
+    | "REGENERATE"
+    | "REDESIGN"
+    | "REJECT";
+  severity: "CRITICAL" | "MAJOR" | "MINOR";
+  confidence: number;
+  preLinkMatch: "MATCH" | "PARTIAL" | "MISMATCH";
+  continuityUsable: boolean;
+  symptom?: string;
+  rootCause?: string;
+  recommendedAction?: string;
+  fallback?: string;
+}
+
+export interface ProductionDecisionWithMeta<TDecision> {
+  decision: TDecision;
+  status: ProductionDecisionStatus;
+  confidence: number;
+  requiresHumanReview: boolean;
+  warnings: string[];
+  decisionId: string;
+}
+
+export interface LinkDecisionPort {
+  designPreLink(
+    input: PreLinkBaseContext
+  ): Promise<ProductionDecisionWithMeta<PreLinkDecision>>;
+  runHandoffQc(
+    input: PreLinkBaseContext & {
+      qcType: "HANDOFF_QC";
+      fromAsset: ProductionAsset;
+      fromMedia: MediaArtifact;
+      toAsset: ProductionAsset;
+      toMedia: MediaArtifact;
+    }
+  ): Promise<ProductionDecisionWithMeta<HandoffQcDecision>>;
+}
+
+export class ProductionLinkPlanner implements LinkDecisionPort {
+  constructor(
+    private readonly adapter: ProductionSystemAdapter,
+    private readonly taskIds: TaskIdFactory
+  ) {}
+
+  async designPreLink(
+    input: PreLinkBaseContext
+  ): Promise<ProductionDecisionWithMeta<PreLinkDecision>> {
+    return this.execute<PreLinkDecision, PreLinkBaseContext>(
+      "PRE_LINK",
+      input,
+      {
+        type: "LINK",
+        id: input.link.id,
+        revision: input.link.revision
+      }
+    );
+  }
+
+  async runHandoffQc(
+    input: PreLinkBaseContext & {
+      qcType: "HANDOFF_QC";
+      fromAsset: ProductionAsset;
+      fromMedia: MediaArtifact;
+      toAsset: ProductionAsset;
+      toMedia: MediaArtifact;
+    }
+  ): Promise<ProductionDecisionWithMeta<HandoffQcDecision>> {
+    return this.execute<
+      HandoffQcDecision,
+      PreLinkBaseContext & {
+        qcType: "HANDOFF_QC";
+        fromAsset: ProductionAsset;
+        fromMedia: MediaArtifact;
+        toAsset: ProductionAsset;
+        toMedia: MediaArtifact;
+      }
+    >(
+      "QC",
+      input,
+      {
+        type: "LINK",
+        id: input.link.id,
+        revision: input.link.revision
+      }
+    );
+  }
+
+  private async execute<TDecision, TContext extends { projectId: string }>(
+    taskType: ProductionTaskType,
+    context: TContext,
+    target: ProductionTaskRequest["target"]
+  ): Promise<ProductionDecisionWithMeta<TDecision>> {
+    const response = await this.adapter.execute<TDecision, TContext>({
+      taskId: this.taskIds.nextTaskId(),
+      taskType,
+      projectId: context.projectId,
+      target,
+      context
+    });
+
+    if (response.status === "BLOCKED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_BLOCKED",
+        response.decisionSummary
+      );
+    }
+    if (response.status === "FAILED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_FAILED",
+        response.decisionSummary
+      );
+    }
+    if (response.decision === undefined) {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_INVALID",
+        "Production decision did not include a structured decision payload."
+      );
+    }
+
+    return {
+      decision: response.decision,
+      status: response.status,
+      confidence: response.confidence,
+      requiresHumanReview:
+        response.requiresHumanReview || response.status === "NEEDS_REVIEW",
+      warnings: [...response.warnings],
+      decisionId: response.decisionId
+    };
   }
 }
