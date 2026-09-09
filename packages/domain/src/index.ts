@@ -68,7 +68,8 @@ export type ApprovalTargetType =
   | "IDENTITY_ANCHOR"
   | "ASSET"
   | "LINK"
-  | "CLIP";
+  | "CLIP"
+  | "FINAL_OUTPUT";
 
 export interface ApprovalRecord {
   id: string;
@@ -1127,6 +1128,110 @@ export interface FinalRenderReadiness {
     | "FAILED"
     | "TECHNICAL_QC_FAILED"
     | "DELIVERY_READY"
+    | "STALE";
+  blockers: string[];
+}
+export type FinalOutputQcStatus =
+  | "PASS"
+  | "NEEDS_REVIEW"
+  | "FIX_REQUIRED"
+  | "BLOCKED";
+
+export interface FinalOutputQcRecord extends BaseEntity {
+  renderAttemptId: string;
+  renderAttemptRevision: number;
+  deliveryManifestId: string;
+  deliveryManifestRevision: number;
+  projectSha256: string;
+  outputPath: string;
+  outputSha256: string;
+  status: FinalOutputQcStatus;
+  confidence: number;
+  issueCodes: string[];
+  notes: string[];
+  reviewRequired: boolean;
+  reviewApprovalId?: string;
+}
+
+export type PublishPlatform = "YOUTUBE";
+export type PublishVisibility = "PRIVATE" | "UNLISTED" | "PUBLIC";
+
+export interface PublishThumbnailRef {
+  relativePath: string;
+  sizeBytes?: number;
+  sha256?: string;
+}
+
+export interface PublishMetadata {
+  platform: PublishPlatform;
+  title: string;
+  description: string;
+  tags: string[];
+  visibility: PublishVisibility;
+  madeForKids: boolean;
+  language?: string;
+  categoryId?: string;
+  thumbnail?: PublishThumbnailRef;
+}
+
+export type PublishPackageStatus = "READY" | "BLOCKED" | "STALE";
+
+export type PublishPackageFileRole =
+  | "VIDEO"
+  | "THUMBNAIL"
+  | "RENDER_MANIFEST"
+  | "TECHNICAL_QC"
+  | "DELIVERY_MANIFEST"
+  | "FINAL_OUTPUT_QC"
+  | "PUBLISH_METADATA";
+
+export interface PublishPackageFile {
+  role: PublishPackageFileRole;
+  relativePath: string;
+  sizeBytes?: number;
+  sha256?: string;
+}
+
+export interface PublishPackageManifest extends BaseEntity {
+  renderAttemptId: string;
+  renderAttemptRevision: number;
+  deliveryManifestId: string;
+  deliveryManifestRevision: number;
+  outputQcId: string;
+  outputQcRevision: number;
+  projectSha256: string;
+  packageStatus: PublishPackageStatus;
+  packageDirectory: string;
+  packageSha256: string;
+  metadata: PublishMetadata;
+  files: PublishPackageFile[];
+  recommendedFileName: "publish_handoff.json";
+}
+
+export interface PublishHandoffOutput {
+  schemaVersion: "1.0";
+  projectId: string;
+  createdAt: string;
+  status: PublishPackageStatus;
+  projectSha256: string;
+  packageSha256: string;
+  packageDirectory: string;
+  recommendedFileName: "publish_handoff.json";
+  metadata: PublishMetadata;
+  files: PublishPackageFile[];
+}
+
+export interface FinalOutputReadiness {
+  finalOutputQcPassed: boolean;
+  packageReady: boolean;
+  publishHandoffReady: boolean;
+  status:
+    | "WAITING_FOR_DELIVERY"
+    | "QC_REQUIRED"
+    | "NEEDS_REVIEW"
+    | "FIX_REQUIRED"
+    | "BLOCKED"
+    | "PACKAGE_READY"
     | "STALE";
   blockers: string[];
 }
