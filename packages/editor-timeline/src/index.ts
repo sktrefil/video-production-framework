@@ -159,7 +159,10 @@ function profileEqual(
     settings.snapEnabled === (input.profile.snapEnabled ?? true) &&
     settings.snapToleranceFrames === (input.profile.snapToleranceFrames ?? 4) &&
     settings.timelineZoom === (input.profile.timelineZoom ?? 1) &&
-    settings.masterVolume === (input.profile.masterVolume ?? 1)
+    settings.masterVolume === (input.profile.masterVolume ?? 1) &&
+    assembly.editProject.items
+      .filter(item => item.type === "VIDEO")
+      .every(item => item.type === "VIDEO" && item.volume === (input.profile.videoVolume ?? 0))
   );
 }
 
