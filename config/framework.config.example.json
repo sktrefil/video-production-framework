@@ -1,0 +1,9 @@
+{
+  "workspace_root": "D:/video-production-workspace",
+  "production_system_resource_root": "D:/video-production-workspace/resources/production_system",
+  "channel_visual_bible_resource_root": "D:/video-production-workspace/resources/channel_visual_bibles",
+  "format_profile_resource_root": "D:/video-production-workspace/resources/format_profiles",
+  "provider_profile_resource_root": "D:/video-production-workspace/resources/provider_profiles",
+  "remotion_admin_root": "D:/git/video-production-admin-manager-v2",
+  "handoff_mode": "AUTO_SAFE"
+}
