@@ -169,8 +169,8 @@ export class SqliteQcFallbackRepository
     outbox: OutboxRecord;
   }): Promise<void> {
     this.db.transaction(() => {
-      this.supersedeClip(input.previousClip, input.event.createdAt);
-      this.insertClip(input.nextClip);
+      this.supersedeQcClip(input.previousClip, input.event.createdAt);
+      this.insertQcClip(input.nextClip);
       this.insertQc(input.qc);
       if (input.approval !== undefined) insertApproval(this.db, input.approval);
       insertEvent(this.db, input.event, input.outbox);
@@ -185,8 +185,8 @@ export class SqliteQcFallbackRepository
     outbox: OutboxRecord;
   }): Promise<void> {
     this.db.transaction(() => {
-      this.supersedeClip(input.previousClip, input.event.createdAt);
-      this.insertClip(input.nextClip);
+      this.supersedeQcClip(input.previousClip, input.event.createdAt);
+      this.insertQcClip(input.nextClip);
       insertApproval(this.db, input.approval);
       insertEvent(this.db, input.event, input.outbox);
     })();
@@ -201,8 +201,8 @@ export class SqliteQcFallbackRepository
     outbox: OutboxRecord;
   }): Promise<void> {
     this.db.transaction(() => {
-      this.supersedeClip(input.previousClip, input.event.createdAt);
-      this.insertClip(input.nextClip);
+      this.supersedeQcClip(input.previousClip, input.event.createdAt);
+      this.insertQcClip(input.nextClip);
       this.insertFallback(input.fallback);
       if (input.approval !== undefined) insertApproval(this.db, input.approval);
       insertEvent(this.db, input.event, input.outbox);
@@ -219,8 +219,8 @@ export class SqliteQcFallbackRepository
     outbox: OutboxRecord;
   }): Promise<void> {
     this.db.transaction(() => {
-      this.supersedeClip(input.previousClip, input.event.createdAt);
-      this.insertClip(input.nextClip);
+      this.supersedeQcClip(input.previousClip, input.event.createdAt);
+      this.insertQcClip(input.nextClip);
       this.db.prepare(
         `UPDATE clip_fallback_records
          SET lifecycle_status = 'SUPERSEDED', updated_at = ?
@@ -236,7 +236,7 @@ export class SqliteQcFallbackRepository
     })();
   }
 
-  private supersedeClip(clip: ProductionClip, updatedAt: string): void {
+  private supersedeQcClip(clip: ProductionClip, updatedAt: string): void {
     this.db.prepare(
       `UPDATE production_clips
        SET lifecycle_status = 'SUPERSEDED', updated_at = ?, clip_status = 'SUPERSEDED'
@@ -244,7 +244,7 @@ export class SqliteQcFallbackRepository
     ).run(updatedAt, clip.id, clip.revision);
   }
 
-  private insertClip(clip: ProductionClip): void {
+  private insertQcClip(clip: ProductionClip): void {
     this.db.prepare(`INSERT INTO production_clips
       (id, project_id, revision, lifecycle_status,
        link_id, link_revision, clip_mode,
