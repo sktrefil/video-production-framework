@@ -423,6 +423,26 @@ export class SqliteVisualIdentityRepository
          WHERE id = ? AND revision = ?`
       ).run(input.event.createdAt, input.previous.id, input.previous.revision);
       this.insertAnchor(input.next);
+
+      this.db.prepare(
+        `DELETE FROM scene_identity_anchor_requirements
+         WHERE project_id = ? AND anchor_id = ?`
+      ).run(input.next.projectId, input.next.id);
+
+      const requirementInsert = this.db.prepare(
+        `INSERT INTO scene_identity_anchor_requirements
+         (project_id, scene_id, anchor_id, anchor_revision)
+         VALUES (?, ?, ?, ?)`
+      );
+      for (const sceneId of input.next.requiredBySceneIds) {
+        requirementInsert.run(
+          input.next.projectId,
+          sceneId,
+          input.next.id,
+          input.next.revision
+        );
+      }
+
       insertEvent(this.db, input.event, input.outbox);
     })();
   }
