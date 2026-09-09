@@ -1,6 +1,9 @@
 import type {
   FactRecord,
+  IdentityAnchor,
   IdentityAnchorType,
+  MediaArtifact,
+  ProductionAsset,
   ProductionPriority,
   ProjectFormat,
   ProjectStyle,
@@ -35,7 +38,7 @@ export interface ProductionTaskRequest<TContext = unknown> {
   taskType: ProductionTaskType;
   projectId: string;
   target: {
-    type: "PROJECT" | "SCRIPT" | "SEQUENCE" | "SCENE" | "PROJECT_STYLE" | "IDENTITY_ANCHOR" | "ASSET" | "LINK" | "CLIP";
+    type: "PROJECT" | "SCRIPT" | "SEQUENCE" | "SCENE" | "PROJECT_STYLE" | "IDENTITY_ANCHOR" | "ASSET" | "MEDIA" | "LINK" | "CLIP";
     id: string;
     revision?: number;
   };
@@ -294,6 +297,168 @@ export class ProductionVisualIdentityPlanner implements VisualIdentityDecisionPo
       context
     });
 
+    if (response.status === "BLOCKED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_BLOCKED",
+        response.decisionSummary
+      );
+    }
+    if (response.status === "FAILED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_FAILED",
+        response.decisionSummary
+      );
+    }
+    if (response.decision === undefined) {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_INVALID",
+        "Production decision did not include a structured decision payload."
+      );
+    }
+    return response.decision;
+  }
+}
+
+
+export interface FormatProfileSnapshot {
+  version: string;
+  resourceId: string;
+  contentHash: string;
+  payload: unknown;
+}
+
+export interface SceneAssetBaseContext {
+  projectId: string;
+  format: ProjectFormat;
+  scene: Scene;
+  projectStyle: ProjectStyle;
+  identityAnchors: IdentityAnchor[];
+  channelVisualBible: ChannelVisualBibleSnapshot;
+  formatProfile: FormatProfileSnapshot;
+}
+
+export interface AssetPlanDecision {
+  assetClass: "PRIMARY_SCENE" | "EXTRA_START" | "SPECIAL_END" | "BRIDGE";
+  assetRole: "HERO" | "STORY_ANCHOR" | "STANDARD";
+  productionPriority: ProductionPriority;
+  sourceStrategy: "GENERATE" | "IMPORT" | "REUSE";
+  stateField: "STATE_IN" | "STATE_CURRENT" | "STATE_OUT";
+  rationale: string;
+}
+
+export interface ImageAssetDesignDecision {
+  visualGoal: string;
+  composition: string;
+  continuityRequirements: string[];
+  identityAnchorIds: string[];
+  factualConstraints: string[];
+  avoidances: string[];
+}
+
+export interface ImagePromptDecision {
+  prompt: string;
+  negativePrompt?: string;
+}
+
+export interface ImageQcDecision {
+  qcStatus: "PASS" | "PASS_WITH_NOTE" | "FIXABLE" | "REGENERATE" | "REDESIGN" | "REJECT";
+  severity: "CRITICAL" | "MAJOR" | "MINOR";
+  confidence: number;
+  symptom?: string;
+  rootCause?: string;
+  recommendedAction?: string;
+  fallback?: string;
+}
+
+export interface SceneAssetDecisionPort {
+  planAsset(input: SceneAssetBaseContext): Promise<AssetPlanDecision>;
+  designImageAsset(
+    input: SceneAssetBaseContext & { assetPlan: AssetPlanDecision }
+  ): Promise<ImageAssetDesignDecision>;
+  compileImagePrompt(
+    input: SceneAssetBaseContext & {
+      asset: ProductionAsset;
+    }
+  ): Promise<ImagePromptDecision>;
+  runImageQc(
+    input: SceneAssetBaseContext & {
+      asset: ProductionAsset;
+      candidate: MediaArtifact;
+    }
+  ): Promise<ImageQcDecision>;
+}
+
+export class ProductionSceneAssetPlanner implements SceneAssetDecisionPort {
+  constructor(
+    private readonly adapter: ProductionSystemAdapter,
+    private readonly taskIds: TaskIdFactory
+  ) {}
+
+  async planAsset(input: SceneAssetBaseContext): Promise<AssetPlanDecision> {
+    return this.execute<AssetPlanDecision, SceneAssetBaseContext>(
+      "ASSET_PLAN",
+      input,
+      { type: "SCENE", id: input.scene.id, revision: input.scene.revision }
+    );
+  }
+
+  async designImageAsset(
+    input: SceneAssetBaseContext & { assetPlan: AssetPlanDecision }
+  ): Promise<ImageAssetDesignDecision> {
+    return this.execute<
+      ImageAssetDesignDecision,
+      SceneAssetBaseContext & { assetPlan: AssetPlanDecision }
+    >(
+      "IMAGE_ASSET_DESIGN",
+      input,
+      { type: "SCENE", id: input.scene.id, revision: input.scene.revision }
+    );
+  }
+
+  async compileImagePrompt(
+    input: SceneAssetBaseContext & { asset: ProductionAsset }
+  ): Promise<ImagePromptDecision> {
+    return this.execute<
+      ImagePromptDecision,
+      SceneAssetBaseContext & { asset: ProductionAsset }
+    >(
+      "IMAGE_PROMPT",
+      input,
+      { type: "ASSET", id: input.asset.id, revision: input.asset.revision }
+    );
+  }
+
+  async runImageQc(
+    input: SceneAssetBaseContext & {
+      asset: ProductionAsset;
+      candidate: MediaArtifact;
+    }
+  ): Promise<ImageQcDecision> {
+    return this.execute<
+      ImageQcDecision,
+      SceneAssetBaseContext & {
+        asset: ProductionAsset;
+        candidate: MediaArtifact;
+      }
+    >(
+      "IMAGE_QC",
+      input,
+      { type: "ASSET", id: input.asset.id, revision: input.asset.revision }
+    );
+  }
+
+  private async execute<TDecision, TContext extends { projectId: string }>(
+    taskType: ProductionTaskType,
+    context: TContext,
+    target: ProductionTaskRequest["target"]
+  ): Promise<TDecision> {
+    const response = await this.adapter.execute<TDecision, TContext>({
+      taskId: this.taskIds.nextTaskId(),
+      taskType,
+      projectId: context.projectId,
+      target,
+      context
+    });
     if (response.status === "BLOCKED") {
       throw new ProductionDecisionError(
         "PRODUCTION_DECISION_BLOCKED",
