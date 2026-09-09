@@ -5,9 +5,9 @@
   "type": "module",
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present"
+    "build": "npm run build --workspace @vpf/domain && npm run build --workspace @vpf/workflow && npm run build --workspace @vpf/story && npm run build --workspace @vpf/storage",
+    "typecheck": "npm run build --workspace @vpf/domain && npm run build --workspace @vpf/story && npm run typecheck --workspace @vpf/workflow && npm run typecheck --workspace @vpf/storage",
+    "test": "npm run build --workspace @vpf/domain && npm run test --workspace @vpf/story"
   },
   "engines": {"node": ">=22"},
   "devDependencies": {
