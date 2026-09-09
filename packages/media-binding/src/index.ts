@@ -466,6 +466,7 @@ export class MediaBindingPipeline {
       }
 
       let relativePath: string | undefined;
+      let sourceAssetDurationMs: number | undefined;
       if (binding.mediaId !== undefined) {
         const media = await this.context.getMedia(projectId, binding.mediaId);
         if (media === null || media.mediaStatus !== "AVAILABLE") {
@@ -477,6 +478,7 @@ export class MediaBindingPipeline {
           continue;
         }
         relativePath = media.relativePath;
+        sourceAssetDurationMs = media.durationMs;
       }
 
       items.push({
@@ -494,6 +496,7 @@ export class MediaBindingPipeline {
         ...(relativePath === undefined ? {} : { relativePath }),
         ...(binding.sourceInMs === undefined ? {} : { sourceInMs: binding.sourceInMs }),
         ...(binding.sourceOutMs === undefined ? {} : { sourceOutMs: binding.sourceOutMs }),
+        ...(sourceAssetDurationMs === undefined ? {} : { sourceAssetDurationMs }),
         durationMs: binding.durationMs,
         transitionMethod: binding.transitionMethod,
         ...(binding.cameraMove === undefined ? {} : { cameraMove: binding.cameraMove }),
