@@ -1139,10 +1139,11 @@ test("WF-07 -> WF-16 completes in one project.db through full editor timeline as
       500
     );
 
+    const wf16Ids = editorTimelineIds();
     const contentPlanService = new EditorContentPlanService(
       timelineRepo,
       editorTimelineClock,
-      editorTimelineIds()
+      wf16Ids
     );
     const contentPlan = await contentPlanService.savePlan({
       projectId: "prj_10",
@@ -1232,7 +1233,7 @@ test("WF-07 -> WF-16 completes in one project.db through full editor timeline as
       timelineRepo,
       timelineBindingSource,
       editorTimelineClock,
-      editorTimelineIds(),
+      wf16Ids,
       timelineRepo
     );
 
