@@ -33,6 +33,7 @@ export interface FinalClipRepository {
   listActiveClips(projectId: string): Promise<ProductionClip[]>;
   getActiveCutByLink(projectId: string, linkId: string): Promise<LinkCutImplementation | null>;
   getLatestCut(projectId: string, cutId: string): Promise<LinkCutImplementation | null>;
+  listActiveCuts(projectId: string): Promise<LinkCutImplementation[]>;
 
   commitAdditionalAssetRequirement(input: {
     previousLink: ProductionLink;
@@ -1266,6 +1267,15 @@ export class FinalClipPipeline {
       input.projectId,
       previousJob.targetId
     );
+    if (
+      clip.revision !== previousJob.targetRevision + 1 ||
+      clip.clipStatus !== "GENERATING"
+    ) {
+      throw new FinalClipValidationError(
+        "IMPLEMENTATION_STALE",
+        "Provider failure targets an older Clip execution revision."
+      );
+    }
     const now = this.clock.nowIso();
     const nextJob: ProviderJob = {
       ...previousJob,
@@ -1502,6 +1512,15 @@ export class FinalClipPipeline {
       input.projectId,
       previousJob.targetId
     );
+    if (
+      clip.revision !== previousJob.targetRevision + 1 ||
+      clip.clipStatus !== "GENERATING"
+    ) {
+      throw new FinalClipValidationError(
+        "IMPLEMENTATION_STALE",
+        "Provider result targets an older Clip execution revision."
+      );
+    }
     if (clip.stale) {
       throw new FinalClipValidationError(
         "IMPLEMENTATION_STALE",
@@ -1672,12 +1691,10 @@ export class FinalClipPipeline {
       }
     }
 
-    const activeLinks = new Set(clips.map((clip) => clip.linkId));
+    const cuts = await this.repository.listActiveCuts(projectId);
     const staleCutIds: string[] = [];
-    for (const linkId of activeLinks) {
-      const cut = await this.repository.getActiveCutByLink(projectId, linkId);
-      if (cut === null) continue;
-      const link = await this.context.getLink(projectId, linkId);
+    for (const cut of cuts) {
+      const link = await this.context.getLink(projectId, cut.linkId);
       if (
         link === null ||
         link.stale ||
