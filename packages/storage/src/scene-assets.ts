@@ -408,6 +408,35 @@ export class SqliteSceneAssetRepository
     this.db.transaction(() => {
       if (input.previous !== null) this.supersedeAsset(input.previous, input.event.createdAt);
       this.insertAsset(input.next);
+      if (
+        input.next.assetClass === "PRIMARY_SCENE" &&
+        input.next.owner.type === "SCENE"
+      ) {
+        this.db.prepare(
+          `UPDATE scenes
+           SET primary_asset_id = ?
+           WHERE project_id = ? AND id = ? AND lifecycle_status = 'ACTIVE'`
+        ).run(
+          input.next.id,
+          input.next.projectId,
+          input.next.owner.id
+        );
+      }
+      insertEvent(this.db, input.event, input.outbox);
+    })();
+  }
+
+  async commitAssetCandidate(input: {
+    previousAsset: ProductionAsset;
+    nextAsset: ProductionAsset;
+    media?: MediaArtifact;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }): Promise<void> {
+    this.db.transaction(() => {
+      this.supersedeAsset(input.previousAsset, input.event.createdAt);
+      this.insertAsset(input.nextAsset);
+      if (input.media !== undefined) this.insertMedia(input.media);
       insertEvent(this.db, input.event, input.outbox);
     })();
   }
