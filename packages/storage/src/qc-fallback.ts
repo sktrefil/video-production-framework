@@ -171,7 +171,7 @@ export class SqliteQcFallbackRepository
     this.db.transaction(() => {
       this.supersedeQcClip(input.previousClip, input.event.createdAt);
       this.insertQcClip(input.nextClip);
-      this.insertQc(input.qc);
+      this.insertClipQcRecord(input.qc);
       if (input.approval !== undefined) insertApproval(this.db, input.approval);
       insertEvent(this.db, input.event, input.outbox);
     })();
@@ -300,7 +300,7 @@ export class SqliteQcFallbackRepository
       );
   }
 
-  private insertQc(qc: ClipQcRecord): void {
+  private insertClipQcRecord(qc: ClipQcRecord): void {
     this.db.prepare(`INSERT INTO clip_qc_records
       (id, project_id, revision, lifecycle_status,
        clip_id, clip_revision, candidate_media_id,
