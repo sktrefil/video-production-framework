@@ -46,6 +46,7 @@ import {
   type MediaBindingIdFactory
 } from "@vpf/media-binding";
 import {
+  EditorContentPlanService,
   EditorTimelineAssemblyPipeline,
   type TimelineAssemblyClock,
   type TimelineAssemblyIdFactory
@@ -614,7 +615,7 @@ class QcFallbackDecisions implements QcFallbackDecisionPort {
   }
 }
 
-test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 completes in one project.db through timeline assembly", async () => {
+test("WF-07 -> WF-16 completes in one project.db through full editor timeline assembly", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
@@ -1091,6 +1092,136 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 compl
     bindingRepo.close();
 
     const timelineRepo = new SqliteEditorTimelineRepository(dbPath);
+
+    const insertAudioMedia = (
+      id: string,
+      relativePath: string,
+      durationMs: number
+    ) => {
+      timelineRepo.db.prepare(
+        `INSERT INTO media_artifacts
+          (id, project_id, revision, lifecycle_status, media_type, relative_path,
+           mime_type, width, height, duration_ms, checksum, source_job_id,
+           media_status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).run(
+        id,
+        "prj_10",
+        1,
+        "ACTIVE",
+        "AUDIO",
+        relativePath,
+        "audio/mpeg",
+        null,
+        null,
+        durationMs,
+        "sha256:" + id,
+        null,
+        "AVAILABLE",
+        now,
+        now
+      );
+    };
+
+    insertAudioMedia(
+      "wf16_tts_media",
+      "08_audio/narration.mp3",
+      4000
+    );
+    insertAudioMedia(
+      "wf16_bgm_media",
+      "08_audio/bgm.mp3",
+      2000
+    );
+    insertAudioMedia(
+      "wf16_sfx_media",
+      "08_audio/impact.mp3",
+      500
+    );
+
+    const contentPlanService = new EditorContentPlanService(
+      timelineRepo,
+      editorTimelineClock,
+      editorTimelineIds()
+    );
+    const contentPlan = await contentPlanService.savePlan({
+      projectId: "prj_10",
+      planStatus: "APPROVED",
+      audio: [
+        {
+          id: "narration",
+          type: "TTS",
+          mediaId: "wf16_tts_media",
+          timelineStartMs: 0,
+          volume: 1
+        },
+        {
+          id: "bgm",
+          type: "BGM",
+          mediaId: "wf16_bgm_media",
+          timelineStartMs: 0,
+          volume: 0.1,
+          loop: true
+        },
+        {
+          id: "impact",
+          type: "SFX",
+          mediaId: "wf16_sfx_media",
+          timelineStartMs: 2000,
+          volume: 0.35
+        }
+      ],
+      subtitles: [
+        {
+          id: "001",
+          startMs: 0,
+          endMs: 2000,
+          text: "첫 번째 자막",
+          generationSource: "SCRIPT_TTS_ALIGN",
+          generatedFromAudioPlacementIds: ["narration"]
+        },
+        {
+          id: "002",
+          startMs: 2000,
+          endMs: 4000,
+          text: "두 번째 자막",
+          generationSource: "SCRIPT_TTS_ALIGN",
+          generatedFromAudioPlacementIds: ["narration"]
+        }
+      ],
+      textOverlays: [
+        {
+          id: "title",
+          startMs: 0,
+          endMs: 1000,
+          text: "WF-16",
+          textRole: "TOP_TITLE",
+          x: 540,
+          y: 190,
+          width: 900,
+          fontSize: 68
+        }
+      ],
+      graphics: [
+        {
+          id: "bottom-blur",
+          startMs: 0,
+          endMs: 4000,
+          graphicType: "BLUR_PANEL",
+          x: 0,
+          y: 1420,
+          width: 1080,
+          height: 500,
+          opacity: 0.38,
+          blurPx: 24,
+          backgroundColor: "rgba(0,0,0,0.35)",
+          borderRadius: 0
+        }
+      ]
+    });
+    assert.equal(contentPlan.planStatus, "APPROVED");
+    assert.equal(contentPlan.revision, 1);
+
     const timelineBindingSource = new MediaBindingPipeline(
       timelineRepo,
       timelineRepo,
@@ -1101,12 +1232,13 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 compl
       timelineRepo,
       timelineBindingSource,
       editorTimelineClock,
-      editorTimelineIds()
+      editorTimelineIds(),
+      timelineRepo
     );
 
     const timeline = await timelinePipeline.assembleProject({
       projectId: "prj_10",
-      projectName: "WF-14 Integration Project",
+      projectName: "WF-16 Integration Project",
       profile: {
         fps: 30,
         width: 1080,
@@ -1120,9 +1252,13 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 compl
     assert.equal(timeline.output.editProject.project.durationInFrames, 120);
     assert.deepEqual(
       timeline.output.editProject.tracks.map(track => track.id),
-      ["V1", "G1", "T1", "A1"]
+      ["V1", "G1", "T1", "A1", "T2", "A2", "A3", "A4"]
     );
-    assert.equal(timeline.output.editProject.items.length, 1);
+    assert.equal(timeline.output.editProject.items.length, 8);
+    assert.deepEqual(timeline.assembly.sourceContentPlanRef, {
+      contentPlanId: contentPlan.id,
+      contentPlanRevision: 1
+    });
 
     const timelineVideo = timeline.output.editProject.items[0]!;
     assert.equal(timelineVideo.type, "VIDEO");
@@ -1136,6 +1272,65 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 compl
     assert.equal(timelineVideo.sourceAssetDurationInFrames, 150);
     assert.equal(timelineVideo.durationInFrames, 120);
     assert.equal(timelineVideo.volume, 0);
+
+    const timelineTts = timeline.output.editProject.items.find(
+      item => item.id === "audio-narration"
+    );
+    assert.equal(timelineTts?.type, "TTS");
+    if (timelineTts?.type !== "TTS") {
+      throw new Error("Expected TTS timeline item");
+    }
+    assert.equal(timelineTts.trackId, "A1");
+    assert.equal(timelineTts.durationInFrames, 120);
+    assert.equal(timelineTts.src, "08_audio/narration.mp3");
+
+    const timelineBgm = timeline.output.editProject.items.find(
+      item => item.id === "audio-bgm"
+    );
+    assert.equal(timelineBgm?.type, "BGM");
+    if (timelineBgm?.type !== "BGM") {
+      throw new Error("Expected BGM timeline item");
+    }
+    assert.equal(timelineBgm.trackId, "A3");
+    assert.equal(timelineBgm.durationInFrames, 120);
+    assert.equal(timelineBgm.sourceDurationInFrames, 60);
+    assert.equal(timelineBgm.loop, true);
+
+    const timelineSfx = timeline.output.editProject.items.find(
+      item => item.id === "audio-impact"
+    );
+    assert.equal(timelineSfx?.type, "SFX");
+    if (timelineSfx?.type !== "SFX") {
+      throw new Error("Expected SFX timeline item");
+    }
+    assert.equal(timelineSfx.trackId, "A4");
+    assert.equal(timelineSfx.timelineStartFrame, 60);
+    assert.equal(timelineSfx.durationInFrames, 15);
+
+    const timelineSubtitle = timeline.output.editProject.items.find(
+      item => item.id === "subtitle-001"
+    );
+    assert.equal(timelineSubtitle?.type, "SUBTITLE");
+    if (timelineSubtitle?.type !== "SUBTITLE") {
+      throw new Error("Expected SUBTITLE timeline item");
+    }
+    assert.equal(timelineSubtitle.trackId, "T1");
+    assert.deepEqual(
+      timelineSubtitle.generatedFromTtsIds,
+      ["audio-narration"]
+    );
+
+    const timelineTitle = timeline.output.editProject.items.find(
+      item => item.id === "text-title"
+    );
+    assert.equal(timelineTitle?.type, "TEXT");
+    assert.equal(timelineTitle?.trackId, "T2");
+
+    const timelineGraphic = timeline.output.editProject.items.find(
+      item => item.id === "graphic-bottom-blur"
+    );
+    assert.equal(timelineGraphic?.type, "GRAPHIC");
+    assert.equal(timelineGraphic?.trackId, "G1");
 
     const storedAssembly = timelineRepo.db.prepare(
       `SELECT revision, assembly_status, stale, fps, width, height, edit_project_json
@@ -1164,6 +1359,48 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 -> WF-14 compl
     };
     assert.equal(storedEditProject.project.durationInFrames, 120);
     assert.equal(storedEditProject.items[0]?.type, "VIDEO");
+
+    assert.ok(
+      storedEditProject.items.some(item => item.type === "TTS")
+    );
+    assert.ok(
+      storedEditProject.items.some(item => item.type === "SUBTITLE")
+    );
+    assert.ok(
+      storedEditProject.items.some(item => item.type === "BGM")
+    );
+    assert.ok(
+      storedEditProject.items.some(item => item.type === "SFX")
+    );
+
+    const storedContentPlan = timelineRepo.db.prepare(
+      `SELECT revision, plan_status, audio_json, subtitles_json
+       FROM editor_content_plans
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10") as {
+      revision: number;
+      plan_status: string;
+      audio_json: string;
+      subtitles_json: string;
+    };
+    assert.equal(storedContentPlan.revision, 1);
+    assert.equal(storedContentPlan.plan_status, "APPROVED");
+    assert.equal(JSON.parse(storedContentPlan.audio_json).length, 3);
+    assert.equal(JSON.parse(storedContentPlan.subtitles_json).length, 2);
+
+    const storedContentRef = timelineRepo.db.prepare(
+      `SELECT content_plan_id, content_plan_revision
+       FROM editor_timeline_content_refs
+       WHERE assembly_id = ? AND assembly_revision = ?`
+    ).get(timeline.assembly.id, timeline.assembly.revision) as {
+      content_plan_id: string;
+      content_plan_revision: number;
+    };
+    assert.deepEqual(storedContentRef, {
+      content_plan_id: contentPlan.id,
+      content_plan_revision: 1
+    });
 
     const timelineReadiness = await timelinePipeline.getReadiness("prj_10");
     assert.equal(timelineReadiness.timelineAssemblyReady, true);
