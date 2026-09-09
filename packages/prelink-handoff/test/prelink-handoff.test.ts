@@ -313,6 +313,19 @@ class MemoryRepository implements PreLinkHandoffRepository {
     this.record(input.event, input.outbox);
   }
 
+  async commitHandoffReviewApproval(input: {
+    previous: ProductionLink;
+    next: ProductionLink;
+    approval: ApprovalRecord;
+    event: WorkflowEvent;
+    outbox: OutboxRecord;
+  }) {
+    this.supersede(input.previous);
+    this.links.push(input.next);
+    this.approvals.push(input.approval);
+    this.record(input.event, input.outbox);
+  }
+
   async commitDependencyReconciliation(input: {
     staleLinkIds: string[];
     resets: Array<{ previous: ProductionLink; next: ProductionLink }>;
@@ -616,4 +629,69 @@ test("Batch Handoff work preserves partial success", async () => {
   assert.equal(binding.succeeded, 1);
   assert.equal(binding.failed, 1);
   assert.equal(binding.items[1]?.code, "APPROVED_ASSETS_REQUIRED");
+});
+
+
+test("Handoff QC requiring human review does not open Final Clip readiness until accepted", async () => {
+  const { repository, decisions, pipeline } = setup();
+  const [created] = await pipeline.buildLinkGraph({
+    projectId: "prj_1",
+    format: "LONGFORM"
+  });
+  await pipeline.designPreLink({
+    projectId: "prj_1",
+    linkId: created!.id,
+    format: "LONGFORM"
+  });
+  await pipeline.bindApprovedAssets({
+    projectId: "prj_1",
+    linkId: created!.id
+  });
+
+  decisions.runHandoffQc = async () => ({
+    decision: {
+      qcStatus: "PASS",
+      severity: "MINOR",
+      confidence: 0.62,
+      preLinkMatch: "MATCH",
+      continuityUsable: true
+    },
+    status: "NEEDS_REVIEW",
+    confidence: 0.62,
+    requiresHumanReview: true,
+    warnings: ["low confidence"],
+    decisionId: "dec_qc_review"
+  });
+
+  const reviewed = await pipeline.runHandoffQc({
+    projectId: "prj_1",
+    linkId: created!.id,
+    format: "LONGFORM"
+  });
+  assert.equal(reviewed.link.linkStatus, "HANDOFF_NEEDS_REVIEW");
+  assert.equal(reviewed.link.handoffUsable, true);
+
+  const before = await pipeline.getReadiness("prj_1", created!.id);
+  assert.equal(before.finalClipDesignReady, false);
+
+  const accepted = await pipeline.approveHandoffReview({
+    projectId: "prj_1",
+    linkId: created!.id
+  });
+  assert.equal(accepted.link.linkStatus, "HANDOFF_PASS");
+  assert.equal(accepted.approval.approvalState, "HUMAN_APPROVED");
+  assert.equal(
+    accepted.approval.reason,
+    "HANDOFF_QC_REVIEW_ACCEPTED"
+  );
+  assert.ok(accepted.link.handoffReviewApprovalId);
+
+  const after = await pipeline.getReadiness("prj_1", created!.id);
+  assert.equal(after.finalClipDesignReady, true);
+  assert.equal(
+    repository.approvals.some(
+      approval => approval.reason === "HANDOFF_QC_REVIEW_ACCEPTED"
+    ),
+    true
+  );
 });
