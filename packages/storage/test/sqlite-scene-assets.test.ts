@@ -41,6 +41,11 @@ import {
   type QcFallbackIdFactory
 } from "@vpf/qc-fallback";
 import {
+  MediaBindingPipeline,
+  type MediaBindingClock,
+  type MediaBindingIdFactory
+} from "@vpf/media-binding";
+import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
   type PreLinkHandoffIdFactory
@@ -70,6 +75,7 @@ import { SqliteSceneAssetRepository } from "../src/scene-assets.js";
 import { SqlitePreLinkHandoffRepository } from "../src/prelink-handoff.js";
 import { SqliteFinalClipRepository } from "../src/final-clip.js";
 import { SqliteQcFallbackRepository } from "../src/qc-fallback.js";
+import { SqliteMediaBindingRepository } from "../src/media-binding.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -79,6 +85,7 @@ const assetClock: SceneAssetClock = { nowIso: () => now };
 const linkClock: PreLinkHandoffClock = { nowIso: () => now };
 const finalClipClock: FinalClipClock = { nowIso: () => now };
 const qcFallbackClock: QcFallbackClock = { nowIso: () => now };
+const mediaBindingClock: MediaBindingClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -102,6 +109,10 @@ function finalClipIds(): FinalClipIdFactory {
 }
 function qcFallbackIds(): QcFallbackIdFactory {
   let n = 5000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function mediaBindingIds(): MediaBindingIdFactory {
+  let n = 6000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -592,7 +603,7 @@ class QcFallbackDecisions implements QcFallbackDecisionPort {
   }
 }
 
-test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 completes in one project.db through approved trimmed video", async () => {
+test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 -> WF-13 completes in one project.db through editor handoff", async () => {
   const dir = mkdtempSync(join(tmpdir(), "vpf-wf10-"));
   const dbPath = join(dir, "project.db");
 
@@ -1004,6 +1015,68 @@ test("WF-07 -> WF-08 -> WF-09 -> WF-10 -> WF-11 -> WF-12 completes in one projec
     assert.equal(sceneAfterQc?.revision, sceneRevisionBeforeLink);
 
     qcRepo.close();
+
+    const bindingRepo = new SqliteMediaBindingRepository(dbPath);
+    const bindingPipeline = new MediaBindingPipeline(
+      bindingRepo,
+      bindingRepo,
+      mediaBindingClock,
+      mediaBindingIds()
+    );
+
+    const boundFinalMedia = await bindingPipeline.bindClip({
+      projectId: "prj_10",
+      clipId: finalDesign.clip.id
+    });
+    assert.equal(boundFinalMedia.binding.bindingKind, "VIDEO");
+    assert.equal(boundFinalMedia.binding.mediaId, videoResult.media.id);
+    assert.equal(boundFinalMedia.binding.sourceInMs, 400);
+    assert.equal(boundFinalMedia.binding.sourceOutMs, 4400);
+    assert.equal(boundFinalMedia.binding.durationMs, 4000);
+
+    const manifest = await bindingPipeline.buildEditorHandoff("prj_10");
+    assert.equal(manifest.status, "READY");
+    assert.equal(manifest.recommendedFileName, "media_binding.json");
+    assert.equal(manifest.totalImplementations, 1);
+    assert.equal(manifest.boundImplementations, 1);
+    assert.equal(manifest.items[0]?.bindingKind, "VIDEO");
+    assert.equal(manifest.items[0]?.relativePath, "07_generated_clips/wf11_clip_1.mp4");
+    assert.equal(manifest.items[0]?.sourceInMs, 400);
+    assert.equal(manifest.items[0]?.sourceOutMs, 4400);
+
+    const storedBinding = bindingRepo.db.prepare(
+      `SELECT binding_kind, media_id, source_in_ms, source_out_ms, duration_ms, stale
+       FROM final_media_bindings
+       WHERE project_id = ? AND implementation_id = ?
+       ORDER BY rowid DESC LIMIT 1`
+    ).get("prj_10", finalDesign.clip.id) as {
+      binding_kind: string;
+      media_id: string;
+      source_in_ms: number;
+      source_out_ms: number;
+      duration_ms: number;
+      stale: number;
+    };
+    assert.deepEqual(storedBinding, {
+      binding_kind: "VIDEO",
+      media_id: videoResult.media.id,
+      source_in_ms: 400,
+      source_out_ms: 4400,
+      duration_ms: 4000,
+      stale: 0
+    });
+
+    const readinessAfterBinding = await bindingPipeline.getReadiness("prj_10");
+    assert.equal(readinessAfterBinding.bindingReady, true);
+    assert.equal(readinessAfterBinding.remotionHandoffReady, true);
+
+    const sceneAfterBinding = await bindingRepo.getScene(
+      "prj_10",
+      graph.scenes[0]!.id
+    );
+    assert.equal(sceneAfterBinding?.revision, sceneRevisionBeforeLink);
+
+    bindingRepo.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
