@@ -3,6 +3,7 @@ import type {
   IdentityAnchor,
   IdentityAnchorType,
   MediaArtifact,
+  ClipQcRecord,
   ProductionAsset,
   ProductionLink,
   ProductionClip,
@@ -779,6 +780,120 @@ export class ProductionFinalClipPlanner implements FinalClipDecisionPort {
         id: input.clip.id,
         revision: input.clip.revision
       }
+    );
+  }
+
+  private async execute<TDecision, TContext extends { projectId: string }>(
+    taskType: ProductionTaskType,
+    context: TContext,
+    target: ProductionTaskRequest["target"]
+  ): Promise<ProductionDecisionWithMeta<TDecision>> {
+    const response = await this.adapter.execute<TDecision, TContext>({
+      taskId: this.taskIds.nextTaskId(),
+      taskType,
+      projectId: context.projectId,
+      target,
+      context
+    });
+    if (response.status === "BLOCKED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_BLOCKED",
+        response.decisionSummary
+      );
+    }
+    if (response.status === "FAILED") {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_FAILED",
+        response.decisionSummary
+      );
+    }
+    if (response.decision === undefined) {
+      throw new ProductionDecisionError(
+        "PRODUCTION_DECISION_INVALID",
+        "Production decision did not include a structured decision payload."
+      );
+    }
+    return {
+      decision: response.decision,
+      status: response.status,
+      confidence: response.confidence,
+      requiresHumanReview:
+        response.requiresHumanReview || response.status === "NEEDS_REVIEW",
+      warnings: [...response.warnings],
+      decisionId: response.decisionId
+    };
+  }
+}
+
+
+export interface ClipQcDecision {
+  status:
+    | "PASS"
+    | "TRIM_PASS"
+    | "EDITORIAL_FIX"
+    | "REGENERATE"
+    | "FALLBACK"
+    | "BLOCKED";
+  severity: "CRITICAL" | "MAJOR" | "MINOR";
+  confidence: number;
+  usableInMs?: number;
+  usableOutMs?: number;
+  issues: string[];
+  regenerationReason?: string;
+  editorialInstruction?: string;
+  fallbackReason?: string;
+}
+
+export interface ClipFallbackDecision {
+  action:
+    | "REGENERATE"
+    | "EDITORIAL_MOVE"
+    | "STATIC_HOLD"
+    | "REUSE_REFRAME"
+    | "CUT"
+    | "ADDITIONAL_ASSET_REQUIRED"
+    | "BLOCK";
+  rationale: string;
+}
+
+export interface QcFallbackDecisionPort {
+  runClipQc(input: FinalClipBaseContext & {
+    clip: ProductionClip;
+    candidate: MediaArtifact;
+  }): Promise<ProductionDecisionWithMeta<ClipQcDecision>>;
+  selectClipFallback(input: FinalClipBaseContext & {
+    clip: ProductionClip;
+    candidate: MediaArtifact;
+    qc: ClipQcRecord;
+  }): Promise<ProductionDecisionWithMeta<ClipFallbackDecision>>;
+}
+
+export class ProductionQcFallbackPlanner implements QcFallbackDecisionPort {
+  constructor(
+    private readonly adapter: ProductionSystemAdapter,
+    private readonly taskIds: TaskIdFactory
+  ) {}
+
+  async runClipQc(input: FinalClipBaseContext & {
+    clip: ProductionClip;
+    candidate: MediaArtifact;
+  }): Promise<ProductionDecisionWithMeta<ClipQcDecision>> {
+    return this.execute<ClipQcDecision, typeof input>(
+      "CLIP_QC",
+      input,
+      { type: "CLIP", id: input.clip.id, revision: input.clip.revision }
+    );
+  }
+
+  async selectClipFallback(input: FinalClipBaseContext & {
+    clip: ProductionClip;
+    candidate: MediaArtifact;
+    qc: ClipQcRecord;
+  }): Promise<ProductionDecisionWithMeta<ClipFallbackDecision>> {
+    return this.execute<ClipFallbackDecision, typeof input>(
+      "EXCEPTION_REVIEW",
+      input,
+      { type: "CLIP", id: input.clip.id, revision: input.clip.revision }
     );
   }
 
