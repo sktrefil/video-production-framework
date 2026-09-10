@@ -34,7 +34,7 @@ Before MIG-01:
 ## Global final gate
 
 Before declaring migration complete:
-- all required MIG work items and any explicitly deferred items selected for final production readiness are resolved,
+- all MIG-01 ... MIG-13 = PASS,
 - one unified-repo fixture E2E = PASS,
 - one real SHORTFORM pilot = PASS,
 - one real LONGFORM pilot = PASS,
