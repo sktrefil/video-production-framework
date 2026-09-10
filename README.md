@@ -19,6 +19,10 @@ AI-assisted video production orchestration framework.
   - WF-17 — Final Render / Technical QC / Delivery Manifest: PASS
   - WF-18 — Final Output QC / Packaging / Publish Handoff: PASS
 - ElevenLabs v3 TTS Provider Integration: PASS
+- PHASE A — Unified Framework Final Design: COMPLETE
+  - Target: single integrated repository
+  - Migration method: PORT / ADAPT / NEW_BUILD / LEGACY
+  - Next: PHASE B — Migration Work Orders
 
 ## Architecture
 
