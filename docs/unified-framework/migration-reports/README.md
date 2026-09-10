@@ -10,7 +10,7 @@ Current:
 - MIG-03: PASS
 - MIG-04: PASS
 - MIG-05: PASS
-- MIG-06: NOT_STARTED
+- MIG-06: PASS — unified image runtime, exact prompt/reference integrity, candidate-only WF-09 handoff and IMAGE_QC route validated
 - MIG-07: DEFERRED — Google Flow remains manual for now
 - MIG-08: PASS — Generic Editor port, Remotion bundle and browser smoke validated
 - MIG-09: PASS — editor materialization, actual GenericFinalRender, WF-17 Technical QC/delivery and WF-18 publish package validated
