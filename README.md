@@ -31,7 +31,12 @@ AI-assisted video production orchestration framework.
   - MIG-03 Resource Registry + Canonical Resources: PASS
   - MIG-04 Project Bootstrap + Unified CLI Foundation: PASS
   - MIG-05 ElevenLabs Runtime Migration: PASS
-  - Next: MIG-06 New Image Runtime
+  - MIG-06 New Image Runtime: NOT_STARTED
+  - MIG-07 Google Flow Manual Runtime: DEFERRED — current Flow operation remains manual
+  - MIG-08 Generic Editor Port: PASS
+  - MIG-09 Editor Materialization + Render Runtime: NOT_STARTED
+
+MIG-08 was intentionally executed from the accepted MIG-05 head because the Generic Editor port does not require MIG-06 or MIG-07 runtime execution. This does not mark MIG-06 or MIG-07 as complete.
 
 ## Architecture
 
@@ -166,4 +171,4 @@ npm run typecheck
 npm test
 ```
 
-Runtime project media is stored outside this Git repository.
+MIG-08 additionally validates a real Remotion composition enumeration smoke test that spawns the CLI and connects to the Remotion headless browser. Runtime project media is stored outside this Git repository.
