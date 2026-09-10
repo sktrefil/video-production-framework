@@ -36,6 +36,11 @@ assets currently living in `video-production`.
 5. `PHASE_A_DECISION_LOG_V1.md`
    - frozen architecture decisions and rejected alternatives
 
+6. `PHASE_A_10_EXPERT_REVIEW_V1.md`
+   - 10-domain architecture review
+   - implementation risks carried into Phase B
+   - PASS / conditions
+
 ## Core rule
 
 For every new unified-framework project:
