@@ -2,6 +2,9 @@
 
 Status: **WORK ORDER / NOT YET EXECUTED**
 
+Preflight: **BLOCKED — MIG-08 acceptance pending**. See
+`../migration-reports/MIG-09_PREFLIGHT_REPORT.md`.
+
 ## WORK ITEM
 
 `MIG-09`
@@ -51,7 +54,8 @@ ADAPT + NEW_BUILD
 
 ## DEPENDENCIES
 
-- MIG-01 ... MIG-08 PASS.
+- MIG-01 ... MIG-06 and MIG-08 PASS.
+- MIG-07 remains DEFERRED and is not a dependency of this work item.
 
 ## FILES TO READ FIRST
 

@@ -41,8 +41,6 @@ MIG-05 ElevenLabs Runtime Migration
   ↓
 MIG-06 New Image Runtime
   ↓
-MIG-07 Google Flow Manual Runtime
-  ↓
 MIG-08 Generic Editor Port
   ↓
 MIG-09 Editor Materialization + Render Runtime
@@ -55,6 +53,10 @@ MIG-12 Single-Repository Fixture E2E
   ↓
 MIG-13 Real Project Pilot Readiness
 ```
+
+MIG-07 Google Flow Manual Runtime is retained as a DEFERRED work order outside
+the active sequence. Reactivate it when automated or semi-automated Google Flow
+management becomes necessary. MIG-08 depends on MIG-06 PASS.
 
 Development may overlap only when dependencies are already satisfied. Acceptance
 must still follow the order above.

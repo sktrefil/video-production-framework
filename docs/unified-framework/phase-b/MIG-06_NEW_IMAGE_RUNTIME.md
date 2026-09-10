@@ -244,5 +244,8 @@ migration/mig-06-image-runtime
 ## NEXT
 
 ```
-MIG-07 — Google Flow Manual Runtime
+MIG-08 — Generic Editor Port
 ```
+
+MIG-07 is retained as DEFERRED and may be reactivated when Google Flow
+automatic or semi-automatic management is required.

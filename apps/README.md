@@ -2,5 +2,6 @@
 
 Integrated user-facing applications live here.
 
-The Generic Editor will move to apps/editor in MIG-08. MIG-01 intentionally
-does not port editor production code.
+The Generic Editor/Remotion app is in `editor/` (MIG-08).
+Run `npm run editor:dev` from the repository root.
+See `editor/README.md` for the port's runtime integration boundary.

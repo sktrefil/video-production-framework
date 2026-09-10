@@ -1,0 +1,2 @@
+# Resource receipts hash exact bytes; keep canonical JSON identical on Windows.
+resources/**/*.json text eol=lf

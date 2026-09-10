@@ -1,6 +1,10 @@
 # MIG-07 — Google Flow Manual Runtime
 
-Status: **WORK ORDER / NOT YET EXECUTED**
+Status: **DEFERRED**
+
+MIG-07 is intentionally retained but removed from the active migration path.
+Reactivate this work item when automated or semi-automated Google Flow job
+management becomes an operational requirement. MIG-08 does not depend on it.
 
 ## WORK ITEM
 
@@ -208,5 +212,5 @@ migration/mig-07-google-flow-manual
 ## NEXT
 
 ```
-MIG-08 — Generic Editor Port
+None while deferred. Re-evaluate against the then-current accepted migration HEAD.
 ```

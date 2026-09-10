@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": "generic-editor-sample",
+    "name": "Generic Editor Sample",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "durationInFrames": 360
+  },
+  "tracks": [
+    {"id": "V1", "type": "VIDEO", "name": "Main Video", "enabled": true, "locked": false, "order": 0},
+    {"id": "G1", "type": "GRAPHIC", "name": "Bottom Blur", "enabled": true, "locked": false, "order": 1},
+    {"id": "T1", "type": "TEXT", "name": "Subtitles", "enabled": true, "locked": false, "order": 2},
+    {"id": "A1", "type": "AUDIO", "name": "TTS", "enabled": true, "locked": false, "order": 3}
+  ],
+  "items": [
+    {
+      "id": "video-01", "type": "VIDEO", "trackId": "V1", "timelineStartFrame": 0, "durationInFrames": 90, "enabled": true, "locked": false,
+      "src": "https://remotion.media/BigBuckBunny.mp4", "sourceStartFrame": 0, "sourceDurationInFrames": 90, "sourceAssetDurationInFrames": 1800,
+      "playbackRate": 1, "volume": 0, "x": 0, "y": 0, "scale": 1, "rotation": 0, "opacity": 1, "fit": "cover"
+    },
+    {
+      "id": "video-02", "type": "VIDEO", "trackId": "V1", "timelineStartFrame": 120, "durationInFrames": 90, "enabled": true, "locked": false,
+      "src": "https://remotion.media/BigBuckBunny.mp4", "sourceStartFrame": 90, "sourceDurationInFrames": 90, "sourceAssetDurationInFrames": 1800,
+      "playbackRate": 1, "volume": 0, "x": 0, "y": 0, "scale": 1, "rotation": 0, "opacity": 1, "fit": "cover"
+    },
+    {
+      "id": "video-03", "type": "VIDEO", "trackId": "V1", "timelineStartFrame": 240, "durationInFrames": 90, "enabled": true, "locked": false,
+      "src": "https://remotion.media/BigBuckBunny.mp4", "sourceStartFrame": 180, "sourceDurationInFrames": 90, "sourceAssetDurationInFrames": 1800,
+      "playbackRate": 1, "volume": 0, "x": 0, "y": 0, "scale": 1, "rotation": 0, "opacity": 1, "fit": "cover"
+    },
+    {
+      "id": "tts-01", "type": "TTS", "trackId": "A1", "timelineStartFrame": 0, "durationInFrames": 300, "enabled": true, "locked": false,
+      "src": "https://remotion.media/audio.mp3", "sourceStartFrame": 0, "sourceDurationInFrames": 300, "sourceAssetDurationInFrames": 1200,
+      "volume": 0.35, "muted": false, "fadeInFrames": 12, "fadeOutFrames": 18
+    },
+    {
+      "id": "subtitle-01", "type": "SUBTITLE", "trackId": "T1", "timelineStartFrame": 0, "durationInFrames": 90, "enabled": true, "locked": false,
+      "text": "Generic Editor\n첫 번째 자막", "x": 540, "y": 1540, "width": 900, "fontFamily": "sans-serif", "fontSize": 76, "fontWeight": 700,
+      "color": "#fffdf7", "strokeColor": "#17130f", "strokeWidth": 4, "textAlign": "center", "lineHeight": 1.15, "maxLines": 2,
+      "backgroundEnabled": false, "backgroundColor": "#000000", "backgroundOpacity": 0.45
+    },
+    {
+      "id": "subtitle-02", "type": "SUBTITLE", "trackId": "T1", "timelineStartFrame": 120, "durationInFrames": 90, "enabled": true, "locked": false,
+      "text": "독립 Sequence\n렌더링 테스트", "x": 540, "y": 1540, "width": 900, "fontFamily": "sans-serif", "fontSize": 76, "fontWeight": 700,
+      "color": "#fffdf7", "strokeColor": "#17130f", "strokeWidth": 4, "textAlign": "center", "lineHeight": 1.15, "maxLines": 2,
+      "backgroundEnabled": false, "backgroundColor": "#000000", "backgroundOpacity": 0.45
+    },
+    {
+      "id": "bottom-blur", "type": "GRAPHIC", "trackId": "G1", "timelineStartFrame": 0, "durationInFrames": 360, "enabled": true, "locked": false,
+      "graphicType": "BLUR_PANEL", "x": 0, "y": 1420, "width": 1080, "height": 500, "opacity": 0.38, "blurPx": 24,
+      "backgroundColor": "rgba(0, 0, 0, 0.35)", "borderRadius": 0
+    }
+  ],
+  "settings": {
+    "snapEnabled": true,
+    "snapToleranceFrames": 4,
+    "timelineZoom": 1,
+    "masterVolume": 1
+  }
+}

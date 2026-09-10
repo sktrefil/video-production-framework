@@ -1,6 +1,10 @@
 # MIG-08 — Generic Editor Port
 
-Status: **WORK ORDER / NOT YET EXECUTED**
+Status: **IN_PROGRESS / VALIDATION BLOCKED**
+
+Port implementation is present in `apps/editor`. Acceptance is pending the
+dependency installation and verification recorded in
+`../migration-reports/MIG-08_COMPLETION_REPORT.md`.
 
 ## WORK ITEM
 
@@ -42,7 +46,8 @@ PORT + ADAPT
 
 ## DEPENDENCIES
 
-- MIG-01 ... MIG-07 PASS.
+- MIG-01 ... MIG-06 PASS.
+- MIG-07 is DEFERRED and is not a dependency of this work item.
 
 ## FILES TO READ FIRST
 
@@ -220,7 +225,7 @@ Framework regression                                PASS
 
 ## ROLLBACK
 
-Remove `apps/editor` port and root wiring, return to MIG-07 accepted HEAD.
+Remove `apps/editor` port and root wiring, return to MIG-06 accepted HEAD.
 Source editor remains intact in old repository.
 
 ## BRANCH

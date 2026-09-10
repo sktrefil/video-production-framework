@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": "unified-editor-fixture",
+    "name": "Unified Editor",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "durationInFrames": 90
+  },
+  "tracks": [
+    {
+      "id": "V1",
+      "type": "VIDEO",
+      "name": "Visual",
+      "enabled": true,
+      "locked": false,
+      "order": 0
+    },
+    {
+      "id": "T2",
+      "type": "TEXT",
+      "name": "Title",
+      "enabled": true,
+      "locked": false,
+      "order": 1
+    }
+  ],
+  "items": [
+    {
+      "id": "image-01",
+      "type": "IMAGE",
+      "trackId": "V1",
+      "timelineStartFrame": 0,
+      "durationInFrames": 90,
+      "enabled": true,
+      "locked": false,
+      "src": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221080%22%20height%3D%221920%22%3E%3Crect%20width%3D%221080%22%20height%3D%221920%22%20fill%3D%22%23152238%22%2F%3E%3Ccircle%20cx%3D%22540%22%20cy%3D%22850%22%20r%3D%22280%22%20fill%3D%22%23287b91%22%2F%3E%3C%2Fsvg%3E",
+      "x": 0,
+      "y": 0,
+      "scale": 1,
+      "rotation": 0,
+      "opacity": 1,
+      "fit": "cover",
+      "motion": {
+        "kind": "TRANSFORM",
+        "from": {
+          "x": 0,
+          "y": 0,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1
+        },
+        "to": {
+          "x": 30,
+          "y": 0,
+          "scale": 1.1,
+          "rotation": 0,
+          "opacity": 1
+        },
+        "easing": "EASE_IN_OUT"
+      }
+    },
+    {
+      "id": "title",
+      "type": "TEXT",
+      "trackId": "T2",
+      "timelineStartFrame": 0,
+      "durationInFrames": 90,
+      "enabled": true,
+      "locked": false,
+      "text": "Unified Editor",
+      "textRole": "TITLE",
+      "x": 540,
+      "y": 1280,
+      "width": 900,
+      "fontFamily": "sans-serif",
+      "fontSize": 76,
+      "fontWeight": 700,
+      "color": "#ffffff",
+      "strokeColor": "#152238",
+      "strokeWidth": 1,
+      "textAlign": "center",
+      "lineHeight": 1.15,
+      "maxLines": 2,
+      "backgroundEnabled": false,
+      "backgroundColor": "#000000",
+      "backgroundOpacity": 0.5
+    }
+  ],
+  "settings": {
+    "snapEnabled": true,
+    "snapToleranceFrames": 4,
+    "timelineZoom": 1,
+    "masterVolume": 1
+  }
+}

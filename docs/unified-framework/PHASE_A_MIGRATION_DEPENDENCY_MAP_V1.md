@@ -56,8 +56,12 @@ Bootstrap/CLI  │
              MIG-13 Real Project Pilot Readiness
 ```
 
+MIG-07 is retained as a DEFERRED work item and is not an acceptance dependency
+for MIG-08. The active path proceeds from MIG-06 PASS to MIG-08. Reactivate
+MIG-07 when automated or semi-automated Google Flow management is required.
+
 Some work can be developed in parallel after MIG-02, but acceptance remains in
-the dependency order above.
+the active dependency order above.
 
 ---
 
