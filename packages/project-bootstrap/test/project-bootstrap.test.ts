@@ -17,6 +17,26 @@ const resourcesDir = path.join(repositoryRoot, "resources");
 const migrationsDir = path.join(repositoryRoot, "migrations");
 const clock = { nowIso: () => "2026-09-10T05:00:00.000Z" };
 
+test("MIG-11 doctor rejects disabled or missing project flags without upgrading the DB",async()=>{
+  const {service}=await makeService();
+  const created=await service.createProject({projectId:"legacy_policy",title:"policy",format:"longform"});
+  const db=new Database(created.projectDbPath);
+  try {
+    // Simulate an imported older schema; the canonical table itself has CHECK constraints.
+    db.exec("ALTER TABLE projects RENAME TO canonical_projects; CREATE TABLE projects AS SELECT * FROM canonical_projects");
+    db.prepare("UPDATE projects SET legacy_allowed=1").run();
+    await assert.rejects(service.getStatus("legacy_policy"),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+    const doctor=await service.doctor("legacy_policy");
+    assert.equal(doctor.healthy,false);
+    assert.ok(doctor.diagnostics.some(d=>d.code==="LEGACY_DISABLED" && d.status==="FAIL"));
+    assert.equal((db.prepare("SELECT legacy_allowed FROM projects").get() as {legacy_allowed:number}).legacy_allowed,1);
+    db.prepare("UPDATE projects SET legacy_allowed=0,pipeline='UNKNOWN'").run();
+    await assert.rejects(service.getStatus("legacy_policy"),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+    db.exec("ALTER TABLE projects DROP COLUMN pipeline");
+    await assert.rejects(service.getStatus("legacy_policy"),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+  } finally {db.close();}
+});
+
 async function makeService() {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-mig04-"));
   const workspaceRoot = path.join(root, "workspace");

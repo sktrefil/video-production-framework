@@ -1,4 +1,5 @@
 import type {MediaArtifact} from "@vpf/domain";
+import {readProjectPolicy} from "./project-policy.js";
 import type {EditorMaterializationRepository} from "@vpf/editor-materializer";
 import {SqliteFinalOutputRepository} from "./final-output.js";
 
@@ -25,6 +26,7 @@ function mapMedia(row: any): MediaArtifact {
 export class SqliteEditorMaterializationRepository
   extends SqliteFinalOutputRepository
   implements EditorMaterializationRepository {
+  async getProjectPolicy(projectId: string) { return readProjectPolicy(this.db, projectId); }
   async listAvailableMedia(projectId: string): Promise<MediaArtifact[]> {
     const rows = this.db.prepare(
       `SELECT * FROM media_artifacts

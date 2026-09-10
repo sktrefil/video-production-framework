@@ -37,7 +37,8 @@
     "@vpf/editor-materializer": "0.1.0",
     "@vpf/tts-generation": "0.1.0",
     "@vpf/provider-orchestrator": "0.1.0",
-    "@vpf/runtime-contracts": "0.1.0"
+    "@vpf/runtime-contracts": "0.1.0",
+    "@vpf/legacy-guard": "0.1.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13"

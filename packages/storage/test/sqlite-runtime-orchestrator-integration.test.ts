@@ -16,6 +16,7 @@ const now = "2026-09-10T03:20:00.000Z";
 
 test("sqlite + orchestrator persists COMPLETE provider revision, candidate media and execution receipts", async () => {
   const repository = new SqliteRuntimeExecutionRepository(":memory:");
+  repository.db.exec("CREATE TABLE projects (project_id TEXT, revision INTEGER, lifecycle_status TEXT, pipeline TEXT, legacy_allowed INTEGER); INSERT INTO projects VALUES ('project_integration',1,'ACTIVE','VPF_UNIFIED_V1',0)");
   try {
     const initial: ProviderJob = {
       id: "job_integration",

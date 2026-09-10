@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {createHash} from "node:crypto";
-import {mkdtemp, mkdir, readFile, rm, stat, writeFile} from "node:fs/promises";
+import {mkdtemp, mkdir, readFile, rm, stat, writeFile, symlink} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 import test from "node:test";
@@ -19,6 +19,19 @@ import {
 } from "../src/index.js";
 
 const now = "2026-09-10T10:00:00.000Z";
+
+test("MIG-11 materializer rejects old renderer references and symlinked media",async t=>{
+  const paths=await roots(); t.after(()=>rm(paths.root,{recursive:true,force:true}));
+  const input={...paths,assembly:assembly(),mediaArtifacts:[media()]};
+  await assert.rejects(materializeEditorProject({...input,projectPolicy:{pipeline:"LEGACY",legacyAllowed:false}}),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+  input.assembly.editProject.items[0]!.src="public/projects/sado_prince/frame.svg";
+  await assert.rejects(materializeEditorProject(input),{code:"LEGACY_PROJECT_RENDER_PATH"});
+  input.assembly=assembly();
+  await rm(join(paths.projectRoot,"05_images","frame.svg"));
+  await writeFile(join(paths.root,"external.svg"),svg);
+  await symlink(join(paths.root,"external.svg"),join(paths.projectRoot,"05_images","frame.svg"));
+  await assert.rejects(materializeEditorProject(input),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+});
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="black"/></svg>';
 const sha = (value: string | Buffer) =>
   createHash("sha256").update(value).digest("hex");
@@ -105,13 +118,14 @@ async function roots() {
   const editorPublicRoot = join(root, "editor-public");
   await mkdir(join(projectRoot, "05_images"), {recursive: true});
   await writeFile(join(projectRoot, "05_images", "frame.svg"), svg, "utf8");
-  return {root, projectRoot, editorPublicRoot};
+  return {root, projectRoot, editorPublicRoot, projectPolicy: {pipeline: "VPF_UNIFIED_V1", legacyAllowed: false}};
 }
 
 test("materializer preserves canonical project while rewriting only the disposable editor mirror", async t => {
   const paths = await roots();
   t.after(() => rm(paths.root, {recursive: true, force: true}));
   const input = {
+    projectPolicy: paths.projectPolicy,
     projectRoot: paths.projectRoot,
     editorPublicRoot: paths.editorPublicRoot,
     assembly: assembly(),
@@ -144,6 +158,7 @@ test("materializer blocks a missing MediaArtifact before creating an authoritati
   t.after(() => rm(paths.root, {recursive: true, force: true}));
   await assert.rejects(
     materializeEditorProject({
+      projectPolicy: paths.projectPolicy,
       projectRoot: paths.projectRoot,
       editorPublicRoot: paths.editorPublicRoot,
       assembly: assembly(),
@@ -160,6 +175,7 @@ test("materializer verifies the workspace source hash against project.db MediaAr
   t.after(() => rm(paths.root, {recursive: true, force: true}));
   await assert.rejects(
     materializeEditorProject({
+      projectPolicy: paths.projectPolicy,
       projectRoot: paths.projectRoot,
       editorPublicRoot: paths.editorPublicRoot,
       assembly: assembly(),

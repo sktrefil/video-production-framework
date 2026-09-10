@@ -6,7 +6,8 @@
     "vpf": "./dist/index.js"
   },
   "dependencies": {
-    "@vpf/project-bootstrap": "0.1.0"
+    "@vpf/project-bootstrap": "0.1.0",
+    "@vpf/legacy-guard": "0.1.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { assertNoLegacyReference } from "../../packages/legacy-guard/dist/index.js";
 import { ImageRuntimeExecutor } from "../../packages/provider-orchestrator/dist/image-runtime.js";
 
 async function readStdin() {
@@ -14,6 +15,9 @@ async function loadAdapter() {
   if (!configured) {
     throw new Error("VPF_IMAGE_ADAPTER_MODULE is required for automated image execution.");
   }
+  // Provider adapters may live outside the repository, but an old production
+  // repository or known legacy runtime path is never an allowed execution target.
+  assertNoLegacyReference(configured);
   const specifier = configured.startsWith("file:")
     ? configured
     : pathToFileURL(resolve(configured)).href;

@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { assertNoLegacyExecutionInput } from "@vpf/legacy-guard";
+import { assertIsolatedPath } from "@vpf/legacy-guard/filesystem";
 import {
   RuntimeContractError,
   type RuntimeExecutor,
@@ -199,6 +201,7 @@ export class ImageRuntimeExecutor implements RuntimeExecutor {
 
   async execute(runtimeJob: RuntimeJob): Promise<RuntimeResult> {
     const job = requireImageRuntimeJob(runtimeJob);
+    assertNoLegacyExecutionInput(job);
     const input = job.input;
     const startedAt = this.clock.nowIso();
     const project = resolveProjectWorkspace(job.projectId, this.workspace);
@@ -206,6 +209,7 @@ export class ImageRuntimeExecutor implements RuntimeExecutor {
 
     for (const reference of input.references) {
       const absolutePath = resolveProjectRelativePath(project.projectRoot, reference.relativePath);
+      assertIsolatedPath(project.projectRoot, absolutePath);
       let bytes: Buffer;
       try {
         const info = await stat(absolutePath);
@@ -273,6 +277,7 @@ export class ImageRuntimeExecutor implements RuntimeExecutor {
       project.projectRoot,
       input.outputRelativePath
     );
+    assertIsolatedPath(project.projectRoot, absoluteOutput);
     await atomicWrite(absoluteOutput, bytes);
 
     return {
@@ -308,11 +313,13 @@ export async function buildManualImageRuntimeResult(input: {
   completedAt?: string;
 }): Promise<RuntimeResult> {
   const job = requireImageRuntimeJob(input.runtimeJob);
+  assertNoLegacyExecutionInput(job);
   const project = resolveProjectWorkspace(job.projectId, input.workspace ?? {});
   const absolutePath = resolveProjectRelativePath(
     project.projectRoot,
     job.input.outputRelativePath
   );
+  assertIsolatedPath(project.projectRoot, absolutePath);
   let bytes: Buffer;
   try {
     const info = await stat(absolutePath);

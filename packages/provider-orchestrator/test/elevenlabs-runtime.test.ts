@@ -9,7 +9,12 @@ import type {MediaArtifact, ProviderJob} from "@vpf/domain";
 import type {OutboxRecord, WorkflowEvent} from "@vpf/workflow";
 import type {RuntimeExecutionReceipt, RuntimePersistencePort} from "../src/index.js";
 import {RuntimeExecutorRegistry, RuntimeOrchestrator} from "../src/index.js";
-import {registerElevenLabsRuntimeExecutor} from "../src/elevenlabs-runtime.js";
+import {registerElevenLabsRuntimeExecutor, ElevenLabsProcessRuntimeExecutor} from "../src/elevenlabs-runtime.js";
+
+test("MIG-11 rejects arbitrary and old process entrypoints before spawn",()=>{
+  for (const runtimePath of ["/tmp/custom.py","D:\\git\\video-production\\main.py","src/lived_sentences/cli.py"])
+    assert.throws(()=>new ElevenLabsProcessRuntimeExecutor({runtimePath}),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+});
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../../", import.meta.url)));
 const profileHash = "sha256:" + "a".repeat(64);
@@ -27,6 +32,7 @@ function runtimeOptions() {
 }
 
 class FakeRuntimePersistence implements RuntimePersistencePort {
+  async getProjectPolicy() { return {pipeline: "VPF_UNIFIED_V1", legacyAllowed: false}; }
   current: ProviderJob;
   receipts: RuntimeExecutionReceipt[] = [];
   media: MediaArtifact[] = [];

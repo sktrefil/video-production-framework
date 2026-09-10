@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import {assertNoLegacyExecutionInput, assertNoLegacyReference} from "@vpf/legacy-guard";
 import type {
   MediaType,
   ProviderExecutionMode,
@@ -8,6 +9,7 @@ import type {
 } from "@vpf/domain";
 
 export type RuntimeErrorCode =
+  | import("@vpf/legacy-guard").LegacyBlockCode
   | "RUNTIME_CONFIG_INVALID"
   | "RUNTIME_SECRET_MISSING"
   | "RUNTIME_SECRET_PRESENT"
@@ -134,6 +136,8 @@ export function materializeRuntimeJob<TInput = unknown>(
   const { job } = input;
 
   validateProviderJobStateForMaterialization(job);
+  assertNoLegacyReference(job.provider);
+  assertNoLegacyExecutionInput(job.inputPayload);
   assertNoSecretValues(job.inputPayload);
   const secretRequirements = input.secretRequirements ?? [];
   validateSecretRequirements(secretRequirements);
@@ -162,6 +166,8 @@ export function materializeRuntimeJob<TInput = unknown>(
 }
 
 export function validateRuntimeJob(job: RuntimeJob): void {
+  assertNoLegacyReference(job.provider);
+  assertNoLegacyExecutionInput(job.input);
   if (
     job.schemaVersion !== 1 ||
     !job.jobId.trim() ||

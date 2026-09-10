@@ -72,6 +72,18 @@ test("future unified commands fail explicitly as NOT_IMPLEMENTED", async () => {
   assert.match(f.errors.at(-1)!, /NOT_IMPLEMENTED/);
 });
 
+test("CLI rejects legacy control-plane and repository commands before dispatch", async () => {
+  const f = await fixture();
+  for (const [command, category] of [
+    ["lived_sentences.cli", "LEGACY_CONTROL_PLANE"],
+    ["/opt/video-production/run.py", "LEGACY_RUNTIME_FORBIDDEN"]
+  ]) {
+    assert.equal(await runCli([command!], f.io, f.service), 1);
+    assert.match(f.errors.at(-1)!, new RegExp(category!));
+    assert.equal(f.output.length, 0);
+  }
+});
+
 
 test("compiled public CLI binary creates a real unified project", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-cli-binary-"));

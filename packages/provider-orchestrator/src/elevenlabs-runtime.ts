@@ -1,4 +1,6 @@
 import {spawn} from "node:child_process";
+import {assertNoLegacyReference, LegacyGuardError} from "@vpf/legacy-guard";
+import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import * as path from "node:path";
 import {fileURLToPath} from "node:url";
 import type {ProviderJobType} from "@vpf/domain";
@@ -65,9 +67,14 @@ export class ElevenLabsProcessRuntimeExecutor implements RuntimeExecutor {
       ...(options.environment ?? {})
     };
     this.timeoutMs = options.timeoutMs ?? 10 * 60 * 1000;
+    assertNoLegacyReference(this.pythonCommand);
+    if (this.runtimePath !== path.resolve(this.repositoryRoot, "runtimes/elevenlabs/runtime.py"))
+      throw new LegacyGuardError("LEGACY_RUNTIME_FORBIDDEN", "Only the registered unified ElevenLabs entrypoint may execute.");
+    assertIsolatedPath(this.repositoryRoot, this.runtimePath);
   }
 
   async execute(job: RuntimeJob): Promise<RuntimeResult> {
+    assertIsolatedPath(this.repositoryRoot, this.runtimePath);
     validateRuntimeJob(job);
 
     if (
