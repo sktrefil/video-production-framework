@@ -2,11 +2,15 @@
   "name": "@vpf/scene-assets",
   "version": "0.1.0",
   "type": "module",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./image-runtime": "./dist/image-runtime.js"
+  },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",
     "@vpf/production-system": "0.1.0",
+    "@vpf/runtime-contracts": "0.1.0",
     "@vpf/workflow": "0.1.0"
   },
   "scripts": {

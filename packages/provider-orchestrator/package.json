@@ -5,7 +5,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./elevenlabs-runtime": "./dist/elevenlabs-runtime.js",
-    "./audio-import": "./dist/audio-import.js"
+    "./audio-import": "./dist/audio-import.js",
+    "./image-runtime": "./dist/image-runtime.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
