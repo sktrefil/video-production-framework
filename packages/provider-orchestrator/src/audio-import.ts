@@ -67,6 +67,13 @@ const MIME_BY_EXTENSION: Readonly<Record<string, string>> = {
   ".opus": "audio/ogg"
 };
 
+type SelectedMediaProbe = {
+  container?: string | null;
+  audioCodec?: string | null;
+  videoCodec?: string | null;
+  slowDurationInSeconds?: number | null;
+};
+
 function roleDirectory(kind: LocalAudioKind): string {
   if (kind === "CLIP_AUDIO") return "07_audio/clip_audio";
   if (kind === "BGM") return "07_audio/bgm";
@@ -112,7 +119,7 @@ export async function probeLocalAudioFile(sourcePath: string): Promise<AudioImpo
     );
   }
 
-  let parsed: Awaited<ReturnType<typeof parseMedia>>;
+  let parsed: SelectedMediaProbe;
   try {
     parsed = await parseMedia({
       src: absolutePath,
@@ -125,7 +132,7 @@ export async function probeLocalAudioFile(sourcePath: string): Promise<AudioImpo
       },
       logLevel: "error",
       acknowledgeRemotionLicense: true
-    });
+    }) as unknown as SelectedMediaProbe;
   } catch (error) {
     throw new LocalAudioImportError(
       "AUDIO_IMPORT_INVALID_MEDIA",
