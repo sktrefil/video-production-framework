@@ -13,4 +13,8 @@ Current:
 - MIG-06: NOT_STARTED
 - MIG-07: DEFERRED — Google Flow remains manual for now
 - MIG-08: PASS — Generic Editor port, Remotion bundle and browser smoke validated
-- MIG-09: NOT_STARTED
+- MIG-09: PASS — editor materialization, actual GenericFinalRender, WF-17 Technical QC/delivery and WF-18 publish package validated
+- MIG-10: NOT_STARTED
+- MIG-11: NOT_STARTED
+- MIG-12: NOT_STARTED
+- MIG-13: NOT_STARTED
