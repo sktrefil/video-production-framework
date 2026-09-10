@@ -2,7 +2,10 @@
   "name": "@vpf/editor-timeline",
   "version": "0.1.0",
   "type": "module",
-  "exports": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./subtitle-correction": "./dist/subtitle-correction.js"
+  },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",

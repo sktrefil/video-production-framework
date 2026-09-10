@@ -16,7 +16,8 @@
     "./editor-materialization": "./dist/editor-materialization.js",
     "./tts-generation": "./dist/tts-generation.js",
     "./tts-runtime": "./dist/tts-runtime.js",
-    "./runtime-execution": "./dist/runtime-execution.js"
+    "./runtime-execution": "./dist/runtime-execution.js",
+    "./audio-import": "./dist/audio-import.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {

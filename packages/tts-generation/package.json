@@ -4,14 +4,16 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.js",
-    "./runtime-adapter": "./dist/runtime-adapter.js"
+    "./runtime-adapter": "./dist/runtime-adapter.js",
+    "./subtitle-bridge": "./dist/subtitle-bridge.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",
     "@vpf/workflow": "0.1.0",
     "@vpf/runtime-contracts": "0.1.0",
-    "@vpf/resource-registry": "0.1.0"
+    "@vpf/resource-registry": "0.1.0",
+    "@vpf/workspace": "0.1.0"
   },
   "devDependencies": {
     "@vpf/editor-timeline": "0.1.0"
