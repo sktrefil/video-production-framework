@@ -116,10 +116,10 @@ materializing and approving Project Style.
 
 ## Canonical resource resolution
 
-Project creation starts from:
+New project creation starts from the explicitly versioned bootstrap selection:
 
 ```text
-HISTORY_MYSTERY_V1@1.0.0
+HISTORY_MYSTERY_V1@1.1.0
 ```
 
 and resolves/pins:
@@ -140,6 +140,19 @@ MIG-04 adds the bootstrap-required canonical rule resource:
 ```text
 PRODUCTION_RULE_REGISTRY_V1@1.0.0
 ```
+
+and introduces:
+
+```text
+HISTORY_MYSTERY_V1@1.1.0
+```
+
+as an explicit new Channel Profile revision that selects that Rule Registry.
+
+The accepted MIG-03 file `HISTORY_MYSTERY_V1@1.0.0` is preserved byte-for-byte.
+MIG-04 does not rewrite the content of an existing resource version to add a new
+selection. This keeps existing version+hash pins valid and preserves the MIG-03
+no-silent-upgrade contract.
 
 Existing projects do not auto-upgrade when resources change.
 
