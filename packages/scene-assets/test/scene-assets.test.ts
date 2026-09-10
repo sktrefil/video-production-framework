@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import {
+  ChannelVisualBibleRegistryAdapter,
+  FileSystemResourceRegistry,
+  FormatProfileRegistryAdapter
+} from "@vpf/resource-registry";
 import type {
   ApprovalRecord,
   IdentityAnchor,
@@ -389,6 +395,8 @@ function makePipeline(options?: {
   context?: MemoryContext;
   repository?: MemoryRepository;
   decisions?: Decisions;
+  bible?: ChannelVisualBiblePort;
+  formats?: FormatProfilePort;
 }) {
   const repository = options?.repository ?? new MemoryRepository();
   const context = options?.context ?? new MemoryContext();
@@ -403,8 +411,8 @@ function makePipeline(options?: {
     service: new SceneAssetPipeline(
       repository,
       context,
-      bible,
-      formats,
+      options?.bible ?? bible,
+      options?.formats ?? formats,
       decisions,
       policy,
       clock,
@@ -708,4 +716,37 @@ test("manual Image Job Pack exports prompts and batch result import isolates fai
   assert.equal(imported.succeeded, 1);
   assert.equal(imported.failed, 1);
   assert.equal(imported.items[1]?.code, "MEDIA_PATH_INVALID");
+});
+
+
+test("WF-09 readiness resolves canonical Visual Bible and Format Profile through registry adapters", async () => {
+  const resourcesRoot = fileURLToPath(new URL("../../../resources/", import.meta.url));
+  const registry = new FileSystemResourceRegistry(resourcesRoot);
+  const context = new MemoryContext();
+  context.approvedStyle = {
+    ...style,
+    channelVisualBibleVersion: "1.0.0"
+  };
+
+  const { service } = makePipeline({
+    context,
+    bible: new ChannelVisualBibleRegistryAdapter(
+      registry,
+      "HISTORY_MYSTERY_VISUAL_BIBLE"
+    ),
+    formats: new FormatProfileRegistryAdapter(
+      registry,
+      "SHORTFORM_9X16_V1"
+    )
+  });
+
+  const readiness = await service.getReadiness({
+    projectId: "prj_1",
+    sceneId: "sc_1",
+    formatProfileVersion: "1.0.0"
+  });
+
+  assert.equal(readiness.channelVisualBibleResolved, true);
+  assert.equal(readiness.formatProfileResolved, true);
+  assert.equal(readiness.ready, true);
 });
