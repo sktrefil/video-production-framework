@@ -76,6 +76,7 @@ must still follow the order above.
 - `MIG-13_REAL_PROJECT_PILOT_READINESS.md`
 - `PHASE_B_EXECUTION_POLICY_V1.md`
 - `PHASE_B_MASTER_CHECKLIST_V1.md`
+- `PHASE_B_10_EXPERT_WORK_ORDER_REVIEW_V1.md`
 
 ## Program-level Definition of Done
 
