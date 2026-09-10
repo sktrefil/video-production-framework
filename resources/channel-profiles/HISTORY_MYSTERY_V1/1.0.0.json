@@ -36,10 +36,6 @@
         "resourceId": "REMOTION_FINAL_RENDER_V1",
         "version": "1.0.0"
       }
-    },
-    "ruleRegistry": {
-      "resourceId": "PRODUCTION_RULE_REGISTRY_V1",
-      "version": "1.0.0"
     }
   }
 }
