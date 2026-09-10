@@ -62,6 +62,11 @@ import {
   type FinalOutputIdFactory
 } from "@vpf/final-output";
 import {
+  TtsGenerationPipeline,
+  type TtsGenerationClock,
+  type TtsGenerationIdFactory
+} from "@vpf/tts-generation";
+import {
   PreLinkHandoffPipeline,
   type PreLinkHandoffClock,
   type PreLinkHandoffIdFactory
@@ -95,6 +100,7 @@ import { SqliteMediaBindingRepository } from "../src/media-binding.js";
 import { SqliteEditorTimelineRepository } from "../src/editor-timeline.js";
 import { SqliteFinalRenderRepository } from "../src/final-render.js";
 import { SqliteFinalOutputRepository } from "../src/final-output.js";
+import { SqliteTtsGenerationRepository } from "../src/tts-generation.js";
 import { SqliteVisualIdentityRepository } from "../src/visual-identity.js";
 
 const now = "2026-09-09T12:00:00.000Z";
@@ -108,6 +114,7 @@ const mediaBindingClock: MediaBindingClock = { nowIso: () => now };
 const editorTimelineClock: TimelineAssemblyClock = { nowIso: () => now };
 const finalRenderClock: FinalRenderClock = { nowIso: () => now };
 const finalOutputClock: FinalOutputClock = { nowIso: () => now };
+const ttsGenerationClock: TtsGenerationClock = { nowIso: () => now };
 
 function storyIds(): IdFactory {
   let n = 0;
@@ -147,6 +154,10 @@ function finalRenderIds(): FinalRenderIdFactory {
 }
 function finalOutputIds(): FinalOutputIdFactory {
   let n = 9000;
+  return { next: prefix => `${prefix}_${++n}` };
+}
+function ttsGenerationIds(): TtsGenerationIdFactory {
+  let n = 10000;
   return { next: prefix => `${prefix}_${++n}` };
 }
 
@@ -1113,6 +1124,97 @@ test("WF-07 -> WF-18 completes in one project.db through publish handoff readine
 
     bindingRepo.close();
 
+    const ttsRepo = new SqliteTtsGenerationRepository(dbPath);
+    const ttsPipeline = new TtsGenerationPipeline(
+      ttsRepo,
+      ttsGenerationClock,
+      ttsGenerationIds()
+    );
+    const preparedTts = await ttsPipeline.prepare({
+      projectId: "prj_10",
+      format: "SHORTFORM"
+    });
+    assert.equal(preparedTts.plan.modelId, "eleven_v3");
+    assert.equal(
+      preparedTts.runtimeJob.endpoint,
+      "/v1/text-to-speech/{voice_id}/with-timestamps"
+    );
+    assert.equal(
+      preparedTts.runtimeJob.secretRefs.apiKeyEnv,
+      "ELEVENLABS_API_KEY"
+    );
+    assert.equal(
+      preparedTts.runtimeJob.secretRefs.voiceIdEnv,
+      "ELEVENLABS_VOICE_ID"
+    );
+
+    const ttsText = preparedTts.runtimeJob.chunks
+      .map(chunk => chunk.text)
+      .join("\n\n");
+    const ttsCharacters = [...ttsText];
+    const completedTts = await ttsPipeline.complete({
+      projectId: "prj_10",
+      planId: preparedTts.plan.id,
+      requestIds: ["eleven_req_1"],
+      audioSha256: "c".repeat(64),
+      audioDurationMs: 4000,
+      characterAlignmentSha256: "d".repeat(64),
+      characterAlignment: {
+        characters: ttsCharacters,
+        characterStartTimesSeconds: ttsCharacters.map(
+          (_, index) => index * (4 / Math.max(1, ttsCharacters.length))
+        ),
+        characterEndTimesSeconds: ttsCharacters.map(
+          (_, index) => (index + 1) * (4 / Math.max(1, ttsCharacters.length))
+        )
+      }
+    });
+    assert.equal(completedTts.result.modelId, "eleven_v3");
+    assert.equal(completedTts.result.voiceId, "REDACTED");
+    assert.equal(completedTts.audioMedia.mediaType, "AUDIO");
+    assert.equal(
+      completedTts.audioMedia.relativePath,
+      "03_tts/narration.mp3"
+    );
+
+    const storedTtsPlan = ttsRepo.db.prepare(
+      `SELECT model_id, voice_preset, max_chunk_characters, status
+       FROM tts_generation_plans
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10") as {
+      model_id: string;
+      voice_preset: string;
+      max_chunk_characters: number;
+      status: string;
+    };
+    assert.deepEqual(storedTtsPlan, {
+      model_id: "eleven_v3",
+      voice_preset: "HISTORY_MYSTERY_SHORTS",
+      max_chunk_characters: 4000,
+      status: "COMPLETE"
+    });
+
+    const storedTtsResult = ttsRepo.db.prepare(
+      `SELECT model_id, voice_id, audio_media_id, audio_relative_path
+       FROM tts_generation_results
+       WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+       ORDER BY revision DESC LIMIT 1`
+    ).get("prj_10") as {
+      model_id: string;
+      voice_id: string;
+      audio_media_id: string;
+      audio_relative_path: string;
+    };
+    assert.deepEqual(storedTtsResult, {
+      model_id: "eleven_v3",
+      voice_id: "REDACTED",
+      audio_media_id: completedTts.audioMedia.id,
+      audio_relative_path: "03_tts/narration.mp3"
+    });
+
+    ttsRepo.close();
+
     const timelineRepo = new SqliteEditorTimelineRepository(dbPath);
 
     const insertAudioMedia = (
@@ -1146,11 +1248,6 @@ test("WF-07 -> WF-18 completes in one project.db through publish handoff readine
     };
 
     insertAudioMedia(
-      "wf16_tts_media",
-      "08_audio/narration.mp3",
-      4000
-    );
-    insertAudioMedia(
       "wf16_bgm_media",
       "08_audio/bgm.mp3",
       2000
@@ -1174,7 +1271,7 @@ test("WF-07 -> WF-18 completes in one project.db through publish handoff readine
         {
           id: "narration",
           type: "TTS",
-          mediaId: "wf16_tts_media",
+          mediaId: completedTts.audioMedia.id,
           timelineStartMs: 0,
           volume: 1
         },
@@ -1305,7 +1402,7 @@ test("WF-07 -> WF-18 completes in one project.db through publish handoff readine
     }
     assert.equal(timelineTts.trackId, "A1");
     assert.equal(timelineTts.durationInFrames, 120);
-    assert.equal(timelineTts.src, "08_audio/narration.mp3");
+    assert.equal(timelineTts.src, "03_tts/narration.mp3");
 
     const timelineBgm = timeline.output.editProject.items.find(
       item => item.id === "audio-bgm"
