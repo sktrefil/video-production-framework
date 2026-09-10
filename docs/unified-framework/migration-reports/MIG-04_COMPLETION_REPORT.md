@@ -16,15 +16,15 @@ c29b5f3f5f5859c03d8faa9eb97c42120e0fc286
 
 ## FINAL_IMPLEMENTATION_HEAD
 
-d194931156c1f75fcedbc6201f55baaf5fcd598e
+19113a1083efc5d88775ea1b1ca1fb1c82091f24
 
 ## VALIDATED_IMPLEMENTATION_CI_RUN
 
-34438904222
+34439271225
 
 ## CLASSIFICATION
 
-NEW_BUILD
+NEW_BUILD + NARROW ADAPT
 
 ## PORT
 
@@ -35,7 +35,7 @@ workflow state, and SHORTS-only public control plane were not ported.
 
 ## ADAPT
 
-Only the existing unified repository contracts were reused:
+Only existing unified repository contracts were reused:
 
 - canonical `ProjectFormat` values,
 - existing `ProjectRecord` / `VersionPins`,
@@ -52,7 +52,7 @@ workspace paths and native POSIX absolute paths are both classified correctly.
 ### Project bootstrap
 
 - `packages/project-bootstrap`
-- ProjectBootstrapService
+- `ProjectBootstrapService`
 - safe project ID/title/format validation
 - SHORTFORM/LONGFORM normalization
 - staging-directory bootstrap
@@ -88,7 +88,8 @@ workspace paths and native POSIX absolute paths are both classified correctly.
 - Rule Registry pin
 - Format Profile pin
 - `PRODUCTION_RULE_REGISTRY_V1@1.0.0`
-- History/Mystery Channel Profile updated to select that Rule Registry
+- `HISTORY_MYSTERY_V1@1.1.0` as the explicit Channel Profile revision selecting the Rule Registry
+- accepted `HISTORY_MYSTERY_V1@1.0.0` preserved byte-for-byte
 
 ### Unified CLI
 
@@ -228,10 +229,10 @@ WF-08 remains the sole owner of Project Style materialization and approval.
 
 ## RESOURCE_PINS
 
-Bootstrap begins from:
+New project bootstrap begins from:
 
 ```text
-HISTORY_MYSTERY_V1@1.0.0
+HISTORY_MYSTERY_V1@1.1.0
 ```
 
 and pins exact version/hash for:
@@ -249,6 +250,42 @@ The resulting `VersionPins.resourceHashes` is populated at project creation.
 
 Resource upgrades remain explicit; project bootstrap has no automatic upgrade
 path.
+
+## CANONICAL RESOURCE VERSION IMMUTABILITY — REGRESSION FOUND AND FIXED
+
+During MIG-04 scope audit, the branch was found to have added `ruleRegistry`
+directly to the already accepted canonical file:
+
+```text
+HISTORY_MYSTERY_V1@1.0.0
+```
+
+That would change the content hash of an existing version and make MIG-03
+version+hash pins stale without an explicit resource upgrade.
+
+The issue was corrected before MIG-04 acceptance:
+
+```text
+HISTORY_MYSTERY_V1@1.0.0
+→ restored to the exact MIG-03 accepted bytes
+
+HISTORY_MYSTERY_V1@1.1.0
+→ new explicit version
+→ adds PRODUCTION_RULE_REGISTRY_V1@1.0.0 selection
+
+MIG-04 bootstrap default
+→ explicitly moved to HISTORY_MYSTERY_V1@1.1.0
+```
+
+A regression test now verifies the exact accepted SHA-256 of the 1.0.0 file and
+proves new projects pin 1.1.0 instead of mutating 1.0.0.
+
+This preserves the MIG-03 rule:
+
+```text
+same resourceId + same version
+→ same canonical bytes/hash
+```
 
 ## RULE_REGISTRY
 
@@ -299,10 +336,10 @@ legacy_allowed = 0
 CHECK(legacy_allowed = 0)
 ```
 
-The ProjectRecord reader rejects a row that is not on
-`VPF_UNIFIED_V1` or attempts to enable legacy mode.
+The ProjectRecord reader rejects a row that is not on `VPF_UNIFIED_V1` or
+attempts to enable legacy mode.
 
-The existing repository-boundary test also remains PASS.
+The repository-boundary test remains PASS.
 
 ## DOCTOR
 
@@ -321,10 +358,10 @@ Implemented checks:
 
 ## WINDOWS / EXTERNAL WORKSPACE
 
-The workspace resolver now distinguishes native absolute paths before evaluating
+The workspace resolver distinguishes native absolute paths before evaluating
 Windows drive-style absolute paths.
 
-This preserves existing Linux/server behavior such as:
+This preserves Linux/server behavior such as:
 
 ```text
 /tmp/...
@@ -341,36 +378,13 @@ without converting the former into a Windows-style path.
 An integration fixture also creates a project under an absolute external
 workspace root.
 
-## REGRESSION FOUND AND FIXED
-
-The first MIG-04 regression run exposed a path classification bug.
-
-Cause:
-
-`win32.isAbsolute()` was checked before the native path implementation, so a
-native POSIX root such as `/tmp/...` could be interpreted using Windows path
-semantics.
-
-Impact:
-
-three existing Provider Orchestrator artifact-ingestion tests became BLOCKED
-because the generated candidate file could no longer be found at the resolved
-path.
-
-Fix:
-
-native `path.isAbsolute()` now has precedence; the Windows fallback is used
-only when the native implementation does not consider the path absolute.
-
-After the fix, all existing Provider Orchestrator tests returned to PASS.
-
 ## VALIDATION
 
 Validated GitHub Actions:
 
 ```text
-run: 34438904222
-head: d194931156c1f75fcedbc6201f55baaf5fcd598e
+run: 34439271225
+head: 19113a1083efc5d88775ea1b1ca1fb1c82091f24
 ```
 
 Node 22:
@@ -390,7 +404,7 @@ Test groups:
 - Runtime Contracts: 7 / 7 PASS
 - Provider Orchestrator: 5 / 5 PASS
 - Resource Registry: 7 / 7 PASS
-- Project Bootstrap: 7 / 7 PASS
+- Project Bootstrap: 9 / 9 PASS
 - Unified CLI: 4 / 4 PASS
 - Production System: 6 / 6 PASS
 - Story: 5 / 5 PASS
@@ -409,7 +423,7 @@ Test groups:
 
 TOTAL:
 
-- 132 / 132 PASS
+- 134 / 134 PASS
 
 Repository boundary:
 
@@ -426,6 +440,9 @@ Repository boundary:
 - ProjectRecord persisted: PASS
 - resource versions pinned: PASS
 - resource SHA-256 hashes pinned: PASS
+- immutable accepted resource version preserved: PASS
+- explicit Channel Profile 1.1.0 upgrade: PASS
+- Rule Registry pinned: PASS
 - project.json matches DB identity/pins: PASS
 - no fake Project Style created: PASS
 - `legacyAllowed=false`: PASS
@@ -449,9 +466,13 @@ render, QC, or publish workflows in MIG-04. Future command families return
 `NOT_IMPLEMENTED` until their owning migration connects the real application
 service.
 
-The initial project-level `projectStyleVersion` is
-`UNMATERIALIZED`; this is a bootstrap sentinel, not an approved style
-resource. WF-08 owns the later materialized style revision.
+The initial project-level `projectStyleVersion` is `UNMATERIALIZED`; this is a
+bootstrap sentinel, not an approved style resource. WF-08 owns the later
+materialized style revision.
+
+The review-only legacy source path named in the work order is not present at the
+same path on the current migration-source main branch. MIG-04 has no runtime or
+build dependency on it.
 
 ## ROLLBACK_POINT
 
