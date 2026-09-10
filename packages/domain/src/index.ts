@@ -1274,7 +1274,8 @@ export interface TtsGenerationPlan extends BaseEntity {
   provider: "ELEVENLABS";
   endpoint: "/v1/text-to-speech/{voice_id}/with-timestamps";
   apiKeyEnv: "ELEVENLABS_API_KEY";
-  voiceIdEnv: "ELEVENLABS_VOICE_ID";
+  voiceIdResolution: "VOICE_PRESET_THEN_ENV";
+  voiceIdFallbackEnv: "ELEVENLABS_VOICE_ID";
   voicePreset: TtsVoicePresetId;
   modelId: "eleven_v3";
   outputFormat: "mp3_44100_128";
