@@ -1,17 +1,12 @@
-import {
-  isAbsolute,
-  relative,
-  resolve,
-  win32
-} from "node:path";
+import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const DEFAULT_REPOSITORY_ROOT = resolve(
+const DEFAULT_REPOSITORY_ROOT = path.resolve(
   fileURLToPath(new URL("../../../", import.meta.url))
 );
 
 const WINDOWS_RESERVED_NAME =
-  /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\..*)?$/iu;
+  /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\..*)?$/iu;
 
 export class WorkspacePathError extends Error {
   constructor(
@@ -62,10 +57,14 @@ export function validateProjectId(value: string): string {
   return projectId;
 }
 
+function apiForAbsoluteRoot(root: string) {
+  return path.win32.isAbsolute(root) ? path.win32 : path;
+}
+
 export function resolveWorkspaceRoot(
   options: WorkspaceResolverOptions = {}
 ): string {
-  const repositoryRoot = resolve(
+  const repositoryRoot = path.resolve(
     options.repositoryRoot ?? DEFAULT_REPOSITORY_ROOT
   );
   const configured =
@@ -74,12 +73,16 @@ export function resolveWorkspaceRoot(
     process.env.VPF_WORKSPACE_ROOT;
 
   if (configured === undefined || configured.trim() === "") {
-    return resolve(repositoryRoot, "workspace");
+    return path.resolve(repositoryRoot, "workspace");
   }
 
-  return isAbsolute(configured)
-    ? resolve(configured)
-    : resolve(repositoryRoot, configured);
+  if (path.win32.isAbsolute(configured)) {
+    return path.win32.normalize(configured);
+  }
+
+  return path.isAbsolute(configured)
+    ? path.resolve(configured)
+    : path.resolve(repositoryRoot, configured);
 }
 
 export function resolveProjectWorkspace(
@@ -88,8 +91,9 @@ export function resolveProjectWorkspace(
 ): ProjectWorkspace {
   const projectId = validateProjectId(projectIdInput);
   const workspaceRoot = resolveWorkspaceRoot(options);
-  const projectsRoot = resolve(workspaceRoot, "projects");
-  const projectRoot = resolve(projectsRoot, projectId);
+  const api = apiForAbsoluteRoot(workspaceRoot);
+  const projectsRoot = api.resolve(workspaceRoot, "projects");
+  const projectRoot = api.resolve(projectsRoot, projectId);
 
   assertPathInside(projectsRoot, projectRoot);
 
@@ -106,8 +110,8 @@ export function normalizeProjectRelativePath(value: string): string {
 
   if (
     trimmed.length === 0 ||
-    isAbsolute(trimmed) ||
-    win32.isAbsolute(trimmed) ||
+    path.isAbsolute(trimmed) ||
+    path.win32.isAbsolute(trimmed) ||
     /^[a-zA-Z]:[\\/]/u.test(trimmed)
   ) {
     throw new WorkspacePathError(
@@ -142,8 +146,9 @@ export function resolveProjectRelativePath(
   projectRelativePath: string
 ): string {
   const normalized = normalizeProjectRelativePath(projectRelativePath);
-  const root = resolve(projectRoot);
-  const target = resolve(root, ...normalized.split("/"));
+  const api = apiForAbsoluteRoot(projectRoot);
+  const root = api.resolve(projectRoot);
+  const target = api.resolve(root, ...normalized.split("/"));
 
   assertPathInside(root, target);
   return target;
@@ -153,14 +158,15 @@ export function toProjectRelativePath(
   projectRoot: string,
   artifactPath: string
 ): string {
-  const root = resolve(projectRoot);
-  const target = isAbsolute(artifactPath)
-    ? resolve(artifactPath)
-    : resolve(root, artifactPath);
+  const api = apiForAbsoluteRoot(projectRoot);
+  const root = api.resolve(projectRoot);
+  const target = api.isAbsolute(artifactPath)
+    ? api.resolve(artifactPath)
+    : api.resolve(root, artifactPath);
 
   assertPathInside(root, target);
 
-  const result = relative(root, target).replaceAll("\\", "/");
+  const result = api.relative(root, target).replaceAll("\\", "/");
   if (result.length === 0) {
     throw new WorkspacePathError(
       "INVALID_RELATIVE_PATH",
@@ -172,13 +178,14 @@ export function toProjectRelativePath(
 }
 
 function assertPathInside(basePath: string, candidatePath: string): void {
-  const base = resolve(basePath);
-  const candidate = resolve(candidatePath);
-  const rel = relative(base, candidate);
+  const api = apiForAbsoluteRoot(basePath);
+  const base = api.resolve(basePath);
+  const candidate = api.resolve(candidatePath);
+  const rel = api.relative(base, candidate);
 
   if (
     rel === "" ||
-    (!rel.startsWith("..") && !isAbsolute(rel))
+    (!rel.startsWith("..") && !api.isAbsolute(rel))
   ) {
     return;
   }
