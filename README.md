@@ -22,7 +22,10 @@ AI-assisted video production orchestration framework.
 - PHASE A — Unified Framework Final Design: COMPLETE
   - Target: single integrated repository
   - Migration method: PORT / ADAPT / NEW_BUILD / LEGACY
-  - Next: PHASE B — Migration Work Orders
+- PHASE B — Unified Framework Migration Work Orders: COMPLETE
+  - MIG-01 ... MIG-13 detailed work orders
+  - Execution policy / master checklist / 10-expert review
+  - Next: PHASE C — execute MIG-01 and gate each migration sequentially
 
 ## Architecture
 
