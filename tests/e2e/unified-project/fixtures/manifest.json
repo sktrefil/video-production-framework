@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "purpose": "MIG-12 deterministic single-repository E2E media fixtures",
+  "files": [
+    {
+      "name": "silence-600ms.mp3",
+      "mimeType": "audio/mpeg",
+      "durationMs": 600,
+      "sha256": "79bfe3e3988a7a93b8539b50ed20cf69292c8c7141879d4c1f53a84c9659b5bc"
+    },
+    {
+      "name": "manual-clip-600ms.mp4",
+      "mimeType": "video/mp4",
+      "durationMs": 600,
+      "width": 64,
+      "height": 64,
+      "fps": 30,
+      "videoCodec": "h264",
+      "pixelFormat": "yuv420p",
+      "hasAudio": false,
+      "sha256": "65ab2ef547236193996f441fc5d11bcc69e7368c9ed5331bd5f2b190cdad9892"
+    }
+  ]
+}
