@@ -58,6 +58,7 @@ export function validateProjectId(value: string): string {
 }
 
 function apiForAbsoluteRoot(root: string) {
+  if (path.isAbsolute(root)) return path;
   return path.win32.isAbsolute(root) ? path.win32 : path;
 }
 
@@ -76,13 +77,14 @@ export function resolveWorkspaceRoot(
     return path.resolve(repositoryRoot, "workspace");
   }
 
+  if (path.isAbsolute(configured)) {
+    return path.resolve(configured);
+  }
   if (path.win32.isAbsolute(configured)) {
     return path.win32.normalize(configured);
   }
 
-  return path.isAbsolute(configured)
-    ? path.resolve(configured)
-    : path.resolve(repositoryRoot, configured);
+  return path.resolve(repositoryRoot, configured);
 }
 
 export function resolveProjectWorkspace(
