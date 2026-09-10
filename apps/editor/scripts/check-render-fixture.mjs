@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {createHash, randomUUID} from "node:crypto";
+import {createHash} from "node:crypto";
 import {mkdir, mkdtemp, readFile, rm, stat, writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
@@ -60,6 +60,9 @@ try {
   }
 
   const render = await renderEditorProject({projectId, projectRoot});
+  if (render.status !== "DELIVERY_READY") {
+    console.error(`[editor-render] QC DEBUG: ${JSON.stringify(render.technicalQc ?? null)}`);
+  }
   assert.equal(render.status, "DELIVERY_READY");
   assert.equal(render.technicalQc?.status, "PASS");
   assert.equal(render.delivery?.status, "READY");
