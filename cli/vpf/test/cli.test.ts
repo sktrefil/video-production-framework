@@ -3,11 +3,15 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import { execFile } from "node:child_process";
 import test from "node:test";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { runCli } from "../src/index.js";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
+const cliPackageRoot = fileURLToPath(new URL("../", import.meta.url));
+const execFileAsync = promisify(execFile);
 
 async function fixture() {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-cli-"));
@@ -66,4 +70,46 @@ test("future unified commands fail explicitly as NOT_IMPLEMENTED", async () => {
   const code = await runCli(["run", "demo", "--to", "tts"], f.io, f.service);
   assert.equal(code, 2);
   assert.match(f.errors.at(-1)!, /NOT_IMPLEMENTED/);
+});
+
+
+test("compiled public CLI binary creates a real unified project", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-cli-binary-"));
+  const workspaceRoot = path.join(root, "workspace");
+  const cliEntry = path.join(cliPackageRoot, "dist", "index.js");
+
+  const created = await execFileAsync(process.execPath, [
+    cliEntry,
+    "project",
+    "create",
+    "binary_fixture",
+    "--title",
+    "Binary Fixture",
+    "--format",
+    "longform"
+  ], {
+    env: {
+      ...process.env,
+      VPF_WORKSPACE_ROOT: workspaceRoot
+    }
+  });
+  const result = JSON.parse(created.stdout) as any;
+  assert.equal(result.status, "CREATED");
+  assert.equal(result.format, "LONGFORM");
+  assert.equal(result.legacyAllowed, false);
+
+  const statusRun = await execFileAsync(process.execPath, [
+    cliEntry,
+    "project",
+    "status",
+    "binary_fixture"
+  ], {
+    env: {
+      ...process.env,
+      VPF_WORKSPACE_ROOT: workspaceRoot
+    }
+  });
+  const status = JSON.parse(statusRun.stdout) as any;
+  assert.equal(status.projectId, "binary_fixture");
+  assert.equal(status.migrationsCurrent, true);
 });
