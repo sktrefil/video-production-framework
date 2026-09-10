@@ -225,7 +225,13 @@ export async function runEditorFixture(fixture, {negativeCases = false} = {}) {
       });
   assert.equal(materialized.report.status, "READY");
   assert.equal(materialized.report.assemblyId, fixture.assembly.id);
-  assert.ok(materialized.report.media.length >= 5);
+  const mediaItemTypes = new Set(["VIDEO", "IMAGE", "TTS", "CLIP_AUDIO", "BGM", "SFX"]);
+  const expectedSourcePaths = new Set(
+    fixture.assembly.editProject.items
+      .filter(item => mediaItemTypes.has(item.type))
+      .map(item => item.src)
+  );
+  assert.equal(materialized.report.media.length, expectedSourcePaths.size);
 
   if (negativeCases) {
     await assertTechnicalQcFailureBlocksDelivery(fixture);
