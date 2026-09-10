@@ -4,7 +4,7 @@ Use this checklist as the migration program control sheet.
 
 | Work Item | Primary Type | Required Gate | Status |
 |---|---|---|---|
-| MIG-01 Repository Integration Foundation | NEW_BUILD | existing regression + skeleton | NOT_STARTED |
+| MIG-01 Repository Integration Foundation | NEW_BUILD | existing regression + skeleton | PASS |
 | MIG-02 Runtime Contracts + Orchestrator | NEW_BUILD | shared runtime envelope | NOT_STARTED |
 | MIG-03 Resource Registry | NEW_BUILD + ADAPT | version/hash pinning | NOT_STARTED |
 | MIG-04 Bootstrap + Unified CLI | NEW_BUILD | SHORTFORM + LONGFORM create | NOT_STARTED |
