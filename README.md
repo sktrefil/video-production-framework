@@ -29,7 +29,8 @@ AI-assisted video production orchestration framework.
   - MIG-01 Repository Integration Foundation: PASS
   - MIG-02 Runtime Contracts + Provider Orchestrator: PASS
   - MIG-03 Resource Registry + Canonical Resources: PASS
-  - Next: MIG-04 Project Bootstrap + Unified CLI Foundation
+  - MIG-04 Project Bootstrap + Unified CLI Foundation: PASS
+  - Next: MIG-05 ElevenLabs Runtime Migration
 
 ## Architecture
 
