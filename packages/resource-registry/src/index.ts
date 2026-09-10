@@ -150,6 +150,10 @@ export interface ChannelProfilePayload {
     resourceId: string;
     version: string;
   };
+  ruleRegistry?: {
+    resourceId: string;
+    version: string;
+  };
   formats: Record<string, {
     resourceId: string;
     version: string;
