@@ -59,8 +59,9 @@ export interface ElevenLabsRuntimeJob {
   endpoint: "/v1/text-to-speech/{voice_id}/with-timestamps";
   secretRefs: {
     apiKeyEnv: "ELEVENLABS_API_KEY";
-    voiceIdEnv: "ELEVENLABS_VOICE_ID";
+    voiceIdFallbackEnv: "ELEVENLABS_VOICE_ID";
   };
+  voiceIdResolution: "VOICE_PRESET_THEN_ENV";
   modelId: "eleven_v3";
   outputFormat: "mp3_44100_128";
   voicePreset: TtsVoicePresetId;
@@ -335,7 +336,8 @@ export class TtsGenerationPipeline {
       provider: "ELEVENLABS",
       endpoint: "/v1/text-to-speech/{voice_id}/with-timestamps",
       apiKeyEnv: "ELEVENLABS_API_KEY",
-      voiceIdEnv: "ELEVENLABS_VOICE_ID",
+      voiceIdResolution: "VOICE_PRESET_THEN_ENV",
+      voiceIdFallbackEnv: "ELEVENLABS_VOICE_ID",
       voicePreset: preset,
       modelId: "eleven_v3",
       outputFormat: "mp3_44100_128",
@@ -523,8 +525,9 @@ export class TtsGenerationPipeline {
       endpoint: plan.endpoint,
       secretRefs: {
         apiKeyEnv: plan.apiKeyEnv,
-        voiceIdEnv: plan.voiceIdEnv
+        voiceIdFallbackEnv: plan.voiceIdFallbackEnv
       },
+      voiceIdResolution: plan.voiceIdResolution,
       modelId: plan.modelId,
       outputFormat: plan.outputFormat,
       voicePreset: plan.voicePreset,
