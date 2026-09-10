@@ -13,14 +13,14 @@ Use this checklist as the migration program control sheet.
 | MIG-07 Google Flow Manual Runtime | NEW_BUILD | export/import + WF12 | DEFERRED |
 | MIG-08 Generic Editor Port | PORT + ADAPT | editor checks + bundle + browser smoke | PASS |
 | MIG-09 Materialization + Render | ADAPT + NEW_BUILD | WF17/WF18 output | PASS |
-| MIG-10 Audio/Subtitle Gaps | ADAPT + NEW_BUILD | A1-A4/T1-T2/G1 | NOT_STARTED |
+| MIG-10 Audio/Subtitle Gaps | ADAPT + NEW_BUILD | A1-A4/T1-T2/G1 | PASS |
 | MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | NOT_STARTED |
 | MIG-12 Single-Repo E2E | NEW_BUILD TEST | no old repo dependency | NOT_STARTED |
 | MIG-13 Real Pilot Readiness | VALIDATION | SHORT + LONG runbook ready | NOT_STARTED |
 
 ## Sequencing note
 
-MIG-08 was executed from the accepted MIG-05 head by explicit operator sequencing. Its editor-port acceptance gates do not require the image runtime or Google Flow runtime to execute. MIG-09 was then executed from the accepted MIG-08 branch tip and validated editor materialization, actual GenericFinalRender execution, WF-17 Technical QC/delivery and WF-18 package handoff without claiming MIG-06 or MIG-07 capability.
+MIG-08 was executed from the accepted MIG-05 head by explicit operator sequencing. Its editor-port acceptance gates do not require the image runtime or Google Flow runtime to execute. MIG-09 was then executed from the accepted MIG-08 branch tip and validated editor materialization, actual GenericFinalRender execution, WF-17 Technical QC/delivery and WF-18 package handoff without claiming MIG-06 or MIG-07 capability. MIG-10 was executed from the accepted MIG-09 head and closed the audio/subtitle integration gaps while preserving WF-16 as the sole placement authority.
 
 MIG-06 remains `NOT_STARTED`; MIG-07 is `DEFERRED` while Google Flow is operated manually. Neither is represented as PASS.
 
