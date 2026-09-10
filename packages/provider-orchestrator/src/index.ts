@@ -283,7 +283,12 @@ export class RuntimeOrchestrator {
         await this.assertTargetCurrent(currentJob);
         media = await this.ingestArtifacts(runtimeJob, result);
       } catch (error) {
-        result = this.blockedResult(runtimeJob, error, result.startedAt);
+        result = this.blockedResult(
+          runtimeJob,
+          error,
+          result.startedAt,
+          result
+        );
         media = [];
       }
     }
@@ -489,7 +494,8 @@ export class RuntimeOrchestrator {
   private blockedResult(
     job: RuntimeJob,
     error: unknown,
-    startedAt: string
+    startedAt: string,
+    sourceResult?: RuntimeResult
   ): RuntimeResult {
     const normalized = normalizeRuntimeError(error, "PROVIDER_RESULT_INVALID");
     return {
@@ -499,8 +505,8 @@ export class RuntimeOrchestrator {
       projectId: job.projectId,
       attempt: job.attempt,
       status: "BLOCKED",
-      providerRequestIds: [],
-      outputs: [],
+      providerRequestIds: [...(sourceResult?.providerRequestIds ?? [])],
+      outputs: [...(sourceResult?.outputs ?? [])],
       startedAt,
       completedAt: this.clock.nowIso(),
       error: {
