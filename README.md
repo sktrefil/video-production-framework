@@ -27,7 +27,8 @@ AI-assisted video production orchestration framework.
   - Execution policy / master checklist / 10-expert review
 - PHASE C — Unified Framework Migration Execution
   - MIG-01 Repository Integration Foundation: PASS
-  - Next: MIG-02 Runtime Contracts + Provider Orchestrator
+  - MIG-02 Runtime Contracts + Provider Orchestrator: PASS
+  - Next: MIG-03 Resource Registry + Canonical Resources
 
 ## Architecture
 
