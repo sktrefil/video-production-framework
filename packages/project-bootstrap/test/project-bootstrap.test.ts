@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdtemp, readFile, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -67,11 +67,8 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
   }
 
   for (const directory of STANDARD_PROJECT_DIRECTORIES) {
-    assert.equal(
-      await readFile(path.join(created.projectRoot, "project.json"), "utf8").then(() => true),
-      true
-    );
-    assert.ok(path.join(created.projectRoot, directory).startsWith(created.projectRoot));
+    const info = await stat(path.join(created.projectRoot, directory));
+    assert.equal(info.isDirectory(), true);
   }
 });
 
