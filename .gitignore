@@ -4,7 +4,16 @@ coverage/
 .env
 .env.*
 !.env.example
-workspace/
+
+# Unified runtime workspace: code/docs stay tracked, real projects do not.
+workspace/projects/**
+!workspace/README.md
+
+# Generated editor runtime mirrors and renders are never source.
+apps/editor/public/projects/**
+apps/editor/out/**
+out/
+
 temp/
 logs/
 *.db
