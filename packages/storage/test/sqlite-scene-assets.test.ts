@@ -1144,7 +1144,7 @@ test("WF-07 -> WF-18 completes in one project.db through publish handoff readine
       "ELEVENLABS_API_KEY"
     );
     assert.equal(
-      preparedTts.runtimeJob.secretRefs.voiceIdEnv,
+      preparedTts.runtimeJob.secretRefs.voiceIdFallbackEnv,
       "ELEVENLABS_VOICE_ID"
     );
 
