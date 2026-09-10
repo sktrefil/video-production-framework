@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "FORMAT_PROFILE",
+  "resourceId": "SHORTFORM_9X16_V1",
+  "version": "1.0.0",
+  "payload": {
+    "format": "SHORTFORM",
+    "width": 1080,
+    "height": 1920,
+    "aspectRatio": "9:16",
+    "fpsPreference": 30,
+    "safeAreas": { "top": 160, "right": 72, "bottom": 300, "left": 72 },
+    "imageGeneration": { "width": 864, "height": 1536 },
+    "editorDefaults": {
+      "visualFit": "cover",
+      "primaryVideoTrack": "V1",
+      "primaryAudioTrack": "A1"
+    },
+    "subtitleLayoutEnvelope": {
+      "maxLines": 3,
+      "horizontalMarginPx": 96,
+      "bottomMarginPx": 300,
+      "avoidCriticalVisualOverlap": true
+    },
+    "delivery": {
+      "container": "mp4",
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "pixelFormat": "yuv420p"
+    }
+  }
+}
