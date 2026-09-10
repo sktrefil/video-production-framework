@@ -613,6 +613,8 @@ test("failed Provider Job retries as a new Job and batch operations preserve par
   assert.notEqual(retryJob.id, failed.job.id);
   assert.equal(retryJob.retryOfJobId, failed.job.id);
   assert.equal(retryJob.attempt, 2);
+  assert.deepEqual(retryJob.inputPayload, created.job.inputPayload);
+  assert.equal(retryJob.targetRevision, retried.items[0]?.value?.asset.revision);
 });
 
 

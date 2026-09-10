@@ -1,3 +1,4 @@
+import type { ImageRuntimeInput } from "@vpf/runtime-contracts";
 import type {
   ApprovalRecord,
   IdentityAnchor,
@@ -564,6 +565,7 @@ export class SceneAssetPipeline {
     provider: string;
     providerProfileVersion: string;
     executionMode: ProviderExecutionMode;
+    execution?: Omit<ImageRuntimeInput, "prompt" | "negativePrompt">;
   }): Promise<{ asset: ProductionAsset; job: ProviderJob }> {
     const asset = await this.repository.getLatestAsset(input.projectId, input.assetId);
     if (asset === null) {
@@ -596,6 +598,22 @@ export class SceneAssetPipeline {
       ...resolved,
       asset
     });
+    if (input.execution !== undefined) {
+      const execution = input.execution;
+      const profile = resolved.formatProfile;
+      const payload = profile.payload as {aspectRatio: string; imageGeneration: {width: number; height: number}};
+      if (execution.formatProfile.resourceId !== profile.resourceId || execution.formatProfile.version !== profile.version ||
+          execution.formatProfile.contentHash !== profile.contentHash || execution.width !== payload.imageGeneration.width ||
+          execution.height !== payload.imageGeneration.height || execution.aspectRatio !== payload.aspectRatio)
+        throw new SceneAssetValidationError("ASSET_DESIGN_INVALID", "Execution dimensions must match the pinned Format Profile.");
+      validateRelativeMediaPath(execution.outputRelativePath);
+      for (const reference of execution.references) {
+        const media = await this.repository.getMedia(input.projectId, reference.mediaId);
+        if (!media || media.mediaType !== "IMAGE" || media.mediaStatus !== "AVAILABLE" ||
+            media.relativePath !== reference.relativePath || media.checksum.replace(/^sha256:/u, "") !== reference.sha256)
+          throw new SceneAssetValidationError("MEDIA_NOT_FOUND", "Approved reference media metadata does not match.");
+      }
+    }
     if (!promptDecision.prompt.trim()) {
       throw new SceneAssetValidationError(
         "ASSET_DESIGN_INVALID",
@@ -616,11 +634,16 @@ export class SceneAssetPipeline {
       providerProfileVersion: input.providerProfileVersion,
       targetType: "ASSET",
       targetId: asset.id,
-      targetRevision: asset.revision,
+      targetRevision: asset.revision + 1,
       executionMode: input.executionMode,
       status: input.executionMode === "AUTOMATED" ? "READY" : "WAITING_EXTERNAL",
       attempt: 1,
       inputPayload: {
+        ...(input.execution === undefined ? {} : {
+          width: input.execution.width, height: input.execution.height, aspectRatio: input.execution.aspectRatio,
+          formatProfile: structuredClone(input.execution.formatProfile),
+          references: structuredClone(input.execution.references), outputRelativePath: input.execution.outputRelativePath
+        }),
         prompt: promptDecision.prompt,
         ...(promptDecision.negativePrompt === undefined
           ? {}
@@ -763,22 +786,12 @@ export class SceneAssetPipeline {
       );
     }
 
-    const resolved = await this.resolveContext({
+    await this.resolveContext({
       projectId: input.projectId,
       sceneId: asset.owner.id,
       format: input.format,
       formatProfileVersion: asset.formatProfileVersion
     });
-    const prompt = await this.decisions.compileImagePrompt({
-      ...resolved,
-      asset
-    });
-    if (!prompt.prompt.trim()) {
-      throw new SceneAssetValidationError(
-        "ASSET_DESIGN_INVALID",
-        "IMAGE_PROMPT returned an empty provider execution prompt."
-      );
-    }
 
     const executionMode = input.executionMode ?? failedJob.executionMode;
     const now = this.clock.nowIso();
@@ -794,17 +807,12 @@ export class SceneAssetPipeline {
       providerProfileVersion: failedJob.providerProfileVersion,
       targetType: "ASSET",
       targetId: asset.id,
-      targetRevision: asset.revision,
+      targetRevision: asset.revision + 1,
       executionMode,
       status: executionMode === "AUTOMATED" ? "READY" : "WAITING_EXTERNAL",
       attempt: failedJob.attempt + 1,
       retryOfJobId: failedJob.id,
-      inputPayload: {
-        prompt: prompt.prompt,
-        ...(prompt.negativePrompt === undefined
-          ? {}
-          : { negativePrompt: prompt.negativePrompt })
-      },
+      inputPayload: structuredClone(failedJob.inputPayload),
       resultMediaIds: []
     };
     const nextAsset = nextAssetRevision(

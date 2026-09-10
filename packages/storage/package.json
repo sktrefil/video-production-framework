@@ -15,7 +15,8 @@
     "./final-output": "./dist/final-output.js",
     "./tts-generation": "./dist/tts-generation.js",
     "./tts-runtime": "./dist/tts-runtime.js",
-    "./runtime-execution": "./dist/runtime-execution.js"
+    "./runtime-execution": "./dist/runtime-execution.js",
+    "./image-runtime": "./dist/image-runtime.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {

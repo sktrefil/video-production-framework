@@ -86,6 +86,10 @@ for (const rootName of scanRoots) {
     }
 
     const content = await readFile(file, "utf8");
+    if ((rel.startsWith("runtimes/image/") || rel === "packages/provider-orchestrator/src/image-runtime.ts") &&
+        /image_prompt_planner|history_mystery_visual_prompt_runtime|master_candidate_prompt_planner|master_visual_planner|visual_v2|history_mystery_shorts_style|HISTORY_MYSTERY_STYLIZED_V1/u.test(content)) {
+      findings.push({file: rel, code: "LEGACY_IMAGE_DECISION_STACK"});
+    }
     for (const rule of prohibited) {
       if (rule.pattern.test(content)) {
         findings.push({ file: rel, code: rule.code });

@@ -105,6 +105,23 @@ export interface RuntimeExecutor {
   execute(job: RuntimeJob): Promise<RuntimeResult>;
 }
 
+/** Transport data only. WF-09 owns every semantic string and reference choice. */
+export interface ImageRuntimeInput {
+  prompt: string;
+  negativePrompt?: string;
+  width: number;
+  height: number;
+  aspectRatio: string;
+  formatProfile: { resourceId: string; version: string; contentHash: string };
+  references: Array<{
+    mediaId: string;
+    relativePath: string;
+    sha256: string;
+    role: string;
+  }>;
+  outputRelativePath: string;
+}
+
 export interface RuntimeExecutorResolver {
   resolve(provider: string, jobType: ProviderJobType): RuntimeExecutor;
 }

@@ -110,10 +110,14 @@ export class SqliteRuntimeExecutionRepository
       for (const media of input.media) {
         insertMedia(this.db, media);
       }
+      this.commitTargetTransition(input);
       insertRuntimeReceipt(this.db, input.receipt);
       insertEvent(this.db, input.event, input.outbox);
     })();
   }
+
+  /** Runs inside the same transaction as media, job, receipt and outbox writes. */
+  protected commitTargetTransition(_input: Parameters<RuntimePersistencePort["commitProviderTransition"]>[0]): void {}
 
   async listRuntimeReceipts(
     projectId: string,
