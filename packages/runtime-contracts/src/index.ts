@@ -337,12 +337,14 @@ export function nextProviderJobFromRuntimeResult(
     if (result.error.detail !== undefined) {
       patch.errorDetail = result.error.detail;
     }
-  } else {
-    delete patch.errorCode;
-    delete patch.errorDetail;
   }
 
-  return nextProviderJobRevision(job, patch, nowIso);
+  const next = nextProviderJobRevision(job, patch, nowIso);
+  if (result.error === undefined) {
+    delete next.errorCode;
+    delete next.errorDetail;
+  }
+  return next;
 }
 
 export function createRetryProviderJob(input: {
