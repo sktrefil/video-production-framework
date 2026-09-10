@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import {
+  ChannelVisualBibleRegistryAdapter,
+  FileSystemResourceRegistry
+} from "@vpf/resource-registry";
 import type {
   ApprovalRecord,
   FactRecord,
@@ -430,4 +435,28 @@ test("new approved script marks Project Style and Anchors stale instead of delet
     repository.anchors.filter(anchor => anchor.lifecycleStatus === "ACTIVE").every(anchor => anchor.stale),
     true
   );
+});
+
+
+test("WF-08 resolves the canonical History/Mystery Visual Bible through the registry adapter", async () => {
+  const resourcesRoot = fileURLToPath(new URL("../../../resources/", import.meta.url));
+  const registry = new FileSystemResourceRegistry(resourcesRoot);
+  const canonicalBible = new ChannelVisualBibleRegistryAdapter(
+    registry,
+    "HISTORY_MYSTERY_VISUAL_BIBLE"
+  );
+  const { service } = pipeline(
+    new MemoryRepository(),
+    new MemoryContext(),
+    new Decisions(),
+    canonicalBible
+  );
+
+  const projectStyle = await service.generateProjectStyle({
+    projectId: "prj_1",
+    format: "LONGFORM",
+    channelVisualBibleVersion: "1.0.0"
+  });
+
+  assert.equal(projectStyle.channelVisualBibleVersion, "1.0.0");
 });
