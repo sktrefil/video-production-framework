@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "ELEVENLABS",
+    "model": "eleven_v3",
+    "executionMode": "AUTOMATED",
+    "jobTypes": ["TTS_GENERATION"],
+    "capabilities": {
+      "endpoint": "/with-timestamps",
+      "maxLongformChunkCharacters": 4000,
+      "returnsCharacterAlignment": true,
+      "resultMimeTypes": ["audio/mpeg"]
+    },
+    "retryPolicy": {
+      "maxAttempts": 3,
+      "retryableCategories": ["PROVIDER_REQUEST_FAILED", "PROVIDER_TIMEOUT"]
+    },
+    "result": {
+      "mediaType": "AUDIO",
+      "requiredArtifacts": ["narration", "character_alignment"]
+    },
+    "runtimeSecretNames": ["ELEVENLABS_API_KEY"]
+  }
+}
