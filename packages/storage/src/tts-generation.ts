@@ -56,6 +56,9 @@ function mapScript(row: any): ScriptVersion {
 }
 
 function mapPlan(row: any): TtsGenerationPlan {
+  if (row.preserve_provider_cadence !== 1) {
+    throw new Error("Stored TTS plan must preserve Eleven v3 provider cadence.");
+  }
   return {
     id: row.id,
     projectId: row.project_id,
@@ -78,7 +81,7 @@ function mapPlan(row: any): TtsGenerationPlan {
     configuredVoiceSettings: JSON.parse(row.configured_voice_settings_json),
     effectiveVoiceSettings: JSON.parse(row.effective_voice_settings_json),
     droppedVoiceSettings: JSON.parse(row.dropped_voice_settings_json),
-    preserveProviderCadence: row.preserve_provider_cadence === 1,
+    preserveProviderCadence: true,
     chunks: JSON.parse(row.chunks_json),
     outputPaths: JSON.parse(row.output_paths_json),
     status: row.status
