@@ -178,8 +178,22 @@ async function runJsonProcess(input: {
       return;
     }
 
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
+    const stdin = child.stdin;
+    const stdoutStream = child.stdout;
+    const stderrStream = child.stderr;
+    if (stdin === null || stdoutStream === null || stderrStream === null) {
+      child.kill("SIGKILL");
+      reject(
+        new RuntimeContractError(
+          "RUNTIME_CONFIG_INVALID",
+          "ElevenLabs runtime process did not expose piped stdio streams."
+        )
+      );
+      return;
+    }
+
+    stdoutStream.setEncoding("utf8");
+    stderrStream.setEncoding("utf8");
 
     let stdout = "";
     let stderrBytes = 0;
@@ -197,7 +211,7 @@ async function runJsonProcess(input: {
       );
     }, input.timeoutMs);
 
-    child.stdout.on("data", (chunk: string) => {
+    stdoutStream.on("data", (chunk: string) => {
       stdout += chunk;
       if (stdout.length > 2_000_000 && !settled) {
         settled = true;
@@ -212,7 +226,7 @@ async function runJsonProcess(input: {
       }
     });
 
-    child.stderr.on("data", (chunk: string) => {
+    stderrStream.on("data", (chunk: string) => {
       stderrBytes += Buffer.byteLength(chunk, "utf8");
       if (stderrBytes > 2_000_000 && !settled) {
         settled = true;
@@ -249,6 +263,6 @@ async function runJsonProcess(input: {
       });
     });
 
-    child.stdin.end(input.stdin, "utf8");
+    stdin.end(input.stdin, "utf8");
   });
 }
