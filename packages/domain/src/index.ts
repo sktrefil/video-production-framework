@@ -6,6 +6,14 @@ export type ApprovalState =
 
 export type LifecycleStatus = "ACTIVE" | "SUPERSEDED" | "ARCHIVED";
 
+export interface ResourceHashPins {
+  channelVisualBible?: string;
+  ruleRegistry?: string;
+  formatProfile?: string;
+  providerProfiles?: Record<string, string>;
+  channelProfile?: string;
+}
+
 export interface VersionPins {
   frameworkVersion: string;
   dataModelVersion: string;
@@ -16,6 +24,12 @@ export interface VersionPins {
   providerProfileVersions: Record<string, string>;
   projectStyleVersion: string;
   editTemplateVersion?: string;
+  /**
+   * Backward-compatible content hashes for versioned canonical resources.
+   * Existing historical records may omit this field; unified project bootstrap
+   * (MIG-04+) should populate hashes for every mandatory resource pin.
+   */
+  resourceHashes?: ResourceHashPins;
 }
 
 export type SceneStateField = "STATE_IN" | "STATE_CURRENT" | "STATE_OUT";
