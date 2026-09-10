@@ -13,7 +13,8 @@
     "./editor-timeline": "./dist/editor-timeline.js",
     "./final-render": "./dist/final-render.js",
     "./final-output": "./dist/final-output.js",
-    "./tts-generation": "./dist/tts-generation.js"
+    "./tts-generation": "./dist/tts-generation.js",
+    "./runtime-execution": "./dist/runtime-execution.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -30,7 +31,9 @@
     "@vpf/editor-timeline": "0.1.0",
     "@vpf/final-render": "0.1.0",
     "@vpf/final-output": "0.1.0",
-    "@vpf/tts-generation": "0.1.0"
+    "@vpf/tts-generation": "0.1.0",
+    "@vpf/provider-orchestrator": "0.1.0",
+    "@vpf/runtime-contracts": "0.1.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13"
