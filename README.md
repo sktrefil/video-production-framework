@@ -18,6 +18,7 @@ AI-assisted video production orchestration framework.
   - WF-16 — Audio / TTS / Subtitle / BGM / SFX Timeline Assembly: PASS
   - WF-17 — Final Render / Technical QC / Delivery Manifest: PASS
   - WF-18 — Final Output QC / Packaging / Publish Handoff: PASS
+- ElevenLabs v3 TTS Provider Integration: PASS
 
 ## Architecture
 
@@ -30,8 +31,11 @@ AI-assisted video production orchestration framework.
 
 ```
 Approved Script
-↓
-Chapter / Sequence / Scene
+├─ ElevenLabs v3 TTS /with-timestamps
+│  ├─ 03_tts/narration.mp3
+│  └─ character_alignment.json
+│
+└─ Chapter / Sequence / Scene
 ↓
 Channel Visual Bible + Project Style
 ↓
@@ -72,6 +76,8 @@ Executable EDITORIAL_MOVE / REUSE_REFRAME motion
 Shared Preview / Final ProjectRenderer
 ↓
 Approved Editor Content Plan
+↓
+Generated Eleven v3 AUDIO MediaArtifact
 ↓
 A1 TTS / A2 Clip Audio / A3 BGM / A4 SFX
 ↓
@@ -127,6 +133,8 @@ WF-13 binds only current approved implementations. Provider video bindings requi
 WF-14 converts that handoff into the existing Generic Editor schemaVersion 1 visual timeline and produces an `edit_project.json`-compatible project. VIDEO trim windows are converted to source frames, STATIC_HOLD becomes IMAGE, and CUT remains a zero-duration boundary.
 
 WF-15 resolves the previous motion-renderer bottleneck. EDITORIAL_MOVE / REUSE_REFRAME are compiled once into deterministic IMAGE `motion.from / motion.to / easing` transforms, and the actual Generic Editor executes them with Remotion frame interpolation in the shared ProjectRenderer used by both Preview and GenericFinalRender. Invalid motion data is blocked by the production gate.
+
+The ElevenLabs v3 TTS Provider Integration reuses the prior production TTS standard: only a human-approved FINAL script is eligible; History/Mystery LONGFORM is split at 4,000 characters; each request uses the /with-timestamps endpoint; narration, character alignment, request IDs and hashes are retained; and the completed narration is registered as an AUDIO MediaArtifact for WF-16. HISTORY_MYSTERY_SHORTS and HISTORY_MYSTERY_LONGFORM now default to model_id eleven_v3 while preserving the legacy voice presets. Unsupported legacy v3 controls are not sent to the provider.
 
 WF-16 adds revisioned approved editor-content assembly. Existing AUDIO MediaArtifacts are bound as TTS/Clip Audio/BGM/SFX on A1-A4, subtitle cues retain TTS provenance on T1, text overlays use T2, and graphics use G1. The V1 visual duration remains authoritative; audio/text/graphics cannot silently extend the composition. Only BGM may loop beyond its source window.
 
