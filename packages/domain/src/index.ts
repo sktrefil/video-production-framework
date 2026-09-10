@@ -1235,3 +1235,90 @@ export interface FinalOutputReadiness {
     | "STALE";
   blockers: string[];
 }
+export type TtsVoicePresetId =
+  | "HISTORY_MYSTERY_SHORTS"
+  | "HISTORY_MYSTERY_LONGFORM";
+
+export interface ElevenLabsConfiguredVoiceSettings {
+  stability: number;
+  similarityBoost: number;
+  style: number;
+  speed: number;
+  useSpeakerBoost: boolean;
+}
+
+export interface ElevenLabsEffectiveV3VoiceSettings {
+  stability: number;
+  style: number;
+}
+
+export interface TtsChunkPlan {
+  index: number;
+  text: string;
+  textCharacterCount: number;
+  outputRelativePath: string;
+}
+
+export type TtsGenerationStatus =
+  | "READY"
+  | "RUNNING"
+  | "COMPLETE"
+  | "FAILED"
+  | "STALE";
+
+export interface TtsGenerationPlan extends BaseEntity {
+  sourceScriptId: string;
+  sourceScriptRevision: number;
+  sourceScriptSha256: string;
+  contentFormat: ProjectFormat;
+  provider: "ELEVENLABS";
+  endpoint: "/v1/text-to-speech/{voice_id}/with-timestamps";
+  apiKeyEnv: "ELEVENLABS_API_KEY";
+  voiceIdEnv: "ELEVENLABS_VOICE_ID";
+  voicePreset: TtsVoicePresetId;
+  modelId: "eleven_v3";
+  outputFormat: "mp3_44100_128";
+  maxChunkCharacters: 4000;
+  configuredVoiceSettings: ElevenLabsConfiguredVoiceSettings;
+  effectiveVoiceSettings: ElevenLabsEffectiveV3VoiceSettings;
+  droppedVoiceSettings: Array<
+    "similarity_boost" | "speed" | "use_speaker_boost"
+  >;
+  preserveProviderCadence: true;
+  chunks: TtsChunkPlan[];
+  outputPaths: {
+    narration: "03_tts/narration.mp3";
+    characterAlignment: "03_tts/character_alignment.json";
+    metadata: "03_tts/tts_metadata.json";
+    resolvedVoiceProfile: "03_tts/resolved_voice_profile.json";
+  };
+  status: TtsGenerationStatus;
+}
+
+export interface TtsCharacterAlignment {
+  characters: string[];
+  characterStartTimesSeconds: number[];
+  characterEndTimesSeconds: number[];
+}
+
+export interface TtsGenerationResult extends BaseEntity {
+  planId: string;
+  planRevision: number;
+  sourceScriptId: string;
+  sourceScriptRevision: number;
+  sourceScriptSha256: string;
+  provider: "ELEVENLABS";
+  modelId: "eleven_v3";
+  voiceId: "REDACTED";
+  outputFormat: "mp3_44100_128";
+  requestIds: string[];
+  audioMediaId: string;
+  audioRelativePath: "03_tts/narration.mp3";
+  audioSha256: string;
+  audioDurationMs: number;
+  characterAlignmentRelativePath: "03_tts/character_alignment.json";
+  characterAlignmentSha256: string;
+  metadataRelativePath: "03_tts/tts_metadata.json";
+  chunkCount: number;
+  completedAt: string;
+}
