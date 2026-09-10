@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "GOOGLE_FLOW_MANUAL_EXTERNAL_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "GOOGLE_FLOW",
+    "executionMode": "MANUAL_EXTERNAL",
+    "jobTypes": ["VIDEO_GENERATION"],
+    "capabilities": {
+      "modes": ["DIRECT_START_END_I2V", "SINGLE_IMAGE_I2V"],
+      "exportsRuntimeJobPack": true,
+      "importsGeneratedVideo": true,
+      "networkExecutionInRuntime": false
+    },
+    "retryPolicy": {
+      "maxAttempts": 3,
+      "retryableCategories": ["MANUAL_RESULT_NOT_READY", "PROVIDER_RESULT_INVALID"]
+    },
+    "result": {
+      "mediaType": "VIDEO",
+      "candidateOnly": true,
+      "requiresDownstreamQc": true
+    },
+    "runtimeSecretNames": []
+  }
+}
