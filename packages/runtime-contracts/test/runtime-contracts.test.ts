@@ -133,7 +133,11 @@ test("MANUAL_EXTERNAL WAITING_EXTERNAL can materialize without RUNNING", () => {
 
 test("automated ProviderJob transitions READY -> RUNNING -> COMPLETE without approval state", () => {
   const ready = job();
-  const running = nextProviderJobRunning(ready, now);
+  const running = {
+    ...nextProviderJobRunning(ready, now),
+    errorCode: "STALE_ERROR",
+    errorDetail: "must be cleared"
+  };
   const runtime = materializeRuntimeJob({
     job: running,
     expectedOutputs: expected
@@ -162,6 +166,8 @@ test("automated ProviderJob transitions READY -> RUNNING -> COMPLETE without app
   assert.equal(running.status, "RUNNING");
   assert.equal(complete.status, "COMPLETE");
   assert.deepEqual(complete.resultMediaIds, ["med_1"]);
+  assert.equal(complete.errorCode, undefined);
+  assert.equal(complete.errorDetail, undefined);
   assert.equal("approvalState" in complete, false);
 });
 
