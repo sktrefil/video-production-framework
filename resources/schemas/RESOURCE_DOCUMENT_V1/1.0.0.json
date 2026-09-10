@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "SCHEMA",
+  "resourceId": "RESOURCE_DOCUMENT_V1",
+  "version": "1.0.0",
+  "payload": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "VPF Canonical Resource Document v1",
+    "type": "object",
+    "required": ["schemaVersion", "resourceType", "resourceId", "version", "payload"],
+    "properties": {
+      "schemaVersion": { "const": 1 },
+      "resourceType": {
+        "enum": ["CHANNEL_VISUAL_BIBLE", "FORMAT_PROFILE", "PROVIDER_PROFILE", "CHANNEL_PROFILE", "RULE_REGISTRY", "SCHEMA"]
+      },
+      "resourceId": { "type": "string", "minLength": 1 },
+      "version": { "type": "string", "minLength": 1 },
+      "payload": {}
+    },
+    "additionalProperties": false
+  }
+}
