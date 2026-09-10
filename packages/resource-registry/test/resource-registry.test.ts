@@ -99,6 +99,23 @@ test("missing versions return null and pinned projects do not auto-upgrade", asy
   assert.equal(pinned.version, "1.0.0");
   assert.equal((pinned.payload as { width: number }).width, 1920);
 
+  const currentDiagnostic = await registry.diagnosePin({
+    resourceType: "FORMAT_PROFILE",
+    resourceId: "LONGFORM_16X9_V1",
+    version: "1.0.0",
+    contentHash: first.contentHash
+  });
+  assert.equal(currentDiagnostic.status, "CURRENT");
+
+  const staleDiagnostic = await registry.diagnosePin({
+    resourceType: "FORMAT_PROFILE",
+    resourceId: "LONGFORM_16X9_V1",
+    version: "1.0.0",
+    contentHash: "sha256:stale"
+  });
+  assert.equal(staleDiagnostic.status, "STALE");
+  assert.equal(staleDiagnostic.code, "RESOURCE_HASH_MISMATCH");
+
   const missing = await registry.resolve({
     resourceType: "FORMAT_PROFILE",
     resourceId: "LONGFORM_16X9_V1",
