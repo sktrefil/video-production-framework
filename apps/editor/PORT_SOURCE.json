@@ -1,0 +1,27 @@
+{
+  "migration": "MIG-08",
+  "classification": "PORT + ADAPT",
+  "sourceRepository": "sktrefil/video-production",
+  "sourceRef": "feature/wf18-final-output-publish-handoff",
+  "sourceCommit": "bf8b5c727e522924c8c89c1e72a910e2b60b8855",
+  "primarySource": "Youtubu_projects",
+  "portedContracts": [
+    "GenericEditorComposition",
+    "ProjectRenderer",
+    "GenericFinalRender",
+    "VideoItemRenderer",
+    "AudioItemRenderer",
+    "TextItemRenderer",
+    "GraphicItemRenderer",
+    "schemaVersion 1 editor types",
+    "deterministic image motion",
+    "generic studio editor state and timeline"
+  ],
+  "excluded": [
+    "project-specific Sado editor and media",
+    "Sado migration scripts and generated manifests",
+    "old .local project state",
+    "historical project media",
+    "old-repository operational path assumptions"
+  ]
+}

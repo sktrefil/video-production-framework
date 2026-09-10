@@ -1,0 +1,30 @@
+import {createContext,useCallback,useContext,useEffect,useMemo,useReducer,useRef,useState} from "react";
+import type {Dispatch,FC,ReactNode} from "react";
+import {useRemotionEnvironment} from "remotion";
+import {editorActions} from "./editorActions";
+import type {EditorAction} from "./editorActions";
+import {createEditorState} from "./editorReducer";
+import {editorHistoryReducer} from "./editorHistoryReducer";
+import type {EditProject,EditorState} from "./editorTypes";
+import {assertCompatibleEditorProject,hasEditorPersistenceAdapter,loadPersistedEditorProject,savePersistedEditorProject} from "./persistence/editorPersistenceApi";
+
+export type EditorPersistenceStatus="idle"|"loading"|"saving"|"error";
+type Persistence={status:EditorPersistenceStatus;hydrated:boolean;lastSavedAt:string|null;savedPath:string|null;error:string|null};
+type Value={state:EditorState;dispatch:Dispatch<EditorAction>;persistence:Persistence;saveProject:()=>Promise<boolean>;reloadProject:()=>Promise<boolean>;canUndo:boolean;canRedo:boolean};
+const Context=createContext<Value|null>(null);
+const AUTO_SAVE_DELAY_MS=600;
+export const StudioEditorProvider:FC<{children:ReactNode;initialProject?:EditProject}>=({children,initialProject})=>{
+  const {isStudio,isReadOnlyStudio}=useRemotionEnvironment();
+  const [state,dispatch]=useReducer(editorHistoryReducer,initialProject,createEditorState);
+  const initialRef=useRef(initialProject??state.project);const latestRef=useRef(state.project);latestRef.current=state.project;
+  const [persistence,setPersistence]=useState<Persistence>({status:"idle",hydrated:true,lastSavedAt:null,savedPath:null,error:null});
+  const adapterReady=isStudio&&!isReadOnlyStudio&&hasEditorPersistenceAdapter();
+  useEffect(()=>{if(!adapterReady)return;let cancelled=false;void (async()=>{setPersistence((p)=>({...p,status:"loading",hydrated:false,error:null}));try{const loaded=await loadPersistedEditorProject(initialRef.current.project.id);if(cancelled)return;if(loaded){assertCompatibleEditorProject(initialRef.current,loaded);dispatch(editorActions.loadProject(loaded));}setPersistence((p)=>({...p,status:"idle",hydrated:true,error:null}));}catch(error){if(!cancelled)setPersistence((p)=>({...p,status:"error",hydrated:true,error:error instanceof Error?error.message:String(error)}));}})();return()=>{cancelled=true};},[adapterReady]);
+  const persist=useCallback(async(project:EditProject)=>{if(!adapterReady){setPersistence((p)=>({...p,error:"Persistence binding is deferred to MIG-09."}));return false;}setPersistence((p)=>({...p,status:"saving",error:null}));try{const result=await savePersistedEditorProject(project);if(latestRef.current===project)dispatch(editorActions.markSaved());setPersistence((p)=>({...p,status:"idle",lastSavedAt:result.savedAt,savedPath:result.path,error:null}));return true;}catch(error){setPersistence((p)=>({...p,status:"error",error:error instanceof Error?error.message:String(error)}));return false;}},[adapterReady]);
+  const saveProject=useCallback(()=>persist(latestRef.current),[persist]);
+  const reloadProject=useCallback(async()=>{if(!adapterReady)return false;const loaded=await loadPersistedEditorProject(initialRef.current.project.id);if(!loaded)return false;assertCompatibleEditorProject(initialRef.current,loaded);dispatch(editorActions.loadProject(loaded));return true;},[adapterReady]);
+  useEffect(()=>{if(!adapterReady||!state.dirty||persistence.status!=="idle")return;const project=state.project;const timer=window.setTimeout(()=>{void persist(project)},AUTO_SAVE_DELAY_MS);return()=>window.clearTimeout(timer);},[adapterReady,persist,persistence.status,state.dirty,state.project]);
+  const value=useMemo<Value>(()=>({state,dispatch,persistence,saveProject,reloadProject,canUndo:state.history.past.length>0||state.history.transactionBase!==null,canRedo:state.history.future.length>0}),[state,persistence,saveProject,reloadProject]);
+  return <Context.Provider value={value}>{children}</Context.Provider>;
+};
+export const useStudioEditor=()=>{const value=useContext(Context);if(!value)throw new Error("useStudioEditor must be used inside StudioEditorProvider");return value;};

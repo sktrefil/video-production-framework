@@ -3,30 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "packages/*",
-    "apps/*",
-    "cli/*"
-  ],
+  "workspaces": ["packages/*", "apps/*", "cli/*"],
   "scripts": {
-    "build": "npm run build --workspace @vpf/domain && npm run build --workspace @vpf/workflow && npm run build --workspace @vpf/runtime-contracts && npm run build --workspace @vpf/workspace && npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && npm run build --workspace @vpf/project-bootstrap && npm run build --workspace @vpf/cli && npm run build --workspace @vpf/story && npm run build --workspace @vpf/visual-identity && npm run build --workspace @vpf/scene-assets && npm run build --workspace @vpf/prelink-handoff && npm run build --workspace @vpf/final-clip && npm run build --workspace @vpf/qc-fallback && npm run build --workspace @vpf/media-binding && npm run build --workspace @vpf/editor-timeline && npm run build --workspace @vpf/final-render && npm run build --workspace @vpf/final-output && npm run build --workspace @vpf/tts-generation && npm run build --workspace @vpf/storage",
-    "typecheck": "npm run build --workspace @vpf/domain && npm run build --workspace @vpf/workflow && npm run build --workspace @vpf/runtime-contracts && npm run build --workspace @vpf/workspace && npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && npm run build --workspace @vpf/project-bootstrap && npm run build --workspace @vpf/cli && npm run build --workspace @vpf/story && npm run build --workspace @vpf/visual-identity && npm run build --workspace @vpf/scene-assets && npm run build --workspace @vpf/prelink-handoff && npm run build --workspace @vpf/final-clip && npm run build --workspace @vpf/qc-fallback && npm run build --workspace @vpf/media-binding && npm run build --workspace @vpf/editor-timeline && npm run build --workspace @vpf/final-render && npm run build --workspace @vpf/final-output && npm run build --workspace @vpf/tts-generation && npm run typecheck --workspace @vpf/storage && npm run typecheck --workspace @vpf/runtime-contracts && npm run typecheck --workspace @vpf/provider-orchestrator && npm run typecheck --workspace @vpf/workspace && npm run typecheck --workspace @vpf/resource-registry && npm run typecheck --workspace @vpf/project-bootstrap && npm run typecheck --workspace @vpf/cli",
-    "test": "npm run build && npm run test --workspace @vpf/runtime-contracts && npm run test --workspace @vpf/provider-orchestrator && npm run test --workspace @vpf/resource-registry && npm run test --workspace @vpf/project-bootstrap && npm run test --workspace @vpf/cli && npm run test --workspace @vpf/production-system && npm run test --workspace @vpf/story && npm run test --workspace @vpf/visual-identity && npm run test --workspace @vpf/scene-assets && npm run test --workspace @vpf/prelink-handoff && npm run test --workspace @vpf/final-clip && npm run test --workspace @vpf/qc-fallback && npm run test --workspace @vpf/media-binding && npm run test --workspace @vpf/editor-timeline && npm run test --workspace @vpf/final-render && npm run test --workspace @vpf/final-output && npm run test --workspace @vpf/tts-generation && npm run test --workspace @vpf/storage && npm run test --workspace @vpf/workspace && npm run check:repository-boundaries",
+    "build": "npm run build --workspace @vpf/domain && npm run build --workspace @vpf/workflow && npm run build --workspace @vpf/runtime-contracts && npm run build --workspace @vpf/workspace && npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && npm run build --workspace @vpf/project-bootstrap && npm run build --workspace @vpf/cli && npm run build --workspace @vpf/story && npm run build --workspace @vpf/visual-identity && npm run build --workspace @vpf/scene-assets && npm run build --workspace @vpf/prelink-handoff && npm run build --workspace @vpf/final-clip && npm run build --workspace @vpf/qc-fallback && npm run build --workspace @vpf/media-binding && npm run build --workspace @vpf/editor-timeline && npm run build --workspace @vpf/final-render && npm run build --workspace @vpf/final-output && npm run build --workspace @vpf/tts-generation && npm run build --workspace @vpf/storage && npm run build --workspace @vpf/editor-app",
+    "typecheck": "npm run build --workspace @vpf/domain && npm run build --workspace @vpf/workflow && npm run build --workspace @vpf/runtime-contracts && npm run build --workspace @vpf/workspace && npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && npm run build --workspace @vpf/project-bootstrap && npm run build --workspace @vpf/cli && npm run build --workspace @vpf/story && npm run build --workspace @vpf/visual-identity && npm run build --workspace @vpf/scene-assets && npm run build --workspace @vpf/prelink-handoff && npm run build --workspace @vpf/final-clip && npm run build --workspace @vpf/qc-fallback && npm run build --workspace @vpf/media-binding && npm run build --workspace @vpf/editor-timeline && npm run build --workspace @vpf/final-render && npm run build --workspace @vpf/final-output && npm run build --workspace @vpf/tts-generation && npm run typecheck --workspace @vpf/storage && npm run typecheck --workspace @vpf/runtime-contracts && npm run typecheck --workspace @vpf/provider-orchestrator && npm run typecheck --workspace @vpf/workspace && npm run typecheck --workspace @vpf/resource-registry && npm run typecheck --workspace @vpf/project-bootstrap && npm run typecheck --workspace @vpf/cli && npm run typecheck --workspace @vpf/editor-app",
+    "test": "npm run build && npm run test --workspace @vpf/runtime-contracts && npm run test --workspace @vpf/provider-orchestrator && npm run test --workspace @vpf/resource-registry && npm run test --workspace @vpf/project-bootstrap && npm run test --workspace @vpf/cli && npm run test --workspace @vpf/production-system && npm run test --workspace @vpf/story && npm run test --workspace @vpf/visual-identity && npm run test --workspace @vpf/scene-assets && npm run test --workspace @vpf/prelink-handoff && npm run test --workspace @vpf/final-clip && npm run test --workspace @vpf/qc-fallback && npm run test --workspace @vpf/media-binding && npm run test --workspace @vpf/editor-timeline && npm run test --workspace @vpf/final-render && npm run test --workspace @vpf/final-output && npm run test --workspace @vpf/tts-generation && npm run test --workspace @vpf/storage && npm run test --workspace @vpf/workspace && npm run test --workspace @vpf/editor-app && npm run check:editor-browser && npm run check:repository-boundaries",
+    "check:editor-browser": "npm run check:browser --workspace @vpf/editor-app",
+    "editor:studio": "npm run studio --workspace @vpf/editor-app",
     "check:repository-boundaries": "node scripts/check-no-legacy-paths.mjs",
     "check:foundation": "npm run build && npm run typecheck && npm test",
     "validate:resources": "npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && node packages/resource-registry/dist/validate-cli.js resources",
     "vpf": "node cli/vpf/dist/index.js"
   },
-  "engines": {
-    "node": ">=22"
-  },
-  "allowScripts": {
-    "better-sqlite3": true,
-    "esbuild": true
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.0",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
-  }
+  "engines": {"node": ">=22"},
+  "allowScripts": {"better-sqlite3": true, "esbuild": true},
+  "devDependencies": {"@types/node": "^22.15.0", "tsx": "^4.19.4", "typescript": "^5.8.3"}
 }

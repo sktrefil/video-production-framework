@@ -1,0 +1,4 @@
+import type {FC} from "react";
+import {editorActions} from "../editorActions";
+import {useStudioEditor} from "../StudioEditorContext";
+export const AudioAssetPanel:FC=()=>{const {state,dispatch}=useStudioEditor();const items=state.project.items.filter((item)=>["TTS","CLIP_AUDIO","BGM","SFX"].includes(item.type));return <section data-editor-audio-panel style={{padding:8,fontSize:11}}><strong>Audio</strong>{items.map((item)=><div key={item.id} style={{display:"flex",gap:6,alignItems:"center",marginTop:4}}><button onClick={()=>dispatch(editorActions.selectItem([item.id]))}>{item.type} · {item.id}</button>{"muted" in item?<label><input type="checkbox" checked={item.muted} onChange={(e)=>dispatch(editorActions.changeAudioMuted(item.id,e.currentTarget.checked))}/> mute</label>:null}</div>)}</section>;};

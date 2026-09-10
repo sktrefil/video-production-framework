@@ -12,6 +12,9 @@ workspace/projects/**
 # Generated editor runtime mirrors and renders are never source.
 apps/editor/public/projects/**
 apps/editor/out/**
+apps/editor/build/**
+apps/editor/.local/**
+apps/editor/.remotion/**
 out/
 
 temp/

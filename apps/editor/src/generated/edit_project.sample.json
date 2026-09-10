@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "id": "mig08-fixture",
+    "name": "MIG-08 Generic Editor Fixture",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "durationInFrames": 300
+  },
+  "tracks": [
+    {"id":"V1","type":"VIDEO","name":"Main Visual","enabled":true,"locked":false,"order":0},
+    {"id":"G1","type":"GRAPHIC","name":"Graphics","enabled":true,"locked":false,"order":1},
+    {"id":"T1","type":"TEXT","name":"Subtitles","enabled":true,"locked":false,"order":2},
+    {"id":"T2","type":"TEXT","name":"Text","enabled":true,"locked":false,"order":3},
+    {"id":"A1","type":"AUDIO","name":"TTS","enabled":true,"locked":false,"order":4},
+    {"id":"A2","type":"AUDIO","name":"Clip Audio","enabled":true,"locked":false,"order":5},
+    {"id":"A3","type":"AUDIO","name":"BGM","enabled":true,"locked":false,"order":6},
+    {"id":"A4","type":"AUDIO","name":"SFX","enabled":true,"locked":false,"order":7}
+  ],
+  "items": [
+    {"id":"img-1","type":"IMAGE","trackId":"V1","timelineStartFrame":0,"durationInFrames":90,"enabled":true,"locked":false,"src":"fixtures/image.png","x":0,"y":0,"scale":1,"rotation":0,"opacity":1,"fit":"cover","motion":{"kind":"TRANSFORM","from":{"x":0,"y":0,"scale":1,"rotation":0,"opacity":1},"to":{"x":0,"y":0,"scale":1.05,"rotation":0,"opacity":1},"easing":"EASE_IN_OUT"}},
+    {"id":"video-1","type":"VIDEO","trackId":"V1","timelineStartFrame":90,"durationInFrames":90,"enabled":true,"locked":false,"src":"fixtures/video.mp4","sourceStartFrame":0,"sourceDurationInFrames":90,"sourceAssetDurationInFrames":180,"playbackRate":1,"volume":0,"x":0,"y":0,"scale":1,"rotation":0,"opacity":1,"fit":"cover"},
+    {"id":"tts-1","type":"TTS","trackId":"A1","timelineStartFrame":0,"durationInFrames":180,"enabled":true,"locked":false,"src":"fixtures/tts.mp3","sourceStartFrame":0,"sourceDurationInFrames":180,"sourceAssetDurationInFrames":180,"volume":1,"muted":false,"fadeInFrames":0,"fadeOutFrames":0},
+    {"id":"clip-audio-1","type":"CLIP_AUDIO","trackId":"A2","timelineStartFrame":90,"durationInFrames":90,"enabled":true,"locked":false,"src":"fixtures/clip.mp3","sourceStartFrame":0,"sourceDurationInFrames":90,"sourceAssetDurationInFrames":90,"volume":0.12,"muted":false,"fadeInFrames":0,"fadeOutFrames":0},
+    {"id":"bgm-1","type":"BGM","trackId":"A3","timelineStartFrame":0,"durationInFrames":300,"enabled":true,"locked":false,"src":"fixtures/bgm.mp3","sourceStartFrame":0,"sourceDurationInFrames":300,"sourceAssetDurationInFrames":300,"volume":0.1,"muted":false,"fadeInFrames":15,"fadeOutFrames":15,"loop":true},
+    {"id":"sfx-1","type":"SFX","trackId":"A4","timelineStartFrame":150,"durationInFrames":30,"enabled":true,"locked":false,"src":"fixtures/sfx.mp3","sourceStartFrame":0,"sourceDurationInFrames":30,"sourceAssetDurationInFrames":30,"volume":0.35,"muted":false,"fadeInFrames":0,"fadeOutFrames":0},
+    {"id":"subtitle-1","type":"SUBTITLE","trackId":"T1","timelineStartFrame":15,"durationInFrames":60,"enabled":true,"locked":false,"text":"Generic subtitle","x":540,"y":1650,"width":900,"fontFamily":"sans-serif","fontSize":72,"fontWeight":700,"color":"#ffffff","strokeColor":"#000000","strokeWidth":4,"textAlign":"center","lineHeight":1.16,"maxLines":2,"backgroundEnabled":false,"backgroundColor":"#000000","backgroundOpacity":0.4,"generationSource":"MANUAL","generatedFromTtsIds":["tts-1"]},
+    {"id":"text-1","type":"TEXT","trackId":"T2","timelineStartFrame":20,"durationInFrames":80,"enabled":true,"locked":false,"text":"Generic title","textRole":"TOP_TITLE","x":540,"y":180,"width":920,"fontFamily":"sans-serif","fontSize":64,"fontWeight":700,"color":"#ffffff","strokeColor":"#000000","strokeWidth":2,"textAlign":"center","lineHeight":1.1,"maxLines":2,"backgroundEnabled":false,"backgroundColor":"#000000","backgroundOpacity":0.2},
+    {"id":"graphic-1","type":"GRAPHIC","trackId":"G1","timelineStartFrame":0,"durationInFrames":300,"enabled":true,"locked":false,"graphicType":"DIM_LAYER","x":0,"y":0,"width":1080,"height":1920,"opacity":0.08,"blurPx":0,"backgroundColor":"#000000","borderRadius":0}
+  ],
+  "settings": {"snapEnabled":true,"snapToleranceFrames":4,"timelineZoom":1,"masterVolume":1}
+}
