@@ -317,17 +317,17 @@ export class ProjectMigrationRunner {
     }
 
     const descriptors: MigrationDescriptor[] = [];
-    let previous = -1;
+    let expectedId = 1;
     for (const filename of filenames) {
       const id = filename.slice(0, 4);
       const numericId = Number(id);
-      if (!Number.isInteger(numericId) || numericId <= previous) {
+      if (!Number.isInteger(numericId) || numericId !== expectedId) {
         throw new ProjectBootstrapError(
           "MIGRATION_SET_INVALID",
-          `Migration order is invalid at ${filename}.`
+          `Migration sequence must be contiguous from 0001; expected ${String(expectedId).padStart(4, "0")} but found ${filename}.`
         );
       }
-      previous = numericId;
+      expectedId += 1;
       const sql = await readFile(path.join(this.migrationsDir, filename), "utf8");
       descriptors.push({
         id,
