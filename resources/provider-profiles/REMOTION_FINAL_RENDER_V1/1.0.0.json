@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "REMOTION_FINAL_RENDER_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "REMOTION",
+    "executionMode": "AUTOMATED",
+    "jobTypes": ["OTHER"],
+    "capabilities": {
+      "composition": "GenericFinalRender",
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "pixelFormat": "yuv420p",
+      "crf": 18
+    },
+    "retryPolicy": {
+      "maxAttempts": 2,
+      "retryableCategories": ["ARTIFACT_WRITE_FAILED", "PROVIDER_REQUEST_FAILED"]
+    },
+    "result": {
+      "mediaType": "VIDEO",
+      "requiresTechnicalQc": true
+    },
+    "runtimeSecretNames": []
+  }
+}
