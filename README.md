@@ -28,7 +28,8 @@ AI-assisted video production orchestration framework.
 - PHASE C — Unified Framework Migration Execution
   - MIG-01 Repository Integration Foundation: PASS
   - MIG-02 Runtime Contracts + Provider Orchestrator: PASS
-  - Next: MIG-03 Resource Registry + Canonical Resources
+  - MIG-03 Resource Registry + Canonical Resources: PASS
+  - Next: MIG-04 Project Bootstrap + Unified CLI Foundation
 
 ## Architecture
 
