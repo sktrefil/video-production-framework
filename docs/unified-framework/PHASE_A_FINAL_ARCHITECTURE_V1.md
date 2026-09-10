@@ -209,19 +209,30 @@ preserved. A naming change is not permission to merge responsibilities.
 
 ## 5. Dependency direction
 
-Dependencies are one-way.
+Dependencies are acyclic and explicit.
 
 ```
-CLI / Apps
-   ↓
-Application packages / orchestration
-   ↓
-Domain + Workflow contracts
-   ↓
-Runtime contracts
-   ↓
-Runtime adapters
+                    Domain
+                   ↙      ↘
+              Workflow   Runtime Contracts
+                 ↑            ↑
+                 │            │
+          Application / Provider Orchestrator
+                 ↑            ↑
+                 │            │
+              CLI / Apps    Runtime Adapters
+
+Storage → Domain + Workflow
+Editor App → Editor Timeline/Schema contracts
 ```
+
+Interpretation:
+
+- Domain remains infrastructure-independent.
+- Runtime Contracts may reuse stable Domain identifiers/enums.
+- Provider Orchestrator depends on Domain/Workflow + Runtime Contracts.
+- Runtime Adapters depend on Runtime Contracts, not on creative planners.
+- CLI and Apps call application services; they do not own production state.
 
 Forbidden dependency directions:
 
