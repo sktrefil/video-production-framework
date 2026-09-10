@@ -6,7 +6,7 @@ Use this checklist as the migration program control sheet.
 |---|---|---|---|
 | MIG-01 Repository Integration Foundation | NEW_BUILD | existing regression + skeleton | PASS |
 | MIG-02 Runtime Contracts + Orchestrator | NEW_BUILD | shared runtime envelope | PASS |
-| MIG-03 Resource Registry | NEW_BUILD + ADAPT | version/hash pinning | NOT_STARTED |
+| MIG-03 Resource Registry | NEW_BUILD + ADAPT | version/hash pinning | PASS |
 | MIG-04 Bootstrap + Unified CLI | NEW_BUILD | SHORTFORM + LONGFORM create | NOT_STARTED |
 | MIG-05 ElevenLabs Runtime | ADAPT | v3 mock + WF16 ingestion | NOT_STARTED |
 | MIG-06 Image Runtime | NEW_BUILD | exact prompt/no legacy injection | NOT_STARTED |
