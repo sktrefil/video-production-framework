@@ -13,6 +13,7 @@
     "./editor-timeline": "./dist/editor-timeline.js",
     "./final-render": "./dist/final-render.js",
     "./final-output": "./dist/final-output.js",
+    "./editor-materialization": "./dist/editor-materialization.js",
     "./tts-generation": "./dist/tts-generation.js",
     "./tts-runtime": "./dist/tts-runtime.js",
     "./runtime-execution": "./dist/runtime-execution.js"
@@ -32,6 +33,7 @@
     "@vpf/editor-timeline": "0.1.0",
     "@vpf/final-render": "0.1.0",
     "@vpf/final-output": "0.1.0",
+    "@vpf/editor-materializer": "0.1.0",
     "@vpf/tts-generation": "0.1.0",
     "@vpf/provider-orchestrator": "0.1.0",
     "@vpf/runtime-contracts": "0.1.0"

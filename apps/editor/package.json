@@ -8,14 +8,24 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.mjs",
     "check:browser": "node scripts/check-browser.mjs",
-    "check": "npm run typecheck && npm test && npm run check:browser",
-    "studio": "remotion studio src/index.ts"
+    "check:render": "node scripts/check-render-fixture.mjs",
+    "check": "npm run typecheck && npm test && npm run check:browser && npm run check:render",
+    "studio": "remotion studio src/index.ts",
+    "materialize": "node scripts/materialize-editor-project.mjs",
+    "render": "node scripts/render-editor-project.mjs",
+    "final-output-qc": "node scripts/final-output-qc.mjs",
+    "package-publish": "node scripts/package-publish-handoff.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.518",
     "@remotion/media": "4.0.518",
+    "@remotion/media-parser": "4.0.518",
     "@remotion/renderer": "4.0.518",
     "@remotion/studio": "4.0.518",
+    "@vpf/editor-materializer": "0.1.0",
+    "@vpf/final-output": "0.1.0",
+    "@vpf/final-render": "0.1.0",
+    "@vpf/storage": "0.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.518"
