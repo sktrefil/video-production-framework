@@ -15,6 +15,6 @@ Current:
 - MIG-08: PASS — Generic Editor port, Remotion bundle and browser smoke validated
 - MIG-09: PASS — editor materialization, actual GenericFinalRender, WF-17 Technical QC/delivery and WF-18 publish package validated
 - MIG-10: PASS — A2/A3/A4 audio ingest, T1 alignment/provenance and WF-16 integration validated
-- MIG-11: NOT_STARTED
+- MIG-11: PASS — fail-closed Legacy Guard, static/dynamic leak gates, runtime/resource/editor/CLI isolation and cumulative image-runtime hardening validated
 - MIG-12: NOT_STARTED
 - MIG-13: NOT_STARTED

@@ -14,7 +14,7 @@ Use this checklist as the migration program control sheet.
 | MIG-08 Generic Editor Port | PORT + ADAPT | editor checks + bundle + browser smoke | PASS |
 | MIG-09 Materialization + Render | ADAPT + NEW_BUILD | WF17/WF18 output | PASS |
 | MIG-10 Audio/Subtitle Gaps | ADAPT + NEW_BUILD | A1-A4/T1-T2/G1 | PASS |
-| MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | NOT_STARTED |
+| MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | PASS |
 | MIG-12 Single-Repo E2E | NEW_BUILD TEST | no old repo dependency | NOT_STARTED |
 | MIG-13 Real Pilot Readiness | VALIDATION | SHORT + LONG runbook ready | NOT_STARTED |
 
@@ -24,7 +24,9 @@ MIG-08 was executed from the accepted MIG-05 head by explicit operator sequencin
 
 MIG-06 was subsequently backfilled from the accepted MIG-10 branch tip so the cumulative MIG-08 through MIG-10 implementation remained intact. The pre-existing `migration/mig-06-image-runtime` branch had already diverged and was preserved rather than force-rewritten; the accepted backfill uses `migration/mig-06-image-runtime-v2`. MIG-06 now validates exact IMAGE_PROMPT transport, exact reference hashes, Format Profile dimensions, provider-neutral automated/manual execution boundaries, candidate-only MediaArtifact handoff and the existing IMAGE_QC authority.
 
-MIG-07 remains `DEFERRED` while Google Flow is operated manually. It is not represented as PASS.
+MIG-11 was then implemented from the accepted cumulative MIG-06 backfill head. A pre-existing `migration/mig-11-legacy-isolation` branch was based before that backfill and was preserved rather than rewritten; the cumulative implementation uses `migration/mig-11-legacy-isolation-v2`. It applies fail-closed Legacy Guard checks to project policy, runtime registry/execution, Resource Registry, workspace paths, editor materialization, CLI control-plane boundaries and the MIG-06 image runtime. Static and dynamic leak tests pass without mutating semantic prompt text.
+
+MIG-07 remains `DEFERRED` while Google Flow is operated manually. It is not represented as PASS. MIG-11 validates that the shared MANUAL_EXTERNAL / WF-11 manual result path remains functional, but this does not claim provider-specific MIG-07 completion.
 
 ## Global preflight
 
