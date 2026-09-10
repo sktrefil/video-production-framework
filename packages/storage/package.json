@@ -12,7 +12,8 @@
     "./media-binding": "./dist/media-binding.js",
     "./editor-timeline": "./dist/editor-timeline.js",
     "./final-render": "./dist/final-render.js",
-    "./final-output": "./dist/final-output.js"
+    "./final-output": "./dist/final-output.js",
+    "./tts-generation": "./dist/tts-generation.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -28,7 +29,8 @@
     "@vpf/media-binding": "0.1.0",
     "@vpf/editor-timeline": "0.1.0",
     "@vpf/final-render": "0.1.0",
-    "@vpf/final-output": "0.1.0"
+    "@vpf/final-output": "0.1.0",
+    "@vpf/tts-generation": "0.1.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13"
