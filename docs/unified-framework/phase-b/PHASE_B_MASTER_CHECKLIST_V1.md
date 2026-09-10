@@ -15,7 +15,7 @@ Use this checklist as the migration program control sheet.
 | MIG-09 Materialization + Render | ADAPT + NEW_BUILD | WF17/WF18 output | PASS |
 | MIG-10 Audio/Subtitle Gaps | ADAPT + NEW_BUILD | A1-A4/T1-T2/G1 | PASS |
 | MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | PASS |
-| MIG-12 Single-Repo E2E | NEW_BUILD TEST | no old repo dependency | NOT_STARTED |
+| MIG-12 Single-Repo E2E | NEW_BUILD TEST | no old repo dependency | PASS |
 | MIG-13 Real Pilot Readiness | VALIDATION | SHORT + LONG runbook ready | NOT_STARTED |
 
 ## Sequencing note
@@ -26,7 +26,9 @@ MIG-06 was subsequently backfilled from the accepted MIG-10 branch tip so the cu
 
 MIG-11 was then implemented from the accepted cumulative MIG-06 backfill head. A pre-existing `migration/mig-11-legacy-isolation` branch was based before that backfill and was preserved rather than rewritten; the cumulative implementation uses `migration/mig-11-legacy-isolation-v2`. It applies fail-closed Legacy Guard checks to project policy, runtime registry/execution, Resource Registry, workspace paths, editor materialization, CLI control-plane boundaries and the MIG-06 image runtime. Static and dynamic leak tests pass without mutating semantic prompt text.
 
-MIG-07 remains `DEFERRED` while Google Flow is operated manually. It is not represented as PASS. MIG-11 validates that the shared MANUAL_EXTERNAL / WF-11 manual result path remains functional, but this does not claim provider-specific MIG-07 completion.
+MIG-12 was executed from the accepted MIG-11 documentation tip on `migration/mig-12-single-repo-e2e`. It adds one-command deterministic SHORTFORM and LONGFORM fixture E2E coverage using one `project.db` per project, RuntimeJob-backed mocked image/TTS providers, shared MANUAL_EXTERNAL video result ingestion, actual editor materialization and GenericFinalRender, WF-17 delivery, WF-18 publish handoff, required negative gates, and zero old-repository/legacy operational accesses.
+
+MIG-07 remains `DEFERRED` while Google Flow is operated manually. It is not represented as PASS. MIG-11 validates that the shared MANUAL_EXTERNAL / WF-11 manual result path remains functional, and MIG-12 exercises that shared path in fixture E2E, but neither claims provider-specific MIG-07 completion.
 
 ## Global preflight
 
