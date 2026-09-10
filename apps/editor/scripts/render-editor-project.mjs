@@ -126,6 +126,13 @@ export async function renderEditorProject({
         "--crf=18",
         "--overwrite=true"
       ];
+      if (!running.expectedAudio) {
+        // WF-17 explicitly rejects a silent audio stream when the approved
+        // timeline has no audible audio. Remotion otherwise emits an AAC
+        // silence track, so suppress audio at the renderer instead of weakening
+        // Technical QC.
+        renderArgs.push("--muted");
+      }
       if (process.env.REMOTION_CONCURRENCY) {
         renderArgs.push(`--concurrency=${process.env.REMOTION_CONCURRENCY}`);
       }
