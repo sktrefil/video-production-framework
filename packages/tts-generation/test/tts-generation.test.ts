@@ -143,7 +143,7 @@ test("LONGFORM reuses the legacy history preset with Eleven v3 and 4000-char chu
     "/v1/text-to-speech/{voice_id}/with-timestamps"
   );
   assert.equal(result.runtimeJob.secretRefs.apiKeyEnv, "ELEVENLABS_API_KEY");
-  assert.equal(result.runtimeJob.secretRefs.voiceIdEnv, "ELEVENLABS_VOICE_ID");
+  assert.equal(result.runtimeJob.secretRefs.voiceIdFallbackEnv, "ELEVENLABS_VOICE_ID");
   assert.equal(
     result.runtimeJob.outputPaths.narration,
     "03_tts/narration.mp3"
