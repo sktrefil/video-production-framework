@@ -30,6 +30,21 @@ test("VPF_WORKSPACE_ROOT overrides the default workspace root", () => {
   );
 });
 
+test("Windows absolute workspace roots remain absolute even when validated on a non-Windows CI host", () => {
+  const workspaceRoot = resolveWorkspaceRoot({
+    repositoryRoot: resolve("fixture-repository"),
+    workspaceRoot: "D:\\VPF Workspace"
+  });
+  assert.equal(workspaceRoot, "D:\\VPF Workspace");
+
+  const project = resolveProjectWorkspace("history_001", {
+    repositoryRoot: resolve("fixture-repository"),
+    workspaceRoot
+  });
+  assert.equal(project.projectsRoot, "D:\\VPF Workspace\\projects");
+  assert.equal(project.projectRoot, "D:\\VPF Workspace\\projects\\history_001");
+});
+
 test("project workspace supports unicode ids and rejects traversal or Windows reserved ids", () => {
   const repositoryRoot = resolve("fixture-repository");
   const workspace = resolveProjectWorkspace("20260910_조선_미스터리", {
