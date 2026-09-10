@@ -13,5 +13,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test test/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@vpf/resource-registry": "0.1.0"
   }
 }
