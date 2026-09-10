@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "RULE_REGISTRY",
+  "resourceId": "PRODUCTION_RULE_REGISTRY_V1",
+  "version": "1.0.0",
+  "payload": {
+    "registryVersion": "1.0.0",
+    "rules": [
+      {
+        "ruleId": "UNIFIED_PROJECT_DB_AUTHORITY",
+        "scope": "PROJECT",
+        "enforcement": "HARD",
+        "statement": "project.db is the authoritative structured runtime state for unified projects."
+      },
+      {
+        "ruleId": "RESOURCE_PIN_EXPLICIT_UPGRADE_ONLY",
+        "scope": "RESOURCE",
+        "enforcement": "HARD",
+        "statement": "Pinned resource versions and hashes never auto-upgrade."
+      },
+      {
+        "ruleId": "UNIFIED_PROJECT_LEGACY_DISABLED",
+        "scope": "PROJECT",
+        "enforcement": "HARD",
+        "statement": "Unified projects may not consume legacy visual decision resources or the old repository at runtime."
+      },
+      {
+        "ruleId": "RUNTIME_CANDIDATE_ONLY",
+        "scope": "RUNTIME",
+        "enforcement": "HARD",
+        "statement": "Runtime completion creates candidate media and never approval."
+      }
+    ]
+  }
+}
