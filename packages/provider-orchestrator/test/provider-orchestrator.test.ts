@@ -301,7 +301,7 @@ test("artifact checksum mismatch blocks provider job and creates no MediaArtifac
           projectId: job.projectId,
           attempt: job.attempt,
           status: "COMPLETE",
-          providerRequestIds: [],
+          providerRequestIds: ["req_bad_artifact"],
           outputs: [
             {
               role: "primary",
@@ -334,6 +334,8 @@ test("artifact checksum mismatch blocks provider job and creates no MediaArtifac
 
   assert.equal(outcome.providerJob.status, "BLOCKED");
   assert.equal(outcome.providerJob.errorCode, "ARTIFACT_HASH_MISMATCH");
+  assert.deepEqual(outcome.result.providerRequestIds, ["req_bad_artifact"]);
+  assert.equal(outcome.result.outputs.length, 1);
   assert.equal(outcome.media.length, 0);
 });
 
