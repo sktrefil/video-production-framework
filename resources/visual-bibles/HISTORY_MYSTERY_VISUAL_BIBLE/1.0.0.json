@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "CHANNEL_VISUAL_BIBLE",
+  "resourceId": "HISTORY_MYSTERY_VISUAL_BIBLE",
+  "version": "1.0.0",
+  "payload": {
+    "channelWideVisualApproach": "Evidence-led cinematic historical reconstruction that keeps factual confidence, reconstruction, and uncertainty visually distinguishable while preserving continuity across a long-form-first production.",
+    "realismAndFactualityPrinciples": [
+      "Prefer historically plausible people, spaces, objects, materials, clothing, and environmental conditions over decorative fantasy.",
+      "Do not present a generated reconstruction as if it were an authenticated primary source, archival photograph, portrait, map, document, or artifact.",
+      "When the script expresses uncertainty, the image language must preserve that uncertainty rather than convert it into visual certainty.",
+      "Visual drama may clarify attention and emotion, but must not invent a decisive historical fact that the approved story context does not support."
+    ],
+    "continuityPrinciples": {
+      "characters": [
+        "Recurring people keep stable age range, facial identity, body proportions, hair/headwear logic, status cues, and period-appropriate wardrobe identity unless an approved state change requires a revision.",
+        "Temporary emotion, pose, dirt, injury, weather exposure, and scene-specific costume details remain contextual and must not overwrite locked identity."
+      ],
+      "locations": [
+        "Recurring locations keep stable architecture, spatial identity, material logic, geography, and major landmark relationships while allowing scene-appropriate camera and lighting variation.",
+        "A location change must be motivated by the approved scene rather than introduced only to make an image more visually varied."
+      ],
+      "props": [
+        "Historically important or recurring props retain recognizable shape, scale, material, wear state, ownership, and continuity across scenes.",
+        "A prop must not silently change identity or historical function between adjacent scenes."
+      ]
+    },
+    "visualLanguageBoundaries": {
+      "color": [
+        "Derive color from period materials, location, weather, time of day, and story state instead of enforcing one project palette.",
+        "Use restrained saturation when appropriate to the historical environment, but allow justified warm, cool, bright, or dark scenes when the approved context requires them."
+      ],
+      "lighting": [
+        "Prefer motivated natural, architectural, fire, candle, moon, overcast, or practical light consistent with the depicted place and period.",
+        "Lighting may shape focus and mood but should not create implausible studio spectacle or hide historically important information."
+      ],
+      "material": [
+        "Surfaces, textiles, paper, wood, stone, metal, soil, vegetation, and weathering should read as physically plausible for the represented period and environment.",
+        "Avoid generic fantasy luxury, glossy game-render materials, and decorative detail unsupported by the approved reconstruction."
+      ]
+    },
+    "reconstructionEvidenceDistinction": [
+      "Evidence, quoted source material, maps, documents, and artifacts must retain their source identity and should not be visually blended with generated reconstruction in a way that confuses provenance.",
+      "Generated reconstruction should be treated as explanatory visualization, not proof.",
+      "When evidence is incomplete, composition may withhold detail, use partial views, or favor contextual reconstruction instead of fabricating specific unsupported evidence."
+    ],
+    "compositionAndCameraTendencies": [
+      "Favor readable story geography, clear subject hierarchy, restrained cinematic depth, and compositions that can survive editorial movement and continuity handoff.",
+      "Use camera distance and angle to support historical meaning and scene intent rather than defaulting to constant heroic close-ups.",
+      "Preserve enough environmental information in key establishing and transition images to support long-form continuity.",
+      "Avoid fixed shorts-only framing; composition is adapted by the selected format profile."
+    ],
+    "historicalUncertaintyHandling": [
+      "Differentiate documented facts, reasonable reconstruction, disputed interpretation, and unknown detail in the upstream factual constraints and reflect that confidence visually.",
+      "Do not invent exact faces, inscriptions, colors, heraldry, layouts, or object details when the approved evidence does not support that specificity.",
+      "When multiple interpretations are plausible, choose a conservative representation or expose the ambiguity instead of silently selecting a sensational one."
+    ],
+    "formatAdaptationRules": [
+      "The same channel Visual Bible governs LONGFORM and SHORTFORM; format-specific framing, safe areas, dimensions, and delivery constraints come from the Format Profile.",
+      "LONGFORM should prioritize sustained continuity, environmental readability, and editability across sequences.",
+      "SHORTFORM may tighten hierarchy and framing for vertical readability without changing the channel's factuality or identity rules."
+    ],
+    "avoidances": [
+      "Do not inherit project-specific palettes, master images, or character identities into the channel-wide resource.",
+      "Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.",
+      "Do not treat sample markdown image style, sample palettes, or prior project artwork as authoritative style input.",
+      "Avoid anachronistic objects, fantasy costume embellishment, exaggerated caricature, game-like render language, text artifacts, watermarks, and UI unless explicitly required by an approved asset role."
+    ]
+  }
+}
