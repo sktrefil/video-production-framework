@@ -42,6 +42,11 @@ A project/resource consumer pins:
 - version,
 - content hash.
 
+The existing domain `VersionPins` contract remains authoritative and now has a
+backward-compatible optional `resourceHashes` section. Historical records may
+omit it; MIG-04+ unified project bootstrap should populate hashes for each
+mandatory canonical resource selection.
+
 Resolving a newer version is never automatic.
 
 ## Canonical History/Mystery resources
