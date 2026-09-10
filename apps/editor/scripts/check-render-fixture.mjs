@@ -42,6 +42,8 @@ try {
   const dbPath = join(projectRoot, "project.db");
   const setup = new SqliteEditorMaterializationRepository(dbPath);
   try {
+    setup.db.exec("CREATE TABLE projects (project_id TEXT, revision INTEGER, lifecycle_status TEXT, pipeline TEXT, legacy_allowed INTEGER)");
+    setup.db.prepare("INSERT INTO projects VALUES (?,1,'ACTIVE','VPF_UNIFIED_V1',0)").run(projectId);
     setup.db.prepare(`INSERT INTO media_artifacts
       (id, project_id, revision, lifecycle_status, media_type, relative_path, mime_type,
        width, height, duration_ms, checksum, source_job_id, media_status, created_at, updated_at)

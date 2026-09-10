@@ -8,7 +8,8 @@
     "@vpf/domain": "0.1.0",
     "@vpf/resource-registry": "0.1.0",
     "@vpf/workspace": "0.1.0",
-    "better-sqlite3": "^12.10.0"
+    "better-sqlite3": "^12.10.0",
+    "@vpf/legacy-guard": "0.1.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13"

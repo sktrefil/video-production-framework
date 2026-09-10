@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import {readProjectPolicy} from "./project-policy.js";
 import type {
   MediaArtifact,
   ProviderJob
@@ -52,6 +53,8 @@ export class SqliteRuntimeExecutionRepository
   close(): void {
     this.db.close();
   }
+
+  async getProjectPolicy(projectId: string) { return readProjectPolicy(this.db, projectId); }
 
   async getLatestProviderJob(
     projectId: string,

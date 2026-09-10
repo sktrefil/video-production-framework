@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import {assertNoLegacyReference, assertNoLegacyExecutionInput} from "@vpf/legacy-guard";
+import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import { readFile, readdir } from "node:fs/promises";
 import * as path from "node:path";
 import type {
@@ -173,16 +175,6 @@ const RESOURCE_DIRECTORIES: Record<ResourceType, string> = {
   SCHEMA: "schemas"
 };
 
-const LEGACY_RESOURCE_TOKENS = [
-  "history_mystery_shorts_style",
-  "history-mystery-shorts-style",
-  "history_mystery_stylized_v1",
-  "history-mystery-stylized-v1",
-  "old_scene_prompt_style",
-  "old-scene-prompt-style",
-  "master_candidate_style",
-  "master-candidate-style"
-];
 
 const PROVIDER_STYLE_KEYS = new Set([
   "visualStyle",
@@ -227,8 +219,7 @@ function ensureSafeSegment(value: string, kind: "id" | "version"): void {
 }
 
 function assertNotLegacy(resourceId: string): void {
-  const normalized = resourceId.trim().toLowerCase();
-  if (LEGACY_RESOURCE_TOKENS.some((token) => normalized.includes(token))) {
+  try { assertNoLegacyReference(resourceId); } catch {
     throw new ResourceRegistryError(
       "LEGACY_RESOURCE_FORBIDDEN",
       `Legacy visual resource is not a unified registry candidate: ${resourceId}`
@@ -441,6 +432,7 @@ export class FileSystemResourceRegistry {
   private readonly rootDir: string;
 
   constructor(rootDir: string) {
+    assertNoLegacyReference(rootDir);
     this.rootDir = path.resolve(rootDir);
   }
 
@@ -470,6 +462,7 @@ export class FileSystemResourceRegistry {
 
     let raw: string;
     try {
+      assertIsolatedPath(this.rootDir, absolutePath);
       raw = await readFile(absolutePath, "utf8");
     } catch (error: unknown) {
       if (
@@ -494,6 +487,7 @@ export class FileSystemResourceRegistry {
 
     const document = validateBaseDocument(parsed, input);
     validatePayload(document.resourceType, document.payload);
+    assertNoLegacyExecutionInput(document.payload);
     const contentHash = sha256(raw);
     if (input.expectedHash !== undefined && input.expectedHash !== contentHash) {
       throw new ResourceRegistryError(
@@ -533,7 +527,9 @@ export class FileSystemResourceRegistry {
   async listVersions(resourceType: ResourceType, resourceId: string): Promise<string[]> {
     ensureSafeSegment(resourceId, "id");
     assertNotLegacy(resourceId);
+    assertNoLegacyReference(resourceId);
     const directory = path.join(this.rootDir, RESOURCE_DIRECTORIES[resourceType], resourceId);
+    assertIsolatedPath(this.rootDir, directory);
     try {
       const names = await readdir(directory);
       return names
@@ -622,6 +618,7 @@ export class FileSystemResourceRegistry {
 
     for (const resourceType of Object.keys(RESOURCE_DIRECTORIES) as ResourceType[]) {
       const typeDir = path.join(this.rootDir, RESOURCE_DIRECTORIES[resourceType]);
+      assertIsolatedPath(this.rootDir, typeDir);
       let resourceEntries;
       try {
         resourceEntries = await readdir(typeDir, { withFileTypes: true });
@@ -631,6 +628,7 @@ export class FileSystemResourceRegistry {
       }
 
       for (const resourceEntry of resourceEntries) {
+        assertIsolatedPath(this.rootDir, path.join(typeDir, resourceEntry.name));
         if (!resourceEntry.isDirectory()) continue;
         const resourceId = resourceEntry.name;
         const versions = await this.listVersions(resourceType, resourceId).catch((error: unknown) => {

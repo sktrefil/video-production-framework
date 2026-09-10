@@ -1,4 +1,5 @@
 import * as path from "node:path";
+import {assertNoLegacyReference} from "@vpf/legacy-guard";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_REPOSITORY_ROOT = path.resolve(
@@ -72,6 +73,8 @@ export function resolveWorkspaceRoot(
     options.workspaceRoot ??
     options.env?.VPF_WORKSPACE_ROOT ??
     process.env.VPF_WORKSPACE_ROOT;
+  assertNoLegacyReference(repositoryRoot);
+  if (configured) assertNoLegacyReference(configured);
 
   if (configured === undefined || configured.trim() === "") {
     return path.resolve(repositoryRoot, "workspace");
@@ -108,6 +111,7 @@ export function resolveProjectWorkspace(
 }
 
 export function normalizeProjectRelativePath(value: string): string {
+  assertNoLegacyReference(value);
   const trimmed = value.trim();
 
   if (
@@ -147,6 +151,7 @@ export function resolveProjectRelativePath(
   projectRoot: string,
   projectRelativePath: string
 ): string {
+  assertNoLegacyReference(projectRoot);
   const normalized = normalizeProjectRelativePath(projectRelativePath);
   const api = apiForAbsoluteRoot(projectRoot);
   const root = api.resolve(projectRoot);

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as path from "node:path";
+import {assertNoLegacyReference, LegacyGuardError} from "@vpf/legacy-guard";
 import { fileURLToPath } from "node:url";
 import {
   ProjectBootstrapError,
@@ -49,6 +50,8 @@ export async function runCli(
   }
 
   try {
+    // Prose titles are not executable references. Commands/paths are.
+    for (let i = 0; i < args.length; i++) if (args[i - 1] !== "--title") assertNoLegacyReference(args[i]!);
     if (args[0] === "project" && args[1] === "create") {
       const projectId = args[2];
       const title = readOption(args, "--title");
@@ -111,7 +114,7 @@ export async function runCli(
     io.error("[CLI_USAGE] Unknown command.\n" + USAGE);
     return 2;
   } catch (error: unknown) {
-    if (error instanceof ProjectBootstrapError) {
+    if (error instanceof ProjectBootstrapError || error instanceof LegacyGuardError) {
       io.error(`[${error.code}] ${error.message}`);
       return 1;
     }

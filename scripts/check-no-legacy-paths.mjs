@@ -1,9 +1,10 @@
 import { readFile, readdir } from "node:fs/promises";
 import { extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {legacyCategory} from "../packages/legacy-guard/dist/index.js";
 
-const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const scanRoots = ["packages", "runtimes", "apps", "cli", "resources", "scripts"];
+const repoRoot = process.argv[2] ? resolve(process.argv[2]) : resolve(fileURLToPath(new URL("..", import.meta.url)));
+const scanRoots = ["packages", "runtimes", "apps", "cli", "resources", "scripts", ".github", "package.json"];
 
 const allowedExtensions = new Set([
   ".ts",
@@ -44,7 +45,7 @@ async function listFiles(dir) {
   const files = [];
 
   for (const entry of entries) {
-    if (entry.name === "node_modules" || entry.name === "dist") {
+    if (["node_modules", "dist", "build", ".remotion"].includes(entry.name)) {
       continue;
     }
 
@@ -66,7 +67,7 @@ for (const rootName of scanRoots) {
   let files;
 
   try {
-    files = await listFiles(root);
+    files = rootName === "package.json" ? [root] : await listFiles(root);
   } catch (error) {
     if (
       error &&
@@ -81,11 +82,23 @@ for (const rootName of scanRoots) {
 
   for (const file of files) {
     const rel = relative(repoRoot, file).replaceAll("\\", "/");
-    if (rel === selfPath || rel.includes("/test/") || rel.includes("/tests/")) {
+    if (rel === selfPath || rel === "packages/legacy-guard/src/index.ts" || rel.includes("/test/") || rel.includes("/tests/")) {
       continue;
     }
 
-    const content = await readFile(file, "utf8");
+    let content;
+    try { content = await readFile(file, "utf8"); }
+    catch (error) { if (error.code === "ENOENT" && rootName === "package.json") continue; throw error; }
+    if (rel === "apps/editor/PORT_SOURCE.json") {
+      // Exact migration provenance field; all other fields still undergo the scan.
+      content = content.replace('"sourceRepository": "sktrefil/video-production"', '"sourceRepository": "MIGRATION_PROVENANCE"');
+    }
+    // Exact immutable prohibition prose is detection data, never an executable reference.
+    if (rel === "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.0.0.json") {
+      content = content.replace("Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.", "");
+    }
+    const category = legacyCategory(content);
+    if (category) findings.push({file: rel, code: category});
     for (const rule of prohibited) {
       if (rule.pattern.test(content)) {
         findings.push({ file: rel, code: rule.code });

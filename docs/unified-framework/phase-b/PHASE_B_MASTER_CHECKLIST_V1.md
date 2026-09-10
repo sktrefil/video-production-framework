@@ -14,7 +14,7 @@ Use this checklist as the migration program control sheet.
 | MIG-08 Generic Editor Port | PORT + ADAPT | editor checks + bundle + browser smoke | PASS |
 | MIG-09 Materialization + Render | ADAPT + NEW_BUILD | WF17/WF18 output | PASS |
 | MIG-10 Audio/Subtitle Gaps | ADAPT + NEW_BUILD | A1-A4/T1-T2/G1 | PASS |
-| MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | NOT_STARTED |
+| MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | IMPLEMENTED / CI_PENDING |
 | MIG-12 Single-Repo E2E | NEW_BUILD TEST | no old repo dependency | NOT_STARTED |
 | MIG-13 Real Pilot Readiness | VALIDATION | SHORT + LONG runbook ready | NOT_STARTED |
 

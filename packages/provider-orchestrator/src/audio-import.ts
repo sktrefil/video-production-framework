@@ -1,4 +1,5 @@
 import {createHash} from "node:crypto";
+import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import {copyFile, mkdir, readFile, rename, rm, stat} from "node:fs/promises";
 import {basename, dirname, extname, resolve} from "node:path";
 import {parseMedia} from "@remotion/media-parser";
@@ -178,6 +179,7 @@ export class LocalAudioImportService {
     sourcePath: string;
   }): Promise<{media: MediaArtifact; probe: AudioImportProbe; created: boolean}> {
     const sourceAbsolutePath = resolve(input.sourcePath);
+    assertIsolatedPath(dirname(sourceAbsolutePath), sourceAbsolutePath);
     const probe = await probeLocalAudioFile(sourceAbsolutePath);
     const checksum = await sha256File(sourceAbsolutePath);
     const workspace = resolveProjectWorkspace(input.projectId, this.workspaceOptions);
@@ -196,6 +198,7 @@ export class LocalAudioImportService {
     }
 
     const destination = resolveProjectRelativePath(workspace.projectRoot, relativePath);
+    assertIsolatedPath(workspace.projectRoot, destination);
     await mkdir(dirname(destination), {recursive: true});
     let wroteFile = false;
 

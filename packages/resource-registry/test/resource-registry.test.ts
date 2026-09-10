@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, writeFile, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import test from "node:test";
@@ -39,6 +39,17 @@ const formatPayload = {
   subtitleLayoutEnvelope: { maxLines: 2 },
   delivery: { container: "mp4" }
 };
+
+test("MIG-11 resource symlink escapes and nested operational references are rejected",async()=>{
+  const root=await fixtureRoot(), external=await fixtureRoot();
+  await writeResource(external,"format-profiles",{schemaVersion:1,resourceType:"FORMAT_PROFILE",resourceId:"FORMAT",version:"1.0.0",payload:formatPayload});
+  await mkdir(path.join(root,"format-profiles"));
+  await symlink(path.join(external,"format-profiles","FORMAT"),path.join(root,"format-profiles","FORMAT"));
+  const registry=new FileSystemResourceRegistry(root);
+  await assert.rejects(registry.resolve({resourceType:"FORMAT_PROFILE",resourceId:"FORMAT",version:"1.0.0"}),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+  await writeResource(root,"format-profiles",{schemaVersion:1,resourceType:"FORMAT_PROFILE",resourceId:"BAD_FORMAT",version:"1.0.0",payload:{...formatPayload,editorDefaults:{src:"master_library/image.png"}}});
+  await assert.rejects(registry.resolve({resourceType:"FORMAT_PROFILE",resourceId:"BAD_FORMAT",version:"1.0.0"}),{code:"LEGACY_MASTER_LIBRARY"});
+});
 
 test("resolves exact version and rejects a mismatched pinned hash", async () => {
   const root = await fixtureRoot();

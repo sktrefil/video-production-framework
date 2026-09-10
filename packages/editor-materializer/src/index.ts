@@ -1,4 +1,6 @@
 import {createHash} from "node:crypto";
+import {assertUnifiedProject, assertNoLegacyReference, assertNoLegacyExecutionInput, type UnifiedProjectPolicy} from "@vpf/legacy-guard";
+import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import {createReadStream} from "node:fs";
 import {
   copyFile,
@@ -86,6 +88,7 @@ export class EditorMaterializationError extends Error {
 }
 
 export interface EditorMaterializationRepository {
+  getProjectPolicy(projectId: string): Promise<UnifiedProjectPolicy | null>;
   getLatestAssembly(projectId: string): Promise<TimelineAssemblyRecord | null>;
   listAvailableMedia(projectId: string): Promise<MediaArtifact[]>;
 }
@@ -115,6 +118,7 @@ export interface EditorMaterializationReport {
 }
 
 export interface MaterializeEditorProjectInput {
+  projectPolicy: UnifiedProjectPolicy;
   projectRoot: string;
   editorPublicRoot: string;
   assembly: TimelineAssemblyRecord;
@@ -167,7 +171,9 @@ function ensureInside(basePath: string, candidatePath: string): string {
 
 function resolveInside(basePath: string, relativePath: string): string {
   const normalized = normalizeProjectRelativePath(relativePath);
-  return ensureInside(basePath, resolve(basePath, ...normalized.split("/")));
+  const target = ensureInside(basePath, resolve(basePath, ...normalized.split("/")));
+  assertIsolatedPath(basePath, target);
+  return target;
 }
 
 function validSha256(value: string): boolean {
@@ -213,6 +219,9 @@ function mediaIndex(
 export async function materializeEditorProject(
   input: MaterializeEditorProjectInput
 ): Promise<MaterializeEditorProjectResult> {
+  assertUnifiedProject(input.projectPolicy);
+  assertIsolatedPath(input.projectRoot, input.projectRoot);
+  assertNoLegacyExecutionInput(input.assembly.editProject);
   const projectId = validateProjectId(input.assembly.projectId);
   if (
     input.assembly.assemblyStatus !== "READY" ||
@@ -261,6 +270,7 @@ export async function materializeEditorProject(
         input.projectRoot,
         sourceRelativePath
       );
+      assertIsolatedPath(input.projectRoot, sourceAbsolutePath);
       const sourceInfo = await stat(sourceAbsolutePath).catch(() => null);
       if (sourceInfo === null || !sourceInfo.isFile() || sourceInfo.size <= 0) {
         throw new EditorMaterializationError(
@@ -364,6 +374,8 @@ export async function materializeEditorProjectFromRepository(input: {
   nowIso?: () => string;
 }): Promise<MaterializeEditorProjectResult> {
   const projectId = validateProjectId(input.projectId);
+  const projectPolicy = await input.repository.getProjectPolicy(projectId);
+  assertUnifiedProject(projectPolicy);
   const assembly = await input.repository.getLatestAssembly(projectId);
   if (assembly === null) {
     throw new EditorMaterializationError(
@@ -373,6 +385,7 @@ export async function materializeEditorProjectFromRepository(input: {
   }
   const mediaArtifacts = await input.repository.listAvailableMedia(projectId);
   return materializeEditorProject({
+    projectPolicy,
     projectRoot: input.projectRoot,
     editorPublicRoot: input.editorPublicRoot,
     assembly,
@@ -393,6 +406,8 @@ export function resolveFrameworkArtifactPath(
   projectIdInput: string,
   logicalPathInput: string
 ): FrameworkArtifactPath {
+  assertNoLegacyReference(projectRoot);
+  assertNoLegacyReference(logicalPathInput);
   const projectId = validateProjectId(projectIdInput);
   const logicalPath = logicalPathInput.trim().replaceAll("\\", "/").replace(/^\/+/, "");
   if (!logicalPath) {
@@ -431,6 +446,7 @@ export function resolveFrameworkArtifactPath(
   }
 
   const normalized = normalizeProjectRelativePath(projectRelativePath);
+  assertIsolatedPath(projectRoot, resolveProjectRelativePath(projectRoot, normalized));
   return {
     logicalPath,
     projectRelativePath: normalized,
@@ -603,6 +619,7 @@ export async function materializePublishHandoff(input: {
     );
     ensureInside(packageDirectory.absolutePath, destination.absolutePath);
 
+    assertIsolatedPath(input.projectRoot, source.absolutePath);
     const sourceInfo = await stat(source.absolutePath);
     if (!sourceInfo.isFile() || sourceInfo.size <= 0) {
       throw new EditorMaterializationError(

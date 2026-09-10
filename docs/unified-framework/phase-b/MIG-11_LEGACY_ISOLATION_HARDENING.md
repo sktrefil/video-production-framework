@@ -1,6 +1,11 @@
 # MIG-11 — Legacy Isolation Hardening
 
-Status: **WORK ORDER / NOT YET EXECUTED**
+Status: **IMPLEMENTED / CI VERIFICATION PENDING**
+
+Implementation and validation evidence: `../migration-reports/MIG-11_COMPLETION_REPORT.md`.
+Executed from accepted MIG-10 HEAD by operator request. MIG-06 remains
+NOT_STARTED and MIG-07 DEFERRED; this work hardens the existing shared boundaries
+without claiming those missing provider implementations.
 
 ## WORK ITEM
 

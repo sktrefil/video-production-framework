@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import {assertNoLegacyReference, assertUnifiedProject, LegacyGuardError, type UnifiedProjectPolicy} from "@vpf/legacy-guard";
+import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import { readFile, stat } from "node:fs/promises";
 import type {
   MediaArtifact,
@@ -49,6 +51,7 @@ export interface RuntimeExecutionReceipt {
 }
 
 export interface RuntimePersistencePort {
+  getProjectPolicy(projectId: string): Promise<UnifiedProjectPolicy | null>;
   getLatestProviderJob(
     projectId: string,
     jobId: string
@@ -106,6 +109,7 @@ export class RuntimeExecutorRegistry {
     jobType: ProviderJobType;
     executor: RuntimeExecutor;
   }): void {
+    assertNoLegacyReference(input.provider);
     const key = registryKey(input.provider, input.jobType);
     if (this.executors.has(key)) {
       throw new RuntimeContractError(
@@ -117,6 +121,7 @@ export class RuntimeExecutorRegistry {
   }
 
   resolve(provider: string, jobType: ProviderJobType): RuntimeExecutor {
+    assertNoLegacyReference(provider);
     const key = registryKey(provider, jobType);
     const executor = this.executors.get(key);
     if (executor === undefined) {
@@ -195,6 +200,8 @@ export class RuntimeOrchestrator {
     }
 
     await this.assertTargetCurrent(readyJob);
+    // Resolve before RUNNING so a blocked/unregistered executor cannot strand a job.
+    this.registry.resolve(readyJob.provider, readyJob.jobType);
 
     const runningAt = this.clock.nowIso();
     const runningJob = nextProviderJobRunning(readyJob, runningAt);
@@ -280,6 +287,7 @@ export class RuntimeOrchestrator {
 
     if (result.status === "COMPLETE") {
       try {
+        assertUnifiedProject(await this.persistence.getProjectPolicy(currentJob.projectId));
         await this.assertTargetCurrent(currentJob);
         media = await this.ingestArtifacts(runtimeJob, result);
       } catch (error) {
@@ -380,6 +388,7 @@ export class RuntimeOrchestrator {
         workspace.projectRoot,
         normalizedPath
       );
+      assertIsolatedPath(workspace.projectRoot, absolutePath);
 
       let info;
       try {
@@ -455,6 +464,7 @@ export class RuntimeOrchestrator {
     projectId: string,
     jobId: string
   ): Promise<ProviderJob> {
+    assertUnifiedProject(await this.persistence.getProjectPolicy(projectId));
     const job = await this.persistence.getLatestProviderJob(projectId, jobId);
     if (job === null) {
       throw new RuntimeContractError(
@@ -615,7 +625,7 @@ function normalizeRuntimeError(
   error: unknown,
   fallback: RuntimeErrorCode
 ): { code: RuntimeErrorCode; detail?: string } {
-  if (error instanceof RuntimeContractError) {
+  if (error instanceof RuntimeContractError || error instanceof LegacyGuardError) {
     return { code: error.code, detail: error.message };
   }
   if (error instanceof Error) {

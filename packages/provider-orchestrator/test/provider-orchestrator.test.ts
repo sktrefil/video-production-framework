@@ -43,7 +43,27 @@ function providerJob(input: Partial<ProviderJob> = {}): ProviderJob {
   };
 }
 
+test("MIG-11 blocks missing policy, legacy payload and unregistered runtime before any transition", async () => {
+  const workspace = await createWorkspace();
+  const persistence = new MemoryPersistence([providerJob()]);
+  const registry = new RuntimeExecutorRegistry();
+  const service = new RuntimeOrchestrator(persistence, new MutableTarget(), registry, clock, ids(), {workspaceRoot: workspace.root});
+  persistence.policy = null;
+  await assert.rejects(service.executeAutomated("project_1", "job_1", {expectedOutputs: imageExpected}), {code: "LEGACY_RUNTIME_FORBIDDEN"});
+  persistence.policy = {pipeline:"VPF_UNIFIED_V1",legacyAllowed:false};
+  await assert.rejects(service.executeAutomated("project_1", "job_1", {expectedOutputs: imageExpected}), {code:"RUNTIME_EXECUTOR_NOT_FOUND"});
+  assert.equal(persistence.receipts.length,0);
+  assert.equal(persistence.jobs.get("job_1")?.status,"READY");
+  assert.throws(()=>registry.register({provider:"src/lived_sentences/image_prompt_planner.py",jobType:"IMAGE_GENERATION",executor:{async execute(){throw new Error("unreachable");}}}),{code:"LEGACY_IMAGE_PROMPT_PLANNER"});
+  registry.register({provider:"MOCK_IMAGE",jobType:"IMAGE_GENERATION",executor:{async execute(){throw new Error("unreachable");}}});
+  persistence.jobs.set("job_1",providerJob({inputPayload:{prompt:"unchanged",references:[{relativePath:"master_library/anchor.png"}]}}));
+  await assert.rejects(service.executeAutomated("project_1","job_1",{expectedOutputs:imageExpected}),{code:"LEGACY_MASTER_LIBRARY"});
+  assert.equal(persistence.receipts.length,0);
+});
+
 class MemoryPersistence implements RuntimePersistencePort {
+  policy: {pipeline: string; legacyAllowed: boolean} | null = {pipeline: "VPF_UNIFIED_V1", legacyAllowed: false};
+  async getProjectPolicy() { return this.policy; }
   readonly jobs = new Map<string, ProviderJob>();
   readonly receipts: RuntimeExecutionReceipt[] = [];
   readonly media: MediaArtifact[] = [];

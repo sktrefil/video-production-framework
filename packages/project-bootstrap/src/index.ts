@@ -1,4 +1,6 @@
 import { createHash } from "node:crypto";
+import {assertUnifiedProject, LegacyGuardError} from "@vpf/legacy-guard";
+import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import {
   access,
   mkdir,
@@ -468,6 +470,7 @@ export class SqliteProjectRecordRepository {
   }
 
   insertInitial(input: StoredProjectRecord): void {
+    assertUnifiedProject(input);
     this.db.prepare(`
       INSERT INTO projects
       (id, project_id, revision, lifecycle_status, title, format, versions_json,
@@ -498,12 +501,7 @@ export class SqliteProjectRecordRepository {
       LIMIT 1
     `).get(projectId) as Record<string, unknown> | undefined;
     if (row === undefined) return null;
-    if (row.pipeline !== UNIFIED_PIPELINE || row.legacy_allowed !== 0) {
-      throw new ProjectBootstrapError(
-        "PROJECT_DB_INVALID",
-        "Project DB does not contain a valid unified/legacy-disabled project record."
-      );
-    }
+    assertUnifiedProject({pipeline: row.pipeline, legacyAllowed: row.legacy_allowed === 0 ? false : true});
     const project: ProjectRecord = {
       id: String(row.id),
       projectId: String(row.project_id),
@@ -683,6 +681,9 @@ export class ProjectBootstrapService {
     this.resourcesDir = path.resolve(
       options.resourcesDir ?? path.join(this.repositoryRoot, "resources")
     );
+    if (this.resourcesDir !== path.join(this.repositoryRoot, "resources"))
+      throw new LegacyGuardError("LEGACY_RUNTIME_FORBIDDEN", "Unified bootstrap only accepts its repository's canonical resources directory.");
+    assertIsolatedPath(this.repositoryRoot, this.resourcesDir);
     this.clock = options.clock ?? { nowIso: () => new Date().toISOString() };
     this.workspaceOptions = {
       repositoryRoot: this.repositoryRoot,
@@ -812,6 +813,7 @@ export class ProjectBootstrapService {
   async getStatus(projectIdInput: string): Promise<ProjectStatus> {
     const workspace = resolveProjectWorkspace(projectIdInput, this.workspaceOptions);
     const projectDbPath = path.join(workspace.projectRoot, "project.db");
+    assertIsolatedPath(workspace.projectRoot, projectDbPath);
     if (!(await pathExists(projectDbPath))) {
       throw new ProjectBootstrapError(
         "PROJECT_NOT_FOUND",
@@ -868,6 +870,10 @@ export class ProjectBootstrapService {
       const message = error instanceof Error ? error.message : String(error);
       fail("PROJECT_DB", message);
       fail("PROJECT_RECORD", "ProjectRecord could not be verified.");
+      if (error instanceof LegacyGuardError) {
+        fail("LEGACY_DISABLED", error.code + ": " + error.message);
+        fail("UNIFIED_PIPELINE", "Explicit unified project policy could not be verified.");
+      }
     }
 
     if (status === null) {
