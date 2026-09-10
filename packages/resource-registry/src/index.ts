@@ -77,6 +77,14 @@ export interface ResourceValidationSummary {
   diagnostics: ResourceDiagnostic[];
 }
 
+export interface ResourcePinDiagnostic {
+  status: "CURRENT" | "MISSING" | "STALE" | "INVALID";
+  pin: ResourcePin;
+  actualHash?: string;
+  code?: ResourceRegistryErrorCode;
+  message: string;
+}
+
 export interface ResourceUpgradePlan {
   from: ResourcePin;
   to: ResourcePin;
@@ -530,6 +538,49 @@ export class FileSystemResourceRegistry {
         .sort();
     } catch (error: unknown) {
       if (isRecord(error) && error.code === "ENOENT") return [];
+      throw error;
+    }
+  }
+
+  async diagnosePin(pin: ResourcePin): Promise<ResourcePinDiagnostic> {
+    try {
+      const snapshot = await this.resolve({
+        resourceType: pin.resourceType,
+        resourceId: pin.resourceId,
+        version: pin.version
+      });
+      if (snapshot === null) {
+        return {
+          status: "MISSING",
+          pin: { ...pin },
+          code: "RESOURCE_PIN_MISSING",
+          message: `Pinned resource is missing: ${pin.resourceId}@${pin.version}`
+        };
+      }
+      if (snapshot.contentHash !== pin.contentHash) {
+        return {
+          status: "STALE",
+          pin: { ...pin },
+          actualHash: snapshot.contentHash,
+          code: "RESOURCE_HASH_MISMATCH",
+          message: `Pinned resource hash is stale: ${pin.resourceId}@${pin.version}`
+        };
+      }
+      return {
+        status: "CURRENT",
+        pin: { ...pin },
+        actualHash: snapshot.contentHash,
+        message: `Pinned resource is current: ${pin.resourceId}@${pin.version}`
+      };
+    } catch (error: unknown) {
+      if (error instanceof ResourceRegistryError) {
+        return {
+          status: "INVALID",
+          pin: { ...pin },
+          code: error.code,
+          message: error.message
+        };
+      }
       throw error;
     }
   }
