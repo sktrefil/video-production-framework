@@ -164,7 +164,7 @@ async function createAutoFixture() {
   };
 }
 
-test("WF-09 AUTO connects design, prompt materialization, cut markdown and image candidate in one command", async () => {
+test("WF-09 AUTO connects Visual Direction, design, prompt materialization, cut markdown and image candidate in one command", async () => {
   const f = await createAutoFixture();
   const previousAdapter = process.env.VPF_IMAGE_ADAPTER_MODULE;
   const previousKey = process.env.IMAGE_PROVIDER_API_KEY;
@@ -179,6 +179,9 @@ test("WF-09 AUTO connects design, prompt materialization, cut markdown and image
     const result = lastJson(f.output);
     assert.equal(result.repinned, true);
     assert.equal(result.providerProfileVersion, "1.1.0");
+    assert.equal(result.visualDirectionPlan.applied, true);
+    assert.equal(result.visualDirectionPlan.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
+    assert.equal(result.visualDirectionPlan.grammarVersion, "1.0.0");
     assert.equal(result.designedCount, 1);
     assert.equal(result.promptMaterializedCount, 1);
     assert.equal(result.promptMarkdownCount, 1);
@@ -190,11 +193,16 @@ test("WF-09 AUTO connects design, prompt materialization, cut markdown and image
 
     const current = await f.service.getStatus(f.projectId);
     const channelPin = current.resourcePins.find(pin => pin.resourceType === "CHANNEL_PROFILE");
+    const visualBiblePin = current.resourcePins.find(pin =>
+      pin.resourceType === "CHANNEL_VISUAL_BIBLE" && pin.resourceId === "HISTORY_MYSTERY_VISUAL_BIBLE"
+    );
     const imagePin = current.resourcePins.find(pin =>
       pin.resourceType === "PROVIDER_PROFILE" && pin.resourceId === "IMAGE_PROVIDER_EXECUTION_V1"
     );
-    assert.equal(channelPin?.version, "1.2.0");
+    assert.equal(channelPin?.version, "1.3.0");
+    assert.equal(visualBiblePin?.version, "1.1.0");
     assert.equal(imagePin?.version, "1.1.0");
+    assert.equal(current.project.versions.channelVisualBibleVersion, "1.1.0");
     assert.equal(current.project.revision, 2);
 
     const promptMd = await readFile(
@@ -203,8 +211,20 @@ test("WF-09 AUTO connects design, prompt materialization, cut markdown and image
     );
     assert.ok(promptMd.includes(f.exactPrompt));
     assert.ok(promptMd.includes(f.exactNegativePrompt));
+    assert.ok(promptMd.includes("VISUAL DIRECTION:"));
     assert.ok(promptMd.includes(`scene_id: ${f.sceneId}`));
     assert.ok(promptMd.includes("provider_profile: IMAGE_PROVIDER_EXECUTION_V1@1.1.0"));
+
+    const productionPlan = JSON.parse(await readFile(
+      path.join(f.projectRoot, "05_images", "scene-assets.production-ready.json"),
+      "utf8"
+    ));
+    const productionScene = productionPlan.scenes[0];
+    assert.equal(productionPlan.visualDirectionDerivation.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
+    assert.equal(productionScene.visualDirectionContext.resourceVersion, "1.1.0");
+    assert.match(productionScene.imageAssetDesign.composition, /environment-first medium-wide\/wide/u);
+    assert.match(productionScene.imageAssetDesign.composition, /central 60-70%/u);
+    assert.match(productionScene.imagePrompt.prompt, /restrained painterly matte surface/u);
 
     const manifest = JSON.parse(await readFile(
       path.join(f.projectRoot, "05_images", "prompts", "manifest.json"),
@@ -225,8 +245,12 @@ test("WF-09 AUTO connects design, prompt materialization, cut markdown and image
          WHERE project_id = ? AND lifecycle_status = 'ACTIVE' AND job_type = 'IMAGE_GENERATION'`
       ).get(f.projectId) as any;
       const payload = JSON.parse(job.input_payload_json);
-      assert.equal(payload.prompt, f.exactPrompt);
-      assert.equal(payload.negativePrompt, f.exactNegativePrompt);
+      assert.equal(payload.prompt, productionScene.imagePrompt.prompt);
+      assert.equal(payload.negativePrompt, productionScene.imagePrompt.negativePrompt);
+      assert.ok(payload.prompt.startsWith(f.exactPrompt));
+      assert.ok(payload.negativePrompt.includes(f.exactNegativePrompt));
+      assert.match(payload.prompt, /VISUAL DIRECTION:/u);
+      assert.match(payload.negativePrompt, /readable generated historical text/u);
       assert.equal(job.provider, "CHATGPT_BROWSER");
       assert.equal(job.provider_profile_version, "1.1.0");
       assert.equal(job.status, "COMPLETE");
