@@ -1,5 +1,12 @@
 $ErrorActionPreference = "Stop"
 
+# Windows PowerShell 5.1 defaults to the active ANSI/OEM code page for some
+# text operations. This pilot contains Korean UTF-8 JSON, so force UTF-8
+# explicitly for file reads and external-process output.
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$OutputEncoding = $utf8NoBom
+[Console]::OutputEncoding = $utf8NoBom
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repoRoot
 
@@ -21,7 +28,10 @@ if (-not (Test-Path $cli)) {
 }
 
 Copy-Item $planSource $targetPlan -Force
-Get-Content $targetPlan -Raw | ConvertFrom-Json | Out-Null
+
+# Read UTF-8 explicitly. Do not rely on Windows PowerShell 5.1 defaults.
+$planText = [System.IO.File]::ReadAllText($targetPlan, [System.Text.Encoding]::UTF8)
+$planText | ConvertFrom-Json | Out-Null
 Write-Host "story-plan.json JSON validation: PASS"
 
 $generateOutput = @(& node $cli story generate $project --plan $targetPlan 2>&1)
