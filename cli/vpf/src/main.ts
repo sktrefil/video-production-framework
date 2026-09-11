@@ -11,7 +11,8 @@ import { SceneAssetValidationError } from "@vpf/scene-assets";
 import { RuntimeContractError } from "@vpf/runtime-contracts";
 import { runCli, type CliIo } from "./index.js";
 import { Wf09CliError, Wf09CliService } from "./wf09.js";
-import { Wf09AutoError, Wf09AutoService } from "./wf09-auto.js";
+import { Wf09AutoError } from "./wf09-auto.js";
+import { Wf09HandoffAutoService } from "./wf09-handoff-auto.js";
 import { Wf09bCliError, Wf09bCliService } from "./wf09b.js";
 
 const WF09_USAGE = `WF-09 AUTO connected prompt-to-image operations:
@@ -96,7 +97,7 @@ export async function runUnifiedCli(
     assertAssetArgumentsAreIsolated(args);
     const wf09 = new Wf09CliService(projects);
     const wf09b = new Wf09bCliService(projects);
-    const wf09Auto = new Wf09AutoService(projects);
+    const wf09Auto = new Wf09HandoffAutoService(projects);
 
     if (args[1] === "auto" && args[2] === "run") {
       const projectId = args[3];
