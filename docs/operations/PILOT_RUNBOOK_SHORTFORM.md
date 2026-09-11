@@ -85,13 +85,25 @@ A generated image is never considered approved merely because the provider retur
 
 Run Pre-Link/Handoff QC and create Final Clip decisions only after required assets are approved. For provider-generated clips, Provider Pre-QC must PASS/approved before the manual provider job is exported.
 
-The accepted manual video route is `MANUAL_EXTERNAL`. MIG-07 remains deferred, so this pilot uses the shared WF-11 manual job/result contract and does not claim provider-specific Google Flow runtime automation.
+The accepted Google Flow route is the validated `MANUAL_EXTERNAL` runtime backed by `GOOGLE_FLOW_MANUAL_EXTERNAL_V1@1.0.0`. Use the unified job export/import commands from TEST-07; do not copy a parallel manual control plane into the pilot.
 
 ## 8. Manual Google Flow operation
 
-Export/copy only the approved WF-11 job payload: START image, optional END image, exact video prompt, requested duration/mode and result key. Generate the clip manually in Google Flow.
+Export the current waiting job through the unified runtime:
 
-On return, place the generated MP4 under the current project's `06_clips/` area and register it against the **current** waiting job. Verify SHA-256, media type, dimensions and duration. A result for a stale/failed prior job is rejected.
+```powershell
+npm run vpf -- job export <job_id> --project pilot_short_01
+```
+
+The exported package under `workspace/projects/pilot_short_01/jobs/<job_id>/` contains the exact RuntimeJob snapshot, exact prompt, verified START image, optional verified END image and operator instructions. Generate the clip manually in Google Flow using those exact inputs.
+
+Import the returned MP4 through the same unified runtime:
+
+```powershell
+npm run vpf -- job import-result <job_id> <generated.mp4> --project pilot_short_01
+```
+
+Import must prove that the ProviderJob and target Clip are still current, verify the exported prompt/source/input hashes, probe the MP4, copy it into the canonical project clip path and register it only as a candidate. The Clip must remain `QC_PENDING`; WF-12 owns QC/approval. A stale/failed prior-job result is rejected.
 
 ## 9. WF-12 QC / fallback and WF-13 binding
 
