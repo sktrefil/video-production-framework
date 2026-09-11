@@ -236,15 +236,16 @@ export class Wf09AutoService {
 
     const now = new Date().toISOString();
     const versions: VersionPins = structuredClone(status.project.versions);
+    const resourceHashes = versions.resourceHashes ?? {};
     versions.providerProfileVersions = {
       ...versions.providerProfileVersions,
       IMAGE: providerResource.version
     };
     versions.resourceHashes = {
-      ...versions.resourceHashes,
+      ...resourceHashes,
       channelProfile: channelResource.contentHash,
       providerProfiles: {
-        ...versions.resourceHashes.providerProfiles,
+        ...(resourceHashes.providerProfiles ?? {}),
         IMAGE: providerResource.contentHash
       }
     };
@@ -441,7 +442,7 @@ export class Wf09AutoService {
     return { mirroredCandidateCount: candidates.length, candidates };
   }
 
-  async run(projectId: string, options: { file?: string } = {}) {
+  async run(projectId: string, options: { file?: string | undefined } = {}) {
     const pinResult = await this.ensureBrowserProviderPins(projectId);
     const file = await this.planFile(projectId, options.file);
     let wf09Status = await this.wf09.status(projectId);
