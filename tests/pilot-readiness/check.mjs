@@ -18,6 +18,12 @@ const requiredDocs = [
   "docs/operations/FAILURE_RETURN_MAP.md"
 ];
 
+function includesAll(text, required, label) {
+  for (const value of required) {
+    assert.equal(text.includes(value), true, `${label} missing ${value}`);
+  }
+}
+
 async function verifyDocs() {
   for (const relative of requiredDocs) {
     const text = await readFile(join(repositoryRoot, relative), "utf8");
@@ -35,20 +41,11 @@ async function verifyDocs() {
   const checklist = await readFile(join(repositoryRoot, requiredDocs[3]), "utf8");
   const failureMap = await readFile(join(repositoryRoot, requiredDocs[4]), "utf8");
 
-  for (const [name, text] of [["SHORTFORM", short], ["LONGFORM", long]]) {
-    for (const required of ["env check", "pilot preflight", "WF-17", "WF-18", "IMAGE_QC", "MANUAL_EXTERNAL"]) {
-      assert.match(text, new RegExp(required.replace("-", "\\-"), "u"), `${name} runbook missing ${required}`);
-    }
-  }
-  for (const required of ["REAL PROJECT 01", "WF-18", "pilot preflight"]) {
-    assert.match(real, new RegExp(required, "u"));
-  }
-  for (const required of ["Repository", "Project", "Script / TTS", "Visual", "Clips", "Editor", "Final"]) {
-    assert.match(checklist, new RegExp(required.replace("/", "\\/"), "u"));
-  }
-  for (const required of ["RESOURCE_HASH_MISMATCH", "RUNTIME_SECRET_MISSING", "IMAGE_QC", "TECHNICAL_QC", "owning MIG"]) {
-    assert.match(failureMap, new RegExp(required, "u"));
-  }
+  includesAll(short, ["env check", "pilot preflight", "WF-17", "WF-18", "IMAGE_QC", "MANUAL_EXTERNAL"], "SHORTFORM runbook");
+  includesAll(long, ["env check", "pilot preflight", "WF-17", "WF-18", "IMAGE_QC", "MANUAL_EXTERNAL"], "LONGFORM runbook");
+  includesAll(real, ["REAL PROJECT 01", "WF-18", "pilot preflight"], "REAL PROJECT runbook");
+  includesAll(checklist, ["Repository", "Project", "Script / TTS", "Visual", "Clips", "Editor", "Final"], "operator checklist");
+  includesAll(failureMap, ["RESOURCE_HASH_MISMATCH", "RUNTIME_SECRET_MISSING", "IMAGE_QC", "TECHNICAL_QC", "owning MIG"], "failure return map");
 }
 
 async function verifyCli() {
