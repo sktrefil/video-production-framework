@@ -6,12 +6,15 @@ import {
   ProjectBootstrapError,
   ProjectBootstrapService
 } from "@vpf/project-bootstrap";
+import { ResourceRegistryError } from "@vpf/resource-registry";
 import { StoryValidationError } from "@vpf/story";
+import { VisualIdentityValidationError } from "@vpf/visual-identity";
 import {
   PilotReadinessService,
   parseMinimumFreeGb
 } from "./pilot-readiness.js";
 import { Wf07CliError, Wf07CliService } from "./wf07.js";
+import { Wf08CliError, Wf08CliService } from "./wf08.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -39,6 +42,13 @@ WF-07 story operations:
   vpf story status <project_id>
   vpf story approve-structure <project_id> [--approved-by <id>]
   vpf story approve-scenes <project_id> (--all | --scene <scene_id>...) [--approved-by <id>]
+
+WF-08 visual identity operations:
+  vpf visual style apply <project_id> --file <project-file>
+  vpf visual style approve <project_id> [--approved-by <id>]
+  vpf visual anchors apply <project_id> --file <project-file>
+  vpf visual anchors approve <project_id> (--all | --anchor <anchor_id>...) [--approved-by <id>]
+  vpf visual status <project_id>
 `;
 
 function readOption(args: string[], name: string): string | undefined {
@@ -366,6 +376,90 @@ export async function runCli(
       return 0;
     }
 
+    const wf08 = new Wf08CliService(service);
+
+    if (args[0] === "visual" && args[1] === "style" && args[2] === "apply") {
+      const projectId = args[3];
+      const file = requireOption(
+        args,
+        "--file",
+        io,
+        "visual style apply requires --file <project-file>."
+      );
+      if (projectId === undefined || file === null) {
+        if (projectId === undefined) {
+          io.error("[CLI_USAGE] visual style apply requires <project_id>.");
+        }
+        return 2;
+      }
+      printJson(io, await wf08.applyProjectStyle(projectId, file));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "style" && args[2] === "approve") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] visual style approve requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf08.approveProjectStyle(
+        projectId,
+        readOption(args, "--approved-by")
+      ));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "anchors" && args[2] === "apply") {
+      const projectId = args[3];
+      const file = requireOption(
+        args,
+        "--file",
+        io,
+        "visual anchors apply requires --file <project-file>."
+      );
+      if (projectId === undefined || file === null) {
+        if (projectId === undefined) {
+          io.error("[CLI_USAGE] visual anchors apply requires <project_id>.");
+        }
+        return 2;
+      }
+      printJson(io, await wf08.applyIdentityAnchors(projectId, file));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "anchors" && args[2] === "approve") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] visual anchors approve requires <project_id>.");
+        return 2;
+      }
+      const all = args.includes("--all");
+      const anchorIds = readOptions(args, "--anchor")
+        .flatMap((value) => value.split(","))
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0);
+      if ((!all && anchorIds.length === 0) || (all && anchorIds.length > 0)) {
+        io.error("[CLI_USAGE] visual anchors approve requires either --all or one/more --anchor values.");
+        return 2;
+      }
+      printJson(io, await wf08.approveIdentityAnchors(
+        projectId,
+        all ? "ALL" : anchorIds,
+        readOption(args, "--approved-by")
+      ));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "status") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] visual status requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf08.status(projectId));
+      return 0;
+    }
+
     if (args[0] === "run" || args[0] === "job" || args[0] === "qc") {
       return notImplemented(io, args.join(" "));
     }
@@ -376,8 +470,11 @@ export async function runCli(
     if (
       error instanceof ProjectBootstrapError ||
       error instanceof LegacyGuardError ||
+      error instanceof ResourceRegistryError ||
       error instanceof StoryValidationError ||
-      error instanceof Wf07CliError
+      error instanceof VisualIdentityValidationError ||
+      error instanceof Wf07CliError ||
+      error instanceof Wf08CliError
     ) {
       io.error(`[${error.code}] ${error.message}`);
       return 1;
