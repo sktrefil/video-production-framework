@@ -4,6 +4,7 @@ import {tmpdir} from "node:os";
 import {join} from "node:path";
 import test from "node:test";
 import type {MediaArtifact} from "@vpf/domain";
+import type {UnifiedProjectPolicy} from "@vpf/legacy-guard";
 import {
   LocalAudioImportError,
   LocalAudioImportService,
@@ -33,6 +34,17 @@ function wavBuffer(durationSeconds = 1, sampleRate = 8000): Buffer {
 class MemoryAudioRepository implements AudioImportPersistencePort {
   readonly media: MediaArtifact[] = [];
   commits = 0;
+
+  constructor(
+    public policy: UnifiedProjectPolicy | null = {
+      pipeline: "VPF_UNIFIED_V1",
+      legacyAllowed: false
+    }
+  ) {}
+
+  async getProjectPolicy(): Promise<UnifiedProjectPolicy | null> {
+    return this.policy;
+  }
 
   async findAvailableAudio(input: {
     projectId: string;
@@ -123,4 +135,32 @@ test("local audio import rejects non-audio file types before MediaArtifact creat
     (error: unknown) => error instanceof LocalAudioImportError && error.code === "AUDIO_IMPORT_UNSUPPORTED_TYPE"
   );
   assert.equal(repository.commits, 0);
+});
+
+test("audio import fails closed on missing or legacy project policy before touching the source", async () => {
+  const root = await mkdtemp(join(tmpdir(), "vpf-audio-policy-"));
+  const missingSource = join(root, "does-not-exist.wav");
+
+  for (const policy of [
+    null,
+    {pipeline: "LEGACY", legacyAllowed: false},
+    {pipeline: "VPF_UNIFIED_V1", legacyAllowed: true}
+  ] as Array<UnifiedProjectPolicy | null>) {
+    const repository = new MemoryAudioRepository(policy);
+    const service = new LocalAudioImportService(
+      repository,
+      {nowIso: () => "2026-09-10T12:00:00.000Z"},
+      ids(),
+      {repositoryRoot: root, workspaceRoot: join(root, "workspace")}
+    );
+
+    await assert.rejects(
+      service.importFile({projectId: "policy-blocked", kind: "BGM", sourcePath: missingSource}),
+      (error: unknown) =>
+        error instanceof Error &&
+        "code" in error &&
+        (error as {code?: string}).code === "LEGACY_RUNTIME_FORBIDDEN"
+    );
+    assert.equal(repository.commits, 0);
+  }
 });
