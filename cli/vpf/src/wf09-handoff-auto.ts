@@ -86,10 +86,11 @@ export class Wf09HandoffAutoService {
     } as const;
   }
 
-  async run(projectId: string, options: { file?: string | undefined } = {}) {
+  private async prepareInternal(projectId: string, options: { file?: string | undefined } = {}) {
     // Pin the channel / Visual Bible / image-provider versions before deriving
-    // production decisions. The parent run calls the same method again and
-    // observes an idempotent no-op.
+    // production decisions. This phase intentionally performs no provider
+    // execution so a real pilot can inspect the production-ready prompt set
+    // before spending generation capacity.
     const pinResult = await this.base.ensureBrowserProviderPins(projectId);
     const status = pinResult.status;
     const sourceFile = options.file === undefined
@@ -133,10 +134,25 @@ export class Wf09HandoffAutoService {
       projectId,
       visualDirection.file
     );
-    const result = await this.base.run(projectId, { file: visualDirection.file });
+    const wf09Status = await this.wf09.status(projectId);
+
     return {
-      ...result,
-      repinned: pinResult.repinned || result.repinned,
+      projectId,
+      status,
+      pinResult,
+      handoff,
+      visualDirection,
+      visualDirectionRefresh,
+      wf09Status
+    };
+  }
+
+  private publicPreparationResult(prepared: Awaited<ReturnType<Wf09HandoffAutoService["prepareInternal"]>>) {
+    const { projectId, status, pinResult, handoff, visualDirection, visualDirectionRefresh, wf09Status } = prepared;
+    return {
+      projectId,
+      preparedOnly: true,
+      repinned: pinResult.repinned,
       handoffAwarePlan: {
         applied: handoff.applied,
         visualLinkCount: handoff.visualLinkCount,
@@ -152,7 +168,38 @@ export class Wf09HandoffAutoService {
         enrichedSceneCount: visualDirection.enrichedSceneCount,
         file: path.relative(status.projectRoot, visualDirection.file).replaceAll("\\", "/")
       },
-      visualDirectionRefresh
+      visualDirectionRefresh,
+      wf09Status
+    };
+  }
+
+  async prepare(projectId: string, options: { file?: string | undefined } = {}) {
+    return this.publicPreparationResult(await this.prepareInternal(projectId, options));
+  }
+
+  async run(projectId: string, options: { file?: string | undefined } = {}) {
+    const prepared = await this.prepareInternal(projectId, options);
+    const result = await this.base.run(projectId, { file: prepared.visualDirection.file });
+    return {
+      ...result,
+      preparedOnly: false,
+      repinned: prepared.pinResult.repinned || result.repinned,
+      handoffAwarePlan: {
+        applied: prepared.handoff.applied,
+        visualLinkCount: prepared.handoff.visualLinkCount,
+        enrichedSceneCount: prepared.handoff.enrichedSceneCount,
+        linkIds: prepared.handoff.linkIds,
+        file: path.relative(prepared.status.projectRoot, prepared.handoff.file).replaceAll("\\", "/")
+      },
+      visualDirectionPlan: {
+        applied: prepared.visualDirection.applied,
+        grammarId: prepared.visualDirection.grammarId,
+        grammarVersion: prepared.visualDirection.grammarVersion,
+        grammarContentHash: prepared.visualDirection.grammarContentHash,
+        enrichedSceneCount: prepared.visualDirection.enrichedSceneCount,
+        file: path.relative(prepared.status.projectRoot, prepared.visualDirection.file).replaceAll("\\", "/")
+      },
+      visualDirectionRefresh: prepared.visualDirectionRefresh
     };
   }
 
