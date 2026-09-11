@@ -11,9 +11,15 @@ import { SceneAssetValidationError } from "@vpf/scene-assets";
 import { RuntimeContractError } from "@vpf/runtime-contracts";
 import { runCli, type CliIo } from "./index.js";
 import { Wf09CliError, Wf09CliService } from "./wf09.js";
+import { Wf09AutoError, Wf09AutoService } from "./wf09-auto.js";
 import { Wf09bCliError, Wf09bCliService } from "./wf09b.js";
 
-const WF09_USAGE = `WF-09A scene asset operations:
+const WF09_USAGE = `WF-09 AUTO connected prompt-to-image operations:
+  vpf asset auto run <project_id> --all [--file <project-file>]
+  vpf asset auto resume <project_id>
+  vpf asset auto status <project_id>
+
+WF-09A scene asset operations:
   vpf asset readiness <project_id> --file <project-file>
   vpf asset design apply <project_id> --file <project-file>
   vpf asset prompt materialize <project_id> --file <project-file>
@@ -90,6 +96,43 @@ export async function runUnifiedCli(
     assertAssetArgumentsAreIsolated(args);
     const wf09 = new Wf09CliService(projects);
     const wf09b = new Wf09bCliService(projects);
+    const wf09Auto = new Wf09AutoService(projects);
+
+    if (args[1] === "auto" && args[2] === "run") {
+      const projectId = args[3];
+      if (projectId === undefined || !args.includes("--all")) {
+        io.error("[CLI_USAGE] asset auto run requires <project_id> --all [--file <project-file>].");
+        return 2;
+      }
+      const result = await wf09Auto.run(projectId, {
+        ...(readOption(args, "--file") === undefined ? {} : { file: readOption(args, "--file") })
+      });
+      printJson(io, result);
+      return result.execution.failed === 0 ? 0 : 1;
+    }
+
+    if (args[1] === "auto" && args[2] === "resume") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] asset auto resume requires <project_id>.");
+        return 2;
+      }
+      const result = await wf09Auto.resume(projectId);
+      printJson(io, result);
+      const retryFailed = result.retry?.failed ?? 0;
+      const executeFailed = result.execution?.failed ?? 0;
+      return retryFailed === 0 && executeFailed === 0 ? 0 : 1;
+    }
+
+    if (args[1] === "auto" && args[2] === "status") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] asset auto status requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf09Auto.status(projectId));
+      return 0;
+    }
 
     if (args[1] === "readiness") {
       const projectId = args[2];
@@ -229,6 +272,7 @@ export async function runUnifiedCli(
       error instanceof SceneAssetValidationError ||
       error instanceof RuntimeContractError ||
       error instanceof Wf09CliError ||
+      error instanceof Wf09AutoError ||
       error instanceof Wf09bCliError
     ) {
       io.error(`[${error.code}] ${error.message}`);
