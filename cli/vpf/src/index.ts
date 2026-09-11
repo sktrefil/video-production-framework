@@ -7,6 +7,10 @@ import {
   ProjectBootstrapService
 } from "@vpf/project-bootstrap";
 import {
+  GoogleFlowManualError,
+  GoogleFlowManualService
+} from "@vpf/storage/google-flow-manual";
+import {
   PilotReadinessService,
   parseMinimumFreeGb
 } from "./pilot-readiness.js";
@@ -14,6 +18,15 @@ import {
 export interface CliIo {
   out(message: string): void;
   error(message: string): void;
+}
+
+export interface GoogleFlowCliService {
+  exportJob(input: { jobId: string; projectId?: string }): Promise<unknown>;
+  importResult(input: {
+    jobId: string;
+    generatedFile: string;
+    projectId?: string;
+  }): Promise<unknown>;
 }
 
 const USAGE = `VPF Unified CLI
@@ -25,6 +38,8 @@ Commands:
   vpf doctor <project_id>
   vpf env check --format <longform|shortform> [--min-free-gb <number>]
   vpf pilot preflight <project_id> [--min-free-gb <number>]
+  vpf job export <job_id> [--project <project_id>]
+  vpf job import-result <job_id> <generated.mp4> [--project <project_id>]
 `;
 
 function readOption(args: string[], name: string): string | undefined {
@@ -38,7 +53,7 @@ function printJson(io: CliIo, value: unknown): void {
 }
 
 function notImplemented(io: CliIo, command: string): number {
-  io.error(`[NOT_IMPLEMENTED] ${command} is reserved by the unified CLI contract but is not implemented in MIG-04.`);
+  io.error(`[NOT_IMPLEMENTED] ${command} is reserved by the unified CLI contract but is not implemented.`);
   return 2;
 }
 
@@ -58,7 +73,8 @@ export async function runCli(
     error: (message) => console.error(message)
   },
   service: ProjectBootstrapService = new ProjectBootstrapService(),
-  readinessService?: PilotReadinessService
+  readinessService?: PilotReadinessService,
+  flowService?: GoogleFlowCliService
 ): Promise<number> {
   if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
     io.out(USAGE);
@@ -157,6 +173,40 @@ export async function runCli(
       return result.ready ? 0 : 1;
     }
 
+    if (args[0] === "job" && args[1] === "export") {
+      const jobId = args[2];
+      if (jobId === undefined) {
+        io.error("[CLI_USAGE] job export requires <job_id>.");
+        return 2;
+      }
+      const projectId = readOption(args, "--project");
+      const flow = flowService ?? new GoogleFlowManualService();
+      const result = await flow.exportJob({
+        jobId,
+        ...(projectId === undefined ? {} : { projectId })
+      });
+      printJson(io, result);
+      return 0;
+    }
+
+    if (args[0] === "job" && args[1] === "import-result") {
+      const jobId = args[2];
+      const generatedFile = args[3];
+      if (jobId === undefined || generatedFile === undefined) {
+        io.error("[CLI_USAGE] job import-result requires <job_id> <generated.mp4>.");
+        return 2;
+      }
+      const projectId = readOption(args, "--project");
+      const flow = flowService ?? new GoogleFlowManualService();
+      const result = await flow.importResult({
+        jobId,
+        generatedFile,
+        ...(projectId === undefined ? {} : { projectId })
+      });
+      printJson(io, result);
+      return 0;
+    }
+
     if (args[0] === "run" || args[0] === "job" || args[0] === "qc") {
       return notImplemented(io, args.join(" "));
     }
@@ -164,7 +214,11 @@ export async function runCli(
     io.error("[CLI_USAGE] Unknown command.\n" + USAGE);
     return 2;
   } catch (error: unknown) {
-    if (error instanceof ProjectBootstrapError || error instanceof LegacyGuardError) {
+    if (
+      error instanceof ProjectBootstrapError ||
+      error instanceof LegacyGuardError ||
+      error instanceof GoogleFlowManualError
+    ) {
       io.error(`[${error.code}] ${error.message}`);
       return 1;
     }
