@@ -1,7 +1,9 @@
 import type {MediaArtifact} from "@vpf/domain";
+import type {UnifiedProjectPolicy} from "@vpf/legacy-guard";
 import type {AudioImportPersistencePort} from "@vpf/provider-orchestrator/audio-import";
 import type {OutboxRecord, WorkflowEvent} from "@vpf/workflow";
 import {SqliteSceneAssetRepository} from "./scene-assets.js";
+import {readProjectPolicy} from "./project-policy.js";
 
 function mapMedia(row: any): MediaArtifact {
   return {
@@ -55,6 +57,10 @@ function insertEvent(
 export class SqliteAudioImportRepository
   extends SqliteSceneAssetRepository
   implements AudioImportPersistencePort {
+  async getProjectPolicy(projectId: string): Promise<UnifiedProjectPolicy | null> {
+    return readProjectPolicy(this.db, projectId);
+  }
+
   async findAvailableAudio(input: {
     projectId: string;
     checksum: string;
