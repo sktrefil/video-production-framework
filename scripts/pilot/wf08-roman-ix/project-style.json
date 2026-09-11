@@ -1,0 +1,34 @@
+{
+  "eraRegion": "Roman Britain, principally Eboracum (York) and northern Britain, circa AD 107-124; any later-fate reconstruction remains explicitly hypothetical",
+  "visualApproach": "Evidence-led cinematic historical reconstruction for a vertical short, separating documented evidence, plausible reconstruction, disputed interpretation, and unknown fate",
+  "realismLevel": "Grounded historical realism with conservative reconstruction; exact faces, heraldry, inscriptions, and event outcomes are not invented when the approved evidence does not support them",
+  "colorLanguage": "Material-derived muted stone, weathered timber, iron, leather, wool, earth, and cool northern-weather tones; no fixed decorative palette overrides scene evidence",
+  "lightingLanguage": "Motivated overcast daylight, restrained fire or interior practical light where justified, and controlled contrast that preserves readable historical detail",
+  "materialLanguage": "Physically plausible Roman military stonework, timber, lime surfaces, iron, bronze, wool, leather, soil, mud, and weathering without glossy fantasy treatment",
+  "environmentLanguage": "Wind-exposed northern Roman Britain, Eboracum military architecture, roads, forts, wet ground, low cloud, and historically plausible terrain while keeping documented places distinct from generic reconstruction",
+  "characterRenderingPrinciple": "Roman legionaries use natural proportions and plausible early-second-century clothing and military equipment; continuity is maintained through equipment and status cues rather than invented fixed portraits of undocumented individuals",
+  "cameraCompositionTendency": "Readable vertical story geography with strong subject hierarchy, evidence-focused detail shots, restrained cinematic depth, and wider contextual frames where continuity or historical meaning requires them; avoid constant heroic close-ups",
+  "moodRange": [
+    "investigative",
+    "austere",
+    "uneasy",
+    "historically uncertain"
+  ],
+  "factualConstraints": [
+    "The AD 107-108 York building inscription is evidence that Legio IX Hispana participated in gate construction at Eboracum.",
+    "Approved research extends relevant officer traces into the early 120s, approximately AD 124; later fate is not established as fact.",
+    "The popular story that the entire legion suddenly vanished in northern Britain is presented as a legend, not a documented event.",
+    "Destruction or disbandment during Hadrianic-era conflict is one scholarly interpretation and must be visually marked as hypothetical rather than definitive.",
+    "Generated reconstructions are explanatory visuals, not primary evidence; source artifacts, maps, inscriptions, and records retain distinct provenance.",
+    "Do not invent an exact face, unique Ninth Legion heraldry, exact inscription text, or decisive final battlefield unless supported by an approved source reference."
+  ],
+  "avoidances": [
+    "fantasy Roman armor, weapons, architecture, or game-render spectacle",
+    "unsupported exact Ninth Legion emblems, shield devices, standards, or heraldry presented as fact",
+    "fabricated readable Latin inscriptions or forged-looking primary-source documents",
+    "anachronistic objects, clothing, buildings, maps, typography, or modern military imagery inside reconstruction scenes",
+    "turning disputed hypotheses or unknown fate into visually certain historical events",
+    "copying legacy HISTORY_MYSTERY_STYLIZED_V1, old master-style palettes, sample markdown artwork, or prior project imagery as authoritative style input",
+    "excessive gore, caricature, heroic fantasy posing, watermarks, text artifacts, or unnecessary UI"
+  ]
+}
