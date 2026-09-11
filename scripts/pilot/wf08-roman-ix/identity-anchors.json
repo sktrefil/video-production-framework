@@ -1,0 +1,93 @@
+{
+  "anchors": [
+    {
+      "key": "eboracum-gate-complex",
+      "anchorType": "LOCATION",
+      "name": "Eboracum Roman Fortress Gate Complex",
+      "rationale": "The evidence transition and AD 107-108 construction scene must refer to the same Eboracum military setting rather than two unrelated generic Roman gates.",
+      "continuityReason": "RECURRING",
+      "productionPriority": "CRITICAL",
+      "requiredBySceneIds": [
+        "sc_de4eb9cd5a64400b81c70a101366da5c",
+        "sc_8395874e123b4d7e9e349f97b7842862"
+      ],
+      "specification": {
+        "locked": [
+          "Maintain one coherent early-second-century Roman military gate massing and opening geometry across Eboracum reconstruction shots.",
+          "Keep masonry, timber construction logic, wall scale, and major structural relationships visually consistent.",
+          "Use historically plausible Roman military architecture and do not add unsupported monumental fantasy decoration."
+        ],
+        "contextual": [
+          "Construction progress, workers, legionary activity, camera distance, weather, and time-of-day may change with the scene.",
+          "Evidence-focused framing may isolate the inscription or stonework while preserving the same location identity."
+        ],
+        "temporary": [
+          "scaffolding",
+          "tools and building debris",
+          "mud, mist, and transient weather effects"
+        ]
+      }
+    },
+    {
+      "key": "york-building-inscription",
+      "anchorType": "PROP",
+      "name": "AD 107-108 York Building Inscription Evidence Artifact",
+      "rationale": "The inscription is the key evidence object separating legend from documented presence and recurs in the evidence and summary portions of the short.",
+      "continuityReason": "RECURRING",
+      "productionPriority": "CRITICAL",
+      "requiredBySceneIds": [
+        "sc_de4eb9cd5a64400b81c70a101366da5c",
+        "sc_8395874e123b4d7e9e349f97b7842862",
+        "sc_00486d9d76924e749c58c1f619aa26d2"
+      ],
+      "specification": {
+        "locked": [
+          "Treat the inscription as evidence and keep it visually distinct from generated dramatic reconstruction.",
+          "When exact lettering or layout is shown, use only an approved source reference; otherwise do not fabricate readable Latin text.",
+          "Keep the same plausible stone material, weathering logic, scale class, and artifact identity whenever it recurs."
+        ],
+        "contextual": [
+          "Macro detail, contextual placement, crop, evidence highlight, and editorial annotation may vary by scene.",
+          "The artifact may be shown alongside reconstruction only when provenance remains visually unambiguous."
+        ],
+        "temporary": [
+          "raking light used to reveal surface relief",
+          "editorial highlight or callout",
+          "dust or environmental surface moisture"
+        ]
+      }
+    },
+    {
+      "key": "legio-ix-kit-continuity",
+      "anchorType": "PROP",
+      "name": "Legio IX Hispana Military Kit and Standard Continuity",
+      "rationale": "Several reconstruction scenes depict the same legion across marching, construction, battle-hypothesis, and summary beats; its equipment language must remain coherent without inventing unsupported Ninth Legion heraldry.",
+      "continuityReason": "RECURRING",
+      "productionPriority": "IMPORTANT",
+      "requiredBySceneIds": [
+        "sc_4385ae298c8344b1861e717327dd3b45",
+        "sc_ed1b4421d6e24841810aa86d9e431635",
+        "sc_8395874e123b4d7e9e349f97b7842862",
+        "sc_6799edb1776a4d6f9bb8bf15c4e06d09",
+        "sc_00486d9d76924e749c58c1f619aa26d2"
+      ],
+      "specification": {
+        "locked": [
+          "Keep one plausible early-second-century Roman legionary equipment family across helmets, armor, shields, belts, clothing, packs, and standards.",
+          "Maintain consistent material age, construction quality, and military status cues across recurring reconstruction scenes.",
+          "Do not assign a unique emblem, shield device, animal symbol, color scheme, or heraldic mark specifically to Legio IX unless an approved source supports it.",
+          "A standard may communicate Roman military identity, but unsupported decorative detail must remain generic and non-assertive."
+        ],
+        "contextual": [
+          "Individual soldiers may vary naturally in face, pose, age, weather exposure, and minor equipment state.",
+          "Marching, construction work, and hypothetical battle may change loadout and posture while retaining the same equipment design family."
+        ],
+        "temporary": [
+          "mud and rain exposure",
+          "construction dust",
+          "battle damage shown only inside explicitly hypothetical scenes"
+        ]
+      }
+    }
+  ]
+}
