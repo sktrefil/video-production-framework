@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "CHANNEL_VISUAL_BIBLE",
+  "resourceId": "HISTORY_MYSTERY_VISUAL_BIBLE",
+  "version": "1.1.0",
+  "payload": {
+    "channelWideVisualApproach": "Evidence-led cinematic historical reconstruction that keeps factual confidence, reconstruction, and uncertainty visually distinguishable while preserving continuity across a long-form-first production.",
+    "realismAndFactualityPrinciples": [
+      "Prefer historically plausible people, spaces, objects, materials, clothing, and environmental conditions over decorative fantasy.",
+      "Do not present a generated reconstruction as if it were an authenticated primary source, archival photograph, portrait, map, document, or artifact.",
+      "When the script expresses uncertainty, the image language must preserve that uncertainty rather than convert it into visual certainty.",
+      "Visual drama may clarify attention and emotion, but must not invent a decisive historical fact that the approved story context does not support."
+    ],
+    "continuityPrinciples": {
+      "characters": [
+        "Recurring people keep stable age range, facial identity, body proportions, hair/headwear logic, status cues, and period-appropriate wardrobe identity unless an approved state change requires a revision.",
+        "Temporary emotion, pose, dirt, injury, weather exposure, and scene-specific costume details remain contextual and must not overwrite locked identity."
+      ],
+      "locations": [
+        "Recurring locations keep stable architecture, spatial identity, material logic, geography, and major landmark relationships while allowing scene-appropriate camera and lighting variation.",
+        "A location change must be motivated by the approved scene rather than introduced only to make an image more visually varied."
+      ],
+      "props": [
+        "Historically important or recurring props retain recognizable shape, scale, material, wear state, ownership, and continuity across scenes.",
+        "A prop must not silently change identity or historical function between adjacent scenes."
+      ]
+    },
+    "visualLanguageBoundaries": {
+      "color": [
+        "Derive color from period materials, location, weather, time of day, and story state instead of enforcing one project palette.",
+        "Use restrained saturation when appropriate to the historical environment, but allow justified warm, cool, bright, or dark scenes when the approved context requires them."
+      ],
+      "lighting": [
+        "Prefer motivated natural, architectural, fire, candle, moon, overcast, or practical light consistent with the depicted place and period.",
+        "Lighting may shape focus and mood but should not create implausible studio spectacle or hide historically important information."
+      ],
+      "material": [
+        "Surfaces, textiles, paper, wood, stone, metal, soil, vegetation, and weathering should read as physically plausible for the represented period and environment.",
+        "Avoid generic fantasy luxury, glossy game-render materials, and decorative detail unsupported by the approved reconstruction."
+      ]
+    },
+    "reconstructionEvidenceDistinction": [
+      "Evidence, quoted source material, maps, documents, and artifacts must retain their source identity and should not be visually blended with generated reconstruction in a way that confuses provenance.",
+      "Generated reconstruction should be treated as explanatory visualization, not proof.",
+      "When evidence is incomplete, composition may withhold detail, use partial views, or favor contextual reconstruction instead of fabricating specific unsupported evidence."
+    ],
+    "compositionAndCameraTendencies": [
+      "Favor readable story geography, clear subject hierarchy, restrained cinematic depth, and compositions that can survive editorial movement and continuity handoff.",
+      "Use camera distance and angle to support historical meaning and scene intent rather than defaulting to constant heroic close-ups.",
+      "Preserve enough environmental information in key establishing and transition images to support long-form continuity.",
+      "Avoid fixed shorts-only framing; composition is adapted by the selected format profile."
+    ],
+    "historicalUncertaintyHandling": [
+      "Differentiate documented facts, reasonable reconstruction, disputed interpretation, and unknown detail in the upstream factual constraints and reflect that confidence visually.",
+      "Do not invent exact faces, inscriptions, colors, heraldry, layouts, or object details when the approved evidence does not support that specificity.",
+      "When multiple interpretations are plausible, choose a conservative representation or expose the ambiguity instead of silently selecting a sensational one."
+    ],
+    "formatAdaptationRules": [
+      "The same channel Visual Bible governs LONGFORM and SHORTFORM; format-specific framing, safe areas, dimensions, and delivery constraints come from the Format Profile.",
+      "LONGFORM should prioritize sustained continuity, environmental readability, and editability across sequences.",
+      "SHORTFORM may tighten hierarchy and framing for vertical readability without changing the channel's factuality or identity rules."
+    ],
+    "avoidances": [
+      "Do not inherit project-specific palettes, master images, or character identities into the channel-wide resource.",
+      "Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.",
+      "Do not treat sample markdown image style, sample palettes, or prior project artwork as authoritative style input.",
+      "Avoid anachronistic objects, fantasy costume embellishment, exaggerated caricature, game-like render language, text artifacts, watermarks, and UI unless explicitly required by an approved asset role."
+    ],
+    "visualDirectionGrammar": {
+      "grammarId": "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1",
+      "grammarVersion": "1.0.0",
+      "coreStatement": "Story-first illustrated cinematic historical reconstruction: the sequence carries the narrative; characters, objects, artifacts, and spectacle support the story rather than dominate it.",
+      "storyHierarchy": [
+        "NARRATIVE_FUNCTION",
+        "ENVIRONMENT_AND_SPATIAL_CONTEXT",
+        "CONTINUITY_AND_HANDOFF",
+        "EVIDENCE",
+        "CHARACTER_OR_OBJECT"
+      ],
+      "shotGrammar": {
+        "defaultShotFamilies": ["MEDIUM_WIDE", "WIDE"],
+        "defaultSubjectScale": ["SMALL", "MEDIUM"],
+        "environmentVisibility": "HIGH",
+        "closeUpPolicy": {
+          "default": "RESTRICTED",
+          "allowedReasons": [
+            "NARRATIVE_TURNING_POINT",
+            "DECISIVE_EVIDENCE",
+            "EMOTIONAL_TRANSITION",
+            "EVIDENCE_REACTION"
+          ],
+          "rule": "A close-up must earn its place through narrative function; do not enlarge a person or object merely to make the frame impressive."
+        }
+      },
+      "surfaceGrammar": {
+        "structure": "HISTORICALLY_REALISTIC",
+        "finish": "RESTRAINED_PAINTERLY_MATTE",
+        "photographicMicrodetail": "REDUCE",
+        "skinAndMaterialSharpness": "CONTROLLED",
+        "gameRenderGloss": "FORBIDDEN",
+        "rule": "Keep anatomy, architecture, geography, tools, clothing, and material logic credible while allowing visible illustrative simplification and matte painterly surface treatment."
+      },
+      "evidenceGrammar": {
+        "priority": "SUPPORT_NARRATIVE",
+        "generatedReadableHistoricalText": "FORBIDDEN",
+        "unsupportedHeraldryOrInsignia": "FORBIDDEN",
+        "consecutiveEvidenceCloseUps": "AVOID",
+        "contextRecoveryRule": "After an evidence-focused close view, return to spatial or interpretive context before another evidence close-up whenever the story allows."
+      },
+      "certaintyGrammar": {
+        "FACT": "Observational, legible, restrained; show the supported place, action, material, or evidence without added spectacle.",
+        "RECONSTRUCTION": "Cinematic but visibly reconstructed; preserve plausible structure and avoid pretending the image is primary evidence.",
+        "HYPOTHESIS": "Use partial views, distance, occlusion, competing spatial possibilities, or reduced specificity so one proposed explanation does not read as settled fact.",
+        "LEGEND": "Permit stronger symbolism and painterly abstraction while clearly separating legendary imagery from documentary evidence.",
+        "UNKNOWN": "Use negative space, distance, fog, incomplete information, or unresolved direction rather than depicting a definitive answer."
+      },
+      "handoffGrammar": {
+        "preserveElementsMin": 2,
+        "preserveElementsMax": 4,
+        "preferredElements": [
+          "SUBJECT_OR_TRAVEL_DIRECTION",
+          "DEPTH_AXIS",
+          "LIGHT_DIRECTION",
+          "WEATHER_OR_ATMOSPHERE",
+          "DOMINANT_GEOMETRY",
+          "HANDOFF_ANCHOR"
+        ],
+        "rule": "Each image should leave usable visual information for the next shot and future I2V; continuity is designed before generation, not repaired afterward."
+      },
+      "motionGrammar": {
+        "preferred": [
+          "SLOW_PUSH_IN",
+          "MEASURED_FORWARD_TRACK",
+          "RESTRAINED_LATERAL_TRACK",
+          "SUBTLE_PARALLAX",
+          "EVIDENCE_REVEAL",
+          "ATMOSPHERIC_DRIFT"
+        ],
+        "avoidByDefault": [
+          "WHIP_PAN",
+          "CRASH_ZOOM",
+          "FAST_ORBIT",
+          "UNMOTIVATED_DRONE_DIVE",
+          "SPECTACLE_ONLY_CAMERA_MOVE"
+        ]
+      },
+      "formatGrammar": {
+        "LONGFORM": {
+          "rule": "Favor sequence continuity, environmental readability, editability, and variation in shot scale without losing the story geography."
+        },
+        "SHORTFORM": {
+          "essentialInformationZone": "CENTER_60_70_PERCENT",
+          "topPeripheralZone": "TOP_15_20_PERCENT_LOW_DETAIL",
+          "bottomPeripheralZone": "BOTTOM_15_20_PERCENT_LOW_DETAIL",
+          "rule": "Place faces, decisive evidence, handoff anchors, and essential story information near the central band; use the upper and lower zones for atmosphere, sky, floor, shadow, fog, or other lower-detail information because final shorts may blur or crop those regions."
+        }
+      },
+      "promptCompilation": {
+        "principles": [
+          "Keep the final image prompt compact; detailed design logic belongs upstream.",
+          "Express the scene's narrative role and environment before character or object beauty language.",
+          "Carry only handoff constraints that materially affect the generated frame.",
+          "Use medium-wide or wide environment-first framing by default unless the approved scene explicitly earns a close-up.",
+          "Describe realistic historical structure with restrained painterly matte treatment rather than photographic or game-render finish.",
+          "Do not inject a fixed decorative palette; derive color from era, region, material, weather, light, and story state."
+        ],
+        "forbidden": [
+          "READABLE_GENERATED_HISTORICAL_TEXT",
+          "UNSUPPORTED_INSIGNIA_OR_HERALDRY",
+          "HEROIC_CLOSEUP_BY_DEFAULT",
+          "CHARACTER_OR_OBJECT_DOMINATES_WITHOUT_NARRATIVE_REASON",
+          "PHOTOREAL_PORTRAIT_LANGUAGE_BY_DEFAULT",
+          "GLOSSY_GAME_RENDER_LANGUAGE",
+          "LEGACY_MASTER_STYLE_INJECTION"
+        ]
+      }
+    }
+  }
+}
