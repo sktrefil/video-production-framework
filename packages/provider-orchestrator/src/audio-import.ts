@@ -1,4 +1,5 @@
 import {createHash} from "node:crypto";
+import {assertUnifiedProject, type UnifiedProjectPolicy} from "@vpf/legacy-guard";
 import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import {copyFile, mkdir, readFile, rename, rm, stat} from "node:fs/promises";
 import {basename, dirname, extname, resolve} from "node:path";
@@ -24,6 +25,7 @@ export interface AudioImportProbe {
 }
 
 export interface AudioImportPersistencePort {
+  getProjectPolicy(projectId: string): Promise<UnifiedProjectPolicy | null>;
   findAvailableAudio(input: {
     projectId: string;
     checksum: string;
@@ -178,6 +180,11 @@ export class LocalAudioImportService {
     kind: LocalAudioKind;
     sourcePath: string;
   }): Promise<{media: MediaArtifact; probe: AudioImportProbe; created: boolean}> {
+    // Fail closed on project identity before stat/realpath/probe/hash/copy of the
+    // user-selected source file. A missing/legacy project must not cause source
+    // bytes to be inspected as a side effect of an invalid import request.
+    assertUnifiedProject(await this.persistence.getProjectPolicy(input.projectId));
+
     const sourceAbsolutePath = resolve(input.sourcePath);
     assertIsolatedPath(dirname(sourceAbsolutePath), sourceAbsolutePath);
     const probe = await probeLocalAudioFile(sourceAbsolutePath);
