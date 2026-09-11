@@ -39,6 +39,11 @@ const prohibited = [
 ];
 
 const selfPath = "scripts/check-no-legacy-paths.mjs";
+const immutableVisualBibleProhibitionFiles = new Set([
+  "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.0.0.json",
+  "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.1.0.json"
+]);
+const immutableVisualBibleProhibition = "Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.";
 
 async function listFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -94,8 +99,8 @@ for (const rootName of scanRoots) {
       content = content.replace('"sourceRepository": "sktrefil/video-production"', '"sourceRepository": "MIGRATION_PROVENANCE"');
     }
     // Exact immutable prohibition prose is detection data, never an executable reference.
-    if (rel === "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.0.0.json") {
-      content = content.replace("Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.", "");
+    if (immutableVisualBibleProhibitionFiles.has(rel)) {
+      content = content.replace(immutableVisualBibleProhibition, "");
     }
     const category = legacyCategory(content);
     if (category) findings.push({file: rel, code: category});
