@@ -7,12 +7,12 @@ Branch: `validation/full-system-v1`
 |---|---|---|---|
 | TEST-00 | Migration Contract Audit | MIG-13 readiness | PASS |
 | TEST-01 | Repository Integration Foundation | TEST-00 | PASS |
-| TEST-02 | Runtime Contracts + Provider Orchestrator | TEST-01 | IN_PROGRESS |
-| TEST-03 | Resource Registry + Canonical Resources | TEST-02 | BLOCKED |
-| TEST-04 | Project Bootstrap + Unified CLI | TEST-03 | BLOCKED |
-| TEST-05 | ElevenLabs Runtime | TEST-04 | BLOCKED |
-| TEST-06 | New Image Runtime | TEST-05 | BLOCKED |
-| TEST-07 | Google Flow Manual Runtime | TEST-06 | BLOCKED |
+| TEST-02 | Runtime Contracts + Provider Orchestrator | TEST-01 | PASS |
+| TEST-03 | Resource Registry + Canonical Resources | TEST-02 | PASS |
+| TEST-04 | Project Bootstrap + Unified CLI | TEST-03 | PASS |
+| TEST-05 | ElevenLabs Runtime | TEST-04 | PASS |
+| TEST-06 | New Image Runtime | TEST-05 | PASS |
+| TEST-07 | Google Flow Manual Runtime | TEST-06 | IN_PROGRESS |
 | TEST-08 | Generic Editor Port | TEST-07 | BLOCKED |
 | TEST-09 | Editor Materialization + Render Runtime | TEST-08 | BLOCKED |
 | TEST-10 | Audio + Subtitle Runtime Gaps | TEST-09 | BLOCKED |
