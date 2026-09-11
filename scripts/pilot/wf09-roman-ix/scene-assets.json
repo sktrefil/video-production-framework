@@ -1,0 +1,381 @@
+{
+  "scenes": [
+    {
+      "sceneId": "sc_7fbb0c3ec64d42a3b3b8f21638ae7d9b",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "HERO",
+        "productionPriority": "CRITICAL",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Open with the disappearance mystery while presenting it as a question rather than an established event."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Establish northern Roman Britain and the mystery of the Ninth Legion without depicting a fictional confirmed disappearance.",
+        "composition": "Vertical 9:16 aerial-oblique view of a cold northern Britain landscape with a Roman road and small marching formation low in frame; broad misty terrain and open upper area reserved for later map/question overlays.",
+        "continuityRequirements": [
+          "Roman military equipment must match the same early-second-century material family used in later legion scenes.",
+          "Keep geography suggestive rather than presenting a generated map as exact cartographic evidence."
+        ],
+        "factualConstraints": [
+          "The legion's later fate is unresolved; the image must frame disappearance as mystery, not documented annihilation.",
+          "Do not invent a unique Ninth Legion emblem or fixed heraldic color scheme."
+        ],
+        "avoidances": [
+          "fantasy armor",
+          "supernatural disappearance effects",
+          "readable invented map labels",
+          "modern cartography styling inside the generated image",
+          "game-render spectacle"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Early second-century Roman legionaries moving along a remote road in northern Britain, vast cold misty landscape, grounded archaeological reconstruction, weathered wool leather iron and timber, subdued natural earth and slate tones, overcast daylight, vertical 9:16 composition with open upper space, investigative historical mood, no supernatural event.",
+        "negativePrompt": "fantasy armor, magical effects, modern objects, readable invented labels, unsupported legion emblem, game render, excessive gore"
+      }
+    },
+    {
+      "sceneId": "sc_4385ae298c8344b1861e717327dd3b45",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "STORY_ANCHOR",
+        "productionPriority": "IMPORTANT",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Introduce Legio IX Hispana as a Roman military formation while preserving equipment continuity without claiming unsupported heraldry."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Make the Ninth Legion legible as a disciplined Roman military formation through equipment and formation, not invented insignia.",
+        "composition": "Vertical medium-wide formation shot with several legionaries advancing toward camera at a slight angle; shields and armor readable in the middle third, background kept simple for vertical clarity.",
+        "continuityRequirements": [
+          "Use the approved Legio IX military kit continuity anchor.",
+          "Maintain the same plausible equipment family when these soldiers recur later."
+        ],
+        "factualConstraints": [
+          "Use plausible early-second-century Roman military equipment.",
+          "No exact Ninth Legion shield device, animal symbol, or heraldic color may be asserted without evidence."
+        ],
+        "avoidances": [
+          "fantasy legion armor",
+          "uniform cinematic superhero faces",
+          "unsupported eagle or animal emblem presented as specific to the Ninth",
+          "bright decorative color coding",
+          "modern weapons"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Disciplined early second-century Roman legionaries in northern Britain, plausible segmented and mail armor mix, weathered shields without distinctive invented heraldry, wool and leather equipment, natural human proportions, cold overcast daylight, grounded historical reconstruction, vertical 9:16 medium-wide formation.",
+        "negativePrompt": "fantasy armor, unsupported Ninth Legion emblem, bright heraldic palette, modern weapons, superhero anatomy, game render"
+      }
+    },
+    {
+      "sceneId": "sc_ed1b4421d6e24841810aa86d9e431635",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "STANDARD",
+        "productionPriority": "IMPORTANT",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Show sustained activity on the northern frontier with the approved military kit continuity."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Show Roman soldiers operating in the harsh northern British frontier rather than posing heroically.",
+        "composition": "Vertical long-medium shot of legionaries moving along a muddy military road between low timber-and-earth frontier works; strong depth from foreground track into low-cloud distance.",
+        "continuityRequirements": [
+          "Use the approved Legio IX military kit continuity anchor.",
+          "Keep equipment wear, materials, and scale consistent with Scene 2."
+        ],
+        "factualConstraints": [
+          "Represent northern frontier activity generally without inventing a specific undocumented battle.",
+          "Architecture and kit should remain plausible for Roman Britain in the early second century."
+        ],
+        "avoidances": [
+          "large fantasy castle walls",
+          "dramatic battle carnage",
+          "unsupported heraldry",
+          "sunny Mediterranean environment",
+          "modern road surfaces"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Early second-century Roman legionaries marching along a muddy military road on the northern British frontier, low timber and earth defenses, wet ground, wind and low cloud, weathered Roman equipment, practical movement rather than heroic posing, grounded historical realism, vertical 9:16 depth composition.",
+        "negativePrompt": "fantasy fort, unsupported heraldry, mass battle, gore, Mediterranean sunshine, modern road, game render"
+      }
+    },
+    {
+      "sceneId": "sc_de4eb9cd5a64400b81c70a101366da5c",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "HERO",
+        "productionPriority": "CRITICAL",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Center the documented York building inscription as archaeological evidence while avoiding fabricated readable Latin."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Shift from military reconstruction to physical evidence by focusing on a weathered Roman building inscription associated with York in AD 107-108.",
+        "composition": "Vertical evidence-focused close view of a worn Roman stone inscription fragment in the lower and middle frame, shallow contextual hints of fortress masonry behind it, clean upper margin for an editor-added date/evidence label.",
+        "continuityRequirements": [
+          "Use the approved York building inscription evidence artifact anchor.",
+          "Use the approved Eboracum fortress gate complex anchor for contextual architecture only.",
+          "Any exact lettering must come from approved reference media later; generated lettering must not be readable."
+        ],
+        "factualConstraints": [
+          "The visual represents evidence connected to building work at York around AD 107-108.",
+          "Do not fabricate an exact transcription, line layout, or complete inscription text."
+        ],
+        "avoidances": [
+          "clean newly carved monument",
+          "readable invented Latin",
+          "museum display case unless sourced",
+          "fantasy symbols",
+          "dramatic battle imagery"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Weathered Roman stone building inscription fragment associated with early second-century Eboracum, archaeological evidence close-up, worn carved marks not legible as invented text, damp grey stone, restrained fortress masonry context, soft overcast light, documentary realism, vertical 9:16 with open upper label space.",
+        "negativePrompt": "readable invented Latin, pristine monument, fantasy symbols, modern museum labels, dramatic battle, game render"
+      }
+    },
+    {
+      "sceneId": "sc_8395874e123b4d7e9e349f97b7842862",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "STORY_ANCHOR",
+        "productionPriority": "CRITICAL",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Reconstruct the documented building context at Eboracum while preserving gate, inscription, and equipment continuity."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Show plausible Roman military construction at the Eboracum gate complex as reconstruction clearly grounded in the physical evidence discussed in the preceding scene.",
+        "composition": "Vertical three-layer construction scene: workers and legionaries in foreground, gate masonry and timber works dominating the middle frame, overcast northern sky above; no inscription text used as decorative signage.",
+        "continuityRequirements": [
+          "Use the approved Eboracum fortress gate complex anchor for massing, gate opening geometry, wall scale, and material logic.",
+          "Use the approved York building inscription anchor only as contextual evidence, not as freely invented text.",
+          "Use the approved Legio IX military kit continuity anchor for soldiers."
+        ],
+        "factualConstraints": [
+          "Present the construction as a conservative reconstruction of Roman military building work at York around AD 107-108.",
+          "Do not claim exact undocumented gate ornament, colors, or inscription placement."
+        ],
+        "avoidances": [
+          "monumental fantasy gate",
+          "readable invented inscription",
+          "unsupported legion emblem",
+          "modern construction tools",
+          "polished cinematic palace architecture"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Conservative reconstruction of Roman military gate construction at Eboracum around AD 107-108, legionaries and workers handling timber and stone, plausible Roman masonry and gate scale, weathered early second-century equipment, wet northern environment, overcast practical light, grounded historical realism, vertical 9:16 composition.",
+        "negativePrompt": "fantasy gate, readable invented Latin, unsupported legion emblem, modern tools, palace architecture, game render"
+      }
+    },
+    {
+      "sceneId": "sc_e635d4b1a5c04590ae7882969b53dd22",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "STANDARD",
+        "productionPriority": "IMPORTANT",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Provide a restrained background for the editor's 108-to-mid-second-century timeline transition without generating fake documents or text."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Create a visual bridge from the securely documented York period toward the later documentary gap.",
+        "composition": "Vertical tabletop-like evidence composition with weathered stone, wax-tablet or parchment-like Roman record materials, and fortress context fading into shadow; central horizontal breathing room reserved for editor-added timeline graphics.",
+        "continuityRequirements": [
+          "Keep materials and environment consistent with the approved Roman Britain Project Style.",
+          "Timeline dates and labels will be added in the editor, not generated into the image."
+        ],
+        "factualConstraints": [
+          "Do not imply that a specific surviving document visually shown here records the Ninth through the mid-second century.",
+          "The image is contextual reconstruction, not authenticated archival evidence."
+        ],
+        "avoidances": [
+          "readable fabricated Roman records",
+          "modern timeline graphics baked into the image",
+          "specific false dates",
+          "fantasy manuscript illumination",
+          "clean modern paper"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Contextual Roman military record materials beside weathered stone and timber architecture in early second-century Britain, wax tablet and parchment-like surfaces with no readable invented writing, evidence-led reconstruction, subdued overcast light, restrained empty central area for later timeline overlay, vertical 9:16 documentary composition.",
+        "negativePrompt": "readable fabricated text, baked-in timeline labels, modern paper, fantasy manuscript, false dates, game render"
+      }
+    },
+    {
+      "sceneId": "sc_6934829088424e41a1b6af7bfb825546",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "HERO",
+        "productionPriority": "IMPORTANT",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Turn the documentary gap into the central mystery without inventing a disappearance scene."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Visualize absence of later evidence as uncertainty: an empty northern military landscape where the record no longer gives a clear answer.",
+        "composition": "Vertical deep landscape with an abandoned-looking but not destroyed Roman road/fort approach fading into dense mist; no bodies or battle debris; strong negative space for a later question-mark graphic.",
+        "continuityRequirements": [
+          "Maintain the same northern Britain material and weather language established earlier.",
+          "Do not imply physical abandonment is itself documented evidence."
+        ],
+        "factualConstraints": [
+          "The factual point is a gap in later records, not proof of annihilation or sudden vanishing.",
+          "Any question mark or date marker is an editor overlay, not generated historical content."
+        ],
+        "avoidances": [
+          "mass graves",
+          "burned fortress as asserted fact",
+          "supernatural mist effects",
+          "readable labels",
+          "apocalyptic ruins"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Remote Roman military road and frontier approach in northern Britain fading into dense cold mist, intact weathered structures with no depicted battle, grounded historical reconstruction, subdued slate and earth materials, unresolved documentary mood, strong negative space, vertical 9:16 composition.",
+        "negativePrompt": "mass graves, burned fortress, supernatural effects, apocalypse, readable labels, modern objects, game render"
+      }
+    },
+    {
+      "sceneId": "sc_6799edb1776a4d6f9bb8bf15c4e06d09",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "STANDARD",
+        "productionPriority": "IMPORTANT",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Depict the Hadrian-era destruction/disbandment explanation explicitly as a hypothesis, never as confirmed history."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Illustrate the possibility of a hard frontier conflict while visually signaling that this is one proposed explanation rather than established fact.",
+        "composition": "Vertical distant battle aftermath/reconstruction with Roman troops moving through wind and rain, partially obscured action, no identifiable decisive massacre; leave upper side area clear for an editor-added HYPOTHESIS label.",
+        "continuityRequirements": [
+          "Use the approved Legio IX military kit continuity anchor.",
+          "Keep soldiers visually consistent with earlier scenes but avoid using a fixed undocumented protagonist."
+        ],
+        "factualConstraints": [
+          "Destruction or disbandment in Hadrian-era northern conflict is a scholarly interpretation, not a confirmed final battle.",
+          "The image must not show total extermination as fact."
+        ],
+        "avoidances": [
+          "confirmed last-stand tableau",
+          "massacre imagery",
+          "unsupported legion insignia",
+          "graphic gore",
+          "cinematic victory pose"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Hypothetical Hadrian-era frontier conflict in northern Britain, Roman legionaries moving through cold rain and churned earth, plausible early second-century equipment, action partly obscured by weather, no decisive massacre shown, grounded historical reconstruction, vertical 9:16 frame with space for a later hypothesis label.",
+        "negativePrompt": "confirmed last stand, mass slaughter, graphic gore, unsupported legion emblem, fantasy armor, victory pose, game render"
+      }
+    },
+    {
+      "sceneId": "sc_249d935a8dce4c82ab15f39e159672eb",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "STANDARD",
+        "productionPriority": "IMPORTANT",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Support comparison of competing later-fate hypotheses without privileging Britain, Germania, or the eastern provinces as settled."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Create a neutral Roman-world travel/transfer background that can carry three editor-added hypothesis destinations without asserting any one route.",
+        "composition": "Vertical high oblique Roman road and coastal/continental landscape montage with three subtle directional visual corridors; no readable map labels or exact generated borders; central area kept clear for editor overlays.",
+        "continuityRequirements": [
+          "Maintain Roman early-second-century material realism.",
+          "Destination names and arrows will be added as graphics in the editor rather than generated."
+        ],
+        "factualConstraints": [
+          "Britain, Germania, and eastern transfer/destruction remain competing possibilities in the story structure.",
+          "Do not generate a route that visually certifies one hypothesis."
+        ],
+        "avoidances": [
+          "readable invented map labels",
+          "precise false route lines",
+          "modern political borders",
+          "single highlighted destination",
+          "fantasy cartography"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Neutral early-second-century Roman imperial travel landscape suggesting several possible directions, road network, distant coast and continental terrain, grounded historical reconstruction, no readable labels or fixed route, restrained natural materials, vertical 9:16 composition with central space for later competing-hypothesis graphics.",
+        "negativePrompt": "readable map labels, modern borders, exact route line, single highlighted destination, fantasy map, game render"
+      }
+    },
+    {
+      "sceneId": "sc_00486d9d76924e749c58c1f619aa26d2",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "HERO",
+        "productionPriority": "CRITICAL",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_CURRENT",
+        "rationale": "Synthesize inscription evidence, continuing officer traces, and military continuity to separate the popular vanishing legend from the real unresolved fate."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Visually contrast tangible evidence with an unresolved military silhouette, showing why the story is more complex than a sudden disappearance legend.",
+        "composition": "Vertical layered evidence composition: weathered inscription fragment and Roman material evidence in foreground, subdued legionary silhouettes receding in middle distance, open side band for editor-added timeline/legend-versus-evidence labels.",
+        "continuityRequirements": [
+          "Use the approved York building inscription evidence artifact anchor.",
+          "Use the approved Legio IX military kit continuity anchor for silhouettes.",
+          "Keep exact inscription lettering unreadable unless later replaced by approved source media."
+        ],
+        "factualConstraints": [
+          "Officer traces into the early 120s/around AD 124 complicate a simple early disappearance narrative.",
+          "Later fate remains unresolved; evidence does not establish a final battlefield."
+        ],
+        "avoidances": [
+          "readable invented Latin",
+          "ghost soldiers",
+          "unsupported final battle",
+          "unsupported legion heraldry",
+          "sensational supernatural styling"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Layered evidence-led image for the Roman Ninth Legion mystery: weathered Roman inscription stone in foreground with no readable invented text, plausible legionary silhouettes receding behind it, early second-century equipment, cold northern light, grounded archaeological reconstruction, unresolved rather than supernatural mood, vertical 9:16 composition.",
+        "negativePrompt": "readable invented Latin, ghost soldiers, final battle certainty, unsupported legion emblem, supernatural glow, game render"
+      }
+    },
+    {
+      "sceneId": "sc_16a8326372e148f7aefd5168bd1b7dd8",
+      "assetPlan": {
+        "assetClass": "PRIMARY_SCENE",
+        "assetRole": "HERO",
+        "productionPriority": "CRITICAL",
+        "sourceStrategy": "GENERATE",
+        "stateField": "STATE_OUT",
+        "rationale": "End on the unresolved question of the legion's last battlefield while leaving geographic alternatives open."
+      },
+      "imageAssetDesign": {
+        "visualGoal": "Close with historical uncertainty: the Roman world extending beyond Britain while no final battlefield is visually claimed.",
+        "composition": "Vertical wide northern landscape transitioning toward a distant sea/horizon, a small Roman formation disappearing naturally into distance rather than vanishing, large clean sky/terrain areas reserved for editor-added Britain/Europe map graphics and final question.",
+        "continuityRequirements": [
+          "Use the same grounded Roman Britain environment and equipment family established earlier.",
+          "Final geographic labels and map boundaries are editor graphics, not generated evidence."
+        ],
+        "factualConstraints": [
+          "No direct Roman record definitively confirms the Ninth Legion's final fate in the story's evidence set.",
+          "Do not depict a specific last battlefield as established."
+        ],
+        "avoidances": [
+          "confirmed death scene",
+          "supernatural disappearance",
+          "readable generated map labels",
+          "single asserted destination",
+          "triumphal ending"
+        ]
+      },
+      "imagePrompt": {
+        "prompt": "Small early-second-century Roman formation receding across a vast cold northern landscape toward a distant horizon, grounded historical reconstruction, natural mist and overcast light, unresolved fate rather than disappearance effect, subdued stone earth wool and iron tones, vertical 9:16 composition with generous space for later map graphics and a final question.",
+        "negativePrompt": "confirmed last battlefield, supernatural disappearance, readable map labels, asserted destination, triumphal pose, fantasy armor, game render"
+      }
+    }
+  ]
+}
