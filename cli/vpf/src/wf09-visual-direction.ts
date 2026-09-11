@@ -119,7 +119,8 @@ function hasExplicitCloseView(composition: string): boolean {
 }
 
 function shortformCompositionRule(grammar: VisualDirectionGrammarV1): string {
-  return grammar.formatGrammar.SHORTFORM.rule;
+  const rules = grammar.formatGrammar.SHORTFORM;
+  return `Keep essential story information in the central 60-70% of the frame; keep the top 15-20% and bottom 15-20% atmospheric and lower-detail for final blur/crop. ${rules.rule}`;
 }
 
 function compositionDirective(
@@ -148,7 +149,7 @@ function designRequirements(
     "[VDG CERTAINTY] Preserve the factual certainty already expressed by the scene: fact, reconstruction, hypothesis, legend, and unknown must not collapse into the same visual certainty."
   ];
   if (format === "SHORTFORM") {
-    base.push(`[VDG SHORTFORM] ${grammar.formatGrammar.SHORTFORM.rule}`);
+    base.push(`[VDG SHORTFORM] ${shortformCompositionRule(grammar)}`);
   }
   return base;
 }
