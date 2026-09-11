@@ -16,7 +16,7 @@ Use this checklist as the migration program control sheet.
 | MIG-10 Audio/Subtitle Gaps | ADAPT + NEW_BUILD | A1-A4/T1-T2/G1 | PASS |
 | MIG-11 Legacy Isolation | NEW_BUILD | negative leak tests | PASS |
 | MIG-12 Single-Repo E2E | NEW_BUILD TEST | no old repo dependency | PASS |
-| MIG-13 Real Pilot Readiness | VALIDATION | SHORT + LONG runbook ready | NOT_STARTED |
+| MIG-13 Real Pilot Readiness | VALIDATION | SHORT + LONG runbook ready | PASS (READINESS) |
 
 ## Sequencing note
 
@@ -28,7 +28,9 @@ MIG-11 was then implemented from the accepted cumulative MIG-06 backfill head. A
 
 MIG-12 was executed from the accepted MIG-11 documentation tip on `migration/mig-12-single-repo-e2e`. It adds one-command deterministic SHORTFORM and LONGFORM fixture E2E coverage using one `project.db` per project, RuntimeJob-backed mocked image/TTS providers, shared MANUAL_EXTERNAL video result ingestion, actual editor materialization and GenericFinalRender, WF-17 delivery, WF-18 publish handoff, required negative gates, and zero old-repository/legacy operational accesses.
 
-MIG-07 remains `DEFERRED` while Google Flow is operated manually. It is not represented as PASS. MIG-11 validates that the shared MANUAL_EXTERNAL / WF-11 manual result path remains functional, and MIG-12 exercises that shared path in fixture E2E, but neither claims provider-specific MIG-07 completion.
+MIG-13 was executed from the accepted MIG-12 final documentation tip on `migration/mig-13-pilot-readiness`. It adds controlled real-provider pilot runbooks, REAL PROJECT 01 runbook, operator checklist, failure-return map, `vpf env check`, `vpf pilot preflight`, and an independent pilot-readiness CI gate. MIG-13 is PASS for **readiness only**; the real SHORTFORM pilot, real LONGFORM pilot and REAL PROJECT 01 have not yet been executed.
+
+MIG-07 remains `DEFERRED` while Google Flow is operated manually. It is not represented as PASS. MIG-11 validates the shared MANUAL_EXTERNAL / WF-11 path, MIG-12 exercises it in fixture E2E, and MIG-13 documents it for controlled real pilots, but none of these claims provider-specific MIG-07 completion.
 
 ## Global preflight
 
@@ -41,7 +43,7 @@ Before MIG-01:
 
 ## Global final gate
 
-Before declaring migration complete:
+**NOT COMPLETE.** Before declaring migration complete:
 - all MIG-01 ... MIG-13 = PASS,
 - one unified-repo fixture E2E = PASS,
 - one real SHORTFORM pilot = PASS,
@@ -49,3 +51,9 @@ Before declaring migration complete:
 - REAL PROJECT 01 reaches WF-18,
 - no operational command requires changing directory into the old repo,
 - no legacy visual decision is used by a unified project.
+
+Current blockers to the global final gate:
+- MIG-07 is `DEFERRED`, not PASS;
+- real SHORTFORM pilot is NOT_RUN;
+- real LONGFORM pilot is NOT_RUN;
+- REAL PROJECT 01 is NOT_RUN.

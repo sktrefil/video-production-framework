@@ -17,4 +17,6 @@ Current:
 - MIG-10: PASS — A2/A3/A4 audio ingest, T1 alignment/provenance and WF-16 integration validated
 - MIG-11: PASS — fail-closed Legacy Guard, static/dynamic leak gates, runtime/resource/editor/CLI isolation and cumulative image-runtime hardening validated
 - MIG-12: PASS — deterministic SHORTFORM/LONGFORM single-repository E2E, RuntimeJob provider mocks, actual GenericFinalRender, WF-17 delivery, WF-18 publish handoff and zero legacy/old-repo accesses validated
-- MIG-13: NOT_STARTED
+- MIG-13: PASS (READINESS) — SHORTFORM/LONGFORM/REAL PROJECT 01 runbooks, operator checklist, failure-return map, environment/provider/project preflight and dedicated readiness CI validated; real pilots are not yet executed
+
+MIG-07 remains DEFERRED and is not represented as PASS. MIG-13 PASS means the controlled pilot readiness package is accepted; it does not mean the migration-program global final gate has been satisfied.
