@@ -28,7 +28,7 @@
     "fabricated readable Latin inscriptions or forged-looking primary-source documents",
     "anachronistic objects, clothing, buildings, maps, typography, or modern military imagery inside reconstruction scenes",
     "turning disputed hypotheses or unknown fate into visually certain historical events",
-    "copying legacy HISTORY_MYSTERY_STYLIZED_V1, old master-style palettes, sample markdown artwork, or prior project imagery as authoritative style input",
+    "copying deprecated project-specific stylized master presets, old fixed palettes, sample markdown artwork, or prior project imagery as authoritative style input",
     "excessive gore, caricature, heroic fantasy posing, watermarks, text artifacts, or unnecessary UI"
   ]
 }
