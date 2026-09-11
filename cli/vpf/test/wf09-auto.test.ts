@@ -164,7 +164,7 @@ async function createAutoFixture() {
   };
 }
 
-test("WF-09 AUTO migrates pre-grammar DESIGNED assets, then connects Visual Direction through image candidate generation", async () => {
+test("WF-09 AUTO prepares pre-grammar DESIGNED assets before provider execution, then generates a candidate", async () => {
   const f = await createAutoFixture();
 
   // Match the real Roman IX pilot boundary: WF-09A assets/prompts already exist,
@@ -180,6 +180,40 @@ test("WF-09 AUTO migrates pre-grammar DESIGNED assets, then connects Visual Dire
   const preGrammar = lastJson(f.output);
   assert.equal(preGrammar.providerJobsCreated, 0);
 
+  // PILOT-VDG-01 safety gate: migrate/pin/compile first with no provider
+  // adapter and no ProviderJob creation. This is the point where the real
+  // pilot can inspect the production-ready design before generating cut_001.
+  assert.equal(await runUnifiedCli([
+    "asset", "auto", "prepare", f.projectId,
+    "--all",
+    "--file", f.assetPath
+  ], f.io, f.service), 0, f.errors.join("\n"));
+  const prepared = lastJson(f.output);
+  assert.equal(prepared.preparedOnly, true);
+  assert.equal(prepared.repinned, true);
+  assert.equal(prepared.visualDirectionPlan.applied, true);
+  assert.equal(prepared.visualDirectionPlan.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
+  assert.equal(prepared.visualDirectionPlan.grammarVersion, "1.0.0");
+  assert.equal(prepared.visualDirectionRefresh.refreshed, true);
+  assert.equal(prepared.visualDirectionRefresh.reason, "MIGRATED_PRE_GRAMMAR_DESIGNS");
+  assert.equal(prepared.visualDirectionRefresh.assetCount, 1);
+  assert.equal(prepared.wf09Status.providerJobCount, 0);
+  assert.equal(prepared.wf09Status.promptMaterializedCount, 1);
+  assert.equal(prepared.wf09Status.assets[0].assetStatus, "DESIGNED");
+  assert.match(prepared.wf09Status.assets[0].design.composition, /VISUAL DIRECTION:/u);
+  assert.match(prepared.wf09Status.assets[0].design.imagePrompt, /VISUAL DIRECTION:/u);
+
+  const productionPlan = JSON.parse(await readFile(
+    path.join(f.projectRoot, "05_images", "scene-assets.production-ready.json"),
+    "utf8"
+  ));
+  const productionScene = productionPlan.scenes[0];
+  assert.equal(productionPlan.visualDirectionDerivation.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
+  assert.equal(productionScene.visualDirectionContext.resourceVersion, "1.1.0");
+  assert.match(productionScene.imageAssetDesign.composition, /environment-first medium-wide\/wide/u);
+  assert.match(productionScene.imageAssetDesign.composition, /central 60-70%/u);
+  assert.match(productionScene.imagePrompt.prompt, /restrained painterly matte surface/u);
+
   const previousAdapter = process.env.VPF_IMAGE_ADAPTER_MODULE;
   const previousKey = process.env.IMAGE_PROVIDER_API_KEY;
   process.env.VPF_IMAGE_ADAPTER_MODULE = adapterPath;
@@ -191,16 +225,12 @@ test("WF-09 AUTO migrates pre-grammar DESIGNED assets, then connects Visual Dire
       "--file", f.assetPath
     ], f.io, f.service), 0, f.errors.join("\n"));
     const result = lastJson(f.output);
-    assert.equal(result.repinned, true);
+    assert.equal(result.preparedOnly, false);
+    assert.equal(result.repinned, false);
     assert.equal(result.providerProfileVersion, "1.1.0");
     assert.equal(result.visualDirectionPlan.applied, true);
-    assert.equal(result.visualDirectionPlan.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
-    assert.equal(result.visualDirectionPlan.grammarVersion, "1.0.0");
-    assert.equal(result.visualDirectionRefresh.refreshed, true);
-    assert.equal(result.visualDirectionRefresh.reason, "MIGRATED_PRE_GRAMMAR_DESIGNS");
-    assert.equal(result.visualDirectionRefresh.assetCount, 1);
-    // The wrapper already created the new design/prompt revisions, so the base
-    // AUTO service only performs generation on this invocation.
+    assert.equal(result.visualDirectionRefresh.refreshed, false);
+    assert.equal(result.visualDirectionRefresh.reason, "ALREADY_VISUAL_DIRECTION_V1");
     assert.equal(result.designedCount, 0);
     assert.equal(result.promptMaterializedCount, 1);
     assert.equal(result.promptMarkdownCount, 1);
@@ -233,17 +263,6 @@ test("WF-09 AUTO migrates pre-grammar DESIGNED assets, then connects Visual Dire
     assert.ok(promptMd.includes("VISUAL DIRECTION:"));
     assert.ok(promptMd.includes(`scene_id: ${f.sceneId}`));
     assert.ok(promptMd.includes("provider_profile: IMAGE_PROVIDER_EXECUTION_V1@1.1.0"));
-
-    const productionPlan = JSON.parse(await readFile(
-      path.join(f.projectRoot, "05_images", "scene-assets.production-ready.json"),
-      "utf8"
-    ));
-    const productionScene = productionPlan.scenes[0];
-    assert.equal(productionPlan.visualDirectionDerivation.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
-    assert.equal(productionScene.visualDirectionContext.resourceVersion, "1.1.0");
-    assert.match(productionScene.imageAssetDesign.composition, /environment-first medium-wide\/wide/u);
-    assert.match(productionScene.imageAssetDesign.composition, /central 60-70%/u);
-    assert.match(productionScene.imagePrompt.prompt, /restrained painterly matte surface/u);
 
     const manifest = JSON.parse(await readFile(
       path.join(f.projectRoot, "05_images", "prompts", "manifest.json"),
