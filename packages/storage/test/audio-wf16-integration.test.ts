@@ -37,6 +37,23 @@ function idFactory() {
   return {next: (prefix: string) => `${prefix}-${++counter}`};
 }
 
+function seedUnifiedProjectPolicy(repo: SqliteAudioImportRepository, projectId: string) {
+  repo.db.exec(`
+    CREATE TABLE IF NOT EXISTS projects (
+      project_id TEXT NOT NULL,
+      revision INTEGER NOT NULL,
+      lifecycle_status TEXT NOT NULL,
+      pipeline TEXT NOT NULL,
+      legacy_allowed INTEGER NOT NULL,
+      PRIMARY KEY(project_id, revision)
+    );
+  `);
+  repo.db.prepare(
+    `INSERT INTO projects (project_id, revision, lifecycle_status, pipeline, legacy_allowed)
+     VALUES (?, 1, 'ACTIVE', 'VPF_UNIFIED_V1', 0)`
+  ).run(projectId);
+}
+
 function handoff(projectId: string): EditorHandoffManifest {
   return {
     schemaVersion: "1.0",
@@ -86,6 +103,7 @@ test("approved local A2/A3/A4 imports flow from project.db MediaArtifacts throug
   let bgm;
   let sfx;
   try {
+    seedUnifiedProjectPolicy(audioRepo, projectId);
     const importer = new LocalAudioImportService(
       audioRepo,
       clock,
