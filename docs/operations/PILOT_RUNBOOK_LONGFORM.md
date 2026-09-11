@@ -65,19 +65,31 @@ Track provider attempts and failures. Every candidate requires IMAGE_QC plus exp
 
 Build current links and handoff records from approved assets, then create Final Clip designs. Group manual video generation jobs into practical operator batches while preserving each job's identity, START/END media hashes, prompt, mode and result key.
 
-The video execution path is `MANUAL_EXTERNAL`. MIG-07 remains deferred; batch handling must stay within the shared unified WF-11 job/result contract and must not introduce a second control plane.
+The video execution path is the validated Google Flow `MANUAL_EXTERNAL` runtime backed by `GOOGLE_FLOW_MANUAL_EXTERNAL_V1@1.0.0`. Batch handling must use the unified TEST-07 job export/import surface and must not introduce a second control plane.
 
 ## 7. Manual Google Flow generation/import
 
+For each current waiting job, export its verified execution package:
+
+```powershell
+npm run vpf -- job export <job_id> --project pilot_long_01
+```
+
 For each batch:
 
-1. export/copy the exact current job payload;
+1. use only the exact exported prompt, START image and optional END image;
 2. generate clips manually in Google Flow;
-3. keep output filenames mapped to job/result keys;
-4. copy results into the project's `06_clips/` hierarchy;
-5. register each result against the current waiting job;
-6. verify hash, dimensions, duration and media type;
-7. reject stale result imports.
+3. keep output filenames mapped to the exported job/result keys;
+4. import each MP4 through the unified runtime:
+
+```powershell
+npm run vpf -- job import-result <job_id> <generated.mp4> --project pilot_long_01
+```
+
+5. require current ProviderJob/Clip revision and exported source/prompt/input hashes to match;
+6. verify the runtime-probed dimensions, duration, media type and copied result hash;
+7. keep each imported video as a candidate with Clip status `QC_PENDING` until WF-12 disposition;
+8. reject stale result imports rather than relabeling output from another job.
 
 No job may be silently substituted with output from another scene/link.
 
