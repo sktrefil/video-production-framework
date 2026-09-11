@@ -50,8 +50,8 @@ WF-07 FINAL Script / Story approvals
   -> WF-08 Project Style / Identity Anchors
   -> WF-09 Image Runtime + IMAGE_QC + approvals
   -> WF-10 Pre-Link / Handoff
-  -> WF-11 Final Clip / MANUAL_EXTERNAL video jobs
-  -> manual Google Flow result generation/import
+  -> WF-11 Final Clip / MANUAL_EXTERNAL Google Flow jobs
+  -> validated Google Flow job export / manual generation / result import
   -> WF-12 Clip QC/fallback
   -> WF-13 approved media binding
   -> WF-14~16 editor content/timeline assembly
@@ -64,9 +64,17 @@ At every approval boundary, record the current revision and provenance in `proje
 
 ## Provider discipline
 
-Automated TTS and image generation use the exact pinned Provider Profiles. Secrets stay in runtime environment only. Manual video results must map to the current `MANUAL_EXTERNAL` job and current media hashes. Stale result imports are rejected rather than manually relabeled.
+Automated TTS and image generation use the exact pinned Provider Profiles. Secrets stay in runtime environment only. Google Flow uses the validated `MANUAL_EXTERNAL` runtime backed by `GOOGLE_FLOW_MANUAL_EXTERNAL_V1@1.0.0`.
 
-MIG-07 remains deferred; using the accepted shared manual WF-11 route does not convert MIG-07 to PASS.
+For each current Flow job:
+
+```powershell
+npm run vpf -- job export <job_id> --project real_project_01
+# generate manually in Google Flow from the exact exported package
+npm run vpf -- job import-result <job_id> <generated.mp4> --project real_project_01
+```
+
+The import must map to the current ProviderJob/Clip revision, verify exported source/prompt/input hashes and register only a candidate video. Stale result imports are rejected rather than manually relabeled, and WF-12 remains the QC authority.
 
 ## Editor / final output
 
