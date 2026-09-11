@@ -5,7 +5,7 @@ Branch: `validation/full-system-v1`
 
 | ID | Validation Work Item | Dependency | Status |
 |---|---|---|---|
-| TEST-00 | Migration Contract Audit | MIG-13 readiness | READY |
+| TEST-00 | Migration Contract Audit | MIG-13 readiness | IN_PROGRESS |
 | TEST-01 | Repository Integration Foundation | TEST-00 | BLOCKED |
 | TEST-02 | Runtime Contracts + Provider Orchestrator | TEST-01 | BLOCKED |
 | TEST-03 | Resource Registry + Canonical Resources | TEST-02 | BLOCKED |
