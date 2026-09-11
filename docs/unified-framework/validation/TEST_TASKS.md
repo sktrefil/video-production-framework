@@ -18,7 +18,7 @@ Branch: `validation/full-system-v1`
 | TEST-10 | Audio + Subtitle Runtime Gaps | TEST-09 | PASS |
 | TEST-11 | Legacy Isolation Hardening | TEST-10 | PASS |
 | TEST-12 | Single-Repository Fixture E2E | TEST-11 | PASS |
-| TEST-13 | Real Production Pilots | TEST-12 | IN_PROGRESS |
+| TEST-13 | Real Production Pilots | TEST-12 | WAITING_EXTERNAL |
 | TEST-14 | Full System Regression | TEST-13 | BLOCKED |
 | TEST-15 | Production Readiness Gate | TEST-14 | BLOCKED |
 
