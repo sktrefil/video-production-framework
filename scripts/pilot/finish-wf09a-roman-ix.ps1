@@ -38,10 +38,6 @@ if (-not (Test-Path $cli)) {
   throw "Unified CLI build output not found: $cli"
 }
 
-New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
-Copy-Item -Force $sourcePlan $targetPlan
-Get-Content -Raw -Encoding UTF8 $targetPlan | ConvertFrom-Json | Out-Null
-
 function Invoke-VpfJson {
   param([Parameter(Mandatory = $true)][string[]]$Arguments)
 
@@ -63,8 +59,55 @@ if ($null -eq $story.scenes -or $story.scenes.Count -ne 11) {
 $staleScenes = @($story.scenes | Where-Object { $_.stale -eq $true })
 $unapprovedScenes = @($story.scenes | Where-Object { $_.sceneStatus -ne "APPROVED" })
 if ($staleScenes.Count -ne 0 -or $unapprovedScenes.Count -ne 0) {
-  throw "WF-09A requires all 11 scenes to be APPROVED and non-stale."
+  $details = @(
+    $story.scenes |
+      Where-Object { $_.stale -eq $true -or $_.sceneStatus -ne "APPROVED" } |
+      ForEach-Object { "$($_.id):status=$($_.sceneStatus),stale=$($_.stale)" }
+  ) -join "; "
+  throw "WF-09A requires all 11 active scenes to be APPROVED and non-stale. $details"
 }
+
+# The committed pilot plan is a creative-design template. Scene IDs are not treated as
+# durable selectors because WF-07 story regeneration can preserve content while replacing
+# some Scene IDs. Rebind the 11 plan entries to the current active story in canonical
+# narration order (scriptRef.startChar) before any WF-09 persistence occurs.
+$orderedScenes = @(
+  $story.scenes |
+    Sort-Object { if ($null -eq $_.scriptRef.startChar) { [int]::MaxValue } else { [int]$_.scriptRef.startChar } }
+)
+if (@($orderedScenes | Where-Object { $null -eq $_.scriptRef.startChar }).Count -ne 0) {
+  throw "WF-09A cannot remap pilot Scene IDs because one or more active scenes lack scriptRef.startChar."
+}
+$startChars = @($orderedScenes | ForEach-Object { [int]$_.scriptRef.startChar })
+if (($startChars | Select-Object -Unique).Count -ne 11) {
+  throw "WF-09A cannot remap pilot Scene IDs because active Scene narration order is ambiguous."
+}
+
+$plan = Get-Content -Raw -Encoding UTF8 $sourcePlan | ConvertFrom-Json
+if ($null -eq $plan.scenes -or $plan.scenes.Count -ne 11) {
+  throw "Expected 11 Scene Asset designs in the WF-09A pilot plan; found $($plan.scenes.Count)."
+}
+
+$remappedSceneIds = 0
+for ($i = 0; $i -lt 11; $i += 1) {
+  $activeSceneId = [string]$orderedScenes[$i].id
+  if ([string]::IsNullOrWhiteSpace($activeSceneId)) {
+    throw "Active Scene at narration position $($i + 1) is missing an ID."
+  }
+  if ([string]$plan.scenes[$i].sceneId -ne $activeSceneId) {
+    $remappedSceneIds += 1
+  }
+  $plan.scenes[$i].sceneId = $activeSceneId
+}
+
+New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+$targetJson = $plan | ConvertTo-Json -Depth 32
+[System.IO.File]::WriteAllText(
+  $targetPlan,
+  $targetJson,
+  [System.Text.UTF8Encoding]::new($false)
+)
+Get-Content -Raw -Encoding UTF8 $targetPlan | ConvertFrom-Json | Out-Null
 
 $visual = Invoke-VpfJson @("visual", "status", $Project)
 if ($visual.readiness.ready -ne $true) {
@@ -77,7 +120,12 @@ if (
   $readiness.sceneCount -ne 11 -or
   $readiness.readyCount -ne 11
 ) {
-  throw "WF-09A readiness did not pass for all 11 scenes."
+  $blocked = @(
+    $readiness.scenes |
+      Where-Object { $_.readiness.ready -ne $true } |
+      ForEach-Object { "$($_.sceneId):sceneApproved=$($_.readiness.sceneApproved)" }
+  ) -join "; "
+  throw "WF-09A readiness did not pass for all 11 current active scenes. $blocked"
 }
 
 $design = Invoke-VpfJson @("asset", "design", "apply", $Project, "--file", $targetPlan)
@@ -123,6 +171,7 @@ if ($invalidAssets.Count -ne 0) {
 Write-Host "WF-09A PROJECT DB APPLY: PASS"
 Write-Host "Project: $Project"
 Write-Host "Scenes: 11"
+Write-Host "Scene IDs remapped to current story: $remappedSceneIds"
 Write-Host "PRIMARY_SCENE Assets: 11"
 Write-Host "IMAGE_PROMPT Materialized: 11"
 Write-Host "Provider Jobs: 0"
