@@ -164,8 +164,22 @@ async function createAutoFixture() {
   };
 }
 
-test("WF-09 AUTO connects Visual Direction, design, prompt materialization, cut markdown and image candidate in one command", async () => {
+test("WF-09 AUTO migrates pre-grammar DESIGNED assets, then connects Visual Direction through image candidate generation", async () => {
   const f = await createAutoFixture();
+
+  // Match the real Roman IX pilot boundary: WF-09A assets/prompts already exist,
+  // but no ProviderJob or generated candidate exists yet.
+  assert.equal(await runUnifiedCli([
+    "asset", "design", "apply", f.projectId,
+    "--file", f.assetPath
+  ], f.io, f.service), 0, f.errors.join("\n"));
+  assert.equal(await runUnifiedCli([
+    "asset", "prompt", "materialize", f.projectId,
+    "--file", f.assetPath
+  ], f.io, f.service), 0, f.errors.join("\n"));
+  const preGrammar = lastJson(f.output);
+  assert.equal(preGrammar.providerJobsCreated, 0);
+
   const previousAdapter = process.env.VPF_IMAGE_ADAPTER_MODULE;
   const previousKey = process.env.IMAGE_PROVIDER_API_KEY;
   process.env.VPF_IMAGE_ADAPTER_MODULE = adapterPath;
@@ -182,7 +196,12 @@ test("WF-09 AUTO connects Visual Direction, design, prompt materialization, cut 
     assert.equal(result.visualDirectionPlan.applied, true);
     assert.equal(result.visualDirectionPlan.grammarId, "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1");
     assert.equal(result.visualDirectionPlan.grammarVersion, "1.0.0");
-    assert.equal(result.designedCount, 1);
+    assert.equal(result.visualDirectionRefresh.refreshed, true);
+    assert.equal(result.visualDirectionRefresh.reason, "MIGRATED_PRE_GRAMMAR_DESIGNS");
+    assert.equal(result.visualDirectionRefresh.assetCount, 1);
+    // The wrapper already created the new design/prompt revisions, so the base
+    // AUTO service only performs generation on this invocation.
+    assert.equal(result.designedCount, 0);
     assert.equal(result.promptMaterializedCount, 1);
     assert.equal(result.promptMarkdownCount, 1);
     assert.equal(result.execution.completed, 1);
@@ -268,6 +287,8 @@ test("WF-09 AUTO connects Visual Direction, design, prompt materialization, cut 
     ], f.io, f.service), 0);
     const rerun = lastJson(f.output);
     assert.equal(rerun.repinned, false);
+    assert.equal(rerun.visualDirectionRefresh.refreshed, false);
+    assert.equal(rerun.visualDirectionRefresh.reason, "ALREADY_VISUAL_DIRECTION_V1");
     assert.equal(rerun.execution.requested, 0);
     assert.equal(rerun.runtimeStatus.providerJobCount, 1);
     assert.equal(rerun.runtimeStatus.approvedCount, 0);
