@@ -1,5 +1,6 @@
 import * as path from "node:path";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
+import { Wf09CliService } from "./wf09.js";
 import { Wf09AutoError } from "./wf09-auto.js";
 import { Wf09VisualDirectionAutoService } from "./wf09-directed-auto.js";
 import { prepareHandoffAwareSceneAssetPlan } from "./wf09-handoff.js";
@@ -14,11 +15,75 @@ function isInside(root: string, target: string): boolean {
   );
 }
 
+function hasVisualDirection(asset: {
+  design: { composition: string; imagePrompt?: string };
+}): boolean {
+  return (
+    asset.design.composition.includes("VISUAL DIRECTION:") &&
+    typeof asset.design.imagePrompt === "string" &&
+    asset.design.imagePrompt.includes("VISUAL DIRECTION:")
+  );
+}
+
 export class Wf09HandoffAutoService {
   private readonly base: Wf09VisualDirectionAutoService;
+  private readonly wf09: Wf09CliService;
 
   constructor(private readonly projects: ProjectBootstrapService) {
     this.base = new Wf09VisualDirectionAutoService(projects);
+    this.wf09 = new Wf09CliService(projects);
+  }
+
+  private async refreshExistingDesignedAssets(projectId: string, file: string) {
+    const before = await this.wf09.status(projectId);
+    if (before.assetCount === 0) {
+      return {
+        refreshed: false,
+        reason: "NO_EXISTING_ASSETS",
+        assetCount: 0,
+        promptMaterializedCount: 0
+      } as const;
+    }
+
+    if (before.assets.every(asset => hasVisualDirection(asset))) {
+      return {
+        refreshed: false,
+        reason: "ALREADY_VISUAL_DIRECTION_V1",
+        assetCount: before.assetCount,
+        promptMaterializedCount: before.promptMaterializedCount
+      } as const;
+    }
+
+    if (before.providerJobCount > 0) {
+      throw new Wf09AutoError(
+        "WF09_AUTO_PROJECT_STATE",
+        "Existing Scene Assets predate Visual Direction Grammar V1 but already have Provider Jobs. WF-09 AUTO will not silently redesign production-stage Assets; reset or explicitly regenerate them before applying the new grammar."
+      );
+    }
+
+    if (!before.assets.every(asset => !asset.stale && asset.assetStatus === "DESIGNED")) {
+      throw new Wf09AutoError(
+        "WF09_AUTO_PROJECT_STATE",
+        "Existing Scene Assets predate Visual Direction Grammar V1 and are no longer all current DESIGNED Assets. WF-09 AUTO refuses to overwrite candidate/QC/approved production state."
+      );
+    }
+
+    const readiness = await this.wf09.readiness(projectId, file);
+    if (!readiness.ready) {
+      throw new Wf09AutoError(
+        "WF09_AUTO_PROJECT_STATE",
+        `Existing Scene Assets cannot be migrated to Visual Direction Grammar V1 because WF-09 prerequisites are not ready: ${readiness.readyCount}/${readiness.sceneCount}.`
+      );
+    }
+
+    const redesigned = await this.wf09.applyDesigns(projectId, file);
+    const prompts = await this.wf09.materializePrompts(projectId, file);
+    return {
+      refreshed: true,
+      reason: "MIGRATED_PRE_GRAMMAR_DESIGNS",
+      assetCount: redesigned.designedCount,
+      promptMaterializedCount: prompts.promptMaterializedCount
+    } as const;
   }
 
   async run(projectId: string, options: { file?: string | undefined } = {}) {
@@ -64,6 +129,10 @@ export class Wf09HandoffAutoService {
       );
     }
 
+    const visualDirectionRefresh = await this.refreshExistingDesignedAssets(
+      projectId,
+      visualDirection.file
+    );
     const result = await this.base.run(projectId, { file: visualDirection.file });
     return {
       ...result,
@@ -82,7 +151,8 @@ export class Wf09HandoffAutoService {
         grammarContentHash: visualDirection.grammarContentHash,
         enrichedSceneCount: visualDirection.enrichedSceneCount,
         file: path.relative(status.projectRoot, visualDirection.file).replaceAll("\\", "/")
-      }
+      },
+      visualDirectionRefresh
     };
   }
 
