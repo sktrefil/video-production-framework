@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "IMAGE_PROVIDER_EXECUTION_V1",
+  "version": "1.1.0",
+  "payload": {
+    "provider": "CHATGPT_BROWSER",
+    "executionMode": "AUTOMATED",
+    "jobTypes": ["IMAGE_GENERATION"],
+    "capabilities": {
+      "acceptsCompiledPrompt": true,
+      "acceptsNegativePrompt": true,
+      "acceptsReferenceMedia": false,
+      "requiresExactFormatProfileDimensions": true,
+      "supportedResultMimeTypes": ["image/png"]
+    },
+    "retryPolicy": {
+      "maxAttempts": 3,
+      "retryableCategories": ["PROVIDER_REQUEST_FAILED", "PROVIDER_TIMEOUT", "PROVIDER_RESULT_INVALID"]
+    },
+    "result": {
+      "mediaType": "IMAGE",
+      "candidateOnly": true
+    },
+    "runtimeSecretNames": [],
+    "runtimeConfig": {
+      "cdpUrlEnvironment": "CHATGPT_CDP_URL",
+      "timeoutEnvironment": "CHATGPT_IMAGE_TIMEOUT_SECONDS"
+    }
+  }
+}
