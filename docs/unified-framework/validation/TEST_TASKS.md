@@ -15,8 +15,8 @@ Branch: `validation/full-system-v1`
 | TEST-07 | Google Flow Manual Runtime | TEST-06 | PASS |
 | TEST-08 | Generic Editor Port | TEST-07 | PASS |
 | TEST-09 | Editor Materialization + Render Runtime | TEST-08 | PASS |
-| TEST-10 | Audio + Subtitle Runtime Gaps | TEST-09 | IN_PROGRESS |
-| TEST-11 | Legacy Isolation Hardening | TEST-10 | BLOCKED |
+| TEST-10 | Audio + Subtitle Runtime Gaps | TEST-09 | PASS |
+| TEST-11 | Legacy Isolation Hardening | TEST-10 | IN_PROGRESS |
 | TEST-12 | Single-Repository Fixture E2E | TEST-11 | BLOCKED |
 | TEST-13 | Real Production Pilots | TEST-12 | BLOCKED |
 | TEST-14 | Full System Regression | TEST-13 | BLOCKED |
