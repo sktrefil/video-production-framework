@@ -6,6 +6,10 @@ import {
   ProjectBootstrapError,
   ProjectBootstrapService
 } from "@vpf/project-bootstrap";
+import {
+  PilotReadinessService,
+  parseMinimumFreeGb
+} from "./pilot-readiness.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -19,6 +23,8 @@ Commands:
   vpf project status <project_id>
   vpf project doctor <project_id>
   vpf doctor <project_id>
+  vpf env check --format <longform|shortform> [--min-free-gb <number>]
+  vpf pilot preflight <project_id> [--min-free-gb <number>]
 `;
 
 function readOption(args: string[], name: string): string | undefined {
@@ -36,13 +42,23 @@ function notImplemented(io: CliIo, command: string): number {
   return 2;
 }
 
+function minimumFreeBytes(args: string[], io: CliIo): bigint | null | undefined {
+  try {
+    return parseMinimumFreeGb(readOption(args, "--min-free-gb"));
+  } catch (error) {
+    io.error(`[CLI_USAGE] ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
 export async function runCli(
   args: string[],
   io: CliIo = {
     out: (message) => console.log(message),
     error: (message) => console.error(message)
   },
-  service: ProjectBootstrapService = new ProjectBootstrapService()
+  service: ProjectBootstrapService = new ProjectBootstrapService(),
+  readinessService?: PilotReadinessService
 ): Promise<number> {
   if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
     io.out(USAGE);
@@ -105,6 +121,40 @@ export async function runCli(
       const result = await service.doctor(projectId);
       printJson(io, result);
       return result.healthy ? 0 : 1;
+    }
+
+    if (args[0] === "env" && args[1] === "check") {
+      const format = readOption(args, "--format");
+      if (format === undefined) {
+        io.error("[CLI_USAGE] env check requires --format <longform|shortform>.");
+        return 2;
+      }
+      const minimum = minimumFreeBytes(args, io);
+      if (minimum === null) return 2;
+      const readiness = readinessService ?? new PilotReadinessService(service);
+      const result = await readiness.checkEnvironment(
+        format,
+        minimum === undefined ? {} : {minimumFreeBytes: minimum}
+      );
+      printJson(io, result);
+      return result.ready ? 0 : 1;
+    }
+
+    if (args[0] === "pilot" && args[1] === "preflight") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] pilot preflight requires <project_id>.");
+        return 2;
+      }
+      const minimum = minimumFreeBytes(args, io);
+      if (minimum === null) return 2;
+      const readiness = readinessService ?? new PilotReadinessService(service);
+      const result = await readiness.checkProject(
+        projectId,
+        minimum === undefined ? {} : {minimumFreeBytes: minimum}
+      );
+      printJson(io, result);
+      return result.ready ? 0 : 1;
     }
 
     if (args[0] === "run" || args[0] === "job" || args[0] === "qc") {

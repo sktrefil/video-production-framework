@@ -15,6 +15,7 @@
     "check:editor-browser": "npm run check:browser --workspace @vpf/editor-app",
     "check:editor-render": "npm run check:render --workspace @vpf/editor-app",
     "check:e2e": "npm run build && node tests/e2e/unified-project/run.mjs",
+    "check:pilot-readiness": "npm run build && node tests/pilot-readiness/check.mjs",
     "editor:studio": "npm run studio --workspace @vpf/editor-app",
     "editor:materialize": "npm run materialize --workspace @vpf/editor-app --",
     "editor:render": "npm run render --workspace @vpf/editor-app --",
