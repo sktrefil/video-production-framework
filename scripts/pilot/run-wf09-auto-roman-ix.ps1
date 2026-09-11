@@ -53,14 +53,39 @@ if ($LASTEXITCODE -ne 0) {
   throw "The selected Python environment requires Playwright and Pillow before real ChatGPT Browser image generation."
 }
 
-if (-not $SkipBuild) {
+function Invoke-RepositoryBuild {
+  Write-Host "Building WF-09 AUTO CLI and repository workspaces..."
   npm run build
   if ($LASTEXITCODE -ne 0) {
     throw "npm run build failed."
   }
 }
+
+function Test-Wf09AutoCli {
+  if (-not (Test-Path $cli)) {
+    return $false
+  }
+
+  $helpRaw = & node $cli --help 2>&1
+  if ($LASTEXITCODE -ne 0) {
+    return $false
+  }
+  $helpText = ($helpRaw -join [Environment]::NewLine)
+  return $helpText.Contains("vpf asset auto run")
+}
+
+if (-not $SkipBuild) {
+  Invoke-RepositoryBuild
+} elseif (-not (Test-Wf09AutoCli)) {
+  Write-Host "WF-09 AUTO CLI build is missing or stale; rebuilding automatically."
+  Invoke-RepositoryBuild
+}
+
 if (-not (Test-Path $cli)) {
   throw "Unified CLI build output not found: $cli"
+}
+if (-not (Test-Wf09AutoCli)) {
+  throw "Unified CLI build does not contain WF-09 AUTO commands after rebuild: $cli"
 }
 
 function Invoke-VpfJson {
