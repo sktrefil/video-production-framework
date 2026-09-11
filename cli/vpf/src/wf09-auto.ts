@@ -1,4 +1,5 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { copyFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { VersionPins } from "@vpf/domain";
@@ -19,6 +20,31 @@ const resourcesRoot = path.join(repositoryRoot, "resources");
 const targetChannel = { resourceId: "HISTORY_MYSTERY_V1", version: "1.2.0" } as const;
 const targetImageProvider = { resourceId: "IMAGE_PROVIDER_EXECUTION_V1", version: "1.1.0" } as const;
 
+interface PromptManifestEntry {
+  cutName: string;
+  sceneId: string;
+  sceneRevision: number;
+  assetId: string;
+  assetRevision: number;
+  promptSha256: string;
+  promptFile: string;
+  generatedDirectory: string;
+  nextCut: string | null;
+}
+
+interface PromptManifest {
+  schemaVersion: 1;
+  projectId: string;
+  providerProfile: string;
+  entries: PromptManifestEntry[];
+  candidates?: Array<{
+    cutName: string;
+    assetId: string;
+    mediaId: string;
+    relativePath: string;
+  }>;
+}
+
 export class Wf09AutoError extends Error {
   constructor(
     public readonly code:
@@ -30,6 +56,10 @@ export class Wf09AutoError extends Error {
     super(message);
     this.name = "Wf09AutoError";
   }
+}
+
+function sha256Text(value: string): string {
+  return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
 function imageProviderPin(status: ProjectStatus): ResourcePin | undefined {
@@ -46,9 +76,24 @@ function channelPin(status: ProjectStatus): ResourcePin | undefined {
   );
 }
 
+function isInside(root: string, target: string): boolean {
+  const relative = path.relative(path.resolve(root), path.resolve(target));
+  return relative === "" || (
+    relative !== ".." &&
+    !relative.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relative)
+  );
+}
+
+async function writeTextAtomic(filename: string, value: string): Promise<void> {
+  await mkdir(path.dirname(filename), { recursive: true });
+  const temporary = `${filename}.tmp-${process.pid}-${Date.now()}`;
+  await writeFile(temporary, value, "utf8");
+  await rename(temporary, filename);
+}
+
 async function writeProjectSnapshot(status: ProjectStatus): Promise<void> {
   const filename = path.join(status.projectRoot, "project.json");
-  const temporary = `${filename}.tmp-${process.pid}-${Date.now()}`;
   const snapshot = {
     schemaVersion: 1,
     projectId: status.project.projectId,
@@ -61,8 +106,14 @@ async function writeProjectSnapshot(status: ProjectStatus): Promise<void> {
     versions: status.project.versions,
     resourcePins: status.resourcePins
   };
-  await writeFile(temporary, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
-  await rename(temporary, filename);
+  await writeTextAtomic(filename, `${JSON.stringify(snapshot, null, 2)}\n`);
+}
+
+function imageExtension(mimeType: string): string {
+  if (mimeType === "image/png") return ".png";
+  if (mimeType === "image/jpeg") return ".jpg";
+  if (mimeType === "image/webp") return ".webp";
+  throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", `Unsupported generated image MIME: ${mimeType}`);
 }
 
 export class Wf09AutoService {
@@ -92,6 +143,12 @@ export class Wf09AutoService {
     const filename = file === undefined
       ? path.join(status.projectRoot, "05_images", "scene-assets.json")
       : path.resolve(file);
+    if (!isInside(status.projectRoot, filename)) {
+      throw new Wf09AutoError(
+        "WF09_AUTO_PLAN_MISSING",
+        "WF-09 AUTO Scene Asset plan must remain inside the current project workspace."
+      );
+    }
     try {
       const info = await readFile(filename, "utf8");
       if (!info.trim()) throw new Error("empty");
@@ -102,6 +159,35 @@ export class Wf09AutoService {
       );
     }
     return filename;
+  }
+
+  private async planSceneIds(file: string): Promise<string[]> {
+    const parsed = JSON.parse(await readFile(file, "utf8")) as unknown;
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      !Array.isArray((parsed as { scenes?: unknown }).scenes)
+    ) {
+      throw new Wf09AutoError("WF09_AUTO_PLAN_MISSING", "Scene Asset plan has no scenes array.");
+    }
+    const ids = ((parsed as { scenes: unknown[] }).scenes).map((item, index) => {
+      if (
+        typeof item !== "object" ||
+        item === null ||
+        typeof (item as { sceneId?: unknown }).sceneId !== "string" ||
+        !(item as { sceneId: string }).sceneId.trim()
+      ) {
+        throw new Wf09AutoError(
+          "WF09_AUTO_PLAN_MISSING",
+          `Scene Asset plan entry ${index + 1} has no sceneId.`
+        );
+      }
+      return (item as { sceneId: string }).sceneId.trim();
+    });
+    if (new Set(ids).size !== ids.length) {
+      throw new Wf09AutoError("WF09_AUTO_PLAN_MISSING", "Scene Asset plan contains duplicate sceneId values.");
+    }
+    return ids;
   }
 
   async ensureBrowserProviderPins(projectId: string): Promise<{
@@ -216,6 +302,145 @@ export class Wf09AutoService {
     return { status: updated, repinned: true };
   }
 
+  private async materializePromptMarkdown(projectId: string, file: string): Promise<PromptManifest> {
+    const [status, sceneIds, wf09Status] = await Promise.all([
+      this.projects.getStatus(projectId),
+      this.planSceneIds(file),
+      this.wf09.status(projectId)
+    ]);
+    const providerPin = imageProviderPin(status);
+    if (providerPin === undefined) {
+      throw new Wf09AutoError("WF09_AUTO_RESOURCE_PIN", "Image Provider Profile pin is missing.");
+    }
+    const promptDirectory = path.join(status.projectRoot, "05_images", "prompts");
+    await mkdir(promptDirectory, { recursive: true });
+
+    const entries: PromptManifestEntry[] = [];
+    for (let index = 0; index < sceneIds.length; index += 1) {
+      const sceneId = sceneIds[index]!;
+      const asset = wf09Status.assets.find(candidate => candidate.owner.id === sceneId);
+      if (asset === undefined) {
+        throw new Wf09AutoError(
+          "WF09_AUTO_PROJECT_STATE",
+          `Scene ${sceneId} has no materialized PRIMARY_SCENE Asset.`
+        );
+      }
+      const prompt = asset.design.imagePrompt?.trim();
+      if (!prompt) {
+        throw new Wf09AutoError(
+          "WF09_AUTO_PROJECT_STATE",
+          `Scene ${sceneId} has no materialized IMAGE_PROMPT.`
+        );
+      }
+      const negativePrompt = asset.design.negativePrompt?.trim();
+      const cutName = `cut_${String(index + 1).padStart(3, "0")}`;
+      const nextCut = index + 1 < sceneIds.length
+        ? `cut_${String(index + 2).padStart(3, "0")}`
+        : null;
+      const promptFile = `05_images/prompts/${cutName}.md`;
+      const generatedDirectory = `05_images/generated/${cutName}`;
+      const promptSha256 = sha256Text(prompt);
+      const markdown = [
+        "---",
+        "schema_version: 1",
+        `project_id: ${projectId}`,
+        `cut_name: ${cutName}`,
+        `scene_id: ${sceneId}`,
+        `scene_revision: ${asset.sourceSceneRevision}`,
+        `asset_id: ${asset.id}`,
+        `asset_revision: ${asset.revision}`,
+        `prompt_sha256: ${promptSha256}`,
+        `provider_profile: ${providerPin.resourceId}@${providerPin.version}`,
+        `format: ${status.project.format}`,
+        `next_cut: ${nextCut ?? "null"}`,
+        "status: READY_FOR_GENERATION",
+        "---",
+        "",
+        `# ${cutName}`,
+        "",
+        "## IMAGE_PROMPT",
+        "",
+        prompt,
+        "",
+        ...(negativePrompt ? ["## NEGATIVE_PROMPT", "", negativePrompt, ""] : []),
+        "## Generation",
+        "",
+        "Provider: CHATGPT_BROWSER",
+        "Result: PENDING",
+        ""
+      ].join("\n");
+      await writeTextAtomic(path.join(status.projectRoot, promptFile), markdown);
+      entries.push({
+        cutName,
+        sceneId,
+        sceneRevision: asset.sourceSceneRevision,
+        assetId: asset.id,
+        assetRevision: asset.revision,
+        promptSha256,
+        promptFile,
+        generatedDirectory,
+        nextCut
+      });
+    }
+
+    const manifest: PromptManifest = {
+      schemaVersion: 1,
+      projectId,
+      providerProfile: `${providerPin.resourceId}@${providerPin.version}`,
+      entries
+    };
+    await writeTextAtomic(
+      path.join(promptDirectory, "manifest.json"),
+      `${JSON.stringify(manifest, null, 2)}\n`
+    );
+    return manifest;
+  }
+
+  private async mirrorGeneratedCandidates(projectId: string, manifest: PromptManifest) {
+    const status = await this.projects.getStatus(projectId);
+    const repo = new SqliteSceneAssetRepository(status.projectDbPath);
+    const candidates: NonNullable<PromptManifest["candidates"]> = [];
+    try {
+      for (const entry of manifest.entries) {
+        const asset = await repo.getPrimarySceneAsset(projectId, entry.sceneId);
+        if (asset === null) continue;
+        for (let index = 0; index < asset.candidateMediaIds.length; index += 1) {
+          const mediaId = asset.candidateMediaIds[index]!;
+          const media = await repo.getMedia(projectId, mediaId);
+          if (media === null || media.mediaType !== "IMAGE" || media.mediaStatus !== "AVAILABLE") continue;
+          const source = path.resolve(status.projectRoot, media.relativePath);
+          if (!isInside(status.projectRoot, source)) {
+            throw new Wf09AutoError(
+              "WF09_AUTO_PROJECT_STATE",
+              `MediaArtifact path escapes the project workspace: ${media.relativePath}`
+            );
+          }
+          const relativePath = `${entry.generatedDirectory}/candidate_${String(index + 1).padStart(3, "0")}${imageExtension(media.mimeType)}`;
+          const destination = path.resolve(status.projectRoot, relativePath);
+          if (!isInside(status.projectRoot, destination)) {
+            throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", "Cut image mirror path escapes the project workspace.");
+          }
+          await mkdir(path.dirname(destination), { recursive: true });
+          await copyFile(source, destination);
+          candidates.push({
+            cutName: entry.cutName,
+            assetId: asset.id,
+            mediaId,
+            relativePath
+          });
+        }
+      }
+    } finally {
+      repo.close();
+    }
+    const updated: PromptManifest = { ...manifest, candidates };
+    await writeTextAtomic(
+      path.join(status.projectRoot, "05_images", "prompts", "manifest.json"),
+      `${JSON.stringify(updated, null, 2)}\n`
+    );
+    return { mirroredCandidateCount: candidates.length, candidates };
+  }
+
   async run(projectId: string, options: { file?: string } = {}) {
     const pinResult = await this.ensureBrowserProviderPins(projectId);
     const file = await this.planFile(projectId, options.file);
@@ -246,6 +471,7 @@ export class Wf09AutoService {
       wf09Status = await this.wf09.status(projectId);
     }
 
+    const promptManifest = await this.materializePromptMarkdown(projectId, file);
     this.ensureAdapterModule();
     const designedAssets = wf09Status.assets.filter(asset =>
       asset.sourceStrategy === "GENERATE" &&
@@ -256,6 +482,7 @@ export class Wf09AutoService {
     const execution = designedAssets.length > 0
       ? await this.wf09b.execute(projectId, "ALL")
       : { projectId, requested: 0, completed: 0, failed: 0, results: [] };
+    const mirrors = await this.mirrorGeneratedCandidates(projectId, promptManifest);
     const runtimeStatus = await this.wf09b.status(projectId);
 
     return {
@@ -264,6 +491,8 @@ export class Wf09AutoService {
       providerProfileVersion: imageProviderPin(await this.projects.getStatus(projectId))?.version ?? null,
       designedCount,
       promptMaterializedCount,
+      promptMarkdownCount: promptManifest.entries.length,
+      mirroredCandidateCount: mirrors.mirroredCandidateCount,
       execution,
       runtimeStatus
     };
@@ -286,10 +515,15 @@ export class Wf09AutoService {
     const execution = hasDesigned
       ? await this.wf09b.execute(projectId, "ALL")
       : null;
+    const file = await this.planFile(projectId);
+    const promptManifest = await this.materializePromptMarkdown(projectId, file);
+    const mirrors = await this.mirrorGeneratedCandidates(projectId, promptManifest);
     return {
       projectId,
       retry,
       execution,
+      promptMarkdownCount: promptManifest.entries.length,
+      mirroredCandidateCount: mirrors.mirroredCandidateCount,
       runtimeStatus: await this.wf09b.status(projectId)
     };
   }
