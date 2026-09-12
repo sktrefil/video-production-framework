@@ -1,111 +1,137 @@
-# Roman IX Reference Library + WF-09 Regeneration Runbook
+# Shared Reference Library + WF-09 Three-Tier Runbook
 
-## Status
+## Canonical layout
 
-This branch adds the canonical machinery required to register the six approved Golden Reference frames, hash-pin them, auto-select references from Scene/KNF Beat context, inject them into WF-09 image runtime jobs, and upload the exact approved set through a browser transport.
-
-The six source image bytes themselves are **not stored in this repository yet**. Do not fabricate them and do not substitute newly generated lookalikes. The approved source is the Golden Reference set extracted from the stable Moonmu preview.
-
-## Approved six-frame source contract
-
-The source directory must contain exactly these approved frame names:
-
-1. `01_hook_title.png`
-2. `02_persistent_header.png`
-3. `03_normal_caption.png`
-4. `04_emphasis_caption.png`
-5. `05_two_line_caption_blur.png`
-6. `06_info_label_object.png`
-
-Missing files hard-block registration with `B010`.
-
-## Register into a project
-
-Build and register from the approved source directory into the project workspace:
-
-```powershell
-npm run reference:register -- `
-  --source "D:\path\to\approved\reference_frames" `
-  --target "workspace\projects\roman-ix\05_images\reference_library\ROMAN_IX_KNF_V2\1.0.0"
-```
-
-Registration does all of the following atomically at the library level:
-
-- confirms all six expected files exist and are non-empty;
-- copies the exact approved bytes;
-- computes SHA-256 from the source bytes;
-- writes `manifest.json` with role, Scene tags, KNF Beat tags, priority and SHA-256;
-- never accepts a caller-provided fake hash.
-
-Verify again before generation:
-
-```powershell
-npm run reference:register -- `
-  --target "workspace\projects\roman-ix\05_images\reference_library\ROMAN_IX_KNF_V2\1.0.0" `
-  --verify-only
-```
-
-Any byte drift returns `REFERENCE_HASH_MISMATCH` and must block generation.
-
-## Scene / KNF Beat automatic selection
-
-`@vpf/reference-library` scores the verified manifest using both:
-
-- Scene text / `primaryVisualIdea` / `mustBeSeen` terms;
-- optional normalized KNF Beat;
-- deterministic role priority as a tie-breaker.
-
-Default selection count is 2 and is capped at 6. The output is converted to the existing `ImageRuntimeReference` contract, so each selected reference carries:
-
-- deterministic library media id;
-- semantic role;
-- project-relative path;
-- SHA-256.
-
-## WF-09 integration
-
-Use `ReferenceAwareUnifiedImageRuntimeJobService` from:
+WF-09 now uses one repository-shared reference library plus an optional project-local tier:
 
 ```text
-@vpf/scene-assets/reference-aware-image-runtime
+workspace/
+├─ reference_library/
+│  ├─ global_visual/          # mandatory shared visual baseline
+│  └─ knf_layout/             # shared KNF/layout references
+└─ projects/
+   └─ <project_id>/
+      └─ 05_images/
+         └─ reference_library/
+            ├─ project/       # optional project-specific references
+            └─ _shared/       # generated automatically; do not maintain by hand
 ```
 
-It preserves the existing WF-09 gates for approved Scene, approved Project Style, approved required Identity Anchors and pinned Format Profile. It then:
+`global_visual` and `knf_layout` are authored once. A user does not copy them into every new project. WF-09 automatically materializes the selected shared bytes into the active project's `_shared` cache because the image runtime intentionally forbids reading outside the project workspace.
 
-1. compiles the approved image prompt;
-2. resolves approved Identity Anchor references;
-3. asks the Reference Library selector for Scene/KNF Beat references;
-4. merges both reference sets deterministically;
-5. validates the full `ImageRuntimeInput`;
-6. persists the exact merged references inside the normal `IMAGE_GENERATION` ProviderJob.
+## Tier policy
 
-The event payload also records reference ids, reference SHA-256 values, KNF Beat and library-reference count for auditability.
+### GLOBAL_VISUAL
 
-Existing result synchronization/retry semantics remain compatible because the new job uses the same ProviderJob and ImageRuntimeInput contracts.
+- source: `workspace/reference_library/global_visual`
+- mandatory for WF-09 reference-aware generation;
+- SHA-256 manifest is verified before selection;
+- baseline references are always attached;
+- missing/empty/unindexed global library hard-blocks with `B010`.
 
-## Browser reference upload
+### KNF_LAYOUT
 
-`@vpf/provider-orchestrator/browser-reference-upload` is transport-only.
+- source: `workspace/reference_library/knf_layout`
+- shared across projects;
+- used only when a KNF Beat is supplied;
+- Scene + Beat scoring chooses the required layout reference;
+- the six canonical files are:
+  - `01_hook_title.png`
+  - `02_persistent_header.png`
+  - `03_normal_caption.png`
+  - `04_emphasis_caption.png`
+  - `05_two_line_caption_blur.png`
+  - `06_info_label_object.png`
 
-Browser automation receives only references that the image runtime already verified from disk. Upload order, media id and SHA-256 are preserved. The Browser layer must not:
+These six PNG files are committed on `feature/roman-ix-reference-library`.
 
-- choose a different reference;
-- add or remove a reference;
-- crop or rewrite an approved reference;
-- reinterpret Scene/KNF Beat selection.
+### PROJECT
 
-A receipt mismatch against approved runtime references is rejected.
+- source: `workspace/projects/<project_id>/05_images/reference_library/project`
+- optional;
+- Scene-selected when `manifest.json` exists;
+- never replaces the mandatory global baseline.
 
-## Roman IX regeneration gate
+## Build SHA-256 manifests
 
-Roman IX is considered **reference-ready** only when all of these are true:
+The tier indexer computes hashes from the real approved bytes; caller-supplied hashes are not accepted.
 
-- six approved source frames have been registered;
-- generated `manifest.json` contains six real SHA-256 values;
-- `--verify-only` passes;
-- Scene/KNF Beat selection produces references for every target Scene;
-- WF-09 job `inputPayload.references` contains those exact hashes;
-- Browser upload receipt matches those references;
-- Image QC failure returns the asset to the existing WF-09 regeneration path instead of advancing.
+```powershell
+npm run reference:index-tier -- `
+  --tier global_visual `
+  --dir "workspace\reference_library\global_visual" `
+  --library-id GLOBAL_VISUAL_V1
 
-Until the original six approved image bytes are supplied to the registration command, the code path is implemented but the project-specific `manifest.json` is intentionally not fabricated.
+npm run reference:index-tier -- `
+  --tier knf_layout `
+  --dir "workspace\reference_library\knf_layout" `
+  --library-id KNF_LAYOUT_V1
+
+npm run reference:index-tier -- `
+  --tier project `
+  --dir "workspace\projects\pilot_short_roman_ix\05_images\reference_library\project" `
+  --library-id ROMAN_IX_PROJECT_V1
+```
+
+Verification:
+
+```powershell
+npm run reference:index-tier -- --dir "workspace\reference_library\global_visual" --verify-only
+npm run reference:index-tier -- --dir "workspace\reference_library\knf_layout" --verify-only
+```
+
+Any byte drift returns `REFERENCE_HASH_MISMATCH` and blocks generation.
+
+## WF-09 standard composition
+
+Use the standard factory:
+
+```text
+@vpf/scene-assets/standard-reference-aware-image-runtime
+```
+
+`createStandardReferenceAwareImageRuntimeJobService(...)` installs `RepositoryThreeTierReferenceSelectionPort` automatically. Callers do not construct a per-project selector or manually copy shared reference files.
+
+For each WF-09 image job the flow is:
+
+```text
+Scene + KNF Beat
+      ↓
+GLOBAL_VISUAL manifest verify ── mandatory
+      ↓
+GLOBAL_VISUAL baseline select
+      ↓
+KNF_LAYOUT Scene/Beat select ─── only when Beat exists
+      ↓
+PROJECT Scene select ─────────── optional
+      ↓
+materialize shared bytes into
+05_images/reference_library/_shared/
+      ↓
+merge Identity Anchor references
+      ↓
+ImageRuntimeInput.references
+      ↓
+normal ImageRuntimeExecutor SHA-256 verification
+      ↓
+provider / Browser reference upload
+```
+
+The resulting provider job records exact reference media ids and SHA-256 values. Browser transport remains transport-only and must preserve the selected references unchanged.
+
+## Isolation rule
+
+Do not pass `workspace/reference_library/...` directly to `ImageRuntimeInput`. The image runtime resolves references under a project's workspace and MIG-11 isolation blocks external paths. The three-tier selector therefore copies only the selected approved shared bytes into:
+
+```text
+05_images/reference_library/_shared/global_visual/
+05_images/reference_library/_shared/knf_layout/
+```
+
+The source manifest is verified before copy, and the normal runtime verifies the materialized bytes again against the same SHA-256.
+
+## Current readiness
+
+The three-tier code path, automatic project materialization, tier indexing command, KNF six-frame assets, and WF-09 standard composition are implemented on the feature branch.
+
+The remaining data prerequisite is the exact approved `global_visual` image set. Those binary files have not been identified in the connected repository/context and must not be fabricated or replaced with unrelated Roman IX/project-specific frames. Once the approved files are placed in `workspace/reference_library/global_visual`, run `reference:index-tier` to create the real SHA-256 manifest before WF-09 generation.
