@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
 import {
   REFERENCE_LIBRARY_SCHEMA_VERSION,
@@ -39,6 +40,34 @@ function tokensFromFilename(fileName: string): string[] {
     .filter(token => token.length > 1);
 }
 
+async function indexKnfInPlace(input: IndexReferenceTierInput): Promise<ReferenceLibraryManifest> {
+  // registerReferenceLibrary deliberately copies source -> target. Use a temporary
+  // source so indexing an already-approved KNF folder never copyFile()s a file onto itself.
+  const temporary = await mkdtemp(join(tmpdir(), "vpf-knf-index-"));
+  try {
+    for (const fileName of ROMAN_IX_REFERENCE_FILES) {
+      const source = join(input.directory, fileName);
+      try {
+        const info = await stat(source);
+        if (!info.isFile() || info.size <= 0) throw new Error("not a non-empty file");
+        await copyFile(source, join(temporary, fileName));
+      } catch {
+        throw new ReferenceLibraryError("B010", `Required reference file is missing: ${fileName}`);
+      }
+    }
+    return await registerReferenceLibrary({
+      libraryId: input.libraryId,
+      version: input.version ?? "1.0.0",
+      sourceDirectory: temporary,
+      targetDirectory: input.directory,
+      files: ROMAN_IX_REFERENCE_FILES,
+      ...(input.createdAt === undefined ? {} : { createdAt: input.createdAt })
+    });
+  } finally {
+    await rm(temporary, { recursive: true, force: true });
+  }
+}
+
 /**
  * Index already-approved images in-place and write a SHA-256 manifest.
  * KNF_LAYOUT keeps the strict six-frame contract. GLOBAL_VISUAL and PROJECT
@@ -47,14 +76,7 @@ function tokensFromFilename(fileName: string): string[] {
  */
 export async function indexReferenceTier(input: IndexReferenceTierInput): Promise<ReferenceLibraryManifest> {
   if (input.tier === "KNF_LAYOUT") {
-    return registerReferenceLibrary({
-      libraryId: input.libraryId,
-      version: input.version ?? "1.0.0",
-      sourceDirectory: input.directory,
-      targetDirectory: input.directory,
-      files: ROMAN_IX_REFERENCE_FILES,
-      ...(input.createdAt === undefined ? {} : { createdAt: input.createdAt })
-    });
+    return indexKnfInPlace(input);
   }
 
   let names: string[];
