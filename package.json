@@ -24,7 +24,7 @@
     "check:repository-boundaries": "node scripts/check-no-legacy-paths.mjs",
     "check:foundation": "npm run build && npm run typecheck && npm test",
     "validate:resources": "npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && node packages/resource-registry/dist/validate-cli.js resources",
-    "vpf": "node cli/vpf/dist/index.js"
+    "vpf": "node cli/vpf/dist/main.js"
   },
   "engines": {
     "node": ">=22"
