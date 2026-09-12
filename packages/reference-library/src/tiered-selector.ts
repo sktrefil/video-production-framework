@@ -94,7 +94,8 @@ async function materializeSharedEntries(
  * selected shared references are automatically materialized byte-for-byte under
  * 05_images/reference_library/_shared before ImageRuntimeInput is created.
  *
- * 1. GLOBAL_VISUAL is repository-shared, mandatory and always attached.
+ * 1. GLOBAL_VISUAL is repository-shared, mandatory and all approved entries are
+ *    attached by default (a caller may explicitly lower the limit).
  * 2. KNF_LAYOUT is repository-shared and attached only when a KNF beat exists.
  * 3. PROJECT is project-local and optional; when present it is scene-selected.
  *
@@ -118,7 +119,10 @@ export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSel
     const projectDir = join(this.paths.projectAbsoluteRoot, "05_images", "reference_library", "project");
 
     const globalManifest = await loadVerifiedReferenceLibrary(globalDir);
-    const globalEntries = allEntries(globalManifest, this.limits.globalVisual ?? 2);
+    const globalEntries = allEntries(
+      globalManifest,
+      this.limits.globalVisual ?? globalManifest.entries.length
+    );
     const globalReferences = await materializeSharedEntries(
       globalEntries,
       globalDir,
