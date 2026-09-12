@@ -187,3 +187,23 @@ export function createStandardThreeTierReferenceSelector(
     limits
   );
 }
+
+/**
+ * WF-09-facing port that resolves the current project on every request. A single
+ * service instance can therefore process multiple projects without callers ever
+ * constructing per-project reference selectors or copying shared assets manually.
+ */
+export class RepositoryThreeTierReferenceSelectionPort implements RuntimeReferenceSelectionPort {
+  constructor(
+    private readonly repositoryRoot: string,
+    private readonly limits: TierSelectionLimits = {}
+  ) {}
+
+  selectReferences(input: ReferenceSelectionRequest): Promise<ImageRuntimeReference[]> {
+    return createStandardThreeTierReferenceSelector(
+      this.repositoryRoot,
+      input.projectId,
+      this.limits
+    ).selectReferences(input);
+  }
+}
