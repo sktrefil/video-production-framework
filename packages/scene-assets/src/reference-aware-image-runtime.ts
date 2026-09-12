@@ -30,6 +30,7 @@ import {
   type SceneAssetIdFactory,
   type SceneAssetRepository
 } from "./index.js";
+import { UnifiedImageRuntimeJobService } from "./image-runtime.js";
 
 export interface SceneRuntimeReferenceSelectionPort {
   selectReferences(input: {
@@ -132,6 +133,8 @@ function mergeReferences(
 }
 
 export class ReferenceAwareUnifiedImageRuntimeJobService {
+  private readonly base: UnifiedImageRuntimeJobService;
+
   constructor(
     private readonly repository: SceneAssetRepository,
     private readonly context: SceneAssetContextPort,
@@ -141,7 +144,17 @@ export class ReferenceAwareUnifiedImageRuntimeJobService {
     private readonly references: SceneRuntimeReferenceSelectionPort,
     private readonly clock: SceneAssetClock,
     private readonly ids: SceneAssetIdFactory
-  ) {}
+  ) {
+    this.base = new UnifiedImageRuntimeJobService(
+      repository,
+      context,
+      visualBibles,
+      formatProfiles,
+      decisions,
+      clock,
+      ids
+    );
+  }
 
   async prepareGeneration(input: ReferenceAwareImageGenerationJobInput): Promise<ReferenceAwareImageGenerationJobOutput> {
     const asset = await this.requireAsset(input.projectId, input.assetId);
@@ -219,6 +232,18 @@ export class ReferenceAwareUnifiedImageRuntimeJobService {
     });
     await this.repository.createProviderJob({ job, asset: nextAsset, event, outbox });
     return { asset: nextAsset, job, runtimeInput, expectedOutputs: imageRuntimeExpectedOutputs(runtimeInput) };
+  }
+
+  synchronizeRuntimeOutcome(input: { projectId: string; jobId: string }): Promise<ProductionAsset> {
+    return this.base.synchronizeRuntimeOutcome(input);
+  }
+
+  retryFailedGeneration(input: { projectId: string; jobId: string }) {
+    return this.base.retryFailedGeneration(input);
+  }
+
+  targetRevisionPort() {
+    return this.base.targetRevisionPort();
   }
 
   private async requireAsset(projectId: string, assetId: string): Promise<ProductionAsset> {
