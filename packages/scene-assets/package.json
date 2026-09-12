@@ -5,12 +5,14 @@
   "exports": {
     ".": "./dist/index.js",
     "./image-runtime": "./dist/image-runtime.js",
-    "./reference-aware-image-runtime": "./dist/reference-aware-image-runtime.js"
+    "./reference-aware-image-runtime": "./dist/reference-aware-image-runtime.js",
+    "./standard-reference-aware-image-runtime": "./dist/standard-reference-aware-image-runtime.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
     "@vpf/domain": "0.1.0",
     "@vpf/production-system": "0.1.0",
+    "@vpf/reference-library": "0.1.0",
     "@vpf/runtime-contracts": "0.1.0",
     "@vpf/workflow": "0.1.0"
   },
