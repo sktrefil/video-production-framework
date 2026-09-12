@@ -3,15 +3,20 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "vpf": "./dist/index.js"
+    "vpf": "./dist/main.js"
   },
   "dependencies": {
     "@vpf/domain": "0.1.0",
     "@vpf/project-bootstrap": "0.1.0",
     "@vpf/legacy-guard": "0.1.0",
+    "@vpf/production-system": "0.1.0",
+    "@vpf/provider-orchestrator": "0.1.0",
     "@vpf/resource-registry": "0.1.0",
+    "@vpf/runtime-contracts": "0.1.0",
+    "@vpf/scene-assets": "0.1.0",
     "@vpf/storage": "0.1.0",
     "@vpf/story": "0.1.0",
+    "@vpf/visual-identity": "0.1.0",
     "@vpf/workspace": "0.1.0"
   },
   "scripts": {
