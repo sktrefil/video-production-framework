@@ -1,14 +1,43 @@
 import { spawn } from "node:child_process";
+import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const workerPath = fileURLToPath(new URL("./chatgpt_browser_worker.py", import.meta.url));
+
+function referenceRoleInstruction(role) {
+  const normalized = String(role ?? "").toUpperCase();
+  if (normalized.includes("COMPOSITION_GRAMMAR")) return "match the environment-first wide/medium-wide composition, restrained subject scale, and readable depth structure";
+  if (normalized.includes("ATMOSPHERE_GRAMMAR")) return "match the subdued atmosphere, natural depth, and restrained painterly-matte surface treatment";
+  if (normalized.includes("NARRATIVE_GRAMMAR")) return "match the explanatory historical storytelling hierarchy and relationship between evidence, subject, and environment";
+  if (normalized.includes("MYSTERY_CLOSURE_GRAMMAR")) return "match the unresolved historical-mystery spacing, negative space, and distant/open geography";
+  if (normalized.includes("KNF_LAYOUT")) return "use only as a layout/hierarchy cue for this scene beat; do not copy text from the reference";
+  if (normalized.includes("PROJECT")) return "preserve approved project-specific continuity without overriding the global visual grammar";
+  return "use as supporting visual reference without copying unsupported content";
+}
+
+export function buildReferenceGuidance(references) {
+  if (!Array.isArray(references) || references.length === 0) return "";
+  const lines = references.map((reference, index) => {
+    const role = String(reference?.role ?? "REFERENCE");
+    const file = basename(String(reference?.absolutePath ?? `reference-${index + 1}`));
+    return `Reference ${index + 1} (${file}, ${role}): ${referenceRoleInstruction(role)}.`;
+  });
+  return [
+    "REFERENCE USAGE CONTRACT:",
+    "The attached images are approved visual references. Follow their assigned roles strongly for composition, atmosphere and visual hierarchy; do not merely treat them as generic inspiration.",
+    ...lines,
+    "Do not copy readable text, unsupported symbols, people, places, or factual claims from a reference unless the scene prompt explicitly requires them."
+  ].join("\n");
+}
 
 export function buildChatGptTransmissionText(request) {
   const prompt = String(request?.prompt ?? "").trim();
   if (!prompt) throw new Error("ChatGPT Browser adapter requires a non-empty prompt.");
   const negativePrompt = String(request?.negativePrompt ?? "").trim();
+  const referenceGuidance = buildReferenceGuidance(request?.references);
   return [
     "이미지 생성해줘",
+    ...(referenceGuidance ? [referenceGuidance] : []),
     prompt,
     ...(negativePrompt ? ["NEGATIVE CONSTRAINTS (transported verbatim):\n" + negativePrompt] : [])
   ].join("\n\n");
@@ -86,11 +115,16 @@ function normalizeReferences(request) {
 }
 
 export function createImageProviderAdapter(options = {}) {
+  const workerRunner = options.workerRunner ?? runPythonWorker;
   return {
+    async healthcheck() {
+      return await workerRunner({ action: "probe", references: [] }, options);
+    },
     async generate(request) {
-      const transmissionText = buildChatGptTransmissionText(request);
       const references = normalizeReferences(request);
-      const result = await (options.workerRunner ?? runPythonWorker)({
+      const transmissionText = buildChatGptTransmissionText({ ...request, references });
+      const result = await workerRunner({
+        action: "generate",
         transmissionText,
         width: request.width,
         height: request.height,
