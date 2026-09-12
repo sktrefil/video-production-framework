@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "libraryId": "KNF_LAYOUT_V1",
+  "version": "1.0.0",
+  "createdAt": "2026-09-12T06:54:51.417Z",
+  "source": "APPROVED_REFERENCE_FRAMES",
+  "entries": [
+    {
+      "id": "KNF_LAYOUT_V1:01",
+      "fileName": "01_hook_title.png",
+      "relativePath": "01_hook_title.png",
+      "sha256": "c4ac703b93de7edb688e18123b0ef308e00af8975d7157d014b78586b1df56ad",
+      "mimeType": "image/png",
+      "role": "HOOK_TITLE",
+      "beatTags": [
+        "HOOK",
+        "OPEN",
+        "QUESTION",
+        "TEASE"
+      ],
+      "sceneTags": [
+        "mystery",
+        "question",
+        "disappear",
+        "vanish",
+        "ninth",
+        "legion",
+        "미스터리",
+        "의문",
+        "실종"
+      ],
+      "priority": 6
+    },
+    {
+      "id": "KNF_LAYOUT_V1:02",
+      "fileName": "02_persistent_header.png",
+      "relativePath": "02_persistent_header.png",
+      "sha256": "e9cbee67a1883c875248396fc68b47e18496fc35e532162eeeac9d21a331c382",
+      "mimeType": "image/png",
+      "role": "PERSISTENT_HEADER",
+      "beatTags": [
+        "ORIENTATION",
+        "CONTEXT",
+        "SETUP",
+        "EVIDENCE"
+      ],
+      "sceneTags": [
+        "where",
+        "when",
+        "britain",
+        "rome",
+        "location",
+        "date",
+        "브리튼",
+        "로마",
+        "위치",
+        "시기"
+      ],
+      "priority": 5
+    },
+    {
+      "id": "KNF_LAYOUT_V1:03",
+      "fileName": "03_normal_caption.png",
+      "relativePath": "03_normal_caption.png",
+      "sha256": "8244647a4a30864ce5aecf70de3f4d41ab19d3bdbba5d860ed7c8e92f80aab69",
+      "mimeType": "image/png",
+      "role": "NORMAL_CAPTION",
+      "beatTags": [
+        "CONTEXT",
+        "DEVELOPMENT",
+        "EXPLANATION",
+        "EVIDENCE"
+      ],
+      "sceneTags": [
+        "explain",
+        "record",
+        "source",
+        "account",
+        "설명",
+        "기록",
+        "사료"
+      ],
+      "priority": 4
+    },
+    {
+      "id": "KNF_LAYOUT_V1:04",
+      "fileName": "04_emphasis_caption.png",
+      "relativePath": "04_emphasis_caption.png",
+      "sha256": "5bada0f7d2c89d2e76eeb119f641901375d0b8b30866baf08191a78fc92685a6",
+      "mimeType": "image/png",
+      "role": "EMPHASIS_CAPTION",
+      "beatTags": [
+        "HOOK",
+        "TURN",
+        "REVEAL",
+        "CONTRAST",
+        "WARNING"
+      ],
+      "sceneTags": [
+        "but",
+        "however",
+        "yet",
+        "turn",
+        "reveal",
+        "하지만",
+        "그러나",
+        "반전"
+      ],
+      "priority": 3
+    },
+    {
+      "id": "KNF_LAYOUT_V1:05",
+      "fileName": "05_two_line_caption_blur.png",
+      "relativePath": "05_two_line_caption_blur.png",
+      "sha256": "e5ec102bb91b041cc1e9512e05f425e278eb777031f9d6d48a6aade79457a07e",
+      "mimeType": "image/png",
+      "role": "TWO_LINE_CAPTION_BLUR",
+      "beatTags": [
+        "DEVELOPMENT",
+        "EXPLANATION",
+        "QUOTE",
+        "EVIDENCE"
+      ],
+      "sceneTags": [
+        "evidence",
+        "inscription",
+        "text",
+        "quote",
+        "document",
+        "증거",
+        "비문",
+        "문서"
+      ],
+      "priority": 2
+    },
+    {
+      "id": "KNF_LAYOUT_V1:06",
+      "fileName": "06_info_label_object.png",
+      "relativePath": "06_info_label_object.png",
+      "sha256": "1ca228f1eb942ceb9d8af47fc12bd650e79d3eb6dc567c96dccb3c9174a46571",
+      "mimeType": "image/png",
+      "role": "INFO_LABEL_OBJECT",
+      "beatTags": [
+        "EVIDENCE",
+        "OBJECT",
+        "MAP",
+        "PAYOFF",
+        "CLOSE"
+      ],
+      "sceneTags": [
+        "map",
+        "route",
+        "object",
+        "stone",
+        "inscription",
+        "fort",
+        "지도",
+        "경로",
+        "유물",
+        "비문",
+        "요새"
+      ],
+      "priority": 1
+    }
+  ]
+}
