@@ -32,7 +32,11 @@ function runPythonWorker(payload, options = {}) {
     const child = spawn(python, [workerPath], {
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
-      env: { ...process.env }
+      env: {
+        ...process.env,
+        PYTHONUTF8: "1",
+        PYTHONIOENCODING: "utf-8"
+      }
     });
     const stdout = [];
     const stderr = [];
