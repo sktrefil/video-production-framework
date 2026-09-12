@@ -25,6 +25,10 @@ $cli = Join-Path $repoRoot "cli\vpf\dist\main.js"
 $defaultAdapter = Join-Path $repoRoot "runtimes\image\adapters\chatgpt-browser-adapter.mjs"
 $mediaInspector = Join-Path $scriptRoot "inspect-pilot-vdg-media.cjs"
 
+if ([string]::IsNullOrWhiteSpace($env:VPF_PYTHON_EXECUTABLE)) {
+  $env:VPF_PYTHON_EXECUTABLE = "python"
+}
+
 if (-not (Test-Path $projectDb)) {
   throw "Project database not found: $projectDb"
 }
@@ -143,9 +147,6 @@ function Assert-BrowserEnvironment {
   if ([string]::IsNullOrWhiteSpace($env:CHATGPT_IMAGE_TIMEOUT_SECONDS)) {
     $env:CHATGPT_IMAGE_TIMEOUT_SECONDS = "180"
   }
-  if ([string]::IsNullOrWhiteSpace($env:VPF_PYTHON_EXECUTABLE)) {
-    $env:VPF_PYTHON_EXECUTABLE = "python"
-  }
 
   try {
     $cdpVersionUrl = $env:CHATGPT_CDP_URL.TrimEnd('/') + "/json/version"
@@ -185,7 +186,7 @@ function Get-MediaEvidence {
 if ($ResetPreVdg) {
   $currentRuntime = Invoke-VpfJson @("asset", "runtime", "status", $Project)
   $currentAuto = Invoke-VpfJson @("asset", "auto", "status", $Project)
-  $alreadyVdg = @($currentAuto.runtime.assets | Where-Object {
+  $alreadyVdg = @($currentAuto.wf09.assets | Where-Object {
     $_.design.imagePrompt -and $_.design.imagePrompt.Contains("VISUAL DIRECTION:")
   }).Count -gt 0
   if ($alreadyVdg -and $currentRuntime.candidateAvailableCount -gt 0) {
