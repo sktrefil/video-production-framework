@@ -23,6 +23,7 @@ $planFile = Join-Path $projectRoot "05_images\scene-assets.json"
 $productionPlanFile = Join-Path $projectRoot "05_images\scene-assets.production-ready.json"
 $cli = Join-Path $repoRoot "cli\vpf\dist\main.js"
 $defaultAdapter = Join-Path $repoRoot "runtimes\image\adapters\chatgpt-browser-adapter.mjs"
+$mediaInspector = Join-Path $scriptRoot "inspect-pilot-vdg-media.cjs"
 
 if (-not (Test-Path $projectDb)) {
   throw "Project database not found: $projectDb"
@@ -32,6 +33,9 @@ if (-not (Test-Path $planFile)) {
 }
 if (-not (Test-Path $defaultAdapter)) {
   throw "ChatGPT Browser adapter not found: $defaultAdapter"
+}
+if (-not (Test-Path $mediaInspector)) {
+  throw "PILOT-VDG-01 media evidence inspector not found: $mediaInspector"
 }
 
 function Invoke-RepositoryBuild {
@@ -162,50 +166,11 @@ function Get-MediaEvidence {
     [Parameter(Mandatory = $true)][string]$MediaId
   )
 
-  $query = @'
-const Database = require("better-sqlite3");
-const [, dbPath, projectId, assetId, mediaId] = process.argv;
-const db = new Database(dbPath, { readonly: true });
-try {
-  const asset = db.prepare(`
-    SELECT revision, asset_status, image_prompt, negative_prompt, candidate_media_ids_json
-    FROM production_assets
-    WHERE project_id = ? AND id = ? AND lifecycle_status = 'ACTIVE'
-  `).get(projectId, assetId);
-  const job = db.prepare(`
-    SELECT id, provider, provider_profile_version, status, input_payload_json, result_media_ids_json
-    FROM provider_jobs
-    WHERE project_id = ? AND target_id = ? AND lifecycle_status = 'ACTIVE'
-      AND job_type = 'IMAGE_GENERATION'
-    ORDER BY created_at DESC LIMIT 1
-  `).get(projectId, assetId);
-  const media = db.prepare(`
-    SELECT id, relative_path, mime_type, width, height, checksum, source_job_id, media_status
-    FROM media_artifacts
-    WHERE project_id = ? AND id = ? AND lifecycle_status = 'ACTIVE'
-  `).get(projectId, mediaId);
-  if (!asset || !job || !media) throw new Error("Missing active Asset, ProviderJob, or MediaArtifact.");
-  const payload = JSON.parse(job.input_payload_json);
-  const resultMediaIds = JSON.parse(job.result_media_ids_json);
-  console.log(JSON.stringify({
-    assetRevision: asset.revision,
-    assetStatus: asset.asset_status,
-    candidateMediaIds: JSON.parse(asset.candidate_media_ids_json),
-    jobId: job.id,
-    provider: job.provider,
-    providerProfileVersion: job.provider_profile_version,
-    jobStatus: job.status,
-    exactPromptMatch: payload.prompt === asset.image_prompt,
-    exactNegativePromptMatch: (payload.negativePrompt ?? null) === (asset.negative_prompt ?? null),
-    resultMediaIds,
-    media
-  }));
-} finally {
-  db.close();
-}
-'@
-
-  $raw = & node -e $query $projectDb $Project $AssetId $MediaId 2>&1
+  # Do not pass multiline JavaScript through `node -e` here. Windows
+  # PowerShell 5.1 can alter native-command quoting/backticks, which caused the
+  # real Roman IX pilot to fail at [eval] after image generation had already
+  # succeeded. Execute a checked-in .cjs inspector with ordinary argv instead.
+  $raw = & node $mediaInspector $projectDb $Project $AssetId $MediaId 2>&1
   if ($LASTEXITCODE -ne 0) {
     throw "Could not inspect PILOT-VDG-01 DB evidence:`n$($raw -join [Environment]::NewLine)"
   }
@@ -218,6 +183,15 @@ try {
 # are superseded, generated files are archived, and human-approved media makes
 # the reset fail closed.
 if ($ResetPreVdg) {
+  $currentRuntime = Invoke-VpfJson @("asset", "runtime", "status", $Project)
+  $currentAuto = Invoke-VpfJson @("asset", "auto", "status", $Project)
+  $alreadyVdg = @($currentAuto.runtime.assets | Where-Object {
+    $_.design.imagePrompt -and $_.design.imagePrompt.Contains("VISUAL DIRECTION:")
+  }).Count -gt 0
+  if ($alreadyVdg -and $currentRuntime.candidateAvailableCount -gt 0) {
+    throw "-ResetPreVdg refused: current VDG Assets already have Candidate Media. Re-run without -ResetPreVdg to validate the existing cut_001."
+  }
+
   $reset = Invoke-VpfJson @("asset", "auto", "reset-pre-vdg", $Project)
   if (-not $reset.reset) {
     Write-Host "PILOT-VDG-01 pre-VDG reset: no active image ProviderJobs required reset."
@@ -377,7 +351,7 @@ if (-not $evidence.exactNegativePromptMatch) {
 if ($evidence.provider -ne "CHATGPT_BROWSER" -or $evidence.providerProfileVersion -ne "1.1.0") {
   throw "cut_001 did not execute through CHATGPT_BROWSER / IMAGE_PROVIDER_EXECUTION_V1@1.1.0."
 }
-if ($evidence.jobStatus -ne "COMPLETE" -or $evidence.media.mediaStatus -ne "AVAILABLE") {
+if ($evidence.jobStatus -ne "COMPLETE" -or $evidence.media.media_status -ne "AVAILABLE") {
   throw "cut_001 ProviderJob/MediaArtifact is not COMPLETE/AVAILABLE."
 }
 if ($evidence.media.mime_type -ne "image/png") {
