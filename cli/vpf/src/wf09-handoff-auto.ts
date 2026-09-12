@@ -6,6 +6,7 @@ import { Wf09VisualDirectionAutoService } from "./wf09-directed-auto.js";
 import { prepareHandoffAwareSceneAssetPlan } from "./wf09-handoff.js";
 import { resetPreVisualDirectionImageState } from "./wf09-reset.js";
 import { prepareVisualDirectionSceneAssetPlan } from "./wf09-visual-direction.js";
+import { Wf09bCliService } from "./wf09b.js";
 
 function isInside(root: string, target: string): boolean {
   const relative = path.relative(path.resolve(root), path.resolve(target));
@@ -29,10 +30,12 @@ function hasVisualDirection(asset: {
 export class Wf09HandoffAutoService {
   private readonly base: Wf09VisualDirectionAutoService;
   private readonly wf09: Wf09CliService;
+  private readonly wf09b: Wf09bCliService;
 
   constructor(private readonly projects: ProjectBootstrapService) {
     this.base = new Wf09VisualDirectionAutoService(projects);
     this.wf09 = new Wf09CliService(projects);
+    this.wf09b = new Wf09bCliService(projects);
   }
 
   async resetPreVisualDirection(projectId: string) {
@@ -59,10 +62,14 @@ export class Wf09HandoffAutoService {
       } as const;
     }
 
-    if (before.providerJobCount > 0) {
+    // WF-09A's status count includes historical ProviderJob rows for audit
+    // visibility. Migration safety must only consider the current ACTIVE image
+    // production state, which is exposed by WF-09B runtime status.
+    const runtime = await this.wf09b.status(projectId);
+    if (runtime.providerJobCount > 0) {
       throw new Wf09AutoError(
         "WF09_AUTO_PROJECT_STATE",
-        "Existing Scene Assets predate Visual Direction Grammar V1 but already have Provider Jobs. WF-09 AUTO will not silently redesign production-stage Assets; run the explicit pre-VDG reset before applying the new grammar."
+        "Existing Scene Assets predate Visual Direction Grammar V1 but already have active Provider Jobs. WF-09 AUTO will not silently redesign production-stage Assets; run the explicit pre-VDG reset before applying the new grammar."
       );
     }
 
