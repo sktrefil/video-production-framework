@@ -4,6 +4,7 @@ import { Wf09CliService } from "./wf09.js";
 import { Wf09AutoError } from "./wf09-auto.js";
 import { Wf09VisualDirectionAutoService } from "./wf09-directed-auto.js";
 import { prepareHandoffAwareSceneAssetPlan } from "./wf09-handoff.js";
+import { resetPreVisualDirectionImageState } from "./wf09-reset.js";
 import { prepareVisualDirectionSceneAssetPlan } from "./wf09-visual-direction.js";
 
 function isInside(root: string, target: string): boolean {
@@ -34,6 +35,10 @@ export class Wf09HandoffAutoService {
     this.wf09 = new Wf09CliService(projects);
   }
 
+  async resetPreVisualDirection(projectId: string) {
+    return resetPreVisualDirectionImageState(this.projects, projectId);
+  }
+
   private async refreshExistingDesignedAssets(projectId: string, file: string) {
     const before = await this.wf09.status(projectId);
     if (before.assetCount === 0) {
@@ -57,7 +62,7 @@ export class Wf09HandoffAutoService {
     if (before.providerJobCount > 0) {
       throw new Wf09AutoError(
         "WF09_AUTO_PROJECT_STATE",
-        "Existing Scene Assets predate Visual Direction Grammar V1 but already have Provider Jobs. WF-09 AUTO will not silently redesign production-stage Assets; reset or explicitly regenerate them before applying the new grammar."
+        "Existing Scene Assets predate Visual Direction Grammar V1 but already have Provider Jobs. WF-09 AUTO will not silently redesign production-stage Assets; run the explicit pre-VDG reset before applying the new grammar."
       );
     }
 
