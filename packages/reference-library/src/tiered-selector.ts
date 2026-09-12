@@ -1,11 +1,12 @@
-import { access } from "node:fs/promises";
-import { join } from "node:path";
+import { access, copyFile, mkdir } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import type { ImageRuntimeReference } from "@vpf/runtime-contracts/image";
 import {
   loadVerifiedReferenceLibrary,
   mergeRuntimeReferences,
   selectSceneReferences,
   toImageRuntimeReferences,
+  type ReferenceLibraryEntry,
   type ReferenceLibraryManifest
 } from "./index.js";
 import type {
@@ -17,14 +18,10 @@ export const REFERENCE_TIERS = ["GLOBAL_VISUAL", "KNF_LAYOUT", "PROJECT"] as con
 export type ReferenceTier = (typeof REFERENCE_TIERS)[number];
 
 export interface TieredReferenceLibraryPaths {
-  /** Repository-shared root, normally workspace/reference_library. */
+  /** Repository-shared source root, normally <repo>/workspace/reference_library. */
   sharedAbsoluteRoot: string;
-  /** Runtime-contract relative root, normally workspace/reference_library. */
-  sharedProjectRelativeRoot: string;
-  /** Project workspace absolute root, normally workspace/projects/<project_id>. */
+  /** Project workspace root, normally <repo>/workspace/projects/<project_id>. */
   projectAbsoluteRoot: string;
-  /** Project workspace relative root used by ImageRuntimeInput, normally workspace/projects/<project_id>. */
-  projectRelativeRoot: string;
 }
 
 export interface TierSelectionLimits {
@@ -61,24 +58,49 @@ function requestToSceneInput(input: ReferenceSelectionRequest, maxReferences: nu
   };
 }
 
-function allAsRuntimeReferences(
-  manifest: ReferenceLibraryManifest,
-  relativeRoot: string,
-  maxReferences: number
-): ImageRuntimeReference[] {
-  return toImageRuntimeReferences(manifest.entries.slice(0, Math.max(1, maxReferences)), relativeRoot);
+function allEntries(manifest: ReferenceLibraryManifest, maxReferences: number): ReferenceLibraryEntry[] {
+  return manifest.entries.slice(0, Math.max(1, maxReferences));
+}
+
+async function materializeSharedEntries(
+  entries: readonly ReferenceLibraryEntry[],
+  sourceDirectory: string,
+  projectAbsoluteRoot: string,
+  tierDirectory: "global_visual" | "knf_layout",
+  tierRole: "GLOBAL_VISUAL" | "KNF_LAYOUT"
+): Promise<ImageRuntimeReference[]> {
+  const relativeRoot = `05_images/reference_library/_shared/${tierDirectory}`;
+  const targetRoot = join(projectAbsoluteRoot, "05_images", "reference_library", "_shared", tierDirectory);
+  await mkdir(targetRoot, { recursive: true });
+
+  for (const entry of entries) {
+    const source = join(sourceDirectory, entry.relativePath);
+    const target = join(targetRoot, entry.relativePath);
+    await mkdir(dirname(target), { recursive: true });
+    await copyFile(source, target);
+  }
+
+  return toImageRuntimeReferences(entries, relativeRoot).map(reference => ({
+    ...reference,
+    role: reference.role.replace("REFERENCE_LIBRARY:", `REFERENCE_LIBRARY:${tierRole}:`)
+  }));
 }
 
 /**
  * Canonical WF-09 reference policy.
  *
- * 1. GLOBAL_VISUAL is repository-shared and mandatory. It is always attached.
+ * Shared source assets live once under workspace/reference_library. Because the
+ * image runtime deliberately forbids reading outside a project workspace, the
+ * selected shared references are automatically materialized byte-for-byte under
+ * 05_images/reference_library/_shared before ImageRuntimeInput is created.
+ *
+ * 1. GLOBAL_VISUAL is repository-shared, mandatory and always attached.
  * 2. KNF_LAYOUT is repository-shared and attached only when a KNF beat exists.
  * 3. PROJECT is project-local and optional; when present it is scene-selected.
  *
- * Every loaded manifest is SHA-256 verified before any ImageRuntimeReference is returned.
- * Missing GLOBAL_VISUAL is therefore a hard B010 block instead of silently generating
- * without the approved visual baseline.
+ * All source/project manifests are SHA-256 verified before references are returned.
+ * The normal ImageRuntimeExecutor verifies the materialized bytes again against
+ * those approved SHA-256 values, preserving MIG-11 project isolation.
  */
 export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSelectionPort {
   constructor(
@@ -96,11 +118,14 @@ export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSel
     const projectDir = join(this.paths.projectAbsoluteRoot, "05_images", "reference_library", "project");
 
     const globalManifest = await loadVerifiedReferenceLibrary(globalDir);
-    const globalReferences = allAsRuntimeReferences(
-      globalManifest,
-      `${this.paths.sharedProjectRelativeRoot}/global_visual`,
-      this.limits.globalVisual ?? 2
-    ).map(reference => ({ ...reference, role: reference.role.replace("REFERENCE_LIBRARY:", "REFERENCE_LIBRARY:GLOBAL_VISUAL:") }));
+    const globalEntries = allEntries(globalManifest, this.limits.globalVisual ?? 2);
+    const globalReferences = await materializeSharedEntries(
+      globalEntries,
+      globalDir,
+      this.paths.projectAbsoluteRoot,
+      "global_visual",
+      "GLOBAL_VISUAL"
+    );
 
     let knfReferences: ImageRuntimeReference[] = [];
     if (input.knfBeat !== undefined && input.knfBeat.trim() && await exists(join(knfDir, "manifest.json"))) {
@@ -109,10 +134,13 @@ export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSel
         knfManifest,
         requestToSceneInput(input, this.limits.knfLayout ?? 1)
       );
-      knfReferences = toImageRuntimeReferences(
+      knfReferences = await materializeSharedEntries(
         selected,
-        `${this.paths.sharedProjectRelativeRoot}/knf_layout`
-      ).map(reference => ({ ...reference, role: reference.role.replace("REFERENCE_LIBRARY:", "REFERENCE_LIBRARY:KNF_LAYOUT:") }));
+        knfDir,
+        this.paths.projectAbsoluteRoot,
+        "knf_layout",
+        "KNF_LAYOUT"
+      );
     }
 
     let projectReferences: ImageRuntimeReference[] = [];
@@ -124,8 +152,11 @@ export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSel
       );
       projectReferences = toImageRuntimeReferences(
         selected,
-        `${this.paths.projectRelativeRoot}/05_images/reference_library/project`
-      ).map(reference => ({ ...reference, role: reference.role.replace("REFERENCE_LIBRARY:", "REFERENCE_LIBRARY:PROJECT:") }));
+        "05_images/reference_library/project"
+      ).map(reference => ({
+        ...reference,
+        role: reference.role.replace("REFERENCE_LIBRARY:", "REFERENCE_LIBRARY:PROJECT:")
+      }));
     }
 
     const references = mergeRuntimeReferences(
@@ -141,4 +172,18 @@ export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSel
       }
     };
   }
+}
+
+export function createStandardThreeTierReferenceSelector(
+  repositoryRoot: string,
+  projectId: string,
+  limits: TierSelectionLimits = {}
+): ThreeTierFilesystemReferenceSelector {
+  return new ThreeTierFilesystemReferenceSelector(
+    {
+      sharedAbsoluteRoot: join(repositoryRoot, "workspace", "reference_library"),
+      projectAbsoluteRoot: join(repositoryRoot, "workspace", "projects", projectId)
+    },
+    limits
+  );
 }
