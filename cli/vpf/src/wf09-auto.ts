@@ -1,8 +1,7 @@
-import { createHash } from "node:crypto";
-import { copyFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { VersionPins } from "@vpf/domain";
+import type { Scene, VersionPins } from "@vpf/domain";
 import {
   ProjectBootstrapService,
   type ProjectStatus
@@ -12,38 +11,16 @@ import {
   type ResourcePin
 } from "@vpf/resource-registry";
 import { SqliteSceneAssetRepository } from "@vpf/storage/scene-assets";
+import { Wf07CliService } from "./wf07.js";
+import { Wf08CliService } from "./wf08.js";
 import { Wf09CliService } from "./wf09.js";
 import { Wf09bCliService } from "./wf09b.js";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const resourcesRoot = path.join(repositoryRoot, "resources");
-const targetChannel = { resourceId: "HISTORY_MYSTERY_V1", version: "1.2.0" } as const;
-const targetImageProvider = { resourceId: "IMAGE_PROVIDER_EXECUTION_V1", version: "1.1.0" } as const;
-
-interface PromptManifestEntry {
-  cutName: string;
-  sceneId: string;
-  sceneRevision: number;
-  assetId: string;
-  assetRevision: number;
-  promptSha256: string;
-  promptFile: string;
-  generatedDirectory: string;
-  nextCut: string | null;
-}
-
-interface PromptManifest {
-  schemaVersion: 1;
-  projectId: string;
-  providerProfile: string;
-  entries: PromptManifestEntry[];
-  candidates?: Array<{
-    cutName: string;
-    assetId: string;
-    mediaId: string;
-    relativePath: string;
-  }>;
-}
+const targetChannel = { resourceId: "HISTORY_MYSTERY_V1", version: "1.4.0" } as const;
+const targetVisualBible = { resourceId: "HISTORY_MYSTERY_VISUAL_BIBLE", version: "1.1.0" } as const;
+const targetImageProvider = { resourceId: "IMAGE_PROVIDER_EXECUTION_V1", version: "1.2.0" } as const;
 
 export class Wf09AutoError extends Error {
   constructor(
@@ -56,24 +33,6 @@ export class Wf09AutoError extends Error {
     super(message);
     this.name = "Wf09AutoError";
   }
-}
-
-function sha256Text(value: string): string {
-  return createHash("sha256").update(value, "utf8").digest("hex");
-}
-
-function imageProviderPin(status: ProjectStatus): ResourcePin | undefined {
-  return status.resourcePins.find(pin =>
-    pin.resourceType === "PROVIDER_PROFILE" &&
-    pin.resourceId === targetImageProvider.resourceId
-  );
-}
-
-function channelPin(status: ProjectStatus): ResourcePin | undefined {
-  return status.resourcePins.find(pin =>
-    pin.resourceType === "CHANNEL_PROFILE" &&
-    pin.resourceId === targetChannel.resourceId
-  );
 }
 
 function isInside(root: string, target: string): boolean {
@@ -92,9 +51,12 @@ async function writeTextAtomic(filename: string, value: string): Promise<void> {
   await rename(temporary, filename);
 }
 
+async function writeJsonAtomic(filename: string, value: unknown): Promise<void> {
+  await writeTextAtomic(filename, `${JSON.stringify(value, null, 2)}\n`);
+}
+
 async function writeProjectSnapshot(status: ProjectStatus): Promise<void> {
-  const filename = path.join(status.projectRoot, "project.json");
-  const snapshot = {
+  await writeJsonAtomic(path.join(status.projectRoot, "project.json"), {
     schemaVersion: 1,
     projectId: status.project.projectId,
     title: status.project.title,
@@ -105,23 +67,154 @@ async function writeProjectSnapshot(status: ProjectStatus): Promise<void> {
     legacyAllowed: status.legacyAllowed,
     versions: status.project.versions,
     resourcePins: status.resourcePins
-  };
-  await writeTextAtomic(filename, `${JSON.stringify(snapshot, null, 2)}\n`);
+  });
 }
 
-function imageExtension(mimeType: string): string {
-  if (mimeType === "image/png") return ".png";
-  if (mimeType === "image/jpeg") return ".jpg";
-  if (mimeType === "image/webp") return ".webp";
-  throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", `Unsupported generated image MIME: ${mimeType}`);
+function pin(status: ProjectStatus, resourceType: ResourcePin["resourceType"], resourceId: string): ResourcePin | undefined {
+  return status.resourcePins.find(candidate => candidate.resourceType === resourceType && candidate.resourceId === resourceId);
+}
+
+function imageProviderPin(status: ProjectStatus): ResourcePin | undefined {
+  return pin(status, "PROVIDER_PROFILE", targetImageProvider.resourceId);
+}
+
+function channelPin(status: ProjectStatus): ResourcePin | undefined {
+  return pin(status, "CHANNEL_PROFILE", targetChannel.resourceId);
+}
+
+function visualBiblePin(status: ProjectStatus): ResourcePin | undefined {
+  return pin(status, "CHANNEL_VISUAL_BIBLE", targetVisualBible.resourceId);
+}
+
+function projectStyleDecision() {
+  return {
+    eraRegion: "Early second-century Roman Britain, especially northern Britannia, with archaeology-led reconstruction rather than legendary certainty",
+    visualApproach: "Story-first, environment-first historical reconstruction; evidence and uncertainty are visually separated; restrained painterly matte finish",
+    realismLevel: "Grounded historically plausible reconstruction with natural human proportions and materially credible stone, timber, wool, leather and iron",
+    colorLanguage: "Subdued cold earth, slate, weathered stone, muted wool and iron tones; restrained warm accents only when motivated by practical light",
+    lightingLanguage: "Natural overcast northern daylight, mist and low-contrast atmospheric depth; practical fire or lamp light only when contextually justified",
+    materialLanguage: "Weathered stone, timber, wool, leather, iron, parchment and archaeological surfaces; no glossy synthetic or game-render materials",
+    environmentLanguage: "Large readable landscapes, roads, forts, ruins, maps and evidence spaces with strong foreground-midground-background depth",
+    characterRenderingPrinciple: "Roman personnel remain small-to-medium in frame, historically plausible, non-heroic, with no unsupported Ninth Legion emblem or invented heraldry",
+    cameraCompositionTendency: "Medium-wide to wide by default; essential story information in central 60-70%; upper and lower margins remain atmospheric and crop-safe",
+    moodRange: [
+      "investigative historical mystery",
+      "cold northern frontier uncertainty",
+      "evidence-led reconstruction",
+      "restrained unresolved ending"
+    ],
+    factualConstraints: [
+      "Preserve uncertainty where historical evidence is incomplete",
+      "Use plausible early second-century Roman military equipment and architecture",
+      "Do not assert a final battlefield or disappearance mechanism as fact",
+      "Generated imagery must not contain readable invented historical text"
+    ],
+    avoidances: [
+      "fantasy armor or magical disappearance effects",
+      "unsupported Ninth Legion insignia, heraldry or bright invented banners",
+      "modern objects or weapons",
+      "superhero anatomy or spectacle-only composition",
+      "glossy game-render or photographic hyperreal finish",
+      "readable generated Latin, dates, map labels or other historical text"
+    ]
+  };
+}
+
+function scenePriority(scene: Scene, index: number, count: number): "CRITICAL" | "IMPORTANT" | "SUPPORTING" {
+  const text = [scene.scriptSegment, scene.primaryVisualIdea, ...scene.mustBeSeen].join(" ");
+  if (index === 0 || index === count - 1) return "CRITICAL";
+  if (/비문|기록|증거|타임라인|전투|가설|inscription|evidence|record/u.test(text)) return "IMPORTANT";
+  return "SUPPORTING";
+}
+
+function sceneRole(scene: Scene, index: number, count: number): "HERO" | "STORY_ANCHOR" | "STANDARD" {
+  if (index === 0) return "HERO";
+  const text = [scene.scriptSegment, scene.primaryVisualIdea, ...scene.mustBeSeen].join(" ");
+  if (index === count - 1 || /비문|기록|증거|타임라인|가설|inscription|evidence|record/u.test(text)) return "STORY_ANCHOR";
+  return "STANDARD";
+}
+
+function scenePrompt(scene: Scene): { prompt: string; negativePrompt: string } {
+  const visual = scene.primaryVisualIdea.trim();
+  const mustSee = scene.mustBeSeen
+    .filter(item => !/^(AD\s*)?\d{2,4}$/iu.test(item.trim()))
+    .join(", ");
+  const prompt = [
+    visual,
+    mustSee ? `Essential visible elements: ${mustSee}.` : "",
+    "Early second-century Roman Britain, grounded archaeological reconstruction, historically plausible materials and equipment.",
+    "Story-first environment-first medium-wide or wide framing, people and objects small-to-medium in frame, readable foreground-midground-background depth.",
+    "Restrained painterly matte surface, subdued natural earth and slate tones, cold overcast or contextually motivated natural light.",
+    "Essential story information stays in the central 60-70%; upper and lower margins remain atmospheric and lower-detail for vertical 9:16 crop continuity.",
+    "Preserve historical uncertainty; no readable generated historical text or labels."
+  ].filter(Boolean).join(" ");
+  const negativePrompt = [
+    "fantasy armor",
+    "magical effects",
+    "modern objects",
+    "unsupported Ninth Legion emblem",
+    "invented heraldry",
+    "readable generated Latin, dates or map labels",
+    "superhero anatomy",
+    "glossy game render",
+    "photographic hyperreal finish",
+    "spectacle-only composition"
+  ].join(", ");
+  return { prompt, negativePrompt };
+}
+
+function buildSceneAssetPlan(scenes: Scene[]) {
+  return {
+    schemaVersion: 1,
+    scenes: scenes.map((scene, index) => {
+      const prompt = scenePrompt(scene);
+      return {
+        sceneId: scene.id,
+        assetPlan: {
+          assetClass: "PRIMARY_SCENE",
+          assetRole: sceneRole(scene, index, scenes.length),
+          productionPriority: scenePriority(scene, index, scenes.length),
+          sourceStrategy: "GENERATE",
+          stateField: "STATE_CURRENT",
+          rationale: `Primary visual for approved Scene ${index + 1}; generated from the current Scene state and approved project visual identity.`
+        },
+        imageAssetDesign: {
+          visualGoal: scene.primaryVisualIdea,
+          composition: "Environment-first medium-wide/wide composition with central story information and crop-safe atmospheric margins.",
+          continuityRequirements: [
+            `Enter from: ${scene.stateIn}`,
+            `Current state: ${scene.stateCurrent}`,
+            `Hand off toward: ${scene.stateOut}`
+          ],
+          factualConstraints: [
+            ...scene.mustBeSeen.map(item => `Scene requirement: ${item}`),
+            "Historically plausible early second-century Roman Britain",
+            "No readable generated historical text; dates and labels are editorial overlays"
+          ],
+          avoidances: [
+            "unsupported insignia or heraldry",
+            "fantasy or supernatural certainty",
+            "modern objects",
+            "glossy game-render finish",
+            "oversized subject without narrative reason"
+          ]
+        },
+        imagePrompt: prompt
+      };
+    })
+  };
 }
 
 export class Wf09AutoService {
   private readonly registry = new FileSystemResourceRegistry(resourcesRoot);
+  private readonly wf07: Wf07CliService;
+  private readonly wf08: Wf08CliService;
   private readonly wf09: Wf09CliService;
   private readonly wf09b: Wf09bCliService;
 
   constructor(private readonly projects: ProjectBootstrapService) {
+    this.wf07 = new Wf07CliService(projects);
+    this.wf08 = new Wf08CliService(projects);
     this.wf09 = new Wf09CliService(projects);
     this.wf09b = new Wf09bCliService(projects);
   }
@@ -138,143 +231,62 @@ export class Wf09AutoService {
     return modulePath;
   }
 
-  private async planFile(projectId: string, file?: string): Promise<string> {
-    const status = await this.projects.getStatus(projectId);
-    const filename = file === undefined
-      ? path.join(status.projectRoot, "05_images", "scene-assets.json")
-      : path.resolve(file);
-    if (!isInside(status.projectRoot, filename)) {
-      throw new Wf09AutoError(
-        "WF09_AUTO_PLAN_MISSING",
-        "WF-09 AUTO Scene Asset plan must remain inside the current project workspace."
-      );
-    }
-    try {
-      const info = await readFile(filename, "utf8");
-      if (!info.trim()) throw new Error("empty");
-    } catch {
-      throw new Wf09AutoError(
-        "WF09_AUTO_PLAN_MISSING",
-        `WF-09 AUTO requires the project-local Scene Asset plan: ${filename}`
-      );
-    }
-    return filename;
-  }
-
-  private async planSceneIds(file: string): Promise<string[]> {
-    const parsed = JSON.parse(await readFile(file, "utf8")) as unknown;
-    if (
-      typeof parsed !== "object" ||
-      parsed === null ||
-      !Array.isArray((parsed as { scenes?: unknown }).scenes)
-    ) {
-      throw new Wf09AutoError("WF09_AUTO_PLAN_MISSING", "Scene Asset plan has no scenes array.");
-    }
-    const ids = ((parsed as { scenes: unknown[] }).scenes).map((item, index) => {
-      if (
-        typeof item !== "object" ||
-        item === null ||
-        typeof (item as { sceneId?: unknown }).sceneId !== "string" ||
-        !(item as { sceneId: string }).sceneId.trim()
-      ) {
-        throw new Wf09AutoError(
-          "WF09_AUTO_PLAN_MISSING",
-          `Scene Asset plan entry ${index + 1} has no sceneId.`
-        );
-      }
-      return (item as { sceneId: string }).sceneId.trim();
-    });
-    if (new Set(ids).size !== ids.length) {
-      throw new Wf09AutoError("WF09_AUTO_PLAN_MISSING", "Scene Asset plan contains duplicate sceneId values.");
-    }
-    return ids;
-  }
-
-  async ensureBrowserProviderPins(projectId: string): Promise<{
-    status: ProjectStatus;
-    repinned: boolean;
-  }> {
+  async ensureReferenceAwarePins(projectId: string): Promise<{ status: ProjectStatus; repinned: boolean }> {
     const status = await this.projects.getStatus(projectId);
     const currentChannel = channelPin(status);
+    const currentBible = visualBiblePin(status);
     const currentProvider = imageProviderPin(status);
     if (
       currentChannel?.version === targetChannel.version &&
+      currentBible?.version === targetVisualBible.version &&
       currentProvider?.version === targetImageProvider.version
     ) {
       return { status, repinned: false };
     }
-    if (
-      currentChannel === undefined ||
-      currentProvider === undefined ||
-      currentChannel.version !== "1.1.0" ||
-      currentProvider.version !== "1.0.0"
-    ) {
-      throw new Wf09AutoError(
-        "WF09_AUTO_RESOURCE_PIN",
-        `WF-09 AUTO only performs the explicit HISTORY_MYSTERY_V1@1.1.0 / IMAGE_PROVIDER_EXECUTION_V1@1.0.0 -> 1.2.0 / 1.1.0 repin; current channel=${currentChannel?.version ?? "missing"}, image=${currentProvider?.version ?? "missing"}.`
-      );
+    if (currentChannel === undefined || currentBible === undefined || currentProvider === undefined) {
+      throw new Wf09AutoError("WF09_AUTO_RESOURCE_PIN", "WF-09 requires channel, visual bible and image provider resource pins.");
     }
 
-    const [channelResource, providerResource] = await Promise.all([
-      this.registry.resolve({
-        resourceType: "CHANNEL_PROFILE",
-        resourceId: targetChannel.resourceId,
-        version: targetChannel.version
-      }),
-      this.registry.resolve({
-        resourceType: "PROVIDER_PROFILE",
-        resourceId: targetImageProvider.resourceId,
-        version: targetImageProvider.version
-      })
+    const [channelResource, bibleResource, providerResource] = await Promise.all([
+      this.registry.resolve({ resourceType: "CHANNEL_PROFILE", resourceId: targetChannel.resourceId, version: targetChannel.version }),
+      this.registry.resolve({ resourceType: "CHANNEL_VISUAL_BIBLE", resourceId: targetVisualBible.resourceId, version: targetVisualBible.version }),
+      this.registry.resolve({ resourceType: "PROVIDER_PROFILE", resourceId: targetImageProvider.resourceId, version: targetImageProvider.version })
     ]);
-    if (channelResource === null || providerResource === null) {
-      throw new Wf09AutoError(
-        "WF09_AUTO_RESOURCE_PIN",
-        "WF-09 AUTO canonical ChatGPT Browser resources could not be resolved."
-      );
+    if (channelResource === null || bibleResource === null || providerResource === null) {
+      throw new Wf09AutoError("WF09_AUTO_RESOURCE_PIN", "Reference-aware WF-09 canonical resources could not be resolved.");
     }
 
     const now = new Date().toISOString();
     const versions: VersionPins = structuredClone(status.project.versions);
     const resourceHashes = versions.resourceHashes ?? {};
-    versions.providerProfileVersions = {
-      ...versions.providerProfileVersions,
-      IMAGE: providerResource.version
-    };
+    versions.channelVisualBibleVersion = bibleResource.version;
+    versions.providerProfileVersions = { ...versions.providerProfileVersions, IMAGE: providerResource.version };
     versions.resourceHashes = {
       ...resourceHashes,
       channelProfile: channelResource.contentHash,
+      channelVisualBible: bibleResource.contentHash,
       providerProfiles: {
         ...(resourceHashes.providerProfiles ?? {}),
         IMAGE: providerResource.contentHash
       }
     };
-    const resourcePins = status.resourcePins.map(pin => {
-      if (pin.resourceType === "CHANNEL_PROFILE" && pin.resourceId === targetChannel.resourceId) {
-        return {
-          resourceType: "CHANNEL_PROFILE" as const,
-          resourceId: channelResource.resourceId,
-          version: channelResource.version,
-          contentHash: channelResource.contentHash
-        };
+    const resourcePins = status.resourcePins.map(existing => {
+      if (existing.resourceType === "CHANNEL_PROFILE" && existing.resourceId === targetChannel.resourceId) {
+        return { resourceType: "CHANNEL_PROFILE" as const, resourceId: channelResource.resourceId, version: channelResource.version, contentHash: channelResource.contentHash };
       }
-      if (pin.resourceType === "PROVIDER_PROFILE" && pin.resourceId === targetImageProvider.resourceId) {
-        return {
-          resourceType: "PROVIDER_PROFILE" as const,
-          resourceId: providerResource.resourceId,
-          version: providerResource.version,
-          contentHash: providerResource.contentHash
-        };
+      if (existing.resourceType === "CHANNEL_VISUAL_BIBLE" && existing.resourceId === targetVisualBible.resourceId) {
+        return { resourceType: "CHANNEL_VISUAL_BIBLE" as const, resourceId: bibleResource.resourceId, version: bibleResource.version, contentHash: bibleResource.contentHash };
       }
-      return { ...pin };
+      if (existing.resourceType === "PROVIDER_PROFILE" && existing.resourceId === targetImageProvider.resourceId) {
+        return { resourceType: "PROVIDER_PROFILE" as const, resourceId: providerResource.resourceId, version: providerResource.version, contentHash: providerResource.contentHash };
+      }
+      return { ...existing };
     });
 
     const repo = new SqliteSceneAssetRepository(status.projectDbPath);
     try {
-      const commit = repo.db.transaction(() => {
-        repo.db.prepare(
-          "UPDATE projects SET lifecycle_status = 'SUPERSEDED', updated_at = ? WHERE project_id = ? AND lifecycle_status = 'ACTIVE'"
-        ).run(now, projectId);
+      repo.db.transaction(() => {
+        repo.db.prepare("UPDATE projects SET lifecycle_status = 'SUPERSEDED', updated_at = ? WHERE project_id = ? AND lifecycle_status = 'ACTIVE'").run(now, projectId);
         repo.db.prepare(`
           INSERT INTO projects
           (id, project_id, revision, lifecycle_status, title, format, versions_json,
@@ -292,241 +304,118 @@ export class Wf09AutoService {
           status.project.createdAt,
           now
         );
-      });
-      commit();
+      })();
     } finally {
       repo.close();
     }
-
     const updated = await this.projects.getStatus(projectId);
     await writeProjectSnapshot(updated);
     return { status: updated, repinned: true };
   }
 
-  private async materializePromptMarkdown(projectId: string, file: string): Promise<PromptManifest> {
-    const [status, sceneIds, wf09Status] = await Promise.all([
-      this.projects.getStatus(projectId),
-      this.planSceneIds(file),
-      this.wf09.status(projectId)
-    ]);
-    const providerPin = imageProviderPin(status);
-    if (providerPin === undefined) {
-      throw new Wf09AutoError("WF09_AUTO_RESOURCE_PIN", "Image Provider Profile pin is missing.");
+  private async ensureProjectStyle(projectId: string): Promise<{ created: boolean; styleId: string | null }> {
+    const before = await this.wf08.status(projectId);
+    if (before.projectStyle?.approval?.approvalState === "HUMAN_APPROVED" && !before.projectStyle.stale) {
+      return { created: false, styleId: before.projectStyle.id };
     }
-    const promptDirectory = path.join(status.projectRoot, "05_images", "prompts");
-    await mkdir(promptDirectory, { recursive: true });
-
-    const entries: PromptManifestEntry[] = [];
-    for (let index = 0; index < sceneIds.length; index += 1) {
-      const sceneId = sceneIds[index]!;
-      const asset = wf09Status.assets.find(candidate => candidate.owner.id === sceneId);
-      if (asset === undefined) {
-        throw new Wf09AutoError(
-          "WF09_AUTO_PROJECT_STATE",
-          `Scene ${sceneId} has no materialized PRIMARY_SCENE Asset.`
-        );
-      }
-      const prompt = asset.design.imagePrompt?.trim();
-      if (!prompt) {
-        throw new Wf09AutoError(
-          "WF09_AUTO_PROJECT_STATE",
-          `Scene ${sceneId} has no materialized IMAGE_PROMPT.`
-        );
-      }
-      const negativePrompt = asset.design.negativePrompt?.trim();
-      const cutName = `cut_${String(index + 1).padStart(3, "0")}`;
-      const nextCut = index + 1 < sceneIds.length
-        ? `cut_${String(index + 2).padStart(3, "0")}`
-        : null;
-      const promptFile = `05_images/prompts/${cutName}.md`;
-      const generatedDirectory = `05_images/generated/${cutName}`;
-      const promptSha256 = sha256Text(prompt);
-      const markdown = [
-        "---",
-        "schema_version: 1",
-        `project_id: ${projectId}`,
-        `cut_name: ${cutName}`,
-        `scene_id: ${sceneId}`,
-        `scene_revision: ${asset.sourceSceneRevision}`,
-        `asset_id: ${asset.id}`,
-        `asset_revision: ${asset.revision}`,
-        `prompt_sha256: ${promptSha256}`,
-        `provider_profile: ${providerPin.resourceId}@${providerPin.version}`,
-        `format: ${status.project.format}`,
-        `next_cut: ${nextCut ?? "null"}`,
-        "status: READY_FOR_GENERATION",
-        "---",
-        "",
-        `# ${cutName}`,
-        "",
-        "## IMAGE_PROMPT",
-        "",
-        prompt,
-        "",
-        ...(negativePrompt ? ["## NEGATIVE_PROMPT", "", negativePrompt, ""] : []),
-        "## Generation",
-        "",
-        "Provider: CHATGPT_BROWSER",
-        "Result: PENDING",
-        ""
-      ].join("\n");
-      await writeTextAtomic(path.join(status.projectRoot, promptFile), markdown);
-      entries.push({
-        cutName,
-        sceneId,
-        sceneRevision: asset.sourceSceneRevision,
-        assetId: asset.id,
-        assetRevision: asset.revision,
-        promptSha256,
-        promptFile,
-        generatedDirectory,
-        nextCut
-      });
-    }
-
-    const manifest: PromptManifest = {
-      schemaVersion: 1,
-      projectId,
-      providerProfile: `${providerPin.resourceId}@${providerPin.version}`,
-      entries
-    };
-    await writeTextAtomic(
-      path.join(promptDirectory, "manifest.json"),
-      `${JSON.stringify(manifest, null, 2)}\n`
-    );
-    return manifest;
+    const status = await this.projects.getStatus(projectId);
+    const styleFile = path.join(status.projectRoot, "04_visual_identity", "project-style.auto.json");
+    await writeJsonAtomic(styleFile, projectStyleDecision());
+    const style = await this.wf08.applyProjectStyle(projectId, styleFile);
+    await this.wf08.approveProjectStyle(projectId, "wf09-auto");
+    return { created: true, styleId: style.id };
   }
 
-  private async mirrorGeneratedCandidates(projectId: string, manifest: PromptManifest) {
+  private async ensureSceneAssetPlan(projectId: string, requestedFile?: string): Promise<{ file: string; created: boolean; sceneCount: number }> {
     const status = await this.projects.getStatus(projectId);
-    const repo = new SqliteSceneAssetRepository(status.projectDbPath);
-    const candidates: NonNullable<PromptManifest["candidates"]> = [];
-    try {
-      for (const entry of manifest.entries) {
-        const asset = await repo.getPrimarySceneAsset(projectId, entry.sceneId);
-        if (asset === null) continue;
-        for (let index = 0; index < asset.candidateMediaIds.length; index += 1) {
-          const mediaId = asset.candidateMediaIds[index]!;
-          const media = await repo.getMedia(projectId, mediaId);
-          if (media === null || media.mediaType !== "IMAGE" || media.mediaStatus !== "AVAILABLE") continue;
-          const source = path.resolve(status.projectRoot, media.relativePath);
-          if (!isInside(status.projectRoot, source)) {
-            throw new Wf09AutoError(
-              "WF09_AUTO_PROJECT_STATE",
-              `MediaArtifact path escapes the project workspace: ${media.relativePath}`
-            );
-          }
-          const relativePath = `${entry.generatedDirectory}/candidate_${String(index + 1).padStart(3, "0")}${imageExtension(media.mimeType)}`;
-          const destination = path.resolve(status.projectRoot, relativePath);
-          if (!isInside(status.projectRoot, destination)) {
-            throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", "Cut image mirror path escapes the project workspace.");
-          }
-          await mkdir(path.dirname(destination), { recursive: true });
-          await copyFile(source, destination);
-          candidates.push({
-            cutName: entry.cutName,
-            assetId: asset.id,
-            mediaId,
-            relativePath
-          });
-        }
-      }
-    } finally {
-      repo.close();
+    const filename = requestedFile === undefined
+      ? path.join(status.projectRoot, "05_images", "scene-assets.json")
+      : path.resolve(requestedFile);
+    if (!isInside(status.projectRoot, filename)) {
+      throw new Wf09AutoError("WF09_AUTO_PLAN_MISSING", "WF-09 Scene Asset plan must remain inside the current project workspace.");
     }
-    const updated: PromptManifest = { ...manifest, candidates };
-    await writeTextAtomic(
-      path.join(status.projectRoot, "05_images", "prompts", "manifest.json"),
-      `${JSON.stringify(updated, null, 2)}\n`
-    );
-    return { mirroredCandidateCount: candidates.length, candidates };
+    try {
+      const raw = await readFile(filename, "utf8");
+      const parsed = JSON.parse(raw) as { scenes?: unknown[] };
+      if (!Array.isArray(parsed.scenes) || parsed.scenes.length === 0) throw new Error("empty plan");
+      return { file: filename, created: false, sceneCount: parsed.scenes.length };
+    } catch {
+      if (requestedFile !== undefined) {
+        throw new Wf09AutoError("WF09_AUTO_PLAN_MISSING", `Requested WF-09 Scene Asset plan is missing or invalid: ${filename}`);
+      }
+    }
+
+    const story = await this.wf07.status(projectId);
+    const scenes = story.scenes
+      .filter(scene => !scene.stale && ["APPROVED", "IN_PRODUCTION", "PRODUCTION_COMPLETE"].includes(scene.sceneStatus))
+      .sort((a, b) => {
+        if (a.sequenceId !== b.sequenceId) return a.sequenceId.localeCompare(b.sequenceId);
+        return a.displayNumber - b.displayNumber;
+      });
+    if (scenes.length === 0) {
+      throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", "WF-09 requires at least one approved current Scene.");
+    }
+    await writeJsonAtomic(filename, buildSceneAssetPlan(scenes));
+    return { file: filename, created: true, sceneCount: scenes.length };
   }
 
   async run(projectId: string, options: { file?: string | undefined } = {}) {
-    const pinResult = await this.ensureBrowserProviderPins(projectId);
-    const file = await this.planFile(projectId, options.file);
+    const pinResult = await this.ensureReferenceAwarePins(projectId);
+    const style = await this.ensureProjectStyle(projectId);
+    const plan = await this.ensureSceneAssetPlan(projectId, options.file);
+    const readiness = await this.wf09.readiness(projectId, plan.file);
+    if (!readiness.ready) {
+      throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", `WF-09 prerequisites are not ready: ${readiness.readyCount}/${readiness.sceneCount}.`);
+    }
+
     let wf09Status = await this.wf09.status(projectId);
     let designedCount = 0;
-    let promptMaterializedCount = wf09Status.promptMaterializedCount;
-
     if (wf09Status.assetCount === 0) {
-      const readiness = await this.wf09.readiness(projectId, file);
-      if (!readiness.ready) {
-        throw new Wf09AutoError(
-          "WF09_AUTO_PROJECT_STATE",
-          `WF-09 AUTO prerequisites are not ready: ${readiness.readyCount}/${readiness.sceneCount}.`
-        );
-      }
-      const designed = await this.wf09.applyDesigns(projectId, file);
+      const designed = await this.wf09.applyDesigns(projectId, plan.file);
       designedCount = designed.designedCount;
-      const prompts = await this.wf09.materializePrompts(projectId, file);
-      promptMaterializedCount = prompts.promptMaterializedCount;
+      await this.wf09.materializePrompts(projectId, plan.file);
       wf09Status = await this.wf09.status(projectId);
     } else if (
       wf09Status.providerJobCount === 0 &&
       wf09Status.assets.every(asset => asset.assetStatus === "DESIGNED") &&
       wf09Status.promptMaterializedCount < wf09Status.assets.filter(asset => asset.sourceStrategy === "GENERATE").length
     ) {
-      const prompts = await this.wf09.materializePrompts(projectId, file);
-      promptMaterializedCount = prompts.promptMaterializedCount;
+      await this.wf09.materializePrompts(projectId, plan.file);
       wf09Status = await this.wf09.status(projectId);
     }
 
-    const promptManifest = await this.materializePromptMarkdown(projectId, file);
     this.ensureAdapterModule();
-    const designedAssets = wf09Status.assets.filter(asset =>
-      asset.sourceStrategy === "GENERATE" &&
-      asset.assetStatus === "DESIGNED" &&
-      !asset.stale &&
-      Boolean(asset.design.imagePrompt?.trim())
-    );
-    const execution = designedAssets.length > 0
-      ? await this.wf09b.execute(projectId, "ALL")
-      : { projectId, requested: 0, completed: 0, failed: 0, results: [] };
-    const mirrors = await this.mirrorGeneratedCandidates(projectId, promptManifest);
-    const runtimeStatus = await this.wf09b.status(projectId);
-
+    const preflight = await this.wf09b.preflight(projectId);
+    const execution = await this.wf09b.execute(projectId, "ALL");
     return {
       projectId,
       repinned: pinResult.repinned,
-      providerProfileVersion: imageProviderPin(await this.projects.getStatus(projectId))?.version ?? null,
+      channelProfileVersion: channelPin(await this.projects.getStatus(projectId))?.version ?? null,
+      visualBibleVersion: visualBiblePin(await this.projects.getStatus(projectId))?.version ?? null,
+      imageProviderProfileVersion: imageProviderPin(await this.projects.getStatus(projectId))?.version ?? null,
+      projectStyleCreated: style.created,
+      sceneAssetPlanCreated: plan.created,
+      sceneCount: plan.sceneCount,
       designedCount,
-      promptMaterializedCount,
-      promptMarkdownCount: promptManifest.entries.length,
-      mirroredCandidateCount: mirrors.mirroredCandidateCount,
+      promptMaterializedCount: (await this.wf09.status(projectId)).promptMaterializedCount,
+      referenceMode: "GLOBAL_VISUAL+KNF_LAYOUT+PROJECT",
+      preflight,
       execution,
-      runtimeStatus
+      runtimeStatus: await this.wf09b.status(projectId)
     };
   }
 
   async resume(projectId: string) {
-    await this.ensureBrowserProviderPins(projectId);
+    await this.ensureReferenceAwarePins(projectId);
+    await this.ensureProjectStyle(projectId);
+    await this.ensureSceneAssetPlan(projectId);
     this.ensureAdapterModule();
     const before = await this.wf09b.status(projectId);
-    const retry = before.failedJobCount > 0
-      ? await this.wf09b.retryFailed(projectId, "ALL")
-      : null;
+    const retry = before.failedJobCount > 0 ? await this.wf09b.retryFailed(projectId, "ALL") : null;
     const wf09Status = await this.wf09.status(projectId);
-    const hasDesigned = wf09Status.assets.some(asset =>
-      asset.sourceStrategy === "GENERATE" &&
-      asset.assetStatus === "DESIGNED" &&
-      !asset.stale &&
-      Boolean(asset.design.imagePrompt?.trim())
-    );
-    const execution = hasDesigned
-      ? await this.wf09b.execute(projectId, "ALL")
-      : null;
-    const file = await this.planFile(projectId);
-    const promptManifest = await this.materializePromptMarkdown(projectId, file);
-    const mirrors = await this.mirrorGeneratedCandidates(projectId, promptManifest);
-    return {
-      projectId,
-      retry,
-      execution,
-      promptMarkdownCount: promptManifest.entries.length,
-      mirroredCandidateCount: mirrors.mirroredCandidateCount,
-      runtimeStatus: await this.wf09b.status(projectId)
-    };
+    const hasDesigned = wf09Status.assets.some(asset => asset.sourceStrategy === "GENERATE" && asset.assetStatus === "DESIGNED" && !asset.stale && Boolean(asset.design.imagePrompt?.trim()));
+    const execution = hasDesigned ? await this.wf09b.execute(projectId, "ALL") : null;
+    return { projectId, retry, execution, runtimeStatus: await this.wf09b.status(projectId) };
   }
 
   async status(projectId: string) {
@@ -534,7 +423,9 @@ export class Wf09AutoService {
     return {
       projectId,
       channelProfileVersion: channelPin(status)?.version ?? null,
+      visualBibleVersion: visualBiblePin(status)?.version ?? null,
       imageProviderProfileVersion: imageProviderPin(status)?.version ?? null,
+      visual: await this.wf08.status(projectId),
       wf09: await this.wf09.status(projectId),
       runtime: await this.wf09b.status(projectId)
     };
