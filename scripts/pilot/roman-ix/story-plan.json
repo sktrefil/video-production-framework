@@ -1,0 +1,194 @@
+{
+  "structure": {
+    "chapters": [
+      {
+        "key": "ch1",
+        "displayNumber": 1,
+        "title": "사라진 제9군단"
+      }
+    ]
+  },
+  "sequences": {
+    "sequences": [
+      {
+        "key": "seq1",
+        "chapterKey": "ch1",
+        "displayNumber": 1,
+        "title": "전설과 기록",
+        "storyPurpose": "HOOK_AND_SETUP"
+      },
+      {
+        "key": "seq2",
+        "chapterKey": "ch1",
+        "displayNumber": 2,
+        "title": "마지막 흔적",
+        "storyPurpose": "EVIDENCE"
+      },
+      {
+        "key": "seq3",
+        "chapterKey": "ch1",
+        "displayNumber": 3,
+        "title": "사라진 이후",
+        "storyPurpose": "MYSTERY_AND_CLOSE"
+      }
+    ]
+  },
+  "scenes": {
+    "scenes": [
+      {
+        "key": "sc1",
+        "sequenceKey": "seq1",
+        "displayNumber": 1,
+        "scriptSegment": "로마 제국의 한 군단이 정말 흔적도 없이 사라졌을까요?",
+        "stateIn": "검은 화면과 로마 제국 지도",
+        "stateCurrent": "브리튼 북부에 제9군단 표식이 나타남",
+        "stateOut": "군단 상징이 화면 중앙에 남음",
+        "primaryVisualIdea": "어두운 로마 제국 지도 위에서 브리튼의 제9군단 위치가 강조된다",
+        "mustBeSeen": ["로마 제국 지도", "브리튼", "제9군단 표식"],
+        "canBeNarrated": [],
+        "canBeImplied": ["미스터리 분위기"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc2",
+        "sequenceKey": "seq1",
+        "displayNumber": 2,
+        "scriptSegment": "바로 제9 히스파나 군단입니다.",
+        "stateIn": "제9군단 표식",
+        "stateCurrent": "로마 군단병과 군단 독수리",
+        "stateOut": "군단 전체가 북쪽을 바라봄",
+        "primaryVisualIdea": "제9 히스파나 군단을 상징하는 로마 군단병과 군단기가 등장한다",
+        "mustBeSeen": ["로마 군단병", "군단기"],
+        "canBeNarrated": [],
+        "canBeImplied": [],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc3",
+        "sequenceKey": "seq1",
+        "displayNumber": 3,
+        "scriptSegment": "오랫동안 이 군단은 영국 북부에서 통째로 사라졌다는 전설로 알려졌습니다.",
+        "stateIn": "행군하는 군단",
+        "stateCurrent": "안개 낀 브리튼 북부로 들어가는 군단",
+        "stateOut": "군단의 모습이 안개 속에 사라짐",
+        "primaryVisualIdea": "안개 낀 브리튼 북부로 행군하던 로마 군단이 점차 시야에서 사라진다",
+        "mustBeSeen": ["로마 군단", "브리튼 북부", "짙은 안개"],
+        "canBeNarrated": [],
+        "canBeImplied": ["실종 전설"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc4",
+        "sequenceKey": "seq2",
+        "displayNumber": 1,
+        "scriptSegment": "하지만 실제 기록은 조금 다릅니다.",
+        "stateIn": "안개 속 군단",
+        "stateCurrent": "고대 석비가 화면을 가득 채움",
+        "stateOut": "비문 글자가 강조됨",
+        "primaryVisualIdea": "전설 장면이 사라지고 실제 고대 비문으로 전환된다",
+        "mustBeSeen": ["고대 로마 비문"],
+        "canBeNarrated": [],
+        "canBeImplied": ["전설과 기록의 대비"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc5",
+        "sequenceKey": "seq2",
+        "displayNumber": 2,
+        "scriptSegment": "서기 107년에서 108년, 요크의 비문에는 제9군단이 성문을 건설했다는 기록이 분명히 남아 있습니다.",
+        "stateIn": "요크 비문",
+        "stateCurrent": "로마군이 거대한 성문을 건설",
+        "stateOut": "완성된 성문과 비문",
+        "primaryVisualIdea": "서기 107~108년 요크에서 제9군단 병사들이 로마 성문을 건설한다",
+        "mustBeSeen": ["요크", "로마 성문", "제9군단 병사", "비문"],
+        "canBeNarrated": [],
+        "canBeImplied": [],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc6",
+        "sequenceKey": "seq2",
+        "displayNumber": 3,
+        "scriptSegment": "그리고 최근 연구에서는 제9군단 관련 장교들의 흔적이 120년대 초, 약 124년 무렵까지 이어집니다.",
+        "stateIn": "요크의 성문",
+        "stateCurrent": "군단 장교 기록과 연대가 차례로 나타남",
+        "stateOut": "AD 124에서 타임라인이 멈춤",
+        "primaryVisualIdea": "역사 기록 타임라인이 107년에서 약 124년까지 이어진다",
+        "mustBeSeen": ["역사 타임라인", "AD 124"],
+        "canBeNarrated": ["장교 기록"],
+        "canBeImplied": [],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc7",
+        "sequenceKey": "seq3",
+        "displayNumber": 1,
+        "scriptSegment": "그런데 그다음부터 확실한 기록이 끊깁니다.",
+        "stateIn": "AD 124 타임라인",
+        "stateCurrent": "기록선이 갑자기 끊김",
+        "stateOut": "빈 역사 구간만 남음",
+        "primaryVisualIdea": "AD 124 이후의 역사 타임라인이 갑자기 끊기며 어두운 공백으로 변한다",
+        "mustBeSeen": ["끊어진 타임라인", "AD 124"],
+        "canBeNarrated": [],
+        "canBeImplied": ["기록의 공백"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc8",
+        "sequenceKey": "seq3",
+        "displayNumber": 2,
+        "scriptSegment": "일부 연구자는 하드리아누스 시대 브리튼의 전쟁 속에서 제9군단이 격파되거나 해산됐을 가능성을 제시합니다.",
+        "stateIn": "기록의 공백",
+        "stateCurrent": "브리튼의 격렬한 전투",
+        "stateOut": "흩어진 군단 병사와 쓰러진 군단기",
+        "primaryVisualIdea": "하드리아누스 시대 브리튼의 전투 속에서 로마 군단이 심각한 피해를 입는 가설 장면",
+        "mustBeSeen": ["브리튼 전투", "로마 군단", "쓰러진 군단기"],
+        "canBeNarrated": ["하나의 학술적 해석"],
+        "canBeImplied": ["격파 또는 해산 가능성"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc9",
+        "sequenceKey": "seq3",
+        "displayNumber": 3,
+        "scriptSegment": "하지만 아직 확정된 답은 없습니다.",
+        "stateIn": "전투 가설 장면",
+        "stateCurrent": "서로 다른 가설을 나타내는 문서와 지도",
+        "stateOut": "물음표가 남은 지도",
+        "primaryVisualIdea": "여러 가설이 겹치지만 어느 것도 확정되지 않았음을 보여준다",
+        "mustBeSeen": ["고대 지도", "서로 다른 기록"],
+        "canBeNarrated": [],
+        "canBeImplied": ["불확실성"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc10",
+        "sequenceKey": "seq3",
+        "displayNumber": 4,
+        "scriptSegment": "즉 제9군단은 어느 날 증발한 군단이 아니라, 마지막 기록 이후의 운명이 아직 밝혀지지 않은 군단에 더 가깝습니다.",
+        "stateIn": "가설 문서",
+        "stateCurrent": "제9군단의 마지막 흔적들이 한 화면에 정리됨",
+        "stateOut": "군단의 실루엣만 남음",
+        "primaryVisualIdea": "비문, 연대 기록, 군단 실루엣을 함께 보여주며 전설과 실제 미스터리를 구분한다",
+        "mustBeSeen": ["비문", "타임라인", "제9군단 실루엣"],
+        "canBeNarrated": [],
+        "canBeImplied": ["미해결 역사"],
+        "requiredIdentityAnchorIds": []
+      },
+      {
+        "key": "sc11",
+        "sequenceKey": "seq3",
+        "displayNumber": 5,
+        "scriptSegment": "그들의 마지막 전장은 과연 어디였을까요?",
+        "stateIn": "군단 실루엣",
+        "stateCurrent": "브리튼과 유럽의 지도가 천천히 멀어짐",
+        "stateOut": "어두운 지도 위 물음표",
+        "primaryVisualIdea": "유럽과 브리튼 지도를 배경으로 제9군단의 마지막 위치를 묻는 엔딩",
+        "mustBeSeen": ["브리튼 지도", "유럽 지도"],
+        "canBeNarrated": [],
+        "canBeImplied": ["미스터리 엔딩"],
+        "requiredIdentityAnchorIds": []
+      }
+    ]
+  }
+}
