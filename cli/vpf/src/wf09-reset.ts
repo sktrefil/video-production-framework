@@ -9,6 +9,8 @@ interface ActiveAssetRow {
   revision: number;
   asset_status: string;
   approved_media_id: string | null;
+  composition: string;
+  image_prompt: string | null;
 }
 
 interface ActiveJobRow {
@@ -38,6 +40,11 @@ function archiveStamp(now: string): string {
   return now.replace(/[:.]/g, "-");
 }
 
+function hasVisualDirection(asset: ActiveAssetRow): boolean {
+  return asset.composition.includes("VISUAL DIRECTION:") ||
+    (asset.image_prompt?.includes("VISUAL DIRECTION:") ?? false);
+}
+
 /**
  * Explicit migration escape hatch for a pre-Visual-Direction image production
  * state. Nothing is deleted. Active jobs/media/QC are superseded, generated
@@ -46,7 +53,8 @@ function archiveStamp(now: string): string {
  * Scene.primaryAssetId stable and prevents attempt-1 output paths from
  * overwriting the historical candidate bytes.
  *
- * Human-approved image state is intentionally non-resettable here.
+ * Human-approved image state and already-current VDG state are intentionally
+ * non-resettable here.
  */
 export async function resetPreVisualDirectionImageState(
   projects: ProjectBootstrapService,
@@ -65,7 +73,7 @@ export async function resetPreVisualDirectionImageState(
 
   try {
     const assets = repo.db.prepare(`
-      SELECT id, revision, asset_status, approved_media_id
+      SELECT id, revision, asset_status, approved_media_id, composition, image_prompt
       FROM production_assets
       WHERE project_id = ?
         AND lifecycle_status = 'ACTIVE'
@@ -79,6 +87,13 @@ export async function resetPreVisualDirectionImageState(
       throw new Wf09AutoError(
         "WF09_AUTO_PROJECT_STATE",
         "No active GENERATE PRIMARY_SCENE Assets exist to reset."
+      );
+    }
+
+    if (assets.some(hasVisualDirection)) {
+      throw new Wf09AutoError(
+        "WF09_AUTO_PROJECT_STATE",
+        "Pre-VDG reset refused because current Scene Assets already contain Visual Direction Grammar V1. Re-run the pilot without -ResetPreVdg to validate or continue the current VDG candidates."
       );
     }
 
