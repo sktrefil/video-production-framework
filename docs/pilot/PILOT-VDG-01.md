@@ -44,6 +44,34 @@ WF-09 AUTO must not silently redesign an Asset that has entered provider/candida
 
 Generated images are never auto-approved.
 
+### Recovery when pre-VDG ProviderJobs already exist
+
+A real pilot may already contain image ProviderJobs or generated Candidates created before Visual Direction Grammar V1. In that case `asset auto prepare` fails closed instead of silently replacing production state.
+
+Use the explicit reset only when the intent is to regenerate those non-approved images under VDG V1:
+
+```powershell
+powershell -ExecutionPolicy Bypass `
+  -File .\scripts\pilot\run-pilot-vdg-01-roman-ix.ps1 `
+  -SkipBuild `
+  -ResetPreVdg
+```
+
+The reset is auditable and non-destructive to history:
+
+- active pre-VDG image ProviderJobs become `SUPERSEDED`,
+- active MediaArtifacts produced by those jobs become `SUPERSEDED`,
+- active image QC rows are superseded,
+- generated source files are moved into `05_images/archive/pre-vdg-<timestamp>/`,
+- runtime execution receipts remain unchanged as immutable execution evidence,
+- each affected PRIMARY_SCENE Asset advances to a new `DESIGNED` revision with the same Asset ID and no Candidate/approved media,
+- VDG V1 preparation then creates the new design/prompt revision,
+- only `cut_001` is generated on that run.
+
+The reset refuses to run if any affected Asset is `APPROVED`, has `approved_media_id`, or has a human approval record selecting media. Approved image history requires an explicit higher-level revision decision and is never cleared by this pilot reset.
+
+Do not manually delete `project.db`, ProviderJob rows, MediaArtifact rows, or generated image files to recover this state.
+
 ## Local prerequisites
 
 The pilot project is expected at:
