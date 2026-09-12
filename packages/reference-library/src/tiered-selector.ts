@@ -1,5 +1,5 @@
 import { access, copyFile, mkdir } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import type { ImageRuntimeReference } from "@vpf/runtime-contracts/image";
 import {
   loadVerifiedReferenceLibrary,
@@ -25,7 +25,7 @@ export interface TieredReferenceLibraryPaths {
 }
 
 export interface TierSelectionLimits {
-  /** Global visual references are foundational and are always selected. */
+  /** Global visual references are foundational but scene-selected by default. */
   globalVisual?: number;
   /** KNF references are selected only when a KNF beat was supplied. */
   knfLayout?: number;
@@ -58,8 +58,67 @@ function requestToSceneInput(input: ReferenceSelectionRequest, maxReferences: nu
   };
 }
 
-function allEntries(manifest: ReferenceLibraryManifest, maxReferences: number): ReferenceLibraryEntry[] {
-  return manifest.entries.slice(0, Math.max(1, maxReferences));
+const GLOBAL_ROLE_BY_FILE: Record<string, string> = {
+  "1.png": "COMPOSITION_GRAMMAR",
+  "2.png": "ATMOSPHERE_GRAMMAR",
+  "3.png": "NARRATIVE_GRAMMAR",
+  "6.png": "MYSTERY_CLOSURE_GRAMMAR"
+};
+
+function globalRole(entry: ReferenceLibraryEntry): string {
+  return GLOBAL_ROLE_BY_FILE[basename(entry.relativePath).toLowerCase()] ?? "VISUAL_GRAMMAR";
+}
+
+function findGlobalEntry(manifest: ReferenceLibraryManifest, filename: string): ReferenceLibraryEntry | undefined {
+  return manifest.entries.find(entry => basename(entry.relativePath).toLowerCase() === filename.toLowerCase());
+}
+
+/**
+ * Select a small, explicit global grammar set instead of averaging every approved
+ * image together. 1.png is the canonical composition anchor when present. The
+ * second reference is chosen from the Scene/KNF narrative function. Callers may
+ * raise globalVisual to 3+ when a specific workflow genuinely needs more context.
+ */
+function selectGlobalEntries(
+  manifest: ReferenceLibraryManifest,
+  input: ReferenceSelectionRequest,
+  maxReferences: number
+): ReferenceLibraryEntry[] {
+  const limit = Math.max(1, maxReferences);
+  const text = [
+    input.scene.scriptSegment,
+    input.scene.primaryVisualIdea,
+    ...input.scene.mustBeSeen,
+    input.knfBeat ?? ""
+  ].join(" ").toLowerCase();
+
+  const preferred: string[] = ["1.png"];
+  if (/지도|경로|마지막|어디|미스터리|공백|unknown|mystery|map|route|close|ending/u.test(text)) {
+    preferred.push("6.png", "3.png", "2.png");
+  } else if (/비문|기록|증거|연대|타임라인|문서|inscription|evidence|record|timeline|document/u.test(text)) {
+    preferred.push("3.png", "2.png", "6.png");
+  } else if (/안개|풍경|행군|도로|전투|환경|mist|landscape|march|road|battle|environment/u.test(text)) {
+    preferred.push("2.png", "3.png", "6.png");
+  } else {
+    preferred.push("3.png", "2.png", "6.png");
+  }
+
+  const selected: ReferenceLibraryEntry[] = [];
+  const seen = new Set<string>();
+  for (const filename of preferred) {
+    const entry = findGlobalEntry(manifest, filename);
+    if (entry === undefined || seen.has(entry.relativePath)) continue;
+    selected.push(entry);
+    seen.add(entry.relativePath);
+    if (selected.length >= limit) return selected;
+  }
+  for (const entry of manifest.entries) {
+    if (seen.has(entry.relativePath)) continue;
+    selected.push(entry);
+    seen.add(entry.relativePath);
+    if (selected.length >= limit) break;
+  }
+  return selected;
 }
 
 async function materializeSharedEntries(
@@ -80,9 +139,12 @@ async function materializeSharedEntries(
     await copyFile(source, target);
   }
 
-  return toImageRuntimeReferences(entries, relativeRoot).map(reference => ({
+  const converted = toImageRuntimeReferences(entries, relativeRoot);
+  return converted.map((reference, index) => ({
     ...reference,
-    role: reference.role.replace("REFERENCE_LIBRARY:", `REFERENCE_LIBRARY:${tierRole}:`)
+    role: tierRole === "GLOBAL_VISUAL"
+      ? `REFERENCE_LIBRARY:GLOBAL_VISUAL:${globalRole(entries[index]!)}:${reference.role.replace("REFERENCE_LIBRARY:", "")}`
+      : reference.role.replace("REFERENCE_LIBRARY:", `REFERENCE_LIBRARY:${tierRole}:`)
   }));
 }
 
@@ -94,8 +156,9 @@ async function materializeSharedEntries(
  * selected shared references are automatically materialized byte-for-byte under
  * 05_images/reference_library/_shared before ImageRuntimeInput is created.
  *
- * 1. GLOBAL_VISUAL is repository-shared, mandatory and all approved entries are
- *    attached by default (a caller may explicitly lower the limit).
+ * 1. GLOBAL_VISUAL is repository-shared and mandatory. A compact scene-aware set
+ *    is selected by default so the model receives explicit visual grammar instead
+ *    of an averaged pile of references.
  * 2. KNF_LAYOUT is repository-shared and attached only when a KNF beat exists.
  * 3. PROJECT is project-local and optional; when present it is scene-selected.
  *
@@ -119,9 +182,10 @@ export class ThreeTierFilesystemReferenceSelector implements RuntimeReferenceSel
     const projectDir = join(this.paths.projectAbsoluteRoot, "05_images", "reference_library", "project");
 
     const globalManifest = await loadVerifiedReferenceLibrary(globalDir);
-    const globalEntries = allEntries(
+    const globalEntries = selectGlobalEntries(
       globalManifest,
-      this.limits.globalVisual ?? globalManifest.entries.length
+      input,
+      this.limits.globalVisual ?? 2
     );
     const globalReferences = await materializeSharedEntries(
       globalEntries,
