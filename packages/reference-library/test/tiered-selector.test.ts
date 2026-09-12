@@ -39,7 +39,7 @@ function request(knfBeat?: string) {
   };
 }
 
-test("WF-09 tier policy materializes shared refs inside project and conditionally adds KNF + project", async () => {
+test("WF-09 tier policy materializes all global refs inside project and conditionally adds KNF + project", async () => {
   const root = await mkdtemp(join(tmpdir(), "vpf-tiered-reference-"));
   try {
     const shared = join(root, "workspace", "reference_library");
@@ -55,12 +55,12 @@ test("WF-09 tier policy materializes shared refs inside project and conditionall
 
     const withBeat = await selector.selectReferencesDetailed(request("EVIDENCE"));
     assert.deepEqual(withBeat.counts, {
-      GLOBAL_VISUAL: 2,
+      GLOBAL_VISUAL: ROMAN_IX_REFERENCE_FILES.length,
       KNF_LAYOUT: 1,
       PROJECT: 1
     });
-    assert.equal(withBeat.references.length, 4);
-    assert.ok(withBeat.references.slice(0, 2).every(reference => reference.role.startsWith("REFERENCE_LIBRARY:GLOBAL_VISUAL:")));
+    assert.equal(withBeat.references.length, ROMAN_IX_REFERENCE_FILES.length + 2);
+    assert.ok(withBeat.references.slice(0, ROMAN_IX_REFERENCE_FILES.length).every(reference => reference.role.startsWith("REFERENCE_LIBRARY:GLOBAL_VISUAL:")));
     assert.ok(withBeat.references.some(reference => reference.role.startsWith("REFERENCE_LIBRARY:KNF_LAYOUT:")));
     assert.ok(withBeat.references.some(reference => reference.role.startsWith("REFERENCE_LIBRARY:PROJECT:")));
     assert.ok(withBeat.references.every(reference => /^[a-f0-9]{64}$/u.test(reference.sha256)));
@@ -70,7 +70,7 @@ test("WF-09 tier policy materializes shared refs inside project and conditionall
     await access(join(project, withBeat.references[0]!.relativePath));
 
     const withoutBeat = await selector.selectReferencesDetailed(request());
-    assert.equal(withoutBeat.counts.GLOBAL_VISUAL, 2);
+    assert.equal(withoutBeat.counts.GLOBAL_VISUAL, ROMAN_IX_REFERENCE_FILES.length);
     assert.equal(withoutBeat.counts.KNF_LAYOUT, 0);
     assert.equal(withoutBeat.counts.PROJECT, 1);
   } finally {
