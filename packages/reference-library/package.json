@@ -5,7 +5,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./selector": "./dist/selector.js",
-    "./tiered-selector": "./dist/tiered-selector.js"
+    "./tiered-selector": "./dist/tiered-selector.js",
+    "./tier-registration": "./dist/tier-registration.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
