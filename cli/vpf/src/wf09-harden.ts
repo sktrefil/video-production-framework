@@ -2,7 +2,7 @@ import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { ProductionAsset, Scene } from "@vpf/domain";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
-import { createStandardThreeTierReferenceSelector } from "@vpf/reference-library";
+import { createStandardThreeTierReferenceSelector } from "@vpf/reference-library/tiered-selector";
 import { Wf07CliService } from "./wf07.js";
 import { Wf09AutoService } from "./wf09-auto.js";
 import { Wf09bCliService } from "./wf09b.js";
