@@ -119,6 +119,63 @@ def fill_composer(locator, text: str) -> None:
         raise RuntimeError("Could not place the approved prompt into ChatGPT.") from exc
 
 
+def validated_reference_paths(request: dict[str, Any]) -> list[str]:
+    references = request.get("references") or []
+    if not isinstance(references, list):
+        raise RuntimeError("ChatGPT Browser worker references must be an array.")
+    paths: list[str] = []
+    for index, reference in enumerate(references):
+        if not isinstance(reference, dict):
+            raise RuntimeError(f"Reference {index + 1} is invalid.")
+        filename = str(reference.get("absolutePath") or "").strip()
+        if not filename or not os.path.isfile(filename):
+            raise RuntimeError(f"Reference image is unavailable: {filename or index + 1}")
+        paths.append(os.path.abspath(filename))
+    return paths
+
+
+def find_file_input(page):
+    inputs = page.locator("input[type='file']")
+    if inputs.count() > 0:
+        return inputs.last
+
+    selectors = (
+        "button[aria-label*='Attach']",
+        "button[aria-label*='attach']",
+        "button[aria-label*='파일']",
+        "button[data-testid*='composer-plus']",
+        "button[data-testid*='attach']",
+    )
+    for selector in selectors:
+        button = page.locator(selector).last
+        try:
+            if button.count() > 0:
+                button.click(timeout=3000)
+                page.wait_for_timeout(300)
+                inputs = page.locator("input[type='file']")
+                if inputs.count() > 0:
+                    return inputs.last
+        except Exception:
+            continue
+    raise RuntimeError("Could not find the ChatGPT reference-file input.")
+
+
+def attach_reference_files(page, paths: list[str]) -> None:
+    if not paths:
+        return
+    file_input = find_file_input(page)
+    try:
+        file_input.set_input_files(paths, timeout=15000)
+    except Exception as exc:
+        raise RuntimeError("Could not attach approved reference images to ChatGPT.") from exc
+
+    # Give ChatGPT time to materialize attachment chips/previews. The generated
+    # image baseline is captured only after this wait so uploaded references are
+    # never mistaken for provider output.
+    page.wait_for_timeout(1500)
+    raise_for_page_state(page)
+
+
 def image_snapshot(page) -> list[dict[str, Any]]:
     return page.locator("main img").evaluate_all(
         """imgs => imgs.map((img, index) => ({
@@ -189,6 +246,7 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
     height = int(request.get("height") or 0)
     cdp_url = str(request.get("cdpUrl") or "http://127.0.0.1:9222").strip()
     timeout_seconds = float(request.get("timeoutSeconds") or 180)
+    reference_paths = validated_reference_paths(request)
     if not text or width <= 0 or height <= 0 or timeout_seconds <= 0:
         raise RuntimeError("ChatGPT Browser worker received invalid prompt/dimension/timeout input.")
     if not (cdp_url.startswith("http://127.0.0.1:") or cdp_url.startswith("http://localhost:")):
@@ -206,6 +264,9 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
         page.bring_to_front()
         raise_for_page_state(page)
         composer = find_composer(page)
+        attach_reference_files(page, reference_paths)
+
+        # Capture baseline only after references have rendered in the composer.
         baseline = image_snapshot(page)
         before_sources = {str(item.get("src") or "") for item in baseline}
         fill_composer(composer, text)
@@ -254,6 +315,7 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
             "imageBase64": base64.b64encode(normalized).decode("ascii"),
             "mimeType": "image/png",
             "providerRequestIds": [],
+            "referenceCount": len(reference_paths),
             "sourceWidth": int(selected.get("width") or 0),
             "sourceHeight": int(selected.get("height") or 0),
             "elapsedSeconds": round(time.monotonic() - started, 3),
