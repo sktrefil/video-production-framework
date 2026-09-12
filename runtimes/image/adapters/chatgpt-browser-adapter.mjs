@@ -67,18 +67,31 @@ function runPythonWorker(payload, options = {}) {
   });
 }
 
+function normalizeReferences(request) {
+  if (!Array.isArray(request?.references)) return [];
+  return request.references.map((reference, index) => {
+    const absolutePath = String(reference?.absolutePath ?? "").trim();
+    if (!absolutePath) throw new Error(`ChatGPT Browser reference ${index + 1} has no absolutePath.`);
+    return {
+      absolutePath,
+      mediaId: String(reference?.mediaId ?? `reference-${index + 1}`),
+      role: String(reference?.role ?? "REFERENCE"),
+      sha256: String(reference?.sha256 ?? "")
+    };
+  });
+}
+
 export function createImageProviderAdapter(options = {}) {
   return {
     async generate(request) {
-      if (Array.isArray(request.references) && request.references.length > 0) {
-        throw new Error("CHATGPT_BROWSER profile v1.1.0 does not accept reference media yet.");
-      }
       const transmissionText = buildChatGptTransmissionText(request);
+      const references = normalizeReferences(request);
       const result = await (options.workerRunner ?? runPythonWorker)({
         transmissionText,
         width: request.width,
         height: request.height,
-        aspectRatio: request.aspectRatio
+        aspectRatio: request.aspectRatio,
+        references
       }, options);
       if (!result || typeof result.imageBase64 !== "string" || result.mimeType !== "image/png") {
         throw new Error("ChatGPT Browser worker did not return a PNG image result.");
