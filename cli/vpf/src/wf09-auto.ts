@@ -223,7 +223,7 @@ export class Wf09AutoService {
     return path.join(repositoryRoot, "runtimes", "image", "adapters", "chatgpt-browser-adapter.mjs");
   }
 
-  private ensureAdapterModule(): string {
+  ensureAdapterModule(): string {
     const configured = process.env.VPF_IMAGE_ADAPTER_MODULE?.trim();
     if (configured) return configured;
     const modulePath = this.defaultAdapterModule();
@@ -359,7 +359,7 @@ export class Wf09AutoService {
     return { file: filename, created: true, sceneCount: scenes.length };
   }
 
-  async run(projectId: string, options: { file?: string | undefined } = {}) {
+  async prepare(projectId: string, options: { file?: string | undefined } = {}) {
     const pinResult = await this.ensureReferenceAwarePins(projectId);
     const style = await this.ensureProjectStyle(projectId);
     const plan = await this.ensureSceneAssetPlan(projectId, options.file);
@@ -385,36 +385,52 @@ export class Wf09AutoService {
     }
 
     this.ensureAdapterModule();
-    const preflight = await this.wf09b.preflight(projectId);
-    const execution = await this.wf09b.execute(projectId, "ALL");
+    const projectStatus = await this.projects.getStatus(projectId);
     return {
       projectId,
       repinned: pinResult.repinned,
-      channelProfileVersion: channelPin(await this.projects.getStatus(projectId))?.version ?? null,
-      visualBibleVersion: visualBiblePin(await this.projects.getStatus(projectId))?.version ?? null,
-      imageProviderProfileVersion: imageProviderPin(await this.projects.getStatus(projectId))?.version ?? null,
+      channelProfileVersion: channelPin(projectStatus)?.version ?? null,
+      visualBibleVersion: visualBiblePin(projectStatus)?.version ?? null,
+      imageProviderProfileVersion: imageProviderPin(projectStatus)?.version ?? null,
       projectStyleCreated: style.created,
       sceneAssetPlanCreated: plan.created,
+      sceneAssetPlanFile: plan.file,
       sceneCount: plan.sceneCount,
       designedCount,
-      promptMaterializedCount: (await this.wf09.status(projectId)).promptMaterializedCount,
+      promptMaterializedCount: wf09Status.promptMaterializedCount,
       referenceMode: "GLOBAL_VISUAL+KNF_LAYOUT+PROJECT",
-      preflight,
+      wf09Status
+    };
+  }
+
+  async run(projectId: string, options: { file?: string | undefined } = {}) {
+    const prepared = await this.prepare(projectId, options);
+    const before = await this.wf09b.status(projectId);
+    const retry = before.failedJobCount > 0 ? await this.wf09b.retryFailed(projectId, "ALL") : null;
+    const current = await this.wf09b.status(projectId);
+    const designedIds = current.assets
+      .filter(asset => asset.sourceStrategy === "GENERATE" && asset.assetStatus === "DESIGNED" && !asset.stale && Boolean(asset.design.imagePrompt?.trim()))
+      .map(asset => asset.id);
+    const execution = designedIds.length > 0
+      ? await this.wf09b.execute(projectId, designedIds)
+      : { projectId, requested: 0, completed: 0, failed: 0, results: [] };
+    return {
+      ...prepared,
+      retry,
       execution,
       runtimeStatus: await this.wf09b.status(projectId)
     };
   }
 
   async resume(projectId: string) {
-    await this.ensureReferenceAwarePins(projectId);
-    await this.ensureProjectStyle(projectId);
-    await this.ensureSceneAssetPlan(projectId);
-    this.ensureAdapterModule();
+    await this.prepare(projectId);
     const before = await this.wf09b.status(projectId);
     const retry = before.failedJobCount > 0 ? await this.wf09b.retryFailed(projectId, "ALL") : null;
-    const wf09Status = await this.wf09.status(projectId);
-    const hasDesigned = wf09Status.assets.some(asset => asset.sourceStrategy === "GENERATE" && asset.assetStatus === "DESIGNED" && !asset.stale && Boolean(asset.design.imagePrompt?.trim()));
-    const execution = hasDesigned ? await this.wf09b.execute(projectId, "ALL") : null;
+    const current = await this.wf09b.status(projectId);
+    const designedIds = current.assets
+      .filter(asset => asset.sourceStrategy === "GENERATE" && asset.assetStatus === "DESIGNED" && !asset.stale && Boolean(asset.design.imagePrompt?.trim()))
+      .map(asset => asset.id);
+    const execution = designedIds.length > 0 ? await this.wf09b.execute(projectId, designedIds) : null;
     return { projectId, retry, execution, runtimeStatus: await this.wf09b.status(projectId) };
   }
 
