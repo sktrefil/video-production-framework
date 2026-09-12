@@ -16,6 +16,7 @@ import { Wf09HandoffAutoService } from "./wf09-handoff-auto.js";
 import { Wf09bCliError, Wf09bCliService } from "./wf09b.js";
 
 const WF09_USAGE = `WF-09 AUTO connected prompt-to-image operations:
+  vpf asset auto reset-pre-vdg <project_id>
   vpf asset auto prepare <project_id> --all [--file <project-file>]
   vpf asset auto run <project_id> --all [--file <project-file>]
   vpf asset auto resume <project_id>
@@ -99,6 +100,16 @@ export async function runUnifiedCli(
     const wf09 = new Wf09CliService(projects);
     const wf09b = new Wf09bCliService(projects);
     const wf09Auto = new Wf09HandoffAutoService(projects);
+
+    if (args[1] === "auto" && args[2] === "reset-pre-vdg") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] asset auto reset-pre-vdg requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf09Auto.resetPreVisualDirection(projectId));
+      return 0;
+    }
 
     if (args[1] === "auto" && args[2] === "prepare") {
       const projectId = args[3];
