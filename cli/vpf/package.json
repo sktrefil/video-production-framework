@@ -11,6 +11,7 @@
     "@vpf/legacy-guard": "0.1.0",
     "@vpf/production-system": "0.1.0",
     "@vpf/provider-orchestrator": "0.1.0",
+    "@vpf/reference-library": "0.1.0",
     "@vpf/resource-registry": "0.1.0",
     "@vpf/runtime-contracts": "0.1.0",
     "@vpf/scene-assets": "0.1.0",
