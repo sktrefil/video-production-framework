@@ -146,7 +146,17 @@ export class Wf09HandoffAutoService {
       projectId,
       visualDirection.file
     );
-    const wf09Status = await this.wf09.status(projectId);
+    const [wf09StatusRaw, runtimeStatus] = await Promise.all([
+      this.wf09.status(projectId),
+      this.wf09b.status(projectId)
+    ]);
+    const wf09Status = {
+      ...wf09StatusRaw,
+      // AUTO preparation is a current-state report: expose ACTIVE image jobs
+      // here while keeping the historical total explicit for audit consumers.
+      providerJobCount: runtimeStatus.providerJobCount,
+      historicalProviderJobCount: wf09StatusRaw.providerJobCount
+    };
 
     return {
       projectId,
