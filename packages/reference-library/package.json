@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./selector": "./dist/selector.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
