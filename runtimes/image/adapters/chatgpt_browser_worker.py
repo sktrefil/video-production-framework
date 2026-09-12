@@ -7,7 +7,7 @@ import json
 import os
 import sys
 import time
-from typing import Any
+from typing import Any, Callable
 
 
 def read_request() -> dict[str, Any]:
@@ -40,11 +40,31 @@ def require_pillow():
     return Image
 
 
+def poll_until(
+    label: str,
+    predicate: Callable[[], Any],
+    timeout_seconds: float,
+    interval_seconds: float = 0.25,
+):
+    deadline = time.monotonic() + timeout_seconds
+    last_error: Exception | None = None
+    while time.monotonic() < deadline:
+        try:
+            value = predicate()
+            if value:
+                return value
+        except Exception as exc:  # DOM may mutate between polls.
+            last_error = exc
+        time.sleep(interval_seconds)
+    suffix = f" Last error: {last_error}" if last_error is not None else ""
+    raise RuntimeError(f"Timed out waiting for {label}.{suffix}")
+
+
 def page_state(page) -> str:
     url = str(page.url or "").lower()
     body = ""
     try:
-        body = " ".join(page.locator("body").inner_text(timeout=3000).lower().split())
+        body = " ".join(page.locator("body").inner_text(timeout=2000).lower().split())
     except Exception:
         pass
     if "/auth/login" in url:
@@ -66,18 +86,30 @@ def raise_for_page_state(page) -> None:
         raise RuntimeError("ChatGPT image generation usage limit has been reached.")
 
 
-def find_chatgpt_page(browser):
-    candidates = []
-    for context in browser.contexts:
-        for page in context.pages:
-            if "chatgpt.com" in str(page.url or "").lower():
-                candidates.append(page)
-    if candidates:
-        return candidates[-1]
+def connect_browser(playwright, cdp_url: str):
+    if not (cdp_url.startswith("http://127.0.0.1:") or cdp_url.startswith("http://localhost:")):
+        raise RuntimeError("CHATGPT_CDP_URL must point to a local Chrome CDP endpoint.")
+    try:
+        browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=30000)
+    except Exception as exc:
+        raise RuntimeError(f"Could not connect to Chrome CDP at {cdp_url}.") from exc
     if not browser.contexts:
         raise RuntimeError("Chrome CDP session has no browser context.")
+    return browser
+
+
+def open_clean_chatgpt_page(browser):
+    # Every provider request gets a clean tab in the existing logged-in browser
+    # context. This prevents stale attachments, old generated images and composer
+    # state from being mistaken for the current job.
     page = browser.contexts[0].new_page()
     page.goto("https://chatgpt.com/", wait_until="domcontentloaded", timeout=30000)
+    poll_until(
+        "ChatGPT page readiness",
+        lambda: page_state(page) != "ready" or page.locator("body").count() > 0,
+        10,
+    )
+    raise_for_page_state(page)
     return page
 
 
@@ -87,36 +119,59 @@ def find_composer(page):
         "textarea[placeholder]",
         "main [contenteditable='true']",
     )
-    for selector in selectors:
-        locator = page.locator(selector).last
-        try:
-            locator.wait_for(state="visible", timeout=3000)
-            return locator
-        except Exception:
-            continue
-    raise RuntimeError("Could not find the ChatGPT prompt composer in the connected tab.")
+
+    def locate():
+        for selector in selectors:
+            locator = page.locator(selector).last
+            try:
+                if locator.count() > 0 and locator.is_visible():
+                    return locator
+            except Exception:
+                continue
+        return None
+
+    return poll_until("visible ChatGPT prompt composer", locate, 20)
 
 
-def fill_composer(locator, text: str) -> None:
+def composer_text(locator) -> str:
+    return str(locator.evaluate("el => 'value' in el ? el.value : (el.innerText || el.textContent || '')") or "")
+
+
+def normalize_text(value: str) -> str:
+    return " ".join(value.replace("\u00a0", " ").split())
+
+
+def fill_and_verify_composer(locator, text: str) -> None:
     try:
         locator.fill(text, timeout=5000)
-        return
     except Exception:
-        pass
-    try:
-        locator.click(timeout=3000)
-        locator.press("Control+A")
-        locator.press("Backspace")
-        locator.evaluate(
-            """(el, value) => {
-              if ('value' in el) el.value = value;
-              else el.textContent = value;
-              el.dispatchEvent(new InputEvent('input', {bubbles: true, inputType: 'insertText', data: value}));
-            }""",
-            text,
-        )
-    except Exception as exc:
-        raise RuntimeError("Could not place the approved prompt into ChatGPT.") from exc
+        try:
+            locator.click(timeout=3000)
+            locator.press("Control+A")
+            locator.press("Backspace")
+            locator.evaluate(
+                """(el, value) => {
+                  if ('value' in el) el.value = value;
+                  else el.textContent = value;
+                  el.dispatchEvent(new InputEvent('input', {bubbles: true, inputType: 'insertText', data: value}));
+                }""",
+                text,
+            )
+        except Exception as exc:
+            raise RuntimeError("Could not place the approved prompt into ChatGPT.") from exc
+
+    expected = normalize_text(text)
+
+    def matches():
+        actual = normalize_text(composer_text(locator))
+        if actual == expected:
+            return True
+        # Mojibake/replacement characters must hard-block before sending.
+        if "�" in actual:
+            raise RuntimeError("Composer text contains Unicode replacement characters; refusing to send corrupted prompt text.")
+        return False
+
+    poll_until("composer text to exactly match approved prompt", matches, 10)
 
 
 def validated_reference_paths(request: dict[str, Any]) -> list[str]:
@@ -149,31 +204,110 @@ def find_file_input(page):
     for selector in selectors:
         button = page.locator(selector).last
         try:
-            if button.count() > 0:
+            if button.count() > 0 and button.is_visible():
                 button.click(timeout=3000)
-                page.wait_for_timeout(300)
-                inputs = page.locator("input[type='file']")
-                if inputs.count() > 0:
-                    return inputs.last
+                found = poll_until(
+                    "ChatGPT reference-file input",
+                    lambda: page.locator("input[type='file']").last
+                    if page.locator("input[type='file']").count() > 0
+                    else None,
+                    5,
+                )
+                return found
         except Exception:
             continue
     raise RuntimeError("Could not find the ChatGPT reference-file input.")
 
 
-def attach_reference_files(page, paths: list[str]) -> None:
+def composer_scope(composer):
+    for xpath in (
+        "xpath=ancestor::form[1]",
+        "xpath=ancestor::*[@data-type='unified-composer'][1]",
+        "xpath=ancestor::*[contains(@class,'composer')][1]",
+    ):
+        candidate = composer.locator(xpath)
+        try:
+            if candidate.count() > 0:
+                return candidate
+        except Exception:
+            continue
+    return composer.locator("xpath=parent::*")
+
+
+def attachment_evidence(scope, before_image_count: int, expected_paths: list[str], file_input) -> dict[str, int]:
+    image_count = 0
+    remove_count = 0
+    filename_hits = 0
+    input_files = 0
+    busy_count = 0
+    try:
+        image_count = scope.locator("img").count()
+    except Exception:
+        pass
+    try:
+        remove_count = scope.locator(
+            "button[aria-label*='Remove'], button[aria-label*='remove'], button[aria-label*='삭제'], button[aria-label*='제거']"
+        ).count()
+    except Exception:
+        pass
+    try:
+        text = scope.inner_text(timeout=1000).lower()
+        filename_hits = sum(1 for item in expected_paths if os.path.basename(item).lower() in text)
+    except Exception:
+        pass
+    try:
+        input_files = int(file_input.evaluate("el => el.files ? el.files.length : 0"))
+    except Exception:
+        pass
+    try:
+        busy_count = scope.locator(
+            "[aria-busy='true'], [data-state='loading'], [data-testid*='upload'][aria-busy='true'], progress"
+        ).count()
+    except Exception:
+        pass
+    return {
+        "preview_delta": max(0, image_count - before_image_count),
+        "remove_count": remove_count,
+        "filename_hits": filename_hits,
+        "input_files": input_files,
+        "busy_count": busy_count,
+    }
+
+
+def attach_reference_files(page, composer, paths: list[str]) -> dict[str, int]:
     if not paths:
-        return
+        return {"expected": 0, "verified": 0}
+    scope = composer_scope(composer)
+    before_image_count = scope.locator("img").count()
     file_input = find_file_input(page)
     try:
         file_input.set_input_files(paths, timeout=15000)
     except Exception as exc:
         raise RuntimeError("Could not attach approved reference images to ChatGPT.") from exc
 
-    # Give ChatGPT time to materialize attachment chips/previews. The generated
-    # image baseline is captured only after this wait so uploaded references are
-    # never mistaken for provider output.
-    page.wait_for_timeout(1500)
-    raise_for_page_state(page)
+    expected = len(paths)
+    stable_success = 0
+    best_verified = 0
+
+    def ready():
+        nonlocal stable_success, best_verified
+        raise_for_page_state(page)
+        evidence = attachment_evidence(scope, before_image_count, paths, file_input)
+        verified = max(
+            evidence["preview_delta"],
+            evidence["remove_count"],
+            evidence["filename_hits"],
+            evidence["input_files"],
+        )
+        best_verified = max(best_verified, verified)
+        if verified >= expected and evidence["busy_count"] == 0:
+            stable_success += 1
+        else:
+            stable_success = 0
+        return evidence if stable_success >= 2 else None
+
+    evidence = poll_until("all reference attachments to be visibly ready", ready, 30, 0.35)
+    return {"expected": expected, "verified": max(best_verified, expected), **evidence}
 
 
 def image_snapshot(page) -> list[dict[str, Any]]:
@@ -186,6 +320,101 @@ def image_snapshot(page) -> list[dict[str, Any]]:
           complete: Boolean(img.complete)
         }))"""
     )
+
+
+def assistant_turn_count(page) -> int:
+    try:
+        return page.locator("[data-message-author-role='assistant']").count()
+    except Exception:
+        return 0
+
+
+def generation_in_progress(page) -> bool:
+    selectors = (
+        "button[data-testid='stop-button']",
+        "button[aria-label*='Stop']",
+        "button[aria-label*='stop']",
+        "button[aria-label*='중지']",
+    )
+    for selector in selectors:
+        try:
+            locator = page.locator(selector).last
+            if locator.count() > 0 and locator.is_visible():
+                return True
+        except Exception:
+            continue
+    return False
+
+
+def send_prompt_and_verify_started(page, composer, before_assistant_turns: int) -> None:
+    send_selectors = (
+        "button[data-testid='send-button']",
+        "button[aria-label*='Send']",
+        "button[aria-label*='send']",
+        "button[aria-label*='보내기']",
+    )
+    sent = False
+    for selector in send_selectors:
+        try:
+            button = page.locator(selector).last
+            if button.count() > 0 and button.is_visible() and button.is_enabled():
+                button.click(timeout=5000)
+                sent = True
+                break
+        except Exception:
+            continue
+    if not sent:
+        composer.press("Enter")
+
+    def started():
+        raise_for_page_state(page)
+        if generation_in_progress(page):
+            return True
+        if assistant_turn_count(page) > before_assistant_turns:
+            return True
+        return False
+
+    poll_until("ChatGPT generation to start", started, 25, 0.35)
+
+
+def wait_for_generated_image(page, before_sources: set[str], timeout_seconds: float) -> dict[str, Any]:
+    stable_key = None
+    stable_polls = 0
+
+    def completed():
+        nonlocal stable_key, stable_polls
+        raise_for_page_state(page)
+        images = image_snapshot(page)
+        candidates = [
+            item
+            for item in images
+            if item.get("complete")
+            and int(item.get("width") or 0) >= 256
+            and int(item.get("height") or 0) >= 256
+            and str(item.get("src") or "") not in before_sources
+        ]
+        if not candidates:
+            stable_key = None
+            stable_polls = 0
+            return None
+        candidate = candidates[-1]
+        key = (
+            str(candidate.get("src") or ""),
+            int(candidate.get("width") or 0),
+            int(candidate.get("height") or 0),
+        )
+        if key == stable_key:
+            stable_polls += 1
+        else:
+            stable_key = key
+            stable_polls = 1
+        # The image must be stable across multiple DOM observations and ChatGPT
+        # must no longer expose a generation-stop control.
+        if stable_polls >= 3 and not generation_in_progress(page):
+            return candidate
+        return None
+
+    return poll_until("a stable completed ChatGPT image", completed, timeout_seconds, 0.5)
 
 
 def capture_candidate_bytes(page, candidate: dict[str, Any]) -> bytes:
@@ -240,6 +469,31 @@ def normalize_png(raw: bytes, width: int, height: int) -> bytes:
         return output.getvalue()
 
 
+def probe(request: dict[str, Any]) -> dict[str, Any]:
+    cdp_url = str(request.get("cdpUrl") or "http://127.0.0.1:9222").strip()
+    sync_playwright = require_playwright()
+    playwright = sync_playwright().start()
+    page = None
+    try:
+        browser = connect_browser(playwright, cdp_url)
+        page = open_clean_chatgpt_page(browser)
+        composer = find_composer(page)
+        raise_for_page_state(page)
+        return {
+            "status": "READY",
+            "pageState": page_state(page),
+            "composerVisible": composer.is_visible(),
+            "cdpUrl": cdp_url,
+        }
+    finally:
+        if page is not None:
+            try:
+                page.close()
+            except Exception:
+                pass
+        playwright.stop()
+
+
 def generate(request: dict[str, Any]) -> dict[str, Any]:
     text = str(request.get("transmissionText") or "").strip()
     width = int(request.get("width") or 0)
@@ -249,66 +503,27 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
     reference_paths = validated_reference_paths(request)
     if not text or width <= 0 or height <= 0 or timeout_seconds <= 0:
         raise RuntimeError("ChatGPT Browser worker received invalid prompt/dimension/timeout input.")
-    if not (cdp_url.startswith("http://127.0.0.1:") or cdp_url.startswith("http://localhost:")):
-        raise RuntimeError("CHATGPT_CDP_URL must point to a local Chrome CDP endpoint.")
 
     sync_playwright = require_playwright()
     playwright = sync_playwright().start()
     started = time.monotonic()
+    page = None
     try:
-        try:
-            browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=30000)
-        except Exception as exc:
-            raise RuntimeError(f"Could not connect to Chrome CDP at {cdp_url}.") from exc
-        page = find_chatgpt_page(browser)
+        browser = connect_browser(playwright, cdp_url)
+        page = open_clean_chatgpt_page(browser)
         page.bring_to_front()
-        raise_for_page_state(page)
         composer = find_composer(page)
-        attach_reference_files(page, reference_paths)
+        raise_for_page_state(page)
 
-        # Capture baseline only after references have rendered in the composer.
+        attachment_status = attach_reference_files(page, composer, reference_paths)
         baseline = image_snapshot(page)
         before_sources = {str(item.get("src") or "") for item in baseline}
-        fill_composer(composer, text)
-        composer.press("Enter")
+        before_assistant_turns = assistant_turn_count(page)
 
-        deadline = time.monotonic() + timeout_seconds
-        stable_key = None
-        stable_polls = 0
-        selected = None
-        while time.monotonic() < deadline:
-            page.wait_for_timeout(1000)
-            raise_for_page_state(page)
-            images = image_snapshot(page)
-            candidates = [
-                item
-                for item in images
-                if item.get("complete")
-                and int(item.get("width") or 0) >= 256
-                and int(item.get("height") or 0) >= 256
-                and str(item.get("src") or "") not in before_sources
-            ]
-            if not candidates:
-                stable_key = None
-                stable_polls = 0
-                continue
-            candidate = candidates[-1]
-            key = (
-                str(candidate.get("src") or ""),
-                int(candidate.get("width") or 0),
-                int(candidate.get("height") or 0),
-            )
-            if key == stable_key:
-                stable_polls += 1
-            else:
-                stable_key = key
-                stable_polls = 1
-            if stable_polls >= 3:
-                selected = candidate
-                break
+        fill_and_verify_composer(composer, text)
+        send_prompt_and_verify_started(page, composer, before_assistant_turns)
+        selected = wait_for_generated_image(page, before_sources, timeout_seconds)
 
-        if selected is None:
-            raise RuntimeError(f"ChatGPT image did not reach a stable generated state within {timeout_seconds:.0f}s.")
         raw = capture_candidate_bytes(page, selected)
         normalized = normalize_png(raw, width, height)
         return {
@@ -316,17 +531,25 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
             "mimeType": "image/png",
             "providerRequestIds": [],
             "referenceCount": len(reference_paths),
+            "attachmentStatus": attachment_status,
             "sourceWidth": int(selected.get("width") or 0),
             "sourceHeight": int(selected.get("height") or 0),
             "elapsedSeconds": round(time.monotonic() - started, 3),
         }
     finally:
+        if page is not None:
+            try:
+                page.close()
+            except Exception:
+                pass
         playwright.stop()
 
 
 def main() -> int:
     try:
-        result = generate(read_request())
+        request = read_request()
+        action = str(request.get("action") or "generate").strip().lower()
+        result = probe(request) if action == "probe" else generate(request)
         sys.stdout.write(json.dumps(result, ensure_ascii=False))
         return 0
     except Exception as exc:
