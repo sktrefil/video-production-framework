@@ -1,12 +1,17 @@
 param(
   [string]$Project = "pilot_short_roman_ix",
   [switch]$SkipBuild,
+  [switch]$ResetPreVdg,
   [switch]$ContinueAll
 )
 
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 $OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+
+if ($ResetPreVdg -and $ContinueAll) {
+  throw "-ResetPreVdg and -ContinueAll cannot be used together. Reset first, review the new cut_001, then use -ContinueAll in a later run."
+}
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Resolve-Path (Join-Path $scriptRoot "..\..")
@@ -46,7 +51,10 @@ function Test-PilotCli {
     return $false
   }
   $helpText = ($helpRaw -join [Environment]::NewLine)
-  return $helpText.Contains("vpf asset auto prepare")
+  return (
+    $helpText.Contains("vpf asset auto prepare") -and
+    $helpText.Contains("vpf asset auto reset-pre-vdg")
+  )
 }
 
 if (-not $SkipBuild) {
@@ -57,7 +65,7 @@ if (-not $SkipBuild) {
 }
 
 if (-not (Test-PilotCli)) {
-  throw "Compiled CLI does not contain PILOT-VDG-01 AUTO prepare support: $cli"
+  throw "Compiled CLI does not contain PILOT-VDG-01 AUTO prepare/reset support: $cli"
 }
 
 function Invoke-VpfJson {
@@ -202,6 +210,24 @@ try {
     throw "Could not inspect PILOT-VDG-01 DB evidence:`n$($raw -join [Environment]::NewLine)"
   }
   return (($raw -join [Environment]::NewLine).Trim() | ConvertFrom-Json)
+}
+
+# Optional explicit recovery for the state discovered in the real Roman IX
+# pilot: pre-VDG Assets already have ProviderJobs/Candidates. This is never
+# automatic because it crosses a production-state boundary. Historical rows
+# are superseded, generated files are archived, and human-approved media makes
+# the reset fail closed.
+if ($ResetPreVdg) {
+  $reset = Invoke-VpfJson @("asset", "auto", "reset-pre-vdg", $Project)
+  if (-not $reset.reset) {
+    Write-Host "PILOT-VDG-01 pre-VDG reset: no active image ProviderJobs required reset."
+  } else {
+    Write-Host "PILOT-VDG-01 pre-VDG reset: PASS"
+    Write-Host "Superseded ProviderJobs: $($reset.supersededProviderJobCount)"
+    Write-Host "Superseded MediaArtifacts: $($reset.supersededMediaCount)"
+    Write-Host "Superseded QC: $($reset.supersededQcCount)"
+    Write-Host "Archived generated files: $($reset.archivedFiles.Count)"
+  }
 }
 
 # Phase A: no browser/provider execution. This is safe to run first and is
