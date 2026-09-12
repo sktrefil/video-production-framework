@@ -39,6 +39,11 @@ const prohibited = [
 ];
 
 const selfPath = "scripts/check-no-legacy-paths.mjs";
+const immutableLegacyProhibition = "Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.";
+const visualBibleProhibitionOnly = new Set([
+  "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.0.0.json",
+  "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.1.0.json"
+]);
 
 async function listFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -93,9 +98,10 @@ for (const rootName of scanRoots) {
       // Exact migration provenance field; all other fields still undergo the scan.
       content = content.replace('"sourceRepository": "sktrefil/video-production"', '"sourceRepository": "MIGRATION_PROVENANCE"');
     }
-    // Exact immutable prohibition prose is detection data, never an executable reference.
-    if (rel === "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.0.0.json") {
-      content = content.replace("Do not use the legacy HISTORY_MYSTERY_STYLIZED_V1 master style, history_mystery_shorts_style.json, old scene prompt presets, or old master-candidate logic.", "");
+    // Exact immutable prohibition prose is detection data, never an executable
+    // reference. Preserve the canonical resource bytes; sanitize only the scan input.
+    if (visualBibleProhibitionOnly.has(rel)) {
+      content = content.replace(immutableLegacyProhibition, "");
     }
     const category = legacyCategory(content);
     if (category) findings.push({file: rel, code: category});
