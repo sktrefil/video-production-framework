@@ -10,6 +10,9 @@ import time
 from typing import Any
 
 
+IMAGE_GENERATION_URL = "https://chatgpt.com/images"
+
+
 def read_request() -> dict[str, Any]:
     raw = sys.stdin.read()
     if not raw.strip():
@@ -66,18 +69,26 @@ def raise_for_page_state(page) -> None:
         raise RuntimeError("ChatGPT image generation usage limit has been reached.")
 
 
-def find_chatgpt_page(browser):
-    candidates = []
-    for context in browser.contexts:
-        for page in context.pages:
-            if "chatgpt.com" in str(page.url or "").lower():
-                candidates.append(page)
-    if candidates:
-        return candidates[-1]
+def open_image_generation_page(browser):
+    """Open a dedicated fresh tab for one image-generation request.
+
+    The worker intentionally does not reuse or navigate an existing ChatGPT tab.
+    The connected Chrome profile keeps the user's authenticated session, while
+    every image request starts from the dedicated ChatGPT Images surface.
+    """
     if not browser.contexts:
         raise RuntimeError("Chrome CDP session has no browser context.")
     page = browser.contexts[0].new_page()
-    page.goto("https://chatgpt.com/", wait_until="domcontentloaded", timeout=30000)
+    try:
+        page.goto(IMAGE_GENERATION_URL, wait_until="domcontentloaded", timeout=30000)
+    except Exception as exc:
+        raise RuntimeError(f"Could not open the ChatGPT Images page: {IMAGE_GENERATION_URL}") from exc
+    raise_for_page_state(page)
+    current_url = str(page.url or "").lower()
+    if not current_url.startswith(IMAGE_GENERATION_URL):
+        raise RuntimeError(
+            f"ChatGPT image generation must run from {IMAGE_GENERATION_URL}; browser landed on {page.url}."
+        )
     return page
 
 
@@ -202,7 +213,7 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
             browser = playwright.chromium.connect_over_cdp(cdp_url, timeout=30000)
         except Exception as exc:
             raise RuntimeError(f"Could not connect to Chrome CDP at {cdp_url}.") from exc
-        page = find_chatgpt_page(browser)
+        page = open_image_generation_page(browser)
         page.bring_to_front()
         raise_for_page_state(page)
         composer = find_composer(page)
@@ -256,6 +267,7 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
             "providerRequestIds": [],
             "sourceWidth": int(selected.get("width") or 0),
             "sourceHeight": int(selected.get("height") or 0),
+            "generationPageUrl": str(page.url or ""),
             "elapsedSeconds": round(time.monotonic() - started, 3),
         }
     finally:
