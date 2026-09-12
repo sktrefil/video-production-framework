@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     ".": "./dist/index.js",
-    "./selector": "./dist/selector.js"
+    "./selector": "./dist/selector.js",
+    "./tiered-selector": "./dist/tiered-selector.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
