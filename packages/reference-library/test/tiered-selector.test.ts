@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -39,7 +39,7 @@ function request(knfBeat?: string) {
   };
 }
 
-test("WF-09 tier policy always includes global_visual and conditionally adds KNF + project", async () => {
+test("WF-09 tier policy materializes shared refs inside project and conditionally adds KNF + project", async () => {
   const root = await mkdtemp(join(tmpdir(), "vpf-tiered-reference-"));
   try {
     const shared = join(root, "workspace", "reference_library");
@@ -50,9 +50,7 @@ test("WF-09 tier policy always includes global_visual and conditionally adds KNF
 
     const selector = new ThreeTierFilesystemReferenceSelector({
       sharedAbsoluteRoot: shared,
-      sharedProjectRelativeRoot: "workspace/reference_library",
-      projectAbsoluteRoot: project,
-      projectRelativeRoot: "workspace/projects/pilot_short_roman_ix"
+      projectAbsoluteRoot: project
     });
 
     const withBeat = await selector.selectReferencesDetailed(request("EVIDENCE"));
@@ -66,6 +64,10 @@ test("WF-09 tier policy always includes global_visual and conditionally adds KNF
     assert.ok(withBeat.references.some(reference => reference.role.startsWith("REFERENCE_LIBRARY:KNF_LAYOUT:")));
     assert.ok(withBeat.references.some(reference => reference.role.startsWith("REFERENCE_LIBRARY:PROJECT:")));
     assert.ok(withBeat.references.every(reference => /^[a-f0-9]{64}$/u.test(reference.sha256)));
+    assert.ok(withBeat.references.every(reference => !reference.relativePath.startsWith("workspace/")));
+    assert.ok(withBeat.references.filter(reference => reference.role.includes(":GLOBAL_VISUAL:")).every(reference => reference.relativePath.startsWith("05_images/reference_library/_shared/global_visual/")));
+    assert.ok(withBeat.references.filter(reference => reference.role.includes(":KNF_LAYOUT:")).every(reference => reference.relativePath.startsWith("05_images/reference_library/_shared/knf_layout/")));
+    await access(join(project, withBeat.references[0]!.relativePath));
 
     const withoutBeat = await selector.selectReferencesDetailed(request());
     assert.equal(withoutBeat.counts.GLOBAL_VISUAL, 2);
@@ -85,9 +87,7 @@ test("missing global_visual manifest hard-blocks WF-09 instead of silently dropp
     await mkdir(project, { recursive: true });
     const selector = new ThreeTierFilesystemReferenceSelector({
       sharedAbsoluteRoot: shared,
-      sharedProjectRelativeRoot: "workspace/reference_library",
-      projectAbsoluteRoot: project,
-      projectRelativeRoot: "workspace/projects/pilot_short_roman_ix"
+      projectAbsoluteRoot: project
     });
     await assert.rejects(
       () => selector.selectReferences(request("HOOK")),
