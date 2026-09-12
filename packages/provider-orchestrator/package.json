@@ -6,7 +6,8 @@
     ".": "./dist/index.js",
     "./elevenlabs-runtime": "./dist/elevenlabs-runtime.js",
     "./audio-import": "./dist/audio-import.js",
-    "./image-runtime": "./dist/image-runtime.js"
+    "./image-runtime": "./dist/image-runtime.js",
+    "./browser-reference-upload": "./dist/browser-reference-upload.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
