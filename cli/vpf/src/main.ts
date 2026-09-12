@@ -12,9 +12,14 @@ import { RuntimeContractError } from "@vpf/runtime-contracts";
 import { runCli, type CliIo } from "./index.js";
 import { Wf09CliError, Wf09CliService } from "./wf09.js";
 import { Wf09AutoError, Wf09AutoService } from "./wf09-auto.js";
+import { Wf09HardenError, Wf09HardenService, type Wf09HardenPhase } from "./wf09-harden.js";
 import { Wf09bCliError, Wf09bCliService } from "./wf09b.js";
 
-const WF09_USAGE = `WF-09 AUTO connected prompt-to-image operations:
+const WF09_USAGE = `WF-09 hardened gated workflow:
+  vpf wf09 harden <project_id> --all
+  vpf wf09 harden <project_id> --phase <reference|browser|canary|batch|qc>
+
+WF-09 AUTO connected prompt-to-image operations:
   vpf run wf09 <project_id> [--file <project-file>]
   vpf asset auto run <project_id> --all [--file <project-file>]
   vpf asset auto resume <project_id>
@@ -80,12 +85,29 @@ function assertAssetArgumentsAreIsolated(args: string[]): void {
   for (const arg of args) assertNoLegacyReference(arg);
 }
 
+function hardenPhase(args: string[], io: CliIo): Wf09HardenPhase | null {
+  if (args.includes("--all")) {
+    if (readOption(args, "--phase") !== undefined) {
+      io.error("[CLI_USAGE] wf09 harden accepts either --all or --phase, not both.");
+      return null;
+    }
+    return "all";
+  }
+  const phase = readOption(args, "--phase") as Wf09HardenPhase | undefined;
+  if (phase === undefined || !["reference", "browser", "canary", "batch", "qc"].includes(phase)) {
+    io.error("[CLI_USAGE] wf09 harden requires --all or --phase <reference|browser|canary|batch|qc>.");
+    return null;
+  }
+  return phase;
+}
+
 export async function runUnifiedCli(
   args: string[],
   io: CliIo = defaultIo(),
   projects: ProjectBootstrapService = new ProjectBootstrapService()
 ): Promise<number> {
-  if (args[0] !== "asset" && !(args[0] === "run" && args[1] === "wf09")) {
+  const isHarden = args[0] === "wf09" && args[1] === "harden";
+  if (args[0] !== "asset" && !(args[0] === "run" && args[1] === "wf09") && !isHarden) {
     const code = await runCli(args, io, projects);
     if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
       io.out("\n" + WF09_USAGE);
@@ -98,6 +120,19 @@ export async function runUnifiedCli(
     const wf09 = new Wf09CliService(projects);
     const wf09b = new Wf09bCliService(projects);
     const wf09Auto = new Wf09AutoService(projects);
+
+    if (isHarden) {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] wf09 harden requires <project_id>.");
+        return 2;
+      }
+      const phase = hardenPhase(args, io);
+      if (phase === null) return 2;
+      const result = await new Wf09HardenService(projects).run(projectId, phase);
+      printJson(io, result);
+      return 0;
+    }
 
     if (args[0] === "run" && args[1] === "wf09") {
       const projectId = args[2];
@@ -287,6 +322,7 @@ export async function runUnifiedCli(
       error instanceof RuntimeContractError ||
       error instanceof Wf09CliError ||
       error instanceof Wf09AutoError ||
+      error instanceof Wf09HardenError ||
       error instanceof Wf09bCliError
     ) {
       io.error(`[${error.code}] ${error.message}`);
