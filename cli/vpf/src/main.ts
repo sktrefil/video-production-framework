@@ -101,6 +101,13 @@ function hardenPhase(args: string[], io: CliIo): Wf09HardenPhase | null {
   return phase;
 }
 
+function hardenSucceeded(result: unknown, phase: Wf09HardenPhase): boolean {
+  if (typeof result !== "object" || result === null) return false;
+  const record = result as Record<string, unknown>;
+  if (phase === "all") return record.completed === true;
+  return record.status === "PASS";
+}
+
 export async function runUnifiedCli(
   args: string[],
   io: CliIo = defaultIo(),
@@ -131,7 +138,7 @@ export async function runUnifiedCli(
       if (phase === null) return 2;
       const result = await new Wf09HardenService(projects).run(projectId, phase);
       printJson(io, result);
-      return 0;
+      return hardenSucceeded(result, phase) ? 0 : 1;
     }
 
     if (args[0] === "run" && args[1] === "wf09") {
