@@ -6,10 +6,12 @@ import {
   ProjectBootstrapError,
   ProjectBootstrapService
 } from "@vpf/project-bootstrap";
+import { StoryValidationError } from "@vpf/story";
 import {
   PilotReadinessService,
   parseMinimumFreeGb
 } from "./pilot-readiness.js";
+import { Wf07CliError, Wf07CliService } from "./wf07.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -25,12 +27,28 @@ Commands:
   vpf doctor <project_id>
   vpf env check --format <longform|shortform> [--min-free-gb <number>]
   vpf pilot preflight <project_id> [--min-free-gb <number>]
+
+WF-07 story operations:
+  vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
+  vpf script approve <project_id> <script_id> [--approved-by <id>]
+  vpf story generate <project_id> --plan <project-file>
+  vpf story status <project_id>
+  vpf story approve-structure <project_id> [--approved-by <id>]
+  vpf story approve-scenes <project_id> (--all | --scene <scene_id>...) [--approved-by <id>]
 `;
 
 function readOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(name);
   if (index < 0) return undefined;
   return args[index + 1];
+}
+
+function readOptions(args: string[], name: string): string[] {
+  const values: string[] = [];
+  for (let i = 0; i < args.length - 1; i++) {
+    if (args[i] === name) values.push(args[i + 1]!);
+  }
+  return values;
 }
 
 function printJson(io: CliIo, value: unknown): void {
@@ -51,6 +69,24 @@ function minimumFreeBytes(args: string[], io: CliIo): bigint | null | undefined 
   }
 }
 
+const SEMANTIC_OPTION_VALUES = new Set(["--title"]);
+
+function assertCommandArgumentsAreIsolated(args: string[]): void {
+  for (let i = 0; i < args.length; i++) {
+    if (i > 0 && SEMANTIC_OPTION_VALUES.has(args[i - 1]!)) continue;
+    assertNoLegacyReference(args[i]!);
+  }
+}
+
+function requireOption(args: string[], name: string, io: CliIo, message: string): string | null {
+  const value = readOption(args, name);
+  if (value === undefined) {
+    io.error(`[CLI_USAGE] ${message}`);
+    return null;
+  }
+  return value;
+}
+
 export async function runCli(
   args: string[],
   io: CliIo = {
@@ -66,8 +102,8 @@ export async function runCli(
   }
 
   try {
-    // Prose titles are not executable references. Commands/paths are.
-    for (let i = 0; i < args.length; i++) if (args[i - 1] !== "--title") assertNoLegacyReference(args[i]!);
+    assertCommandArgumentsAreIsolated(args);
+
     if (args[0] === "project" && args[1] === "create") {
       const projectId = args[2];
       const title = readOption(args, "--title");
@@ -132,10 +168,7 @@ export async function runCli(
       const minimum = minimumFreeBytes(args, io);
       if (minimum === null) return 2;
       const readiness = readinessService ?? new PilotReadinessService(service);
-      const result = await readiness.checkEnvironment(
-        format,
-        minimum === undefined ? {} : {minimumFreeBytes: minimum}
-      );
+      const result = await readiness.checkEnvironment(format, minimum === undefined ? {} : {minimumFreeBytes: minimum});
       printJson(io, result);
       return result.ready ? 0 : 1;
     }
@@ -149,12 +182,93 @@ export async function runCli(
       const minimum = minimumFreeBytes(args, io);
       if (minimum === null) return 2;
       const readiness = readinessService ?? new PilotReadinessService(service);
-      const result = await readiness.checkProject(
-        projectId,
-        minimum === undefined ? {} : {minimumFreeBytes: minimum}
-      );
+      const result = await readiness.checkProject(projectId, minimum === undefined ? {} : {minimumFreeBytes: minimum});
       printJson(io, result);
       return result.ready ? 0 : 1;
+    }
+
+    const wf07 = new Wf07CliService(service);
+
+    if (args[0] === "script" && args[1] === "create") {
+      const projectId = args[2];
+      const file = requireOption(args, "--file", io, "script create requires --file <project-file>.");
+      if (projectId === undefined || file === null) {
+        if (projectId === undefined) io.error("[CLI_USAGE] script create requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf07.createScript({
+        projectId,
+        file,
+        ...(readOption(args, "--kind") === undefined ? {} : { kind: readOption(args, "--kind")! })
+      }));
+      return 0;
+    }
+
+    if (args[0] === "script" && args[1] === "approve") {
+      const projectId = args[2];
+      const scriptId = args[3];
+      if (projectId === undefined || scriptId === undefined) {
+        io.error("[CLI_USAGE] script approve requires <project_id> <script_id>.");
+        return 2;
+      }
+      printJson(io, await wf07.approveScript(projectId, scriptId, readOption(args, "--approved-by")));
+      return 0;
+    }
+
+    if (args[0] === "story" && args[1] === "generate") {
+      const projectId = args[2];
+      const plan = requireOption(args, "--plan", io, "story generate requires --plan <project-file>.");
+      if (projectId === undefined || plan === null) {
+        if (projectId === undefined) io.error("[CLI_USAGE] story generate requires <project_id>.");
+        return 2;
+      }
+      const graph = await wf07.generateStory(projectId, plan);
+      printJson(io, {
+        projectId,
+        chapterCount: graph.chapters.length,
+        sequenceCount: graph.sequences.length,
+        sceneCount: graph.scenes.length,
+        chapters: graph.chapters,
+        sequences: graph.sequences,
+        scenes: graph.scenes
+      });
+      return 0;
+    }
+
+    if (args[0] === "story" && args[1] === "status") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] story status requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf07.status(projectId));
+      return 0;
+    }
+
+    if (args[0] === "story" && args[1] === "approve-structure") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] story approve-structure requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf07.approveStructure(projectId, readOption(args, "--approved-by")));
+      return 0;
+    }
+
+    if (args[0] === "story" && args[1] === "approve-scenes") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] story approve-scenes requires <project_id>.");
+        return 2;
+      }
+      const all = args.includes("--all");
+      const sceneIds = readOptions(args, "--scene");
+      if ((!all && sceneIds.length === 0) || (all && sceneIds.length > 0)) {
+        io.error("[CLI_USAGE] story approve-scenes requires either --all or one/more --scene values.");
+        return 2;
+      }
+      printJson(io, await wf07.approveScenes(projectId, all ? "ALL" : sceneIds, readOption(args, "--approved-by")));
+      return 0;
     }
 
     if (args[0] === "run" || args[0] === "job" || args[0] === "qc") {
@@ -164,7 +278,12 @@ export async function runCli(
     io.error("[CLI_USAGE] Unknown command.\n" + USAGE);
     return 2;
   } catch (error: unknown) {
-    if (error instanceof ProjectBootstrapError || error instanceof LegacyGuardError) {
+    if (
+      error instanceof ProjectBootstrapError ||
+      error instanceof LegacyGuardError ||
+      error instanceof StoryValidationError ||
+      error instanceof Wf07CliError
+    ) {
       io.error(`[${error.code}] ${error.message}`);
       return 1;
     }
