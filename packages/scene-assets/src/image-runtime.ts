@@ -144,7 +144,10 @@ function requireFormatDimensions(formatProfile: FormatProfileSnapshot): {
 }
 
 function outputPath(assetId: string, attempt: number): string {
-  return `05_images/generated/${encodeURIComponent(assetId)}/attempt-${attempt}.png`;
+  // Keep every final runtime download in one browsable project folder. The
+  // asset id and attempt retain deterministic provenance without nesting each
+  // generated image in a separate directory.
+  return `05_images/generated/${encodeURIComponent(assetId)}--attempt-${attempt}.png`;
 }
 
 function isReferenceOrConfigFailure(job: ProviderJob): boolean {

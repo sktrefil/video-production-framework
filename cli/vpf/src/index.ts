@@ -12,6 +12,9 @@ import {
   parseMinimumFreeGb
 } from "./pilot-readiness.js";
 import { Wf07CliError, Wf07CliService } from "./wf07.js";
+import { Wf08CliError, Wf08CliService } from "./wf08.js";
+import {EditorAssembleError, assembleEditorProject} from "./editor-assemble.js";
+import {EditorMediaImportError, importEditorMedia} from "./editor-media-import.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -27,6 +30,8 @@ Commands:
   vpf doctor <project_id>
   vpf env check --format <longform|shortform> [--min-free-gb <number>]
   vpf pilot preflight <project_id> [--min-free-gb <number>]
+  vpf editor assemble <project_id> [--header "..."]
+  vpf editor media import <project_id>
 
 WF-07 story operations:
   vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
@@ -35,6 +40,14 @@ WF-07 story operations:
   vpf story status <project_id>
   vpf story approve-structure <project_id> [--approved-by <id>]
   vpf story approve-scenes <project_id> (--all | --scene <scene_id>...) [--approved-by <id>]
+
+WF-08 visual identity operations:
+  vpf visual style apply <project_id> --file <project-file>
+  vpf visual style approve <project_id> [--approved-by <id>]
+  vpf visual anchors apply <project_id> --file <project-file>
+  vpf visual anchors approve <project_id> (--all | --anchor <anchor_id>...) [--approved-by <id>]
+  vpf visual resources sync <project_id>
+  vpf visual status <project_id>
 `;
 
 function readOption(args: string[], name: string): string | undefined {
@@ -188,6 +201,94 @@ export async function runCli(
     }
 
     const wf07 = new Wf07CliService(service);
+    const wf08 = new Wf08CliService(service);
+
+    if (args[0] === "visual" && args[1] === "resources" && args[2] === "sync") {
+      const projectId = args[3];
+      if (projectId === undefined) { io.error("[CLI_USAGE] visual resources sync requires <project_id>."); return 2; }
+      printJson(io, await wf08.syncCanonicalVisualResources(projectId));
+      return 0;
+    }
+
+    if (args[0] === "editor" && args[1] === "assemble") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] editor assemble requires <project_id>.");
+        return 2;
+      }
+      const project = await service.getStatus(projectId);
+      const projectRoot = path.resolve(process.cwd(), "workspace", "projects", projectId);
+      const result = assembleEditorProject({
+        projectId,
+        projectRoot,
+        header: readOption(args, "--header") ?? "로마 제9군단의 미스터리"
+      });
+      printJson(io, {status: "ASSEMBLED", projectId: project.project.projectId, ...result});
+      return 0;
+    }
+    if (args[0] === "editor" && args[1] === "media" && args[2] === "import") {
+      const projectId=args[3]; if(projectId===undefined){io.error("[CLI_USAGE] editor media import requires <project_id>.");return 2;}
+      const root=path.resolve(process.cwd(),"workspace","projects",projectId);
+      printJson(io,{status:"IMPORTED",projectId,...importEditorMedia(projectId,root)}); return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "style" && args[2] === "apply") {
+      const projectId = args[3];
+      const file = requireOption(args, "--file", io, "visual style apply requires --file <project-file>.");
+      if (projectId === undefined || file === null) {
+        if (projectId === undefined) io.error("[CLI_USAGE] visual style apply requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf08.applyProjectStyle(projectId, file));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "style" && args[2] === "approve") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] visual style approve requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf08.approveProjectStyle(projectId, readOption(args, "--approved-by")));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "anchors" && args[2] === "apply") {
+      const projectId = args[3];
+      const file = requireOption(args, "--file", io, "visual anchors apply requires --file <project-file>.");
+      if (projectId === undefined || file === null) {
+        if (projectId === undefined) io.error("[CLI_USAGE] visual anchors apply requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf08.applyIdentityAnchors(projectId, file));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "anchors" && args[2] === "approve") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] visual anchors approve requires <project_id>.");
+        return 2;
+      }
+      const all = args.includes("--all");
+      const anchorIds = readOptions(args, "--anchor");
+      if ((!all && anchorIds.length === 0) || (all && anchorIds.length > 0)) {
+        io.error("[CLI_USAGE] visual anchors approve requires either --all or one/more --anchor values.");
+        return 2;
+      }
+      printJson(io, await wf08.approveAnchors(projectId, all ? "ALL" : anchorIds, readOption(args, "--approved-by")));
+      return 0;
+    }
+
+    if (args[0] === "visual" && args[1] === "status") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] visual status requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await wf08.status(projectId));
+      return 0;
+    }
 
     if (args[0] === "script" && args[1] === "create") {
       const projectId = args[2];
@@ -282,9 +383,11 @@ export async function runCli(
       error instanceof ProjectBootstrapError ||
       error instanceof LegacyGuardError ||
       error instanceof StoryValidationError ||
-      error instanceof Wf07CliError
+      error instanceof Wf07CliError ||
+      error instanceof Wf08CliError
+      || error instanceof EditorAssembleError || error instanceof EditorMediaImportError
     ) {
-      io.error(`[${error.code}] ${error.message}`);
+      io.error(`[${error instanceof EditorAssembleError || error instanceof EditorMediaImportError ? "EDITOR" : error.code}] ${error.message}`);
       return 1;
     }
     if (error instanceof Error) {

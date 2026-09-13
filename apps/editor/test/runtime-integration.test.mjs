@@ -56,3 +56,13 @@ test("MIG-09 deliberately excludes the old Whisper subtitle cache bridge", async
   assert.doesNotMatch(source, /word_timestamps/);
   assert.match(source, /SUBTITLE_TTS_PROVENANCE_MISSING/);
 });
+
+test("Studio review server loads a materialized project and keeps edits outside project.db", async () => {
+  const source = await read("scripts/editor-studio-server.mjs");
+  assert.match(source, /materializeProjectCommand/);
+  assert.match(source, /studio_edit_project\.json/);
+  assert.match(source, /project\.db and the approved assembly remain unchanged/);
+  assert.match(source, /UNASSEMBLED_REVIEW/);
+  assert.match(source, /127\.0\.0\.1/);
+  assert.doesNotMatch(source, /Youtubu_projects/);
+});

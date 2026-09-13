@@ -4,7 +4,16 @@ declare global {interface Window {__VPF_EDITOR_API_BASE__?:string}}
 export type EditorProductionIssue={code:string;message:string;data?:Record<string,unknown>};
 type Envelope={success:boolean;project?:EditProject;path?:string;savedAt?:string;status?:string;projectSha256?:string;outputPath?:string;errors?:EditorProductionIssue[];warnings?:EditorProductionIssue[];error?:string};
 
-const configuredBase=()=>typeof window!=="undefined"?window.__VPF_EDITOR_API_BASE__?.replace(/\/$/,""):undefined;
+export type StudioProjectConnection={projectId?:string;apiBase?:string;durationInFrames?:number};
+export const configuredStudioProjectConnection=():StudioProjectConnection=>{
+  if(typeof window==="undefined")return {};
+  const query=new URLSearchParams(window.location.search);
+  const projectId=query.get("vpfProject")?.trim()||undefined;
+  const apiBase=(query.get("vpfEditorApi")?.trim()||window.__VPF_EDITOR_API_BASE__)?.replace(/\/$/,"")||undefined;
+  const frames=Number(query.get("vpfFrames"));
+  return {projectId,apiBase,...(Number.isSafeInteger(frames)&&frames>0?{durationInFrames:frames}:{})};
+};
+const configuredBase=()=>configuredStudioProjectConnection().apiBase;
 export const hasEditorPersistenceAdapter=()=>Boolean(configuredBase());
 const requireBase=()=>{const base=configuredBase();if(!base)throw new Error("Unified editor persistence is not bound yet; MIG-09 owns project materialization/runtime binding.");return base;};
 const parse=async(response:Response)=>{const payload=await response.json() as Envelope;if(!response.ok||!payload.success)throw new Error(payload.error??`Editor persistence failed (${response.status})`);return payload;};

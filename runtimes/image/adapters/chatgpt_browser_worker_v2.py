@@ -2,12 +2,19 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
 import json
 import os
 import sys
 import time
 from typing import Any, Callable
+
+
+def status(message: str) -> None:
+    """Emit a one-line progress record without corrupting JSON stdout."""
+    sys.stderr.write(f"[chatgpt-browser-worker-v2] {message}\n")
+    sys.stderr.flush()
 
 
 def read_request() -> dict[str, Any]:
@@ -64,6 +71,10 @@ def page_state(page) -> str:
         return "challenge"
     if any(token in body for token in ("image generation limit", "이미지 생성 한도", "사용 한도에 도달")):
         return "usage_limit"
+    if ("global_visual" in body and "다시 첨부" in body) or (
+        "reference images" in body and "reattach" in body
+    ):
+        return "reference_missing"
     return "ready"
 
 
@@ -75,6 +86,8 @@ def raise_for_page_state(page) -> None:
         raise RuntimeError("ChatGPT browser challenge/captcha is blocking image generation.")
     if state == "usage_limit":
         raise RuntimeError("ChatGPT image generation usage limit has been reached.")
+    if state == "reference_missing":
+        raise RuntimeError("ChatGPT reported that this message did not receive its required reference images.")
 
 
 def connect_browser(playwright, cdp_url: str):
@@ -95,6 +108,57 @@ def open_clean_chatgpt_page(browser):
     poll_until("ChatGPT document", lambda: page.locator("body").count() > 0, 15)
     raise_for_page_state(page)
     return page
+
+
+def reference_session_marker(request: dict[str, Any]) -> str:
+    """Return a deterministic marker for one exact reference-image conversation.
+
+    The marker deliberately includes the role as well as the file checksum: an
+    identical image assigned a different semantic role is a different prompt
+    contract and must not silently reuse the earlier conversation.
+    """
+    references = request.get("references") or []
+    identity = []
+    for index, reference in enumerate(references):
+        if not isinstance(reference, dict):
+            raise RuntimeError(f"Reference {index + 1} is invalid.")
+        identity.append({
+            "mediaId": str(reference.get("mediaId") or ""),
+            "role": str(reference.get("role") or "REFERENCE"),
+            "sha256": str(reference.get("sha256") or ""),
+            "absolutePath": os.path.abspath(str(reference.get("absolutePath") or "")),
+        })
+    encoded = json.dumps({
+        "sessionKey": str(request.get("sessionKey") or ""),
+        "references": identity,
+    }, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    return "vpf-image-session:" + hashlib.sha256(encoded).hexdigest()
+
+
+def managed_session_page(browser, marker: str):
+    """Find only a tab created by this worker; never adopt a user's chat tab."""
+    for page in browser.contexts[0].pages:
+        try:
+            if "chatgpt.com" not in str(page.url or "").lower():
+                continue
+            if page.evaluate("() => window.name") == marker:
+                poll_until("managed ChatGPT document", lambda: page.locator("body").count() > 0, 15)
+                raise_for_page_state(page)
+                return page
+        except Exception:
+            continue
+    return None
+
+
+def mark_managed_session_page(page, marker: str) -> None:
+    page.evaluate("marker => { window.name = marker; }", marker)
+
+
+def open_or_reuse_chatgpt_page(browser, marker: str):
+    existing = managed_session_page(browser, marker)
+    if existing is not None:
+        return existing, True
+    return open_clean_chatgpt_page(browser), False
 
 
 def find_composer(page):
@@ -315,21 +379,29 @@ def wait_until_send_ready(page, expected_paths: list[str], timeout_seconds: floa
         raise RuntimeError(f"Composer never became send-ready. last={last}") from exc
 
 
-def image_snapshot(page) -> list[dict[str, Any]]:
-    return page.locator("main img").evaluate_all(
+def generated_image_snapshot(page) -> list[dict[str, Any]]:
+    # ChatGPT has changed the image-card wrapper more than once. The dedicated
+    # imagegen class is preferred, but a new generated image is still reliably
+    # distinguishable from the baseline by source URL and natural dimensions.
+    # The fallback scans ordinary main-content images; composer attachments are
+    # excluded by their small preview dimensions below.
+    return page.locator(
+        "main [class~='group/imagegen-image'] img, main img[alt]:not([alt=''])"
+    ).evaluate_all(
         """imgs => imgs.map((img, index) => ({
           index,
           src: img.currentSrc || img.src || '',
           width: Number(img.naturalWidth || 0),
           height: Number(img.naturalHeight || 0),
-          complete: Boolean(img.complete)
+          complete: Boolean(img.complete),
+          authorRole: img.closest('[data-message-author-role]')?.getAttribute('data-message-author-role') || ''
         }))"""
     )
 
 
-def assistant_turn_count(page) -> int:
+def generated_image_count(page) -> int:
     try:
-        return page.locator("[data-message-author-role='assistant']").count()
+        return len(generated_image_snapshot(page))
     except Exception:
         return 0
 
@@ -350,14 +422,14 @@ def generation_in_progress(page) -> bool:
     return False
 
 
-def send_prompt_and_verify_started(page, send_button, before_assistant_turns: int, timeout_seconds: float) -> None:
+def send_prompt_and_verify_started(page, send_button, before_generated_images: int, timeout_seconds: float) -> None:
     send_button.click(timeout=7000)
 
     def started():
         raise_for_page_state(page)
         if generation_in_progress(page):
             return True
-        if assistant_turn_count(page) > before_assistant_turns:
+        if generated_image_count(page) > before_generated_images:
             return True
         try:
             if normalize_text(composer_text(find_composer(page))) == "":
@@ -369,7 +441,11 @@ def send_prompt_and_verify_started(page, send_button, before_assistant_turns: in
     poll_until("ChatGPT generation to start", started, min(timeout_seconds, 45), 0.35)
 
 
-def wait_for_generated_image(page, before_sources: set[str], timeout_seconds: float) -> dict[str, Any]:
+def wait_for_generated_image(
+    page,
+    before_sources: set[str],
+    timeout_seconds: float,
+) -> dict[str, Any]:
     stable_key = None
     stable_polls = 0
 
@@ -377,10 +453,14 @@ def wait_for_generated_image(page, before_sources: set[str], timeout_seconds: fl
         nonlocal stable_key, stable_polls
         raise_for_page_state(page)
         candidates = [
-            item for item in image_snapshot(page)
+            item for item in generated_image_snapshot(page)
             if item.get("complete")
-            and int(item.get("width") or 0) >= 256
-            and int(item.get("height") or 0) >= 256
+            and int(item.get("width") or 0) >= 128
+            and int(item.get("height") or 0) >= 128
+            # A reference attachment becomes a full-size image only after the
+            # message is sent. It is a user-message image, never a generated
+            # assistant result, and must not be captured as output.
+            and str(item.get("authorRole") or "").lower() != "user"
             and str(item.get("src") or "") not in before_sources
         ]
         if not candidates:
@@ -402,29 +482,32 @@ def wait_for_generated_image(page, before_sources: set[str], timeout_seconds: fl
 
 
 def capture_candidate_bytes(page, candidate: dict[str, Any]) -> bytes:
-    locator = page.locator("main img").nth(int(candidate["index"]))
     src = str(candidate.get("src") or "")
-    if src:
-        try:
-            data_url = page.evaluate(
-                """async (url) => {
-                  const response = await fetch(url);
-                  if (!response.ok) throw new Error('download failed');
-                  const blob = await response.blob();
-                  return await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                  });
-                }""",
-                src,
-            )
-            if isinstance(data_url, str) and "," in data_url:
-                return base64.b64decode(data_url.split(",", 1)[1])
-        except Exception:
-            pass
-    return bytes(locator.screenshot(type="png"))
+    if not src:
+        raise RuntimeError("Generated ChatGPT image has no downloadable source URL.")
+    try:
+        data_url = page.evaluate(
+            """async (url) => {
+              const response = await fetch(url);
+              if (!response.ok) throw new Error(`download failed: HTTP ${response.status}`);
+              const blob = await response.blob();
+              if (blob.size <= 0) throw new Error('download returned an empty image');
+              return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+              });
+            }""",
+            src,
+        )
+        if isinstance(data_url, str) and "," in data_url:
+            downloaded = base64.b64decode(data_url.split(",", 1)[1])
+            if downloaded:
+                return downloaded
+    except Exception as exc:
+        raise RuntimeError("Could not download the generated ChatGPT image source.") from exc
+    raise RuntimeError("Generated ChatGPT image download returned no bytes.")
 
 
 def normalize_png(raw: bytes, width: int, height: int) -> bytes:
@@ -475,6 +558,7 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
     cdp_url = str(request.get("cdpUrl") or "http://127.0.0.1:9222").strip()
     timeout_seconds = float(request.get("timeoutSeconds") or 180)
     reference_paths = validated_reference_paths(request)
+    session_marker = reference_session_marker(request)
     if not text or width <= 0 or height <= 0 or timeout_seconds <= 0:
         raise RuntimeError("ChatGPT Browser worker received invalid prompt/dimension/timeout input.")
 
@@ -483,35 +567,65 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
     started = time.monotonic()
     page = None
     stage = "CONNECT"
+    succeeded = False
     try:
         browser = connect_browser(playwright, cdp_url)
         stage = "OPEN_PAGE"
-        page = open_clean_chatgpt_page(browser)
+        status(stage)
+        # One managed tab is retained for one batch. References are attached to
+        # its first request and the subsequent sequential prompts stay in that
+        # exact conversation, avoiding a new tab and four reuploads per cut.
+        page, reused_session = open_or_reuse_chatgpt_page(browser, session_marker)
         page.bring_to_front()
         find_composer(page)
+        status(f"OPEN_PAGE ready reused_session={reused_session} url={page.url}")
 
-        stage = "ATTACH_REFERENCES"
-        attachment_status = attach_reference_files(page, reference_paths, timeout_seconds)
+        if reused_session:
+            stage = "WAIT_FOR_PRIOR_GENERATION"
+            status(stage)
+            poll_until(
+                "prior ChatGPT generation to finish",
+                lambda: True if not generation_in_progress(page) else None,
+                timeout_seconds,
+                0.5,
+            )
+            attachment_status = {"expected": len(reference_paths), "visible": len(reference_paths), "reused": True}
+        else:
+            stage = "ATTACH_REFERENCES"
+            status(f"{stage} count={len(reference_paths)}")
+            attachment_status = attach_reference_files(page, reference_paths, timeout_seconds)
+            mark_managed_session_page(page, session_marker)
+            attachment_status["reused"] = False
+            status(f"ATTACH_REFERENCES complete evidence={attachment_status}")
 
         stage = "FILL_PROMPT"
+        status(f"{stage} characters={len(text)}")
         composer = fill_and_verify_composer(page, text, timeout_seconds)
-        baseline = image_snapshot(page)
+        baseline = generated_image_snapshot(page)
         before_sources = {str(item.get("src") or "") for item in baseline}
-        before_assistant_turns = assistant_turn_count(page)
+        before_generated_images = len(baseline)
 
         stage = "WAIT_SEND_READY"
+        status(stage)
         send_button = wait_until_send_ready(page, reference_paths, timeout_seconds)
 
         stage = "SEND_PROMPT"
-        send_prompt_and_verify_started(page, send_button, before_assistant_turns, timeout_seconds)
+        status(stage)
+        send_prompt_and_verify_started(page, send_button, before_generated_images, timeout_seconds)
 
         stage = "WAIT_IMAGE"
-        selected = wait_for_generated_image(page, before_sources, timeout_seconds)
+        status(stage)
+        selected = wait_for_generated_image(
+            page,
+            before_sources,
+            timeout_seconds,
+        )
 
         stage = "CAPTURE_IMAGE"
+        status(stage)
         raw = capture_candidate_bytes(page, selected)
         normalized = normalize_png(raw, width, height)
-        return {
+        result = {
             "imageBase64": base64.b64encode(normalized).decode("ascii"),
             "mimeType": "image/png",
             "providerRequestIds": [],
@@ -519,14 +633,25 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
             "attachmentStatus": attachment_status,
             "sourceWidth": int(selected.get("width") or 0),
             "sourceHeight": int(selected.get("height") or 0),
+            "downloadVerified": True,
+            "downloadedByteCount": len(raw),
             "elapsedSeconds": round(time.monotonic() - started, 3),
         }
+        succeeded = True
+        return result
     except Exception as exc:
         raise RuntimeError(f"stage={stage}: {exc}") from exc
     finally:
-        if page is not None:
+        # Keep the worker-managed ChatGPT tab alive after disconnecting from
+        # CDP. The next sequential image job with the same reference set uses
+        # this conversation and its initial attachments instead of opening a
+        # new tab and uploading the same files again.
+        # A failed request can leave this conversation in a state ChatGPT will
+        # not accept as the next prompt. Do not silently reuse it on a later
+        # CLI invocation: a fresh tab will upload and verify the references.
+        if page is not None and not succeeded:
             try:
-                page.close()
+                page.evaluate("() => { window.name = ''; }")
             except Exception:
                 pass
         playwright.stop()

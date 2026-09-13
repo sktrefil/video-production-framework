@@ -191,7 +191,9 @@ export class ReferenceAwareUnifiedImageRuntimeJobService {
       height: size.height,
       aspectRatio: size.aspectRatio,
       references: runtimeReferences,
-      outputRelativePath: `05_images/generated/${encodeURIComponent(asset.id)}/attempt-1.png`
+      // WF-09 initial jobs use the same flat download folder as retries.
+      // Keeping the asset id and attempt in the filename preserves provenance.
+      outputRelativePath: `05_images/generated/${encodeURIComponent(asset.id)}--attempt-1.png`
     };
     validateImageRuntimeInput(runtimeInput);
 

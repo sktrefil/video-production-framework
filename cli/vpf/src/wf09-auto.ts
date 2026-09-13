@@ -18,8 +18,8 @@ import { Wf09bCliService } from "./wf09b.js";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const resourcesRoot = path.join(repositoryRoot, "resources");
-const targetChannel = { resourceId: "HISTORY_MYSTERY_V1", version: "1.4.0" } as const;
-const targetVisualBible = { resourceId: "HISTORY_MYSTERY_VISUAL_BIBLE", version: "1.1.0" } as const;
+const targetChannel = { resourceId: "HISTORY_MYSTERY_V1", version: "1.5.0" } as const;
+const targetVisualBible = { resourceId: "HISTORY_MYSTERY_VISUAL_BIBLE", version: "1.2.0" } as const;
 const targetImageProvider = { resourceId: "IMAGE_PROVIDER_EXECUTION_V1", version: "1.2.0" } as const;
 
 export class Wf09AutoError extends Error {
@@ -88,33 +88,29 @@ function visualBiblePin(status: ProjectStatus): ResourcePin | undefined {
 
 function projectStyleDecision() {
   return {
-    eraRegion: "Early second-century Roman Britain, especially northern Britannia, with archaeology-led reconstruction rather than legendary certainty",
-    visualApproach: "Story-first, environment-first historical reconstruction; evidence and uncertainty are visually separated; restrained painterly matte finish",
-    realismLevel: "Grounded historically plausible reconstruction with natural human proportions and materially credible stone, timber, wool, leather and iron",
-    colorLanguage: "Subdued cold earth, slate, weathered stone, muted wool and iron tones; restrained warm accents only when motivated by practical light",
-    lightingLanguage: "Natural overcast northern daylight, mist and low-contrast atmospheric depth; practical fire or lamp light only when contextually justified",
-    materialLanguage: "Weathered stone, timber, wool, leather, iron, parchment and archaeological surfaces; no glossy synthetic or game-render materials",
-    environmentLanguage: "Large readable landscapes, roads, forts, ruins, maps and evidence spaces with strong foreground-midground-background depth",
-    characterRenderingPrinciple: "Roman personnel remain small-to-medium in frame, historically plausible, non-heroic, with no unsupported Ninth Legion emblem or invented heraldry",
+    eraRegion: "A cinematic fantasy reconstruction inspired by early second-century Roman Britain and northern Britannia",
+    visualApproach: "Story-first cinematic fantasy matte-painting; every image inherits the approved GLOBAL_VISUAL tone and manner without individual stylistic drift",
+    realismLevel: "Stylized cinematic fantasy reconstruction with materially tactile stone, timber, wool, leather, iron and monumental fantasy-world extensions",
+    colorLanguage: "Mandatory GLOBAL_VISUAL cool slate-and-mist against selective luminous gold and ember warmth; strong cinematic tonal separation rather than muted documentary grading",
+    lightingLanguage: "Volumetric cloud, mist and atmospheric depth with dramatic controlled light, including motivated or compositional warm breaks through storm light",
+    materialLanguage: "Painterly fantasy matte-painting surfaces with tactile weathered stone, timber, wool, leather, iron and monumental ruins; never a grey photographic documentary look",
+    environmentLanguage: "Monumental layered fantasy landscapes, roads, forts, ruins, maps and evidence spaces with strong foreground-midground-background depth",
+    characterRenderingPrinciple: "Roman-inspired personnel may be stylized fantasy reconstructions. Historical deviations are disclosed in editorial overlays rather than suppressed in image generation",
     cameraCompositionTendency: "Medium-wide to wide by default; essential story information in central 60-70%; upper and lower margins remain atmospheric and crop-safe",
     moodRange: [
-      "investigative historical mystery",
-      "cold northern frontier uncertainty",
-      "evidence-led reconstruction",
-      "restrained unresolved ending"
+      "cinematic fantasy historical mystery",
+      "monumental northern frontier uncertainty",
+      "evidence-led fantasy reconstruction",
+      "luminous unresolved ending"
     ],
     factualConstraints: [
-      "Preserve uncertainty where historical evidence is incomplete",
-      "Use plausible early second-century Roman military equipment and architecture",
-      "Do not assert a final battlefield or disappearance mechanism as fact",
+      "Preserve the narrative distinction between known evidence and visual reconstruction through later editorial disclosure",
       "Generated imagery must not contain readable invented historical text"
     ],
     avoidances: [
-      "fantasy armor or magical disappearance effects",
-      "unsupported Ninth Legion insignia, heraldry or bright invented banners",
       "modern objects or weapons",
-      "superhero anatomy or spectacle-only composition",
-      "glossy game-render or photographic hyperreal finish",
+      "grey photographic documentary styling that departs from GLOBAL_VISUAL",
+      "unrelated game-render styling that departs from GLOBAL_VISUAL",
       "readable generated Latin, dates, map labels or other historical text"
     ]
   };
@@ -142,23 +138,18 @@ function scenePrompt(scene: Scene): { prompt: string; negativePrompt: string } {
   const prompt = [
     visual,
     mustSee ? `Essential visible elements: ${mustSee}.` : "",
-    "Early second-century Roman Britain, grounded archaeological reconstruction, historically plausible materials and equipment.",
+    "Cinematic fantasy reconstruction inspired by Roman Britain. The approved GLOBAL_VISUAL images are mandatory, non-negotiable tone and manner: monumental layered fantasy environments, painterly matte-painting texture, cool-versus-warm cinematic contrast, volumetric cloud and haze, dramatic controlled light, and epic compositional depth.",
     "Story-first environment-first medium-wide or wide framing, people and objects small-to-medium in frame, readable foreground-midground-background depth.",
-    "Restrained painterly matte surface, subdued natural earth and slate tones, cold overcast or contextually motivated natural light.",
+    "Preserve the GLOBAL_VISUAL fantasy finish in this individual shot; do not drift into grey photographic documentary or a separate game-render style. Historical deviation is disclosed later by editorial overlay, not suppressed in the image.",
     "Essential story information stays in the central 60-70%; upper and lower margins remain atmospheric and lower-detail for vertical 9:16 crop continuity.",
-    "Preserve historical uncertainty; no readable generated historical text or labels."
+    "No readable generated historical text or labels; editorial disclosure and captions are applied later."
   ].filter(Boolean).join(" ");
   const negativePrompt = [
-    "fantasy armor",
-    "magical effects",
     "modern objects",
-    "unsupported Ninth Legion emblem",
-    "invented heraldry",
     "readable generated Latin, dates or map labels",
-    "superhero anatomy",
-    "glossy game render",
-    "photographic hyperreal finish",
-    "spectacle-only composition"
+    "grey photographic documentary styling",
+    "unrelated game-render styling",
+    "baked captions, borders, logos or UI panels"
   ].join(", ");
   return { prompt, negativePrompt };
 }
@@ -188,14 +179,13 @@ function buildSceneAssetPlan(scenes: Scene[]) {
           ],
           factualConstraints: [
             ...scene.mustBeSeen.map(item => `Scene requirement: ${item}`),
-            "Historically plausible early second-century Roman Britain",
-            "No readable generated historical text; dates and labels are editorial overlays"
+            "Cinematic fantasy reconstruction inspired by Roman Britain; factual deviation is disclosed in editorial overlays",
+            "No readable generated historical text; dates, labels and disclosure are editorial overlays"
           ],
           avoidances: [
-            "unsupported insignia or heraldry",
-            "fantasy or supernatural certainty",
             "modern objects",
-            "glossy game-render finish",
+            "grey photographic documentary styling that departs from GLOBAL_VISUAL",
+            "unrelated game-render finish that departs from GLOBAL_VISUAL",
             "oversized subject without narrative reason"
           ]
         },

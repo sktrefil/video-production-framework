@@ -484,7 +484,11 @@ export class Wf09bCliService {
     const status = await this.projects.getStatus(projectId);
     const repo = new SqliteSceneAssetRepository(status.projectDbPath);
     try {
-      const assets = await this.primaryGenerateAssets(repo, projectId);
+      const assets = (await repo.listAssets(projectId)).filter((asset) =>
+        asset.assetClass === "PRIMARY_SCENE" &&
+        asset.owner.type === "SCENE" &&
+        !asset.stale
+      );
       const selected = selection === "ALL" ? assets.filter(asset => asset.assetStatus === "NEEDS_REVIEW") : selection.map(assetId => {
         const asset = assets.find(candidate => candidate.id === assetId);
         if (asset === undefined) throw new Wf09bCliError("WF09B_ASSET_STATE", `Unknown image Asset: ${assetId}`);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
+import {readFile} from "node:fs/promises";
 
 const adapterPath = fileURLToPath(
   new URL("../../../runtimes/image/adapters/chatgpt-browser-adapter.mjs", import.meta.url)
@@ -41,16 +42,19 @@ test("reference roles become explicit visual-use instructions instead of generic
   ];
   const guidance = module.buildReferenceGuidance(references);
   assert.match(guidance, /COMPOSITION_GRAMMAR/u);
-  assert.match(guidance, /environment-first wide\/medium-wide composition/u);
-  assert.match(guidance, /layout\/hierarchy cue/u);
-  assert.match(guidance, /do not merely treat them as generic inspiration/u);
+  assert.match(guidance, /MANDATORY GLOBAL VISUAL BIBLE/u);
+  assert.match(guidance, /non-negotiable show tone and manner/u);
+  assert.match(guidance, /cinematic fantasy matte-painting/u);
+  assert.match(guidance, /EDITORIAL SAFE-ZONE CONTRACT/u);
+  assert.match(guidance, /deliberately not attached/u);
+  assert.match(guidance, /generate no header band, caption panel, frame, border, or lettering/u);
 
   const transmitted = module.buildChatGptTransmissionText({ prompt: "exact prompt", references });
   assert.ok(transmitted.includes(guidance));
   assert.ok(transmitted.endsWith("exact prompt"));
 });
 
-test("ChatGPT Browser adapter forwards exact approved reference files to worker", async () => {
+test("ChatGPT Browser adapter uploads visual references but keeps KNF templates as text-only safe-zone cues", async () => {
   const module = await loadAdapterModule();
   let captured: Record<string, unknown> | undefined;
   const adapter = module.createImageProviderAdapter({
@@ -91,7 +95,7 @@ test("ChatGPT Browser adapter forwards exact approved reference files to worker"
   });
 
   assert.equal(captured?.action, "generate");
-  assert.deepEqual(captured?.references, references.map(reference => ({
+  assert.deepEqual(captured?.references, [references[0]].map(reference => ({
     absolutePath: reference.absolutePath,
     mediaId: reference.mediaId,
     role: reference.role,
@@ -99,7 +103,9 @@ test("ChatGPT Browser adapter forwards exact approved reference files to worker"
   })));
   assert.equal(captured?.width, 864);
   assert.equal(captured?.height, 1536);
-  assert.match(String(captured?.transmissionText), /REFERENCE USAGE CONTRACT/u);
+  assert.match(String(captured?.transmissionText), /VISUAL REFERENCE TRANSFER CONTRACT/u);
+  assert.match(String(captured?.transmissionText), /EDITORIAL SAFE-ZONE CONTRACT/u);
+  assert.match(String(captured?.transmissionText), /deliberately not attached/u);
   assert.equal(Buffer.from(result.bytes as Uint8Array).toString("utf8"), "fixture-png");
   assert.deepEqual(result.providerRequestIds, ["fixture-request"]);
 });
@@ -116,4 +122,31 @@ test("ChatGPT Browser adapter exposes a non-generating browser health probe", as
   const result = await adapter.healthcheck();
   assert.equal(captured?.action, "probe");
   assert.equal(result.status, "READY");
+});
+
+test("ChatGPT Browser worker only accepts images from a ChatGPT generation card", async () => {
+  const worker = await readFile(
+    new URL("../../../runtimes/image/adapters/chatgpt_browser_worker_v2.py", import.meta.url),
+    "utf8"
+  );
+  assert.match(worker, /\[class~='group\/imagegen-image'\] img\[alt\]:not\(\[alt=''\]\)/);
+  assert.match(worker, /str\(item\.get\("src"\) or ""\) not in before_sources/);
+  assert.match(worker, /Generated ChatGPT image has no downloadable source URL/);
+  assert.match(worker, /Could not download the generated ChatGPT image source/);
+  assert.match(worker, /"downloadVerified": True/);
+  assert.doesNotMatch(worker, /locator\.screenshot/);
+  assert.doesNotMatch(worker, /page\.locator\("main img"\)/);
+});
+
+test("ChatGPT Browser worker reuses one managed conversation per exact reference set", async () => {
+  const worker = await readFile(
+    new URL("../../../runtimes/image/adapters/chatgpt_browser_worker_v2.py", import.meta.url),
+    "utf8"
+  );
+  assert.match(worker, /def reference_session_marker\(request: dict\[str, Any\]\)/);
+  assert.match(worker, /def open_or_reuse_chatgpt_page\(browser, marker: str\)/);
+  assert.match(worker, /page, reused_session = open_or_reuse_chatgpt_page\(browser, session_marker\)/);
+  assert.match(worker, /mark_managed_session_page\(page, session_marker\)/);
+  assert.match(worker, /"reused": True/);
+  assert.match(worker, /def generate[\s\S]*?finally:\n        # Keep the worker-managed ChatGPT tab alive[\s\S]*?playwright\.stop\(\)/);
 });

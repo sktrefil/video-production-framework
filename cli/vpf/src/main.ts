@@ -14,6 +14,12 @@ import { Wf09CliError, Wf09CliService } from "./wf09.js";
 import { Wf09AutoError, Wf09AutoService } from "./wf09-auto.js";
 import { Wf09HardenError, Wf09HardenService, type Wf09HardenPhase } from "./wf09-harden.js";
 import { Wf09bCliError, Wf09bCliService } from "./wf09b.js";
+import { Wf10CliError, Wf10CliService } from "./wf10.js";
+import { Wf11CliError, Wf11CliService } from "./wf11.js";
+import { FinalClipValidationError } from "@vpf/final-clip";
+import { CutListCliError, CutListCliService } from "./cutlist.js";
+import { RenameSelectedMediaError, RenameSelectedMediaService } from "./rename-selected-media.js";
+import { PreLinkHandoffValidationError } from "@vpf/prelink-handoff";
 
 const WF09_USAGE = `WF-09 hardened gated workflow:
   vpf wf09 harden <project_id> --all
@@ -28,6 +34,7 @@ WF-09 AUTO connected prompt-to-image operations:
 WF-09A scene asset operations:
   vpf asset readiness <project_id> --file <project-file>
   vpf asset design apply <project_id> --file <project-file>
+  vpf asset import apply <project_id> --file <project-file>
   vpf asset prompt materialize <project_id> --file <project-file>
   vpf asset status <project_id>
 
@@ -38,6 +45,24 @@ WF-09B image runtime operations:
   vpf asset runtime status <project_id>
   vpf asset qc apply <project_id> --file <project-file>
   vpf asset approve <project_id> (--all | --asset <asset_id>...) [--approved-by <id>]`;
+
+const WF10_USAGE = `WF-10 pre-link / handoff operations:
+  vpf link graph build <project_id>
+  vpf link preflight apply <project_id> --file <project-file>
+  vpf link handoff qc <project_id> --file <project-file>
+  vpf link handoff approve <project_id> --all [--approved-by <id>]
+  vpf link status <project_id>`;
+
+const WF11_USAGE = `WF-11 Final Clip design operations:
+  vpf clip design apply <project_id> --file <project-file>
+  vpf clip design approve <project_id> --all [--approved-by <id>]
+  vpf clip status <project_id>`;
+
+const CUTLIST_USAGE = `Cut-list materialization:
+  vpf cutlist materialize <project_id> --file <project-file>`;
+
+const SELECTED_MEDIA_USAGE = `Selected media naming:
+  vpf asset media rename-selected <project_id>`;
 
 function readOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(name);
@@ -114,7 +139,10 @@ export async function runUnifiedCli(
   projects: ProjectBootstrapService = new ProjectBootstrapService()
 ): Promise<number> {
   const isHarden = args[0] === "wf09" && args[1] === "harden";
-  if (args[0] !== "asset" && !(args[0] === "run" && args[1] === "wf09") && !isHarden) {
+  const isLink = args[0] === "link";
+  const isClip = args[0] === "clip";
+  const isCutList = args[0] === "cutlist";
+  if (args[0] !== "asset" && !(args[0] === "run" && args[1] === "wf09") && !isHarden && !isLink && !isClip && !isCutList) {
     const code = await runCli(args, io, projects);
     if (args.length === 0 || args[0] === "--help" || args[0] === "-h") {
       io.out("\n" + WF09_USAGE);
@@ -127,6 +155,120 @@ export async function runUnifiedCli(
     const wf09 = new Wf09CliService(projects);
     const wf09b = new Wf09bCliService(projects);
     const wf09Auto = new Wf09AutoService(projects);
+    const wf10 = new Wf10CliService(projects);
+    const wf11 = new Wf11CliService(projects);
+    const cutList = new CutListCliService(projects);
+    const selectedMedia = new RenameSelectedMediaService(projects);
+
+    if (isLink) {
+      if (args[1] === "graph" && args[2] === "build") {
+        const projectId = args[3];
+        if (projectId === undefined) {
+          io.error("[CLI_USAGE] link graph build requires <project_id>.");
+          return 2;
+        }
+        printJson(io, await wf10.buildGraph(projectId));
+        return 0;
+      }
+      if (args[1] === "preflight" && args[2] === "apply") {
+        const projectId = args[3];
+        const file = readOption(args, "--file");
+        if (projectId === undefined || file === undefined) {
+          io.error("[CLI_USAGE] link preflight apply requires <project_id> and --file <project-file>.");
+          return 2;
+        }
+        printJson(io, await wf10.applyPreLink(projectId, file));
+        return 0;
+      }
+      if (args[1] === "handoff" && args[2] === "qc") {
+        const projectId = args[3];
+        const file = readOption(args, "--file");
+        if (projectId === undefined || file === undefined) {
+          io.error("[CLI_USAGE] link handoff qc requires <project_id> and --file <project-file>.");
+          return 2;
+        }
+        printJson(io, await wf10.applyHandoffQc(projectId, file));
+        return 0;
+      }
+      if (args[1] === "handoff" && args[2] === "approve") {
+        const projectId = args[3];
+        if (projectId === undefined || !args.includes("--all")) {
+          io.error("[CLI_USAGE] link handoff approve requires <project_id> --all [--approved-by <id>].");
+          return 2;
+        }
+        printJson(io, await wf10.approveHandoffReviews(projectId, readOption(args, "--approved-by")));
+        return 0;
+      }
+      if (args[1] === "status") {
+        const projectId = args[2];
+        if (projectId === undefined) {
+          io.error("[CLI_USAGE] link status requires <project_id>.");
+          return 2;
+        }
+        printJson(io, await wf10.status(projectId));
+        return 0;
+      }
+      io.error("[CLI_USAGE] Unknown link command.\n" + WF10_USAGE);
+      return 2;
+    }
+
+    if (isClip) {
+      if (args[1] === "design" && args[2] === "apply") {
+        const projectId = args[3];
+        const file = readOption(args, "--file");
+        if (projectId === undefined || file === undefined) {
+          io.error("[CLI_USAGE] clip design apply requires <project_id> and --file <project-file>.");
+          return 2;
+        }
+        printJson(io, await wf11.applyDesigns(projectId, file));
+        return 0;
+      }
+      if (args[1] === "design" && args[2] === "approve") {
+        const projectId = args[3];
+        if (projectId === undefined || !args.includes("--all")) {
+          io.error("[CLI_USAGE] clip design approve requires <project_id> --all [--approved-by <id>].");
+          return 2;
+        }
+        printJson(io, await wf11.approveAll(projectId, readOption(args, "--approved-by")));
+        return 0;
+      }
+      if (args[1] === "status") {
+        const projectId = args[2];
+        if (projectId === undefined) {
+          io.error("[CLI_USAGE] clip status requires <project_id>.");
+          return 2;
+        }
+        printJson(io, await wf11.status(projectId));
+        return 0;
+      }
+      io.error("[CLI_USAGE] Unknown clip command.\n" + WF11_USAGE);
+      return 2;
+    }
+
+    if (isCutList) {
+      if (args[1] === "materialize") {
+        const projectId = args[2];
+        const file = readOption(args, "--file");
+        if (projectId === undefined || file === undefined) {
+          io.error("[CLI_USAGE] cutlist materialize requires <project_id> and --file <project-file>.");
+          return 2;
+        }
+        printJson(io, await cutList.materialize(projectId, file));
+        return 0;
+      }
+      io.error("[CLI_USAGE] Unknown cutlist command.\n" + CUTLIST_USAGE);
+      return 2;
+    }
+
+    if (args[0] === "asset" && args[1] === "media" && args[2] === "rename-selected") {
+      const projectId = args[3];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] asset media rename-selected requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await selectedMedia.renameToCutNames(projectId));
+      return 0;
+    }
 
     if (isHarden) {
       const projectId = args[2];
@@ -210,6 +352,17 @@ export async function runUnifiedCli(
         return 2;
       }
       printJson(io, await wf09.applyDesigns(projectId, file));
+      return 0;
+    }
+
+    if (args[1] === "import" && args[2] === "apply") {
+      const projectId = args[3];
+      const file = readOption(args, "--file");
+      if (projectId === undefined || file === undefined) {
+        io.error("[CLI_USAGE] asset import apply requires <project_id> and --file <project-file>.");
+        return 2;
+      }
+      printJson(io, await wf09.applyImports(projectId, file));
       return 0;
     }
 
@@ -330,7 +483,13 @@ export async function runUnifiedCli(
       error instanceof Wf09CliError ||
       error instanceof Wf09AutoError ||
       error instanceof Wf09HardenError ||
-      error instanceof Wf09bCliError
+      error instanceof Wf09bCliError ||
+      error instanceof Wf10CliError ||
+      error instanceof Wf11CliError ||
+      error instanceof CutListCliError ||
+      error instanceof RenameSelectedMediaError ||
+      error instanceof FinalClipValidationError ||
+      error instanceof PreLinkHandoffValidationError
     ) {
       io.error(`[${error.code}] ${error.message}`);
       return 1;

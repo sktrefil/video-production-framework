@@ -104,7 +104,25 @@ A runtime may not:
 - silently substitute source media,
 - add legacy style text.
 
-## 8. Secrets
+## 8. Framework-first completion rule
+
+When a real-project run exposes a missing workflow capability, do not solve it
+first with a one-off project script or an untracked manual execution.
+
+Required order:
+
+1. Add or amend the framework contract: standard inputs, outputs, ownership,
+   validation/QC gates, and failure return path.
+2. Implement the reusable framework command or runtime that executes that
+   contract.
+3. Invoke the reusable command for the current project.
+
+Project-specific configuration may provide approved content and values, but it
+must not become a second workflow authority. A manual operator action is
+allowed only where the framework explicitly classifies the provider or gate as
+manual/external.
+
+## 9. Secrets
 
 Never commit or persist secret values.
 
@@ -117,7 +135,7 @@ Forbidden in:
 
 Use environment variable names only.
 
-## 9. Test policy
+## 10. Test policy
 
 Minimum per work item:
 - unit/contract tests for changed package,
@@ -128,7 +146,7 @@ Minimum per work item:
 
 Provider-paid calls are not required in CI. Use mocks/fixtures.
 
-## 10. Commit policy
+## 11. Commit policy
 
 Prefer small commits grouped by purpose:
 - contract/schema,
@@ -138,7 +156,7 @@ Prefer small commits grouped by purpose:
 
 Do not mix unrelated refactors into a migration work item.
 
-## 11. Completion report
+## 12. Completion report
 
 Every work item must finish with:
 
@@ -173,7 +191,7 @@ NEXT_WORK_ITEM:
 RESULT:
 ```
 
-## 12. Stop conditions
+## 13. Stop conditions
 
 Stop and report FAIL/BLOCKED when:
 - an existing WF regression fails,

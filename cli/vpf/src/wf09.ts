@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { readFile, realpath } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,7 +35,8 @@ export class Wf09CliError extends Error {
       | "WF09_INPUT_INVALID"
       | "WF09_RESOURCE_PIN"
       | "WF09_NOT_READY"
-      | "WF09_ASSET_STATE",
+      | "WF09_ASSET_STATE"
+      | "WF09_MEDIA_INVALID",
     message: string
   ) {
     super(message);
@@ -60,6 +61,16 @@ export interface Wf09SceneAssetInput {
 
 export interface Wf09SceneAssetPlan {
   scenes: Wf09SceneAssetInput[];
+}
+
+interface Wf09ImportCandidateInput {
+  sceneId: string;
+  relativePath: string;
+}
+
+interface Wf09ImportPlan {
+  sceneAssetPlanFile: string;
+  imports: Wf09ImportCandidateInput[];
 }
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -272,6 +283,58 @@ export function parseSceneAssetPlan(value: unknown): Wf09SceneAssetPlan {
   return { scenes };
 }
 
+function parseImportPlan(value: unknown): Wf09ImportPlan {
+  if (!isRecord(value) || !Array.isArray(value.imports)) {
+    throw new Wf09CliError(
+      "WF09_INPUT_INVALID",
+      "image-imports.json must contain sceneAssetPlanFile and a non-empty imports array."
+    );
+  }
+  const sceneAssetPlanFile = requireString(value, "sceneAssetPlanFile", "image-imports.json");
+  if (value.imports.length === 0) {
+    throw new Wf09CliError("WF09_INPUT_INVALID", "image-imports.json.imports must not be empty.");
+  }
+  const seenScenes = new Set<string>();
+  const seenPaths = new Set<string>();
+  const imports = value.imports.map((candidate, index) => {
+    const label = `image-imports.json.imports[${index}]`;
+    if (!isRecord(candidate)) {
+      throw new Wf09CliError("WF09_INPUT_INVALID", `${label} must be an object.`);
+    }
+    const sceneId = requireString(candidate, "sceneId", label);
+    const relativePath = requireString(candidate, "relativePath", label).replace(/\\/g, "/");
+    if (seenScenes.has(sceneId)) {
+      throw new Wf09CliError("WF09_INPUT_INVALID", `${label}.sceneId duplicates ${sceneId}.`);
+    }
+    if (seenPaths.has(relativePath)) {
+      throw new Wf09CliError("WF09_INPUT_INVALID", `${label}.relativePath duplicates ${relativePath}.`);
+    }
+    seenScenes.add(sceneId);
+    seenPaths.add(relativePath);
+    return { sceneId, relativePath };
+  });
+  return { sceneAssetPlanFile, imports };
+}
+
+function imageMetadata(bytes: Buffer, relativePath: string): {
+  mimeType: string;
+  width?: number;
+  height?: number;
+} {
+  const extension = path.extname(relativePath).toLowerCase();
+  if (extension !== ".png" || bytes.length < 24 || bytes.readUInt32BE(0) !== 0x89504e47) {
+    throw new Wf09CliError(
+      "WF09_MEDIA_INVALID",
+      `Imported image must be a valid PNG file: ${relativePath}`
+    );
+  }
+  return {
+    mimeType: "image/png",
+    width: bytes.readUInt32BE(16),
+    height: bytes.readUInt32BE(20)
+  };
+}
+
 function createIds(): SceneAssetIdFactory {
   return {
     next(prefix) {
@@ -385,6 +448,49 @@ export class Wf09CliService {
 
   private async loadPlan(status: ProjectStatus, file: string): Promise<Wf09SceneAssetPlan> {
     return parseSceneAssetPlan(await readProjectJson(status.projectRoot, file));
+  }
+
+  private async loadImportPlan(status: ProjectStatus, file: string): Promise<Wf09ImportPlan> {
+    return parseImportPlan(await readProjectJson(status.projectRoot, file));
+  }
+
+  private async readImportedImage(status: ProjectStatus, relativePath: string): Promise<{
+    checksum: string;
+    mimeType: string;
+    width?: number;
+    height?: number;
+  }> {
+    const root = await realpath(status.projectRoot);
+    const requested = path.resolve(root, relativePath);
+    if (!isInside(root, requested)) {
+      throw new Wf09CliError(
+        "WF09_INPUT_PATH",
+        `Imported image path must remain inside the current project workspace: ${relativePath}`
+      );
+    }
+
+    let resolved: string;
+    try {
+      resolved = await realpath(requested);
+    } catch {
+      throw new Wf09CliError("WF09_MEDIA_INVALID", `Imported image is missing or unreadable: ${relativePath}`);
+    }
+    if (!isInside(root, resolved)) {
+      throw new Wf09CliError(
+        "WF09_INPUT_PATH",
+        `Imported image symlink resolves outside the current project workspace: ${relativePath}`
+      );
+    }
+
+    const bytes = await readFile(resolved);
+    const metadata = imageMetadata(bytes, relativePath);
+    if (metadata.width === 0 || metadata.height === 0) {
+      throw new Wf09CliError("WF09_MEDIA_INVALID", `Imported image has invalid dimensions: ${relativePath}`);
+    }
+    return {
+      ...metadata,
+      checksum: `sha256:${createHash("sha256").update(bytes).digest("hex")}`
+    };
   }
 
   private async readinessRows(
@@ -580,6 +686,85 @@ export class Wf09CliService {
         ).length,
         providerJobsCreated: 0,
         assets
+      };
+    });
+  }
+
+  async applyImports(projectId: string, file: string) {
+    return this.withRepository(projectId, async (repo, status) => {
+      const importPlan = await this.loadImportPlan(status, file);
+      const sourcePlan = await this.loadPlan(status, importPlan.sceneAssetPlanFile);
+      const sourceByScene = new Map(sourcePlan.scenes.map((item) => [item.sceneId, item]));
+      const importByScene = new Map(importPlan.imports.map((item) => [item.sceneId, item]));
+
+      if (sourceByScene.size !== importByScene.size || [...sourceByScene.keys()].some((sceneId) => !importByScene.has(sceneId))) {
+        throw new Wf09CliError(
+          "WF09_INPUT_INVALID",
+          "image-imports.json must provide exactly one selected image for every Scene in sceneAssetPlanFile."
+        );
+      }
+
+      const importItems = sourcePlan.scenes.map((item): Wf09SceneAssetInput => ({
+        sceneId: item.sceneId,
+        assetPlan: { ...item.assetPlan, sourceStrategy: "IMPORT" },
+        imageAssetDesign: item.imageAssetDesign
+      }));
+      const readiness = await this.readinessRows(repo, status, { scenes: importItems });
+      this.assertAllReady(readiness);
+
+      const existing = await Promise.all(importItems.map(async (item) => ({
+        sceneId: item.sceneId,
+        asset: await repo.getPrimarySceneAsset(projectId, item.sceneId)
+      })));
+      const alreadyImported = existing.filter(({ asset }) =>
+        asset !== null && asset.sourceStrategy === "IMPORT" && asset.candidateMediaIds.length > 0
+      );
+      if (alreadyImported.length > 0) {
+        throw new Wf09CliError(
+          "WF09_ASSET_STATE",
+          `Selected images are already registered for: ${alreadyImported.map(({ sceneId }) => sceneId).join(", ")}.`
+        );
+      }
+
+      const formatPin = resourcePin(status, "FORMAT_PROFILE");
+      const designed: ProductionAsset[] = [];
+      for (const item of importItems) {
+        const pipeline = this.pipeline(repo, status, fileBackedDecisions(item));
+        designed.push(await pipeline.designPrimarySceneAsset({
+          projectId,
+          sceneId: item.sceneId,
+          format: status.project.format,
+          formatProfileVersion: formatPin.version
+        }));
+      }
+
+      const registered = [];
+      for (const asset of designed) {
+        const input = importByScene.get(asset.owner.id);
+        if (input === undefined) throw new Wf09CliError("WF09_INPUT_INVALID", `Missing image import for Scene ${asset.owner.id}.`);
+        const image = await this.readImportedImage(status, input.relativePath);
+        const pipeline = this.pipeline(repo, status, unavailableDecisions());
+        registered.push(await pipeline.registerImportedImageCandidate({
+          projectId,
+          assetId: asset.id,
+          relativePath: input.relativePath,
+          ...image
+        }));
+      }
+
+      return {
+        projectId,
+        importedCount: registered.length,
+        assets: registered.map(({ asset, media }) => ({
+          sceneId: asset.owner.id,
+          assetId: asset.id,
+          assetRevision: asset.revision,
+          mediaId: media.id,
+          relativePath: media.relativePath,
+          checksum: media.checksum,
+          width: media.width,
+          height: media.height
+        }))
       };
     });
   }

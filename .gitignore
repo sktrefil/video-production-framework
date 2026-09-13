@@ -24,3 +24,8 @@ logs/
 *.db-shm
 local.config.*
 .DS_Store
+
+# Local browser/runtime caches and recoverable workspace backups.
+.chrome-*/
+**/__pycache__/
+workspace/_reset_backup/

@@ -7,8 +7,17 @@ import {
   calculateGenericFinalRenderMetadata,
 } from "./editor/GenericFinalRender";
 import {StudioToolbarProvider} from "./studio/StudioToolbar";
+import {configuredStudioProjectConnection} from "./studio/editor/persistence/editorPersistenceApi";
 
 const SAMPLE_PROJECT = sampleProjectJson as EditProject;
+const studioConnection=configuredStudioProjectConnection();
+const studioDurationInFrames=Math.max(SAMPLE_PROJECT.project.durationInFrames,studioConnection.durationInFrames??SAMPLE_PROJECT.project.durationInFrames);
+const studioInitialProject:EditProject=studioConnection.projectId===undefined?SAMPLE_PROJECT:{
+  ...SAMPLE_PROJECT,
+  project:{...SAMPLE_PROJECT.project,id:studioConnection.projectId,durationInFrames:studioDurationInFrames},
+  tracks:[],
+  items:[]
+};
 
 const StudioWrappedGenericEditor: React.FC<{project?: EditProject}> = ({project}) => (
   <StudioToolbarProvider compositionId="GenericVideoEditor">
@@ -21,11 +30,12 @@ export const RemotionRoot: React.FC = () => (
     <Composition
       id="GenericVideoEditor"
       component={StudioWrappedGenericEditor}
-      defaultProps={{project: SAMPLE_PROJECT}}
+      defaultProps={{project: studioInitialProject}}
+      durationInFrames={studioDurationInFrames}
       calculateMetadata={({props}: {props: {project?: EditProject}}) => {
-        const editorProject = props.project ?? SAMPLE_PROJECT;
+        const editorProject = props.project ?? studioInitialProject;
         return {
-          durationInFrames: editorProject.project.durationInFrames,
+          durationInFrames: Math.max(editorProject.project.durationInFrames,studioDurationInFrames),
           fps: editorProject.project.fps,
           width: editorProject.project.width,
           height: editorProject.project.height,

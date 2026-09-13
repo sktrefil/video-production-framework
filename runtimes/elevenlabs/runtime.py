@@ -15,6 +15,25 @@ def now_iso()->str: return datetime.now(timezone.utc).isoformat(timespec="millis
 def sha(data:bytes)->str: return hashlib.sha256(data).hexdigest()
 def json_bytes(v:Any)->bytes: return (json.dumps(v,ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n").encode()
 
+def load_dotenv()->None:
+    """Load local runtime settings without overriding explicit process variables."""
+    candidates=[Path.cwd()/".env",Path(__file__).resolve().parents[2]/".env"]
+    project_root=os.environ.get("VPF_PROJECT_ROOT","").strip()
+    if project_root: candidates.insert(0,Path(project_root)/".env")
+    for path in dict.fromkeys(candidates):
+        try: lines=path.read_text(encoding="utf-8").splitlines()
+        except FileNotFoundError: continue
+        except OSError: continue
+        for line in lines:
+            raw=line.strip()
+            if not raw or raw.startswith("#") or "=" not in raw: continue
+            name,value=raw.split("=",1); name=name.strip(); value=value.strip()
+            if name.startswith("export "): name=name[7:].strip()
+            if not name or name in os.environ: continue
+            if len(value)>=2 and value[0] in "\"'" and value[-1]==value[0]: value=value[1:-1]
+            os.environ[name]=value
+        return
+
 def safe_rel(value:str)->Path:
     raw=str(value or "").strip().replace("\\","/"); p=Path(raw)
     if not raw or p.is_absolute() or any(x in {"",".",".."} for x in raw.split("/")) or (len(raw)>=3 and raw[1]==":" and raw[0].isalpha()):
@@ -160,6 +179,7 @@ def failure_result(job:dict[str,Any],f:RuntimeFailure,started:str)->dict[str,Any
     return {"schemaVersion":1,**ident,"status":"FAILED","providerRequestIds":[],"outputs":[],"startedAt":started,"completedAt":now_iso(),"error":{"code":f.code,"detail":f.detail[:1000]}}
 
 def main(argv:list[str]|None=None)->int:
+    load_dotenv()
     parser=argparse.ArgumentParser(); parser.add_argument("--job"); args=parser.parse_args(argv); started=now_iso(); job={}
     try: job=read_job(args.job); result=execute(job); sys.stdout.write(json.dumps(result,ensure_ascii=False,separators=(",",":"))+"\n"); return 0
     except RuntimeFailure as f:
