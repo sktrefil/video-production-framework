@@ -41,7 +41,7 @@ if (args[0] === "editor" && args[1] === "diagnose") {
     try {
       const result = await new EditorProviderMediaMigrationService().status(projectId);
       console.log(JSON.stringify(result, null, 2));
-      process.exitCode = 0;
+      process.exitCode = result.mappingStatus === "READY" ? 0 : 1;
     } catch (error) {
       console.error(`[EDITOR_PROVIDER_STATUS_FAILED] ${error instanceof Error ? error.message : String(error)}`);
       process.exitCode = 1;
