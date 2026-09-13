@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import {EditorAssemblyCliService, EditorAssemblyServiceError} from "./editor-assembly-service.js";
-import {
-  EditorOpeningMigrationError,
-  EditorOpeningMigrationService
-} from "./editor-opening-migration.js";
+import {EditorOpeningMigrationError} from "./editor-opening-migration.js";
+import {EditorOpeningMigrationReconcilerService} from "./editor-opening-duration-reconcile.js";
 import {
   EditorProviderMediaMigrationService,
   EditorProviderMigrationError
@@ -69,7 +67,7 @@ if (args[0] === "editor" && args[1] === "diagnose") {
     process.exitCode = 2;
   } else {
     try {
-      const result = await new EditorOpeningMigrationService().migrate({
+      const result = await new EditorOpeningMigrationReconcilerService().migrate({
         projectId,
         approvedById,
         confirmReviewed: args.includes("--confirm-reviewed"),
