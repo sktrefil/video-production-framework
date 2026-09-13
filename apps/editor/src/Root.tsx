@@ -12,10 +12,14 @@ import {configuredStudioProjectConnection} from "./studio/editor/persistence/edi
 const SAMPLE_PROJECT = sampleProjectJson as EditProject;
 const studioConnection=configuredStudioProjectConnection();
 const studioDurationInFrames=Math.max(SAMPLE_PROJECT.project.durationInFrames,studioConnection.durationInFrames??SAMPLE_PROJECT.project.durationInFrames);
-const studioInitialProject:EditProject=studioConnection.projectId===undefined?SAMPLE_PROJECT:{
+const studioInitialProject:EditProject={
   ...SAMPLE_PROJECT,
-  project:{...SAMPLE_PROJECT.project,id:studioConnection.projectId,durationInFrames:studioDurationInFrames},
-  tracks:[],
+  project:{
+    ...SAMPLE_PROJECT.project,
+    ...(studioConnection.projectId===undefined?{}:{id:studioConnection.projectId}),
+    durationInFrames:studioDurationInFrames
+  },
+  tracks:[...SAMPLE_PROJECT.tracks],
   items:[]
 };
 
@@ -46,11 +50,11 @@ export const RemotionRoot: React.FC = () => (
       <Composition
         id="GenericFinalRender"
         component={GenericFinalRender}
-        defaultProps={{project: SAMPLE_PROJECT}}
-        durationInFrames={SAMPLE_PROJECT.project.durationInFrames}
-        fps={SAMPLE_PROJECT.project.fps}
-        width={SAMPLE_PROJECT.project.width}
-        height={SAMPLE_PROJECT.project.height}
+        defaultProps={{project: studioInitialProject}}
+        durationInFrames={studioInitialProject.project.durationInFrames}
+        fps={studioInitialProject.project.fps}
+        width={studioInitialProject.project.width}
+        height={studioInitialProject.project.height}
         calculateMetadata={calculateGenericFinalRenderMetadata}
       />
     ) : null}
