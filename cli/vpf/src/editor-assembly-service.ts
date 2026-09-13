@@ -17,11 +17,11 @@ import {
 } from "@vpf/resource-registry";
 import {SqliteEditorTimelineRepository} from "@vpf/storage/editor-timeline";
 import {
-  buildNarrationTimingPlan,
   NarrationTimedAssemblyRepository,
   NarrationTimedHandoffSource,
   NarrationTimingError
 } from "./editor-narration-timing.js";
+import {buildSpilloverNarrationTimingPlan} from "./editor-narration-schedule.js";
 
 export type EditorAssemblyErrorCode =
   | "EDITOR_PROFILE_PIN_MISSING"
@@ -364,7 +364,7 @@ export class EditorAssemblyCliService {
 
       let timing;
       try {
-        timing = await buildNarrationTimingPlan({
+        timing = await buildSpilloverNarrationTimingPlan({
           repo,
           projectId: input.projectId,
           handoff,
