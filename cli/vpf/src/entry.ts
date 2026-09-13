@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 import {EditorAssemblyCliService, EditorAssemblyServiceError} from "./editor-assembly-service.js";
+import {
+  EditorProviderMediaMigrationService,
+  EditorProviderMigrationError
+} from "./editor-provider-media-migration.js";
 import {runUnifiedCli} from "./main.js";
 
 function readOption(args: string[], name: string): string | undefined {
@@ -21,6 +25,53 @@ if (args[0] === "editor" && args[1] === "diagnose") {
       process.exitCode = 0;
     } catch (error) {
       console.error(`[EDITOR_DIAGNOSE_FAILED] ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
+  }
+} else if (
+  args[0] === "editor" &&
+  args[1] === "media" &&
+  args[2] === "provider-status"
+) {
+  const projectId = args[3];
+  if (projectId === undefined) {
+    console.error("[CLI_USAGE] editor media provider-status requires <project_id>.");
+    process.exitCode = 2;
+  } else {
+    try {
+      const result = await new EditorProviderMediaMigrationService().status(projectId);
+      console.log(JSON.stringify(result, null, 2));
+      process.exitCode = 0;
+    } catch (error) {
+      console.error(`[EDITOR_PROVIDER_STATUS_FAILED] ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
+  }
+} else if (
+  args[0] === "editor" &&
+  args[1] === "media" &&
+  args[2] === "approve-existing-provider"
+) {
+  const projectId = args[3];
+  const approvedById = readOption(args, "--approved-by");
+  if (projectId === undefined || approvedById === undefined) {
+    console.error("[CLI_USAGE] editor media approve-existing-provider requires <project_id> --approved-by <operator> --confirm-reviewed.");
+    process.exitCode = 2;
+  } else {
+    try {
+      const result = await new EditorProviderMediaMigrationService().approveExistingProviderMedia({
+        projectId,
+        approvedById,
+        confirmReviewed: args.includes("--confirm-reviewed")
+      });
+      console.log(JSON.stringify(result, null, 2));
+      process.exitCode = 0;
+    } catch (error) {
+      if (error instanceof EditorProviderMigrationError) {
+        console.error(`[${error.code}] ${error.message}`);
+      } else {
+        console.error(`[EDITOR_PROVIDER_MIGRATION_FAILED] ${error instanceof Error ? error.message : String(error)}`);
+      }
       process.exitCode = 1;
     }
   }
