@@ -16,6 +16,12 @@ import {
   type ResourcePin
 } from "@vpf/resource-registry";
 import {SqliteEditorTimelineRepository} from "@vpf/storage/editor-timeline";
+import {
+  buildNarrationTimingPlan,
+  NarrationTimedAssemblyRepository,
+  NarrationTimedHandoffSource,
+  NarrationTimingError
+} from "./editor-narration-timing.js";
 
 export type EditorAssemblyErrorCode =
   | "EDITOR_PROFILE_PIN_MISSING"
@@ -23,7 +29,8 @@ export type EditorAssemblyErrorCode =
   | "EDITOR_TTS_MEDIA_MISSING"
   | "EDITOR_TTS_DURATION_MISSING"
   | "EDITOR_SUBTITLE_INPUT_MISSING"
-  | "EDITOR_SUBTITLE_INPUT_INVALID";
+  | "EDITOR_SUBTITLE_INPUT_INVALID"
+  | "EDITOR_VISUAL_TIMING_INVALID";
 
 export class EditorAssemblyServiceError extends Error {
   constructor(public readonly code: EditorAssemblyErrorCode, message: string) {
@@ -340,7 +347,50 @@ export class EditorAssemblyCliService {
         header: input.header,
         profile
       });
-      const pipeline = new EditorTimelineAssemblyPipeline(repo, binding, clock, ids, repo);
+      const narration = content.plan.audio.find(
+        item => item.id === "tts-narration" && item.type === "TTS"
+      );
+      if (
+        narration === undefined ||
+        narration.durationMs === undefined ||
+        !Number.isFinite(narration.durationMs) ||
+        narration.durationMs <= 0
+      ) {
+        throw new EditorAssemblyServiceError(
+          "EDITOR_TTS_DURATION_MISSING",
+          "Approved EditorContentPlan requires the positive tts-narration duration."
+        );
+      }
+
+      let timing;
+      try {
+        timing = await buildNarrationTimingPlan({
+          repo,
+          projectId: input.projectId,
+          handoff,
+          contentPlan: content.plan,
+          narrationDurationMs: narration.durationMs,
+          profile
+        });
+      } catch (error) {
+        if (error instanceof NarrationTimingError) {
+          throw new EditorAssemblyServiceError(
+            "EDITOR_VISUAL_TIMING_INVALID",
+            `[${error.code}] ${error.message}`
+          );
+        }
+        throw error;
+      }
+
+      const timedHandoff = new NarrationTimedHandoffSource(handoff, timing, profile.fps);
+      const timedRepository = new NarrationTimedAssemblyRepository(repo, timing, profile);
+      const pipeline = new EditorTimelineAssemblyPipeline(
+        timedRepository,
+        timedHandoff,
+        clock,
+        ids,
+        repo
+      );
       const result = await pipeline.assembleProject({
         projectId: input.projectId,
         projectName: status.project.title,
@@ -356,6 +406,8 @@ export class EditorAssemblyCliService {
         handoffStatus: handoff.status,
         contentPlanRevision: content.plan.revision,
         contentPlanCreated: content.created,
+        visualTimingSegmentCount: timing.segments.length,
+        visualTimingDurationInFrames: timing.expectedDurationInFrames,
         assemblyId: result.assembly.id,
         assemblyRevision: result.assembly.revision,
         assemblyStale: result.assembly.stale,
