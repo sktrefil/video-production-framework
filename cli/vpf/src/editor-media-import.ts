@@ -34,7 +34,7 @@ export function importEditorMedia(projectId:string, projectRoot:string) {
   const root=resolve(projectRoot), dbPath=resolve(root,"project.db");
   if(!existsSync(dbPath)) throw new EditorMediaImportError("project.db missing");
   const items=[
-    ...Array.from({length:10},(_,i)=>({path:`06_clips/CLIP ${String(i+1).padStart(2,"0")}.mp4`,type:"VIDEO",mime:"video/mp4"})),
+    ...Array.from({length:11},(_,i)=>({path:`06_clips/CLIP ${String(i).padStart(2,"0")}.mp4`,type:"VIDEO",mime:"video/mp4"})),
     {path:"03_tts/narration.mp3",type:"AUDIO",mime:"audio/mpeg"},
     {path:"03_tts/character_alignment.json",type:"DOCUMENT",mime:"application/json"}
   ];
