@@ -42,15 +42,17 @@ export const RemotionRoot: React.FC = () => (
         };
       }}
     />
-    <Composition
-      id="GenericFinalRender"
-      component={GenericFinalRender}
-      defaultProps={{project: SAMPLE_PROJECT}}
-      durationInFrames={SAMPLE_PROJECT.project.durationInFrames}
-      fps={SAMPLE_PROJECT.project.fps}
-      width={SAMPLE_PROJECT.project.width}
-      height={SAMPLE_PROJECT.project.height}
-      calculateMetadata={calculateGenericFinalRenderMetadata}
-    />
+    {studioConnection.projectId===undefined ? (
+      <Composition
+        id="GenericFinalRender"
+        component={GenericFinalRender}
+        defaultProps={{project: SAMPLE_PROJECT}}
+        durationInFrames={SAMPLE_PROJECT.project.durationInFrames}
+        fps={SAMPLE_PROJECT.project.fps}
+        width={SAMPLE_PROJECT.project.width}
+        height={SAMPLE_PROJECT.project.height}
+        calculateMetadata={calculateGenericFinalRenderMetadata}
+      />
+    ) : null}
   </>
 );
