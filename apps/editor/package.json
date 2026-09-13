@@ -13,7 +13,7 @@
     "studio": "remotion studio src/index.ts",
     "studio-server": "node scripts/editor-studio-server.mjs",
     "materialize": "node scripts/materialize-editor-project.mjs",
-    "render": "node scripts/render-editor-project.mjs",
+    "render": "node scripts/render-editor-project-canonical.mjs",
     "final-output-qc": "node scripts/final-output-qc.mjs",
     "package-publish": "node scripts/package-publish-handoff.mjs"
   },
