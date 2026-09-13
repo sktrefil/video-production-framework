@@ -3,13 +3,11 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "vpf": "./dist/entry.js"
+    "vpf": "./dist/main.js"
   },
   "dependencies": {
     "@vpf/domain": "0.1.0",
-    "@vpf/editor-timeline": "0.1.0",
     "@vpf/final-clip": "0.1.0",
-    "@vpf/media-binding": "0.1.0",
     "@vpf/project-bootstrap": "0.1.0",
     "@vpf/legacy-guard": "0.1.0",
     "@vpf/production-system": "0.1.0",
