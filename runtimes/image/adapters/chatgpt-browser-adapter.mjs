@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const workerPath = fileURLToPath(new URL("./chatgpt_browser_worker.py", import.meta.url));
+const workerPath = fileURLToPath(new URL("./chatgpt_browser_worker_v2.py", import.meta.url));
 
 function referenceRoleInstruction(role) {
   const normalized = String(role ?? "").toUpperCase();
