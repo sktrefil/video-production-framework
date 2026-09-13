@@ -18,11 +18,12 @@ export class EditorProviderMigrationError extends Error {
   }
 }
 
+const ROMAN_IX_CLIP_COUNT = 11;
 const nowIso = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}_${randomUUID().replaceAll("-", "")}`;
 
-function expectedClipPath(order: number): string {
-  return `06_clips/CLIP ${String(order).padStart(2, "0")}.mp4`;
+function expectedClipPath(index: number): string {
+  return `06_clips/CLIP ${String(index).padStart(2, "0")}.mp4`;
 }
 
 async function activeMediaByPath(
@@ -40,6 +41,22 @@ async function activeMediaByPath(
      LIMIT 1`
   ).get(projectId, relativePath) as {id: string} | undefined;
   return row === undefined ? null : repo.getMedia(projectId, row.id);
+}
+
+async function romanClipMedia(
+  repo: SqliteMediaBindingRepository,
+  projectId: string
+): Promise<Array<{clipIndex: number; relativePath: string; media: MediaArtifact | null}>> {
+  const items = [];
+  for (let clipIndex = 0; clipIndex < ROMAN_IX_CLIP_COUNT; clipIndex += 1) {
+    const relativePath = expectedClipPath(clipIndex);
+    items.push({
+      clipIndex,
+      relativePath,
+      media: await activeMediaByPath(repo, projectId, relativePath)
+    });
+  }
+  return items;
 }
 
 function approvalReady(clip: ProductionClip): boolean {
@@ -65,20 +82,23 @@ export class EditorProviderMediaMigrationService {
   async status(projectId: string) {
     return this.withRepository(projectId, async repo => {
       const refs = await repo.listCurrentImplementationRefs(projectId);
+      const media = await romanClipMedia(repo, projectId);
       const items = [];
       for (let index = 0; index < refs.length; index += 1) {
         const ref = refs[index]!;
-        const order = index + 1;
-        const relativePath = expectedClipPath(order);
-        const media = await activeMediaByPath(repo, projectId, relativePath);
+        const clipIndex = index;
+        const relativePath = expectedClipPath(clipIndex);
+        const mediaEntry = media[clipIndex];
+        const clipMedia = mediaEntry?.media ?? null;
         if (ref.implementationType !== "CLIP") {
           items.push({
-            order,
+            order: index + 1,
+            clipIndex,
             implementationType: ref.implementationType,
             implementationId: ref.implementationId,
             providerExecutionRequired: false,
             expectedPath: relativePath,
-            mediaId: media?.id ?? null,
+            mediaId: clipMedia?.id ?? null,
             state: "NON_CLIP_IMPLEMENTATION"
           });
           continue;
@@ -86,7 +106,8 @@ export class EditorProviderMediaMigrationService {
         const clip = await repo.getLatestClip(projectId, ref.implementationId);
         const qc = clip === null ? null : await repo.getLatestClipQc(projectId, clip.id);
         items.push({
-          order,
+          order: index + 1,
+          clipIndex,
           implementationType: ref.implementationType,
           implementationId: ref.implementationId,
           clipMode: clip?.clipMode ?? null,
@@ -94,8 +115,8 @@ export class EditorProviderMediaMigrationService {
           clipStatus: clip?.clipStatus ?? null,
           clipRevision: clip?.revision ?? null,
           expectedPath: relativePath,
-          mediaId: media?.id ?? null,
-          mediaDurationMs: media?.durationMs ?? null,
+          mediaId: clipMedia?.id ?? null,
+          mediaDurationMs: clipMedia?.durationMs ?? null,
           approvedMediaId: clip?.approvedMediaId ?? null,
           qcStatus: qc?.status ?? null,
           qcCandidateMediaId: qc?.candidateMediaId ?? null,
@@ -108,14 +129,24 @@ export class EditorProviderMediaMigrationService {
                   (qc.status === "PASS" || qc.status === "TRIM_PASS") &&
                   qc.candidateMediaId === clip.approvedMediaId
                 ? "APPROVED"
-                : media === null
+                : clipMedia === null
                   ? "MEDIA_MISSING"
                   : "AWAITING_WF12_APPROVAL"
         });
       }
+      const availableMedia = media.filter(item => item.media !== null);
+      const unmappedMediaPaths = refs.length < ROMAN_IX_CLIP_COUNT
+        ? media.slice(refs.length).map(item => item.relativePath)
+        : [];
       return {
         projectId,
+        expectedClipRange: "CLIP 00.mp4 .. CLIP 10.mp4",
+        expectedClipCount: ROMAN_IX_CLIP_COUNT,
+        mediaClipCount: availableMedia.length,
+        missingMediaPaths: media.filter(item => item.media === null).map(item => item.relativePath),
         implementationCount: refs.length,
+        mappingStatus: refs.length === ROMAN_IX_CLIP_COUNT ? "READY" : "IMPLEMENTATION_COUNT_MISMATCH",
+        unmappedMediaPaths,
         providerCount: items.filter(item => item.providerExecutionRequired === true).length,
         approvedProviderCount: items.filter(item => item.state === "APPROVED").length,
         awaitingApprovalCount: items.filter(item => item.state === "AWAITING_WF12_APPROVAL").length,
@@ -145,12 +176,27 @@ export class EditorProviderMediaMigrationService {
 
     return this.withRepository(input.projectId, async repo => {
       const refs = await repo.listCurrentImplementationRefs(input.projectId);
-      const pending: Array<{order: number; clip: ProductionClip; media: MediaArtifact}> = [];
-      const skipped: Array<{order: number; clipId: string; mediaId: string; reason: string}> = [];
+      if (refs.length !== ROMAN_IX_CLIP_COUNT) {
+        throw new EditorProviderMigrationError(
+          "PROVIDER_MEDIA_MAPPING_INVALID",
+          `Roman IX has ${ROMAN_IX_CLIP_COUNT} produced clips (CLIP 00..10), but project.db has ${refs.length} current implementations. Refusing approval until the implementation topology is reconciled.`
+        );
+      }
+      const mediaEntries = await romanClipMedia(repo, input.projectId);
+      const missing = mediaEntries.filter(item => item.media === null);
+      if (missing.length > 0) {
+        throw new EditorProviderMigrationError(
+          "PROVIDER_MEDIA_NOT_AVAILABLE",
+          `Roman IX expected media is not AVAILABLE: ${missing.map(item => item.relativePath).join(", ")}`
+        );
+      }
+
+      const pending: Array<{order: number; clipIndex: number; clip: ProductionClip; media: MediaArtifact}> = [];
+      const skipped: Array<{order: number; clipIndex: number; clipId: string; mediaId: string; reason: string}> = [];
 
       for (let index = 0; index < refs.length; index += 1) {
         const ref = refs[index]!;
-        const order = index + 1;
+        const clipIndex = index;
         if (ref.implementationType !== "CLIP") continue;
         const clip = await repo.getLatestClip(input.projectId, ref.implementationId);
         if (clip === null) {
@@ -180,14 +226,7 @@ export class EditorProviderMediaMigrationService {
           );
         }
 
-        const relativePath = expectedClipPath(order);
-        const media = await activeMediaByPath(repo, input.projectId, relativePath);
-        if (media === null) {
-          throw new EditorProviderMigrationError(
-            "PROVIDER_MEDIA_NOT_AVAILABLE",
-            `Expected provider media is not AVAILABLE: ${relativePath}`
-          );
-        }
+        const media = mediaEntries[clipIndex]!.media!;
         if (
           media.mediaType !== "VIDEO" ||
           !media.mimeType.toLowerCase().startsWith("video/") ||
@@ -197,7 +236,7 @@ export class EditorProviderMediaMigrationService {
         ) {
           throw new EditorProviderMigrationError(
             "PROVIDER_MEDIA_VIDEO_REQUIRED",
-            `Expected provider media must be an AVAILABLE VIDEO with positive duration: ${relativePath}`
+            `Expected provider media must be an AVAILABLE VIDEO with positive duration: ${media.relativePath}`
           );
         }
 
@@ -210,7 +249,7 @@ export class EditorProviderMediaMigrationService {
           currentQc.candidateMediaId === media.id &&
           await repo.hasClipMediaApproval(input.projectId, clip.id, clip.revision, media.id)
         ) {
-          skipped.push({order, clipId: clip.id, mediaId: media.id, reason: "ALREADY_APPROVED"});
+          skipped.push({order: index + 1, clipIndex, clipId: clip.id, mediaId: media.id, reason: "ALREADY_APPROVED"});
           continue;
         }
 
@@ -235,7 +274,7 @@ export class EditorProviderMediaMigrationService {
             );
           }
         }
-        pending.push({order, clip, media});
+        pending.push({order: index + 1, clipIndex, clip, media});
       }
 
       const results = [];
@@ -294,6 +333,7 @@ export class EditorProviderMediaMigrationService {
             trigger: "USER",
             payload: {
               order: item.order,
+              clipIndex: item.clipIndex,
               mediaId: item.media.id,
               relativePath: item.media.relativePath,
               approvedById
@@ -310,6 +350,7 @@ export class EditorProviderMediaMigrationService {
         });
         results.push({
           order: item.order,
+          clipIndex: item.clipIndex,
           clipId: item.clip.id,
           previousRevision: item.clip.revision,
           approvedRevision: nextClip.revision,
@@ -323,6 +364,8 @@ export class EditorProviderMediaMigrationService {
       return {
         projectId: input.projectId,
         status: "APPROVED",
+        expectedClipRange: "CLIP 00.mp4 .. CLIP 10.mp4",
+        expectedClipCount: ROMAN_IX_CLIP_COUNT,
         approvedCount: results.length,
         skippedCount: skipped.length,
         results,
