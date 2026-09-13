@@ -1,5 +1,12 @@
 import {randomUUID} from "node:crypto";
-import type {ApprovalRecord, ClipQcRecord, MediaArtifact, ProductionClip} from "@vpf/domain";
+import type {
+  ApprovalRecord,
+  ClipQcRecord,
+  CurrentImplementationRef,
+  MediaArtifact,
+  ProductionClip,
+  ProductionLink
+} from "@vpf/domain";
 import {ProjectBootstrapService} from "@vpf/project-bootstrap";
 import {SqliteMediaBindingRepository} from "@vpf/storage/media-binding";
 
@@ -9,6 +16,7 @@ export type EditorProviderMigrationErrorCode =
   | "PROVIDER_MEDIA_MAPPING_INVALID"
   | "PROVIDER_MEDIA_NOT_AVAILABLE"
   | "PROVIDER_MEDIA_VIDEO_REQUIRED"
+  | "PROVIDER_MEDIA_DURATION_TOO_SHORT"
   | "PROVIDER_CLIP_NOT_APPROVABLE";
 
 export class EditorProviderMigrationError extends Error {
@@ -25,6 +33,14 @@ const id = (prefix: string) => `${prefix}_${randomUUID().replaceAll("-", "")}`;
 
 function expectedClipPath(index: number): string {
   return `06_clips/CLIP ${String(index).padStart(2, "0")}.mp4`;
+}
+
+function isOpeningLink(link: ProductionLink): boolean {
+  return (
+    link.fromSceneId === link.toSceneId &&
+    link.fromStateRef.stateField === "STATE_IN" &&
+    link.toStateRef.stateField === "STATE_CURRENT"
+  );
 }
 
 async function activeMediaByPath(
@@ -60,6 +76,36 @@ async function romanClipMedia(
   return items;
 }
 
+async function splitImplementationRefs(
+  repo: SqliteMediaBindingRepository,
+  projectId: string
+): Promise<{
+  openingRef: CurrentImplementationRef | null;
+  openingLink: ProductionLink | null;
+  sceneRefs: CurrentImplementationRef[];
+}> {
+  const refs = await repo.listCurrentImplementationRefs(projectId);
+  let openingRef: CurrentImplementationRef | null = null;
+  let openingLink: ProductionLink | null = null;
+  const sceneRefs: CurrentImplementationRef[] = [];
+  for (const ref of refs) {
+    const link = await repo.getLink(projectId, ref.linkId);
+    if (link !== null && isOpeningLink(link)) {
+      if (openingRef !== null) {
+        throw new EditorProviderMigrationError(
+          "PROVIDER_MEDIA_MAPPING_INVALID",
+          "More than one canonical opening implementation exists."
+        );
+      }
+      openingRef = ref;
+      openingLink = link;
+    } else {
+      sceneRefs.push(ref);
+    }
+  }
+  return {openingRef, openingLink, sceneRefs};
+}
+
 function approvalReady(clip: ProductionClip): boolean {
   return clip.finalDesignApprovalId !== undefined && !clip.stale;
 }
@@ -82,13 +128,12 @@ export class EditorProviderMediaMigrationService {
 
   async status(projectId: string) {
     return this.withRepository(projectId, async repo => {
-      const refs = await repo.listCurrentImplementationRefs(projectId);
+      const {openingRef, openingLink, sceneRefs} = await splitImplementationRefs(repo, projectId);
       const media = await romanClipMedia(repo, projectId);
       const openingMedia = media[0]?.media ?? null;
-      const firstLink = refs.length === 0
-        ? null
-        : await repo.getLink(projectId, refs[0]!.linkId);
-      const openingAssetRow = firstLink === null
+      const scenes = await repo.listApprovedSceneChain(projectId);
+      const firstSceneId = scenes[0]?.scene.id ?? null;
+      const openingAssetRow = firstSceneId === null
         ? undefined
         : repo.db.prepare(
             `SELECT id, asset_status, approved_media_id, owner_id, state_field, stale
@@ -100,7 +145,7 @@ export class EditorProviderMediaMigrationService {
                AND owner_id = ?
              ORDER BY revision DESC, rowid DESC
              LIMIT 1`
-          ).get(projectId, firstLink.fromSceneId) as
+          ).get(projectId, firstSceneId) as
             | {
                 id: string;
                 asset_status: string;
@@ -111,15 +156,64 @@ export class EditorProviderMediaMigrationService {
               }
             | undefined;
 
+      const openingAsset = openingAssetRow === undefined
+        ? null
+        : {
+            assetId: openingAssetRow.id,
+            ownerSceneId: openingAssetRow.owner_id,
+            stateField: openingAssetRow.state_field,
+            assetStatus: openingAssetRow.asset_status,
+            approvedMediaId: openingAssetRow.approved_media_id,
+            stale: openingAssetRow.stale === 1
+          };
+
+      let openingClip: ProductionClip | null = null;
+      let openingQc: ClipQcRecord | null = null;
+      if (openingRef?.implementationType === "CLIP") {
+        openingClip = await repo.getLatestClip(projectId, openingRef.implementationId);
+        openingQc = openingClip === null ? null : await repo.getLatestClipQc(projectId, openingClip.id);
+      }
+      const openingApproved =
+        openingMedia !== null &&
+        openingRef?.implementationType === "CLIP" &&
+        openingLink !== null &&
+        openingClip !== null &&
+        openingClip.clipStatus === "APPROVED" &&
+        openingClip.approvedMediaId === openingMedia.id &&
+        openingQc !== null &&
+        (openingQc.status === "PASS" || openingQc.status === "TRIM_PASS") &&
+        openingQc.candidateMediaId === openingMedia.id &&
+        await repo.hasClipMediaApproval(
+          projectId,
+          openingClip.id,
+          openingClip.revision,
+          openingMedia.id
+        );
+
+      const openingState = openingMedia === null
+        ? "MEDIA_MISSING"
+        : openingAsset === null
+          ? "EXTRA_START_ASSET_MISSING"
+          : openingAsset.stale
+            ? "EXTRA_START_ASSET_STALE"
+            : openingAsset.assetStatus !== "APPROVED" || openingAsset.approvedMediaId === null
+              ? "EXTRA_START_ASSET_NOT_APPROVED"
+              : openingRef === null || openingLink === null
+                ? "OPENING_LINK_REQUIRED"
+                : openingRef.implementationType !== "CLIP"
+                  ? "OPENING_IMPLEMENTATION_INVALID"
+                  : openingClip === null
+                    ? "OPENING_CLIP_MISSING"
+                    : openingApproved
+                      ? "OPENING_READY"
+                      : "OPENING_WF12_APPROVAL_REQUIRED";
+
       const items = [];
-      for (let index = 0; index < refs.length; index += 1) {
-        const ref = refs[index]!;
-        // Current WF-10 topology represents SC1->SC2 ... SC10->SC11.
-        // Those correspond to produced CLIP 01 ... CLIP 10.
+      for (let index = 0; index < sceneRefs.length; index += 1) {
+        const ref = sceneRefs[index]!;
         const clipIndex = index + 1;
         const relativePath = expectedClipPath(clipIndex);
-        const mediaEntry = media[clipIndex];
-        const clipMedia = mediaEntry?.media ?? null;
+        const clipMedia = media[clipIndex]?.media ?? null;
         if (ref.implementationType !== "CLIP") {
           items.push({
             order: index + 1,
@@ -144,12 +238,15 @@ export class EditorProviderMediaMigrationService {
           providerExecutionRequired: clip?.providerExecutionRequired ?? null,
           clipStatus: clip?.clipStatus ?? null,
           clipRevision: clip?.revision ?? null,
+          designedDurationMs: clip?.durationMs ?? null,
           expectedPath: relativePath,
           mediaId: clipMedia?.id ?? null,
           mediaDurationMs: clipMedia?.durationMs ?? null,
           approvedMediaId: clip?.approvedMediaId ?? null,
           qcStatus: qc?.status ?? null,
           qcCandidateMediaId: qc?.candidateMediaId ?? null,
+          qcUsableInMs: qc?.usableInMs ?? null,
+          qcUsableOutMs: qc?.usableOutMs ?? null,
           state: clip === null
             ? "CLIP_MISSING"
             : !clip.providerExecutionRequired
@@ -166,26 +263,17 @@ export class EditorProviderMediaMigrationService {
       }
 
       const availableMedia = media.filter(item => item.media !== null);
-      const sceneLinkMappingReady = refs.length === ROMAN_IX_SCENE_LINK_CLIP_COUNT;
-      const openingAsset = openingAssetRow === undefined
-        ? null
-        : {
-            assetId: openingAssetRow.id,
-            ownerSceneId: openingAssetRow.owner_id,
-            stateField: openingAssetRow.state_field,
-            assetStatus: openingAssetRow.asset_status,
-            approvedMediaId: openingAssetRow.approved_media_id,
-            stale: openingAssetRow.stale === 1
-          };
-      const openingState = openingMedia === null
-        ? "MEDIA_MISSING"
-        : openingAsset === null
-          ? "EXTRA_START_ASSET_MISSING"
-          : openingAsset.stale
-            ? "EXTRA_START_ASSET_STALE"
-            : openingAsset.assetStatus !== "APPROVED" || openingAsset.approvedMediaId === null
-              ? "EXTRA_START_ASSET_NOT_APPROVED"
-              : "OPENING_LINK_REQUIRED";
+      const sceneLinkMappingReady = sceneRefs.length === ROMAN_IX_SCENE_LINK_CLIP_COUNT;
+      const mappingStatus =
+        !sceneLinkMappingReady
+          ? "IMPLEMENTATION_COUNT_MISMATCH"
+          : openingState === "OPENING_READY"
+            ? "READY"
+            : openingState;
+      const sceneProviderCount = items.filter(item => item.providerExecutionRequired === true).length;
+      const sceneApprovedProviderCount = items.filter(item => item.state === "APPROVED").length;
+      const openingProviderCount = openingRef?.implementationType === "CLIP" ? 1 : 0;
+      const openingApprovedProviderCount = openingApproved ? 1 : 0;
 
       return {
         projectId,
@@ -193,7 +281,9 @@ export class EditorProviderMediaMigrationService {
         producedClipCount: ROMAN_IX_TOTAL_CLIP_COUNT,
         mediaClipCount: availableMedia.length,
         missingMediaPaths: media.filter(item => item.media === null).map(item => item.relativePath),
-        implementationCount: refs.length,
+        implementationCount: sceneRefs.length + (openingRef === null ? 0 : 1),
+        sceneLinkImplementationCount: sceneRefs.length,
+        openingImplementationCount: openingRef === null ? 0 : 1,
         sceneLinkClipRange: "CLIP 01.mp4 .. CLIP 10.mp4",
         sceneLinkExpectedCount: ROMAN_IX_SCENE_LINK_CLIP_COUNT,
         sceneLinkMappingStatus: sceneLinkMappingReady ? "READY" : "IMPLEMENTATION_COUNT_MISMATCH",
@@ -202,19 +292,25 @@ export class EditorProviderMediaMigrationService {
           expectedPath: expectedClipPath(0),
           mediaId: openingMedia?.id ?? null,
           mediaDurationMs: openingMedia?.durationMs ?? null,
-          firstSceneId: firstLink?.fromSceneId ?? null,
+          firstSceneId,
           extraStartAsset: openingAsset,
+          implementationId: openingRef?.implementationId ?? null,
+          linkId: openingLink?.id ?? null,
+          clipId: openingClip?.id ?? null,
+          clipRevision: openingClip?.revision ?? null,
+          designedDurationMs: openingClip?.durationMs ?? null,
+          approvedMediaId: openingClip?.approvedMediaId ?? null,
+          qcStatus: openingQc?.status ?? null,
+          qcUsableInMs: openingQc?.usableInMs ?? null,
+          qcUsableOutMs: openingQc?.usableOutMs ?? null,
           state: openingState
         },
-        mappingStatus:
-          sceneLinkMappingReady && openingState === "OPENING_LINK_REQUIRED"
-            ? "OPENING_LINK_REQUIRED"
-            : sceneLinkMappingReady && openingState !== "OPENING_LINK_REQUIRED"
-              ? openingState
-              : "IMPLEMENTATION_COUNT_MISMATCH",
-        providerCount: items.filter(item => item.providerExecutionRequired === true).length,
-        approvedProviderCount: items.filter(item => item.state === "APPROVED").length,
-        awaitingApprovalCount: items.filter(item => item.state === "AWAITING_WF12_APPROVAL").length,
+        mappingStatus,
+        providerCount: sceneProviderCount + openingProviderCount,
+        approvedProviderCount: sceneApprovedProviderCount + openingApprovedProviderCount,
+        awaitingApprovalCount:
+          items.filter(item => item.state === "AWAITING_WF12_APPROVAL").length +
+          (openingState === "OPENING_WF12_APPROVAL_REQUIRED" ? 1 : 0),
         items
       };
     });
@@ -240,11 +336,11 @@ export class EditorProviderMediaMigrationService {
     }
 
     return this.withRepository(input.projectId, async repo => {
-      const refs = await repo.listCurrentImplementationRefs(input.projectId);
-      if (refs.length !== ROMAN_IX_SCENE_LINK_CLIP_COUNT) {
+      const {openingRef, openingLink, sceneRefs} = await splitImplementationRefs(repo, input.projectId);
+      if (sceneRefs.length !== ROMAN_IX_SCENE_LINK_CLIP_COUNT) {
         throw new EditorProviderMigrationError(
           "PROVIDER_MEDIA_MAPPING_INVALID",
-          `Roman IX scene-link topology should contain ${ROMAN_IX_SCENE_LINK_CLIP_COUNT} implementations for CLIP 01..10, but project.db has ${refs.length}.`
+          `Roman IX scene-link topology should contain ${ROMAN_IX_SCENE_LINK_CLIP_COUNT} implementations for CLIP 01..10, but project.db has ${sceneRefs.length}.`
         );
       }
       const mediaEntries = await romanClipMedia(repo, input.projectId);
@@ -256,11 +352,51 @@ export class EditorProviderMediaMigrationService {
         );
       }
 
-      const pending: Array<{order: number; clipIndex: number; clip: ProductionClip; media: MediaArtifact}> = [];
-      const skipped: Array<{order: number; clipIndex: number; clipId: string; mediaId: string; reason: string}> = [];
+      const openingMedia = mediaEntries[0]!.media!;
+      if (openingRef?.implementationType !== "CLIP" || openingLink === null) {
+        throw new EditorProviderMigrationError(
+          "PROVIDER_MEDIA_MAPPING_INVALID",
+          "Canonical opening implementation is missing. Run editor media migrate-opening first."
+        );
+      }
+      const openingClip = await repo.getLatestClip(input.projectId, openingRef.implementationId);
+      const openingQc = openingClip === null ? null : await repo.getLatestClipQc(input.projectId, openingClip.id);
+      if (
+        openingClip === null ||
+        openingClip.clipStatus !== "APPROVED" ||
+        openingClip.approvedMediaId !== openingMedia.id ||
+        openingQc === null ||
+        (openingQc.status !== "PASS" && openingQc.status !== "TRIM_PASS") ||
+        openingQc.candidateMediaId !== openingMedia.id ||
+        !await repo.hasClipMediaApproval(
+          input.projectId,
+          openingClip.id,
+          openingClip.revision,
+          openingMedia.id
+        )
+      ) {
+        throw new EditorProviderMigrationError(
+          "PROVIDER_MEDIA_MAPPING_INVALID",
+          "Canonical opening implementation exists but CLIP 00 has not passed WF-12 approval."
+        );
+      }
 
-      for (let index = 0; index < refs.length; index += 1) {
-        const ref = refs[index]!;
+      const pending: Array<{
+        order: number;
+        clipIndex: number;
+        clip: ProductionClip;
+        media: MediaArtifact;
+      }> = [];
+      const skipped: Array<{
+        order: number;
+        clipIndex: number;
+        clipId: string;
+        mediaId: string;
+        reason: string;
+      }> = [];
+
+      for (let index = 0; index < sceneRefs.length; index += 1) {
+        const ref = sceneRefs[index]!;
         const clipIndex = index + 1;
         if (ref.implementationType !== "CLIP") continue;
         const clip = await repo.getLatestClip(input.projectId, ref.implementationId);
@@ -304,6 +440,12 @@ export class EditorProviderMediaMigrationService {
             `Expected provider media must be an AVAILABLE VIDEO with positive duration: ${media.relativePath}`
           );
         }
+        if (!Number.isFinite(clip.durationMs) || clip.durationMs <= 0 || media.durationMs < clip.durationMs) {
+          throw new EditorProviderMigrationError(
+            "PROVIDER_MEDIA_DURATION_TOO_SHORT",
+            `Provider media ${media.relativePath} (${media.durationMs}ms) is shorter than designed Clip ${clip.id} (${clip.durationMs}ms).`
+          );
+        }
 
         const currentQc = await repo.getLatestClipQc(input.projectId, clip.id);
         if (
@@ -345,6 +487,7 @@ export class EditorProviderMediaMigrationService {
       const results = [];
       for (const item of pending) {
         const now = nowIso();
+        const trim = item.media.durationMs! > item.clip.durationMs;
         const nextClip: ProductionClip = {
           ...item.clip,
           revision: item.clip.revision + 1,
@@ -364,10 +507,11 @@ export class EditorProviderMediaMigrationService {
           clipId: item.clip.id,
           clipRevision: nextClip.revision,
           candidateMediaId: item.media.id,
-          status: "PASS",
+          status: trim ? "TRIM_PASS" : "PASS",
           severity: "MINOR",
           confidence: 1,
-          issues: [],
+          ...(trim ? {usableInMs: 0, usableOutMs: item.clip.durationMs} : {}),
+          issues: trim ? ["MIGRATION_TRIM_TO_DESIGNED_DURATION"] : [],
           decisionId: `migration_human_review_${item.clip.id}_${item.media.id}`
         };
         const approval: ApprovalRecord = {
@@ -377,7 +521,9 @@ export class EditorProviderMediaMigrationService {
           targetId: item.clip.id,
           targetRevision: nextClip.revision,
           approvalState: "HUMAN_APPROVED",
-          reason: "EXISTING_PROVIDER_VIDEO_MIGRATION_QC_PASS",
+          reason: trim
+            ? "EXISTING_PROVIDER_VIDEO_MIGRATION_TRIM_PASS"
+            : "EXISTING_PROVIDER_VIDEO_MIGRATION_QC_PASS",
           approvedByType: "USER",
           approvedById,
           selectedMediaId: item.media.id,
@@ -392,7 +538,9 @@ export class EditorProviderMediaMigrationService {
           event: {
             eventId,
             projectId: input.projectId,
-            eventType: "EXISTING_PROVIDER_VIDEO_MIGRATED_QC_PASS",
+            eventType: trim
+              ? "EXISTING_PROVIDER_VIDEO_MIGRATED_TRIM_PASS"
+              : "EXISTING_PROVIDER_VIDEO_MIGRATED_QC_PASS",
             targetType: "CLIP",
             targetId: item.clip.id,
             trigger: "USER",
@@ -401,6 +549,9 @@ export class EditorProviderMediaMigrationService {
               clipIndex: item.clipIndex,
               mediaId: item.media.id,
               relativePath: item.media.relativePath,
+              designedDurationMs: item.clip.durationMs,
+              sourceInMs: qc.usableInMs ?? 0,
+              sourceOutMs: qc.usableOutMs ?? item.media.durationMs,
               approvedById
             },
             createdAt: now
@@ -421,6 +572,10 @@ export class EditorProviderMediaMigrationService {
           approvedRevision: nextClip.revision,
           mediaId: item.media.id,
           relativePath: item.media.relativePath,
+          designedDurationMs: item.clip.durationMs,
+          qcStatus: qc.status,
+          usableInMs: qc.usableInMs ?? 0,
+          usableOutMs: qc.usableOutMs ?? item.media.durationMs,
           qcId: qc.id,
           approvalId: approval.id
         });
@@ -430,9 +585,10 @@ export class EditorProviderMediaMigrationService {
         projectId: input.projectId,
         status: "APPROVED",
         sceneLinkClipRange: "CLIP 01.mp4 .. CLIP 10.mp4",
+        openingClip: "CLIP 00.mp4",
+        openingClipApproved: true,
         approvedCount: results.length,
         skippedCount: skipped.length,
-        openingClipPending: expectedClipPath(0),
         results,
         skipped
       };
