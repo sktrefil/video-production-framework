@@ -18,7 +18,8 @@ export class EditorProviderMigrationError extends Error {
   }
 }
 
-const ROMAN_IX_CLIP_COUNT = 11;
+const ROMAN_IX_TOTAL_CLIP_COUNT = 11;
+const ROMAN_IX_SCENE_LINK_CLIP_COUNT = 10;
 const nowIso = () => new Date().toISOString();
 const id = (prefix: string) => `${prefix}_${randomUUID().replaceAll("-", "")}`;
 
@@ -48,7 +49,7 @@ async function romanClipMedia(
   projectId: string
 ): Promise<Array<{clipIndex: number; relativePath: string; media: MediaArtifact | null}>> {
   const items = [];
-  for (let clipIndex = 0; clipIndex < ROMAN_IX_CLIP_COUNT; clipIndex += 1) {
+  for (let clipIndex = 0; clipIndex < ROMAN_IX_TOTAL_CLIP_COUNT; clipIndex += 1) {
     const relativePath = expectedClipPath(clipIndex);
     items.push({
       clipIndex,
@@ -83,10 +84,39 @@ export class EditorProviderMediaMigrationService {
     return this.withRepository(projectId, async repo => {
       const refs = await repo.listCurrentImplementationRefs(projectId);
       const media = await romanClipMedia(repo, projectId);
+      const openingMedia = media[0]?.media ?? null;
+      const firstLink = refs.length === 0
+        ? null
+        : await repo.getLink(projectId, refs[0]!.linkId);
+      const openingAssetRow = firstLink === null
+        ? undefined
+        : repo.db.prepare(
+            `SELECT id, asset_status, approved_media_id, owner_id, state_field, stale
+             FROM production_assets
+             WHERE project_id = ?
+               AND lifecycle_status = 'ACTIVE'
+               AND asset_class = 'EXTRA_START'
+               AND owner_type = 'SCENE'
+               AND owner_id = ?
+             ORDER BY revision DESC, rowid DESC
+             LIMIT 1`
+          ).get(projectId, firstLink.fromSceneId) as
+            | {
+                id: string;
+                asset_status: string;
+                approved_media_id: string | null;
+                owner_id: string;
+                state_field: string;
+                stale: number;
+              }
+            | undefined;
+
       const items = [];
       for (let index = 0; index < refs.length; index += 1) {
         const ref = refs[index]!;
-        const clipIndex = index;
+        // Current WF-10 topology represents SC1->SC2 ... SC10->SC11.
+        // Those correspond to produced CLIP 01 ... CLIP 10.
+        const clipIndex = index + 1;
         const relativePath = expectedClipPath(clipIndex);
         const mediaEntry = media[clipIndex];
         const clipMedia = mediaEntry?.media ?? null;
@@ -134,19 +164,54 @@ export class EditorProviderMediaMigrationService {
                   : "AWAITING_WF12_APPROVAL"
         });
       }
+
       const availableMedia = media.filter(item => item.media !== null);
-      const unmappedMediaPaths = refs.length < ROMAN_IX_CLIP_COUNT
-        ? media.slice(refs.length).map(item => item.relativePath)
-        : [];
+      const sceneLinkMappingReady = refs.length === ROMAN_IX_SCENE_LINK_CLIP_COUNT;
+      const openingAsset = openingAssetRow === undefined
+        ? null
+        : {
+            assetId: openingAssetRow.id,
+            ownerSceneId: openingAssetRow.owner_id,
+            stateField: openingAssetRow.state_field,
+            assetStatus: openingAssetRow.asset_status,
+            approvedMediaId: openingAssetRow.approved_media_id,
+            stale: openingAssetRow.stale === 1
+          };
+      const openingState = openingMedia === null
+        ? "MEDIA_MISSING"
+        : openingAsset === null
+          ? "EXTRA_START_ASSET_MISSING"
+          : openingAsset.stale
+            ? "EXTRA_START_ASSET_STALE"
+            : openingAsset.assetStatus !== "APPROVED" || openingAsset.approvedMediaId === null
+              ? "EXTRA_START_ASSET_NOT_APPROVED"
+              : "OPENING_LINK_REQUIRED";
+
       return {
         projectId,
-        expectedClipRange: "CLIP 00.mp4 .. CLIP 10.mp4",
-        expectedClipCount: ROMAN_IX_CLIP_COUNT,
+        producedClipRange: "CLIP 00.mp4 .. CLIP 10.mp4",
+        producedClipCount: ROMAN_IX_TOTAL_CLIP_COUNT,
         mediaClipCount: availableMedia.length,
         missingMediaPaths: media.filter(item => item.media === null).map(item => item.relativePath),
         implementationCount: refs.length,
-        mappingStatus: refs.length === ROMAN_IX_CLIP_COUNT ? "READY" : "IMPLEMENTATION_COUNT_MISMATCH",
-        unmappedMediaPaths,
+        sceneLinkClipRange: "CLIP 01.mp4 .. CLIP 10.mp4",
+        sceneLinkExpectedCount: ROMAN_IX_SCENE_LINK_CLIP_COUNT,
+        sceneLinkMappingStatus: sceneLinkMappingReady ? "READY" : "IMPLEMENTATION_COUNT_MISMATCH",
+        opening: {
+          clipIndex: 0,
+          expectedPath: expectedClipPath(0),
+          mediaId: openingMedia?.id ?? null,
+          mediaDurationMs: openingMedia?.durationMs ?? null,
+          firstSceneId: firstLink?.fromSceneId ?? null,
+          extraStartAsset: openingAsset,
+          state: openingState
+        },
+        mappingStatus:
+          sceneLinkMappingReady && openingState === "OPENING_LINK_REQUIRED"
+            ? "OPENING_LINK_REQUIRED"
+            : sceneLinkMappingReady && openingState !== "OPENING_LINK_REQUIRED"
+              ? openingState
+              : "IMPLEMENTATION_COUNT_MISMATCH",
         providerCount: items.filter(item => item.providerExecutionRequired === true).length,
         approvedProviderCount: items.filter(item => item.state === "APPROVED").length,
         awaitingApprovalCount: items.filter(item => item.state === "AWAITING_WF12_APPROVAL").length,
@@ -176,10 +241,10 @@ export class EditorProviderMediaMigrationService {
 
     return this.withRepository(input.projectId, async repo => {
       const refs = await repo.listCurrentImplementationRefs(input.projectId);
-      if (refs.length !== ROMAN_IX_CLIP_COUNT) {
+      if (refs.length !== ROMAN_IX_SCENE_LINK_CLIP_COUNT) {
         throw new EditorProviderMigrationError(
           "PROVIDER_MEDIA_MAPPING_INVALID",
-          `Roman IX has ${ROMAN_IX_CLIP_COUNT} produced clips (CLIP 00..10), but project.db has ${refs.length} current implementations. Refusing approval until the implementation topology is reconciled.`
+          `Roman IX scene-link topology should contain ${ROMAN_IX_SCENE_LINK_CLIP_COUNT} implementations for CLIP 01..10, but project.db has ${refs.length}.`
         );
       }
       const mediaEntries = await romanClipMedia(repo, input.projectId);
@@ -196,7 +261,7 @@ export class EditorProviderMediaMigrationService {
 
       for (let index = 0; index < refs.length; index += 1) {
         const ref = refs[index]!;
-        const clipIndex = index;
+        const clipIndex = index + 1;
         if (ref.implementationType !== "CLIP") continue;
         const clip = await repo.getLatestClip(input.projectId, ref.implementationId);
         if (clip === null) {
@@ -364,10 +429,10 @@ export class EditorProviderMediaMigrationService {
       return {
         projectId: input.projectId,
         status: "APPROVED",
-        expectedClipRange: "CLIP 00.mp4 .. CLIP 10.mp4",
-        expectedClipCount: ROMAN_IX_CLIP_COUNT,
+        sceneLinkClipRange: "CLIP 01.mp4 .. CLIP 10.mp4",
         approvedCount: results.length,
         skippedCount: skipped.length,
+        openingClipPending: expectedClipPath(0),
         results,
         skipped
       };
