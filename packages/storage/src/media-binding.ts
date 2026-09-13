@@ -116,7 +116,14 @@ export class SqliteMediaBindingRepository
         AND r.link_revision = l.revision
        WHERE l.project_id = ?
          AND l.lifecycle_status = 'ACTIVE'
-       ORDER BY l.rowid`
+       ORDER BY
+         CASE
+           WHEN l.from_scene_id = l.to_scene_id
+            AND l.from_state_field = 'STATE_IN'
+            AND l.to_state_field = 'STATE_CURRENT'
+           THEN 0 ELSE 1
+         END,
+         l.rowid`
     ).all(projectId) as Array<{
       link_id: string;
       link_revision: number;
