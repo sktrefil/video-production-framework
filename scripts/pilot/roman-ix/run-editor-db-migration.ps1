@@ -1,6 +1,8 @@
 param(
   [string]$ProjectId = "pilot_short_roman_ix",
   [string]$Header = "로마 제9군단의 미스터리",
+  [string]$ApprovedBy = "roman-ix-operator",
+  [switch]$ApproveProviderMedia,
   [switch]$Render
 )
 
@@ -17,6 +19,16 @@ function Run-Step([string]$Name, [scriptblock]$Command) {
 Run-Step "Build" { npm run build }
 Run-Step "EDB-01 Before Diagnose" { npm run vpf -- editor diagnose $ProjectId }
 Run-Step "EDB-02 Media metadata import/refresh" { npm run vpf -- editor media import $ProjectId }
+Run-Step "EDB-02 Provider media mapping status" { npm run vpf -- editor media provider-status $ProjectId }
+
+if ($ApproveProviderMedia) {
+  Write-Host "`nThe -ApproveProviderMedia switch is an explicit operator attestation that the existing provider videos have been reviewed and accepted for WF-12 migration." -ForegroundColor Yellow
+  Run-Step "EDB-02 WF-12 existing provider media approval" {
+    npm run vpf -- editor media approve-existing-provider $ProjectId --approved-by $ApprovedBy --confirm-reviewed
+  }
+  Run-Step "EDB-02 Provider media status after approval" { npm run vpf -- editor media provider-status $ProjectId }
+}
+
 Run-Step "EDB-03~06 Canonical assemble" { npm run vpf -- editor assemble $ProjectId --header $Header }
 Run-Step "EDB-09 After Diagnose" { npm run vpf -- editor diagnose $ProjectId }
 Run-Step "EDB-07 Materialize" { npm run editor:materialize -- $ProjectId }
