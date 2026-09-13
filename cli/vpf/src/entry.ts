@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import {EditorAssemblyCliService, EditorAssemblyServiceError} from "./editor-assembly-service.js";
 import {
+  EditorOpeningMigrationError,
+  EditorOpeningMigrationService
+} from "./editor-opening-migration.js";
+import {
   EditorProviderMediaMigrationService,
   EditorProviderMigrationError
 } from "./editor-provider-media-migration.js";
@@ -44,6 +48,41 @@ if (args[0] === "editor" && args[1] === "diagnose") {
       process.exitCode = result.mappingStatus === "READY" ? 0 : 1;
     } catch (error) {
       console.error(`[EDITOR_PROVIDER_STATUS_FAILED] ${error instanceof Error ? error.message : String(error)}`);
+      process.exitCode = 1;
+    }
+  }
+} else if (
+  args[0] === "editor" &&
+  args[1] === "media" &&
+  args[2] === "migrate-opening"
+) {
+  const projectId = args[3];
+  const approvedById = readOption(args, "--approved-by");
+  const durationText = readOption(args, "--duration-ms");
+  const durationMs = durationText === undefined ? undefined : Number(durationText);
+  if (
+    projectId === undefined ||
+    approvedById === undefined ||
+    (durationMs !== undefined && (!Number.isFinite(durationMs) || durationMs <= 0))
+  ) {
+    console.error("[CLI_USAGE] editor media migrate-opening requires <project_id> --approved-by <operator> --confirm-reviewed [--duration-ms <positive-ms>].");
+    process.exitCode = 2;
+  } else {
+    try {
+      const result = await new EditorOpeningMigrationService().migrate({
+        projectId,
+        approvedById,
+        confirmReviewed: args.includes("--confirm-reviewed"),
+        ...(durationMs === undefined ? {} : {durationMs})
+      });
+      console.log(JSON.stringify(result, null, 2));
+      process.exitCode = result.status === "READY" ? 0 : 1;
+    } catch (error) {
+      if (error instanceof EditorOpeningMigrationError) {
+        console.error(`[${error.code}] ${error.message}`);
+      } else {
+        console.error(`[EDITOR_OPENING_MIGRATION_FAILED] ${error instanceof Error ? error.message : String(error)}`);
+      }
       process.exitCode = 1;
     }
   }
