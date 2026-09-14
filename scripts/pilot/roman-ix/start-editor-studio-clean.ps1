@@ -6,6 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\.."))
+$EditorRoot = Join-Path $RepoRoot "apps\editor"
 $RuntimeLogDir = Join-Path $RepoRoot "workspace\projects\$ProjectId\08_editor\studio_runtime"
 $ApiStdout = Join-Path $RuntimeLogDir "api.stdout.log"
 $ApiStderr = Join-Path $RuntimeLogDir "api.stderr.log"
@@ -115,6 +116,14 @@ if (!(Test-Path -LiteralPath (Join-Path $RepoRoot "package.json"))) {
 if (!(Test-Path -LiteralPath (Join-Path $RepoRoot "workspace\projects\$ProjectId\project.db"))) {
   throw "project.db is missing for $ProjectId"
 }
+if (!(Test-Path -LiteralPath (Join-Path $EditorRoot "scripts\editor-studio-server.mjs"))) {
+  throw "Editor API script is missing."
+}
+
+$nodeCommand = Get-Command node.exe -ErrorAction Stop
+$nodeExe = $nodeCommand.Source
+if ([string]::IsNullOrWhiteSpace($nodeExe)) { $nodeExe = $nodeCommand.Path }
+if ([string]::IsNullOrWhiteSpace($nodeExe)) { throw "node.exe could not be resolved." }
 
 $npmCommand = Get-Command npm.cmd -ErrorAction Stop
 $npmCmd = $npmCommand.Source
@@ -130,9 +139,10 @@ Stop-KnownListener $ApiPort "editor-studio-server\.mjs" "Editor API"
 Stop-KnownListener $StudioPort "remotion.*studio|studio.*src[\\/]index\.ts|@remotion[\\/]cli" "Remotion Studio"
 
 Write-Host "Starting Editor API on 127.0.0.1:$ApiPort..." -ForegroundColor Cyan
-$apiProcess = Start-Process -FilePath $npmCmd `
-  -ArgumentList @("run","studio-server","--workspace","@vpf/editor-app","--",$ProjectId,"--port",[string]$ApiPort) `
-  -WorkingDirectory $RepoRoot `
+$apiScript = Join-Path $EditorRoot "scripts\editor-studio-server.mjs"
+$apiProcess = Start-Process -FilePath $nodeExe `
+  -ArgumentList @($apiScript,$ProjectId,"--port",[string]$ApiPort) `
+  -WorkingDirectory $EditorRoot `
   -RedirectStandardOutput $ApiStdout `
   -RedirectStandardError $ApiStderr `
   -WindowStyle Hidden `
@@ -144,8 +154,9 @@ $apiResponse = Wait-ForApi $apiProjectUrl $apiProcess $ApiStdout $ApiStderr
 Write-Host "Editor API READY: PID=$($apiProcess.Id) status=$($apiResponse.status)" -ForegroundColor Green
 
 Write-Host "Starting Remotion Studio on localhost:$StudioPort..." -ForegroundColor Cyan
-$studioProcess = Start-Process -FilePath $npmCmd `
-  -ArgumentList @("run","studio","--workspace","@vpf/editor-app","--","--port=$StudioPort") `
+$studioCommand = "call `"$npmCmd`" run studio --workspace @vpf/editor-app -- --port=$StudioPort"
+$studioProcess = Start-Process -FilePath $env:ComSpec `
+  -ArgumentList @("/d","/s","/c",$studioCommand) `
   -WorkingDirectory $RepoRoot `
   -RedirectStandardOutput $StudioStdout `
   -RedirectStandardError $StudioStderr `
