@@ -201,6 +201,7 @@ async function ensureContentPlan(input: {
   if (!header) {
     throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
   }
+  const bottomBlurY = Math.round(input.profile.height * 0.72);
   const planInput = {
     audio: [{
       id: "tts-narration",
@@ -260,7 +261,38 @@ async function ensureContentPlan(input: {
       backgroundColor: "#000000",
       backgroundOpacity: 0.2
     }],
-    graphics: [] as EditorContentPlan["graphics"]
+    graphics: [
+      {
+        id: "top-safe-blur",
+        startMs: 0,
+        endMs: narration.durationMs,
+        graphicType: "BLUR_PANEL" as const,
+        x: 0,
+        y: 0,
+        width: input.profile.width,
+        height: Math.round(input.profile.height * 0.18),
+        opacity: 1,
+        blurPx: 18,
+        backgroundColor: "rgba(8,12,18,0.18)",
+        borderRadius: 0,
+        zIndex: 10
+      },
+      {
+        id: "bottom-safe-blur",
+        startMs: 0,
+        endMs: narration.durationMs,
+        graphicType: "BLUR_PANEL" as const,
+        x: 0,
+        y: bottomBlurY,
+        width: input.profile.width,
+        height: input.profile.height - bottomBlurY,
+        opacity: 1,
+        blurPx: 22,
+        backgroundColor: "rgba(8,12,18,0.24)",
+        borderRadius: 0,
+        zIndex: 20
+      }
+    ] as EditorContentPlan["graphics"]
   };
 
   const previous = await input.repo.getLatestEditorContentPlan(input.projectId);
