@@ -66,3 +66,11 @@ test("Studio review server loads a materialized project and keeps edits outside 
   assert.match(source, /127\.0\.0\.1/);
   assert.doesNotMatch(source, /Youtubu_projects/);
 });
+
+test("Studio review server quarantines an incompatible derivative draft and falls back to the current materialized project", async () => {
+  const source = await read("scripts/editor-studio-server.mjs");
+  assert.match(source, /quarantineIncompatibleDraft/);
+  assert.match(source, /\.incompatible-/);
+  assert.match(source, /return referenceProject/);
+  assert.match(source, /draft reason/);
+});
