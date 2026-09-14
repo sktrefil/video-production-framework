@@ -74,3 +74,16 @@ test("Studio review server quarantines an incompatible derivative draft and fall
   assert.match(source, /return referenceProject/);
   assert.match(source, /draft reason/);
 });
+
+test("Studio can discover the active materialized project after Remotion normalizes away URL query parameters", async () => {
+  const server = await read("scripts/editor-studio-server.mjs");
+  const persistence = await read("src/studio/editor/persistence/editorPersistenceApi.ts");
+  const rootSource = await read("src/Root.tsx");
+  assert.match(server, /\/api\/editor\/active/);
+  assert.match(persistence, /DEFAULT_LOCAL_EDITOR_API_BASE="http:\/\/127\.0\.0\.1:4318"/);
+  assert.match(persistence, /loadActiveEditorProject/);
+  assert.match(rootSource, /calculateStudioMetadata/);
+  assert.match(rootSource, /loadActiveEditorProject/);
+  assert.match(rootSource, /props:\{\.\.\.props,project:editorProject\}/);
+  assert.match(rootSource, /durationInFrames:editorProject\.project\.durationInFrames/);
+});
