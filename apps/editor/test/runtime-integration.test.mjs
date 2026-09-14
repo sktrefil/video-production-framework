@@ -75,6 +75,14 @@ test("Studio review server quarantines an incompatible derivative draft and fall
   assert.match(source, /draft reason/);
 });
 
+test("Studio review drafts are pinned to the canonical materialized assembly fingerprint", async () => {
+  const source = await read("scripts/editor-studio-server.mjs");
+  assert.match(source, /referenceSha256/);
+  assert.match(source, /studio_edit_project\.base\.json/);
+  assert.match(source, /different canonical assembly revision/);
+  assert.match(source, /writeJson\(reviewBasePath,\{schemaVersion:1,referenceSha256\}\)/);
+});
+
 test("Studio can discover the active materialized project after Remotion normalizes away URL query parameters", async () => {
   const server = await read("scripts/editor-studio-server.mjs");
   const persistence = await read("src/studio/editor/persistence/editorPersistenceApi.ts");
