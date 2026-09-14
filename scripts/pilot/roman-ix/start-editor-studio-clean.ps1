@@ -63,8 +63,25 @@ function Throw-ProcessFailure(
   throw "$Label exited before becoming ready. ExitCode=$($Process.ExitCode)`n--- STDOUT ---`n$stdout`n--- STDERR ---`n$stderr"
 }
 
+function Get-HttpErrorBody($ErrorRecord) {
+  try {
+    if ($null -ne $ErrorRecord.ErrorDetails -and ![string]::IsNullOrWhiteSpace([string]$ErrorRecord.ErrorDetails.Message)) {
+      return [string]$ErrorRecord.ErrorDetails.Message
+    }
+    $response = $ErrorRecord.Exception.Response
+    if ($null -eq $response) { return $null }
+    $stream = $response.GetResponseStream()
+    if ($null -eq $stream) { return $null }
+    $reader = New-Object System.IO.StreamReader($stream)
+    try { return $reader.ReadToEnd() } finally { $reader.Dispose() }
+  } catch {
+    return $null
+  }
+}
+
 function Wait-ForApi(
   [string]$Url,
+  [int]$Port,
   [System.Diagnostics.Process]$Process,
   [string]$StdoutPath,
   [string]$StderrPath,
@@ -76,8 +93,20 @@ function Wait-ForApi(
     try {
       $response = Invoke-RestMethod -Uri $Url -Method Get -TimeoutSec 3
       if ($response.success -eq $true) { return $response }
+      if (@(Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue).Count -gt 0) {
+        throw "Editor API returned a non-success payload: $($response | ConvertTo-Json -Depth 8 -Compress)"
+      }
     } catch {
-      # Keep polling while the child process is alive.
+      $body = Get-HttpErrorBody $_
+      $isListening = @(Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue).Count -gt 0
+      if ($isListening -and ![string]::IsNullOrWhiteSpace($body)) {
+        $stdout = Read-LogTail $StdoutPath
+        $stderr = Read-LogTail $StderrPath
+        throw "Editor API is listening but rejected the project request.`nURL: $Url`nResponse: $body`n--- STDOUT ---`n$stdout`n--- STDERR ---`n$stderr"
+      }
+      if ($isListening -and $_.Exception.Message -like "Editor API returned a non-success payload:*") {
+        throw
+      }
     }
     Start-Sleep -Milliseconds 500
   } while ((Get-Date) -lt $deadline)
@@ -150,7 +179,7 @@ $apiProcess = Start-Process -FilePath $nodeExe `
 
 $apiBase = "http://127.0.0.1:$ApiPort"
 $apiProjectUrl = "$apiBase/api/editor/project/$ProjectId"
-$apiResponse = Wait-ForApi $apiProjectUrl $apiProcess $ApiStdout $ApiStderr
+$apiResponse = Wait-ForApi $apiProjectUrl $ApiPort $apiProcess $ApiStdout $ApiStderr
 Write-Host "Editor API READY: PID=$($apiProcess.Id) status=$($apiResponse.status)" -ForegroundColor Green
 
 Write-Host "Starting Remotion Studio on localhost:$StudioPort..." -ForegroundColor Cyan
