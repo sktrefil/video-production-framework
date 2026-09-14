@@ -178,9 +178,14 @@ $apiProcess = Start-Process -FilePath $nodeExe `
   -PassThru
 
 $apiBase = "http://127.0.0.1:$ApiPort"
-$apiProjectUrl = "$apiBase/api/editor/project/$ProjectId"
-$apiResponse = Wait-ForApi $apiProjectUrl $ApiPort $apiProcess $ApiStdout $ApiStderr
-Write-Host "Editor API READY: PID=$($apiProcess.Id) status=$($apiResponse.status)" -ForegroundColor Green
+$apiActiveUrl = "$apiBase/api/editor/active"
+$apiResponse = Wait-ForApi $apiActiveUrl $ApiPort $apiProcess $ApiStdout $ApiStderr
+if ([string]$apiResponse.projectId -ne $ProjectId) {
+  throw "Editor API active project mismatch. expected=$ProjectId actual=$($apiResponse.projectId)"
+}
+$frames = [int]$apiResponse.project.project.durationInFrames
+if ($frames -le 0) { throw "Editor API returned an invalid durationInFrames: $frames" }
+Write-Host "Editor API READY: PID=$($apiProcess.Id) project=$($apiResponse.projectId) frames=$frames status=$($apiResponse.status)" -ForegroundColor Green
 
 Write-Host "Starting Remotion Studio on localhost:$StudioPort..." -ForegroundColor Cyan
 $studioCommand = "call `"$npmCmd`" run studio --workspace @vpf/editor-app -- --port=$StudioPort"
@@ -194,7 +199,6 @@ $studioProcess = Start-Process -FilePath $env:ComSpec `
 Wait-ForStudio $StudioPort $studioProcess $StudioStdout $StudioStderr
 
 $encodedApi = [System.Uri]::EscapeDataString($apiBase)
-$frames = [int]$apiResponse.project.project.durationInFrames
 $studioUrl = "http://localhost:$StudioPort/GenericVideoEditor?vpfProject=$ProjectId&vpfEditorApi=$encodedApi&vpfFrames=$frames"
 
 Write-Host "Studio READY: PID=$($studioProcess.Id) frames=$frames" -ForegroundColor Green
