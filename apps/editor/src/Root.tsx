@@ -1,4 +1,5 @@
 import {Composition} from "remotion";
+import type {CalculateMetadataFunction} from "remotion";
 import type {EditProject} from "./studio/editor/editorTypes";
 import sampleProjectJson from "./generated/edit_project.sample.json";
 import {GenericEditorComposition} from "./editor/GenericEditorComposition";
@@ -7,7 +8,7 @@ import {
   calculateGenericFinalRenderMetadata,
 } from "./editor/GenericFinalRender";
 import {StudioToolbarProvider} from "./studio/StudioToolbar";
-import {configuredStudioProjectConnection} from "./studio/editor/persistence/editorPersistenceApi";
+import {configuredStudioProjectConnection,loadActiveEditorProject} from "./studio/editor/persistence/editorPersistenceApi";
 
 const SAMPLE_PROJECT = sampleProjectJson as EditProject;
 const studioConnection=configuredStudioProjectConnection();
@@ -29,6 +30,25 @@ const StudioWrappedGenericEditor: React.FC<{project?: EditProject}> = ({project}
   </StudioToolbarProvider>
 );
 
+const calculateStudioMetadata:CalculateMetadataFunction<{project?:EditProject}>=async({props,abortSignal,isRendering})=>{
+  let editorProject=props.project??studioInitialProject;
+  if(!isRendering){
+    try{
+      const activeProject=await loadActiveEditorProject({signal:abortSignal});
+      if(activeProject)editorProject=activeProject;
+    }catch(error){
+      if(!(error instanceof TypeError))throw error;
+    }
+  }
+  return {
+    props:{...props,project:editorProject},
+    durationInFrames:editorProject.project.durationInFrames,
+    fps:editorProject.project.fps,
+    width:editorProject.project.width,
+    height:editorProject.project.height,
+  };
+};
+
 export const RemotionRoot: React.FC = () => (
   <>
     <Composition
@@ -36,15 +56,7 @@ export const RemotionRoot: React.FC = () => (
       component={StudioWrappedGenericEditor}
       defaultProps={{project: studioInitialProject}}
       durationInFrames={studioDurationInFrames}
-      calculateMetadata={({props}: {props: {project?: EditProject}}) => {
-        const editorProject = props.project ?? studioInitialProject;
-        return {
-          durationInFrames: Math.max(editorProject.project.durationInFrames,studioDurationInFrames),
-          fps: editorProject.project.fps,
-          width: editorProject.project.width,
-          height: editorProject.project.height,
-        };
-      }}
+      calculateMetadata={calculateStudioMetadata}
     />
     {studioConnection.projectId===undefined ? (
       <Composition
