@@ -100,14 +100,27 @@ catch(error){
 const referenceProject=materialized.executionProject;
 const reviewPath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.json");
 
+const quarantineIncompatibleDraft=async error=>{
+  const quarantinePath=`${reviewPath}.incompatible-${Date.now()}.json`;
+  await rename(reviewPath,quarantinePath);
+  console.warn(`[editor-studio-server] incompatible Studio draft quarantined: ${quarantinePath}`);
+  console.warn(`[editor-studio-server] draft reason: ${error instanceof Error?error.message:String(error)}`);
+  return referenceProject;
+};
 const loadProject=async()=>{
+  let saved;
   try{
-    const saved=await readJson(reviewPath);
+    saved=await readJson(reviewPath);
+  }catch(error){
+    if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return referenceProject;
+    if(error instanceof SyntaxError)return quarantineIncompatibleDraft(error);
+    throw error;
+  }
+  try{
     assertEditableProject(saved,projectId,referenceProject);
     return saved;
   }catch(error){
-    if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return referenceProject;
-    throw error;
+    return quarantineIncompatibleDraft(error);
   }
 };
 const endpoint=`/api/editor/project/${encodeURIComponent(projectId)}`;
