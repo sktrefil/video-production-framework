@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import {createServer} from "node:http";
 import {copyFile, mkdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
 import {basename, dirname, relative, resolve} from "node:path";
@@ -98,11 +99,16 @@ catch(error){
   materialized=await reviewFallback(projectId);
 }
 const referenceProject=materialized.executionProject;
+const referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
 const reviewPath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.json");
+const reviewBasePath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.base.json");
 
 const quarantineIncompatibleDraft=async error=>{
-  const quarantinePath=`${reviewPath}.incompatible-${Date.now()}.json`;
+  const stamp=Date.now();
+  const quarantinePath=`${reviewPath}.incompatible-${stamp}.json`;
+  const quarantineBasePath=`${reviewBasePath}.incompatible-${stamp}.json`;
   await rename(reviewPath,quarantinePath);
+  await rename(reviewBasePath,quarantineBasePath).catch(()=>undefined);
   console.warn(`[editor-studio-server] incompatible Studio draft quarantined: ${quarantinePath}`);
   console.warn(`[editor-studio-server] draft reason: ${error instanceof Error?error.message:String(error)}`);
   return referenceProject;
@@ -116,6 +122,15 @@ const loadProject=async()=>{
     if(error instanceof SyntaxError)return quarantineIncompatibleDraft(error);
     throw error;
   }
+  let base;
+  try{
+    base=await readJson(reviewBasePath);
+  }catch(error){
+    if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return quarantineIncompatibleDraft(new Error("Studio draft has no canonical base fingerprint."));
+    if(error instanceof SyntaxError)return quarantineIncompatibleDraft(error);
+    throw error;
+  }
+  if(base?.referenceSha256!==referenceSha256)return quarantineIncompatibleDraft(new Error("Studio draft belongs to a different canonical assembly revision."));
   try{
     assertEditableProject(saved,projectId,referenceProject);
     return saved;
@@ -144,6 +159,7 @@ const server=createServer(async(request,response)=>{
     const submitted=JSON.parse(await readBody(request));
     assertEditableProject(submitted,projectId,referenceProject);
     await writeJson(reviewPath,submitted);
+    await writeJson(reviewBasePath,{schemaVersion:1,referenceSha256});
     json(response,200,{success:true,projectId,path:reviewPath,savedAt:new Date().toISOString(),status:"REVIEW_DRAFT"});
   }catch(error){
     json(response,400,{success:false,error:error instanceof Error?error.message:String(error)});
@@ -154,6 +170,7 @@ server.listen(port,"127.0.0.1",()=>{
   const studio=`http://localhost:3000/GenericVideoEditor?vpfProject=${encodeURIComponent(projectId)}&vpfEditorApi=${encodeURIComponent(api)}&vpfFrames=${referenceProject.project.durationInFrames}`;
   console.log(`[editor-studio-server] READY project=${projectId} api=${api}`);
   console.log(`[editor-studio-server] active=${api}${activeEndpoint}`);
+  console.log(`[editor-studio-server] canonical-sha256=${referenceSha256}`);
   console.log(`[editor-studio-server] Open ${studio}`);
   console.log(`[editor-studio-server] mode=${materialized.reviewMode??"MATERIALIZED_REVIEW"} saves=${reviewPath}`);
   console.log("[editor-studio-server] project.db and the approved assembly remain unchanged. UNASSEMBLED_REVIEW cannot be rendered until a formal TimelineAssemblyRecord exists.");
