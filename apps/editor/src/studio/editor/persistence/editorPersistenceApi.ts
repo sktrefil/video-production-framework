@@ -2,14 +2,17 @@ import type {EditProject} from "../editorTypes";
 
 declare global {interface Window {__VPF_EDITOR_API_BASE__?:string}}
 export type EditorProductionIssue={code:string;message:string;data?:Record<string,unknown>};
-type Envelope={success:boolean;project?:EditProject;path?:string;savedAt?:string;status?:string;projectSha256?:string;outputPath?:string;errors?:EditorProductionIssue[];warnings?:EditorProductionIssue[];error?:string};
+type Envelope={success:boolean;projectId?:string;project?:EditProject;path?:string;savedAt?:string;status?:string;projectSha256?:string;outputPath?:string;errors?:EditorProductionIssue[];warnings?:EditorProductionIssue[];error?:string};
 
+const DEFAULT_LOCAL_EDITOR_API_BASE="http://127.0.0.1:4318";
 export type StudioProjectConnection={projectId?:string;apiBase?:string;durationInFrames?:number};
 export const configuredStudioProjectConnection=():StudioProjectConnection=>{
   if(typeof window==="undefined")return {};
   const query=new URLSearchParams(window.location.search);
   const projectId=query.get("vpfProject")?.trim()||undefined;
-  const apiBase=(query.get("vpfEditorApi")?.trim()||window.__VPF_EDITOR_API_BASE__)?.replace(/\/$/,"")||undefined;
+  const explicitBase=query.get("vpfEditorApi")?.trim()||window.__VPF_EDITOR_API_BASE__;
+  const isLocalHost=window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1";
+  const apiBase=(explicitBase||(isLocalHost?DEFAULT_LOCAL_EDITOR_API_BASE:undefined))?.replace(/\/$/,"")||undefined;
   const frames=Number(query.get("vpfFrames"));
   return {projectId,apiBase,...(Number.isSafeInteger(frames)&&frames>0?{durationInFrames:frames}:{})};
 };
@@ -17,6 +20,7 @@ const configuredBase=()=>configuredStudioProjectConnection().apiBase;
 export const hasEditorPersistenceAdapter=()=>Boolean(configuredBase());
 const requireBase=()=>{const base=configuredBase();if(!base)throw new Error("Unified editor persistence is not bound yet; MIG-09 owns project materialization/runtime binding.");return base;};
 const parse=async(response:Response)=>{const payload=await response.json() as Envelope;if(!response.ok||!payload.success)throw new Error(payload.error??`Editor persistence failed (${response.status})`);return payload;};
+export const loadActiveEditorProject=async(options?:{signal?:AbortSignal}):Promise<EditProject|null>=>{const base=configuredBase();if(!base)return null;const response=await fetch(`${base}/api/editor/active`,{signal:options?.signal});if(response.status===404)return null;const payload=await parse(response);if(!payload.project)throw new Error("Active editor project payload is missing");return payload.project;};
 export const loadPersistedEditorProject=async(projectId:string):Promise<EditProject|null>=>{const base=configuredBase();if(!base)return null;const response=await fetch(`${base}/api/editor/project/${encodeURIComponent(projectId)}`);if(response.status===404)return null;const payload=await parse(response);if(!payload.project)throw new Error("Saved editor project payload is missing");return payload.project;};
 export const savePersistedEditorProject=async(project:EditProject):Promise<{path:string;savedAt:string}>=>{const response=await fetch(`${requireBase()}/api/editor/project/${encodeURIComponent(project.project.id)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(project)});const payload=await parse(response);return{path:payload.path??"",savedAt:payload.savedAt??new Date().toISOString()};};
 const production=async(projectId:string,action:"gate"|"render")=>{const response=await fetch(`${requireBase()}/api/editor/project/${encodeURIComponent(projectId)}/${action}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({allowRemote:false,allowVisualGaps:false})});return parse(response);};
