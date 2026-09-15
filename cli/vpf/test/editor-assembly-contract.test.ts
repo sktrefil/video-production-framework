@@ -46,6 +46,36 @@ test("shortform editor content plan includes top 18 percent and bottom 28 percen
   assert.match(service,/height: input\.profile\.height - bottomBlurY/);
 });
 
+test("editor content plan pins the approved Korean title and subtitle layout",()=>{
+  const service=read("cli/vpf/src/editor-assembly-service.ts");
+
+  assert.match(service,/const EDITOR_KOREAN_FONT = "VPF Noto Sans KR"/);
+  assert.match(service,/y: Math\.round\(input\.profile\.height \* 0\.859375\)/);
+  assert.match(service,/width: Math\.round\(input\.profile\.width \* \(5 \/ 6\)\)/);
+  assert.match(service,/fontSize: Math\.round\(Math\.min\(input\.profile\.width, input\.profile\.height\) \/ 15\)/);
+  assert.match(service,/y: Math\.round\(input\.profile\.height \* 0\.09375\)/);
+  assert.match(service,/width: Math\.round\(input\.profile\.width \* \(23 \/ 27\)\)/);
+});
+
+test("editor assembly accepts project-owned, non-overlapping top information labels",()=>{
+  const service=read("cli/vpf/src/editor-assembly-service.ts");
+
+  assert.match(service,/top_annotations\.json/);
+  assert.match(service,/readTopAnnotations/);
+  assert.match(service,/annotation\.startMs < previousEnd/);
+  assert.match(service,/textRole: "LABEL" as const/);
+  assert.match(service,/id: `top-info-\$\{annotation\.id\}`/);
+});
+
+test("video-only narration timing replaces image holds and loops only when the source is shorter",()=>{
+  const timing=read("cli/vpf/src/editor-narration-timing.ts");
+
+  assert.match(timing,/const videoFrames = segment\.durationInFrames/);
+  assert.match(timing,/\{loop: true\}/);
+  assert.match(timing,/const holdFrames = source\.bindingKind === "VIDEO" \? 0/);
+  assert.match(timing,/allNarrationSegmentsUseVideo && containsLegacyImageHold/);
+});
+
 test("canonical render wrapper rejects assembly lineage drift",()=>{
   const wrapper=read("apps/editor/scripts/render-editor-project-canonical.mjs");
   const editorPkg=JSON.parse(read("apps/editor/package.json")) as {scripts:{render:string}};

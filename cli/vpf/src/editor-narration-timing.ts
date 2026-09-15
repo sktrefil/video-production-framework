@@ -136,9 +136,16 @@ export class NarrationTimedAssemblyRepository implements TimelineAssemblyReposit
   async getLatestAssembly(projectId: string): Promise<TimelineAssemblyRecord | null> {
     const current = await this.delegate.getLatestAssembly(projectId);
     if (current === null) return null;
+    const allNarrationSegmentsUseVideo = this.plan.segments.every(
+      segment => segment.source.bindingKind === "VIDEO"
+    );
+    const containsLegacyImageHold = current.editProject.items.some(
+      item => item.trackId === "V1" && item.type === "IMAGE" && item.id.endsWith("-hold")
+    );
     if (
       current.assemblyStatus !== "READY" ||
-      current.editProject.project.durationInFrames !== this.plan.expectedDurationInFrames
+      current.editProject.project.durationInFrames !== this.plan.expectedDurationInFrames ||
+      (allNarrationSegmentsUseVideo && containsLegacyImageHold)
     ) {
       return {...current, stale: true};
     }
@@ -221,19 +228,29 @@ export class NarrationTimedAssemblyRepository implements TimelineAssemblyReposit
           source.sourceAssetDurationMs,
           this.profile.fps
         );
+        const availableSourceFrames = sourceAssetDurationInFrames - sourceStartFrame;
+        if (availableSourceFrames <= 0) {
+          throw new NarrationTimingError(
+            "NARRATION_TIMING_LINK_MAPPING_INVALID",
+            `Video binding ${source.bindingId} has no playable source frames.`
+          );
+        }
+        const videoFrames = segment.durationInFrames;
+        const sourceDurationInFrames = Math.min(availableSourceFrames, videoFrames);
         replacement.push({
           id: placeholder.id,
           type: "VIDEO",
           trackId: "V1",
           timelineStartFrame: segment.startFrame,
-          durationInFrames: transitionFrames,
+          durationInFrames: videoFrames,
           enabled: true,
           locked: false,
           src: source.relativePath,
           sourceStartFrame,
-          sourceDurationInFrames: transitionFrames,
+          sourceDurationInFrames,
           sourceAssetDurationInFrames,
           playbackRate: 1,
+          ...(videoFrames > sourceDurationInFrames ? {loop: true} : {}),
           volume: this.profile.videoVolume ?? 0,
           x: 0,
           y: 0,
@@ -265,7 +282,7 @@ export class NarrationTimedAssemblyRepository implements TimelineAssemblyReposit
         });
       }
 
-      const holdFrames = segment.durationInFrames - transitionFrames;
+      const holdFrames = source.bindingKind === "VIDEO" ? 0 : segment.durationInFrames - transitionFrames;
       if (holdFrames > 0) {
         replacement.push({
           id: `${placeholder.id}-hold`,

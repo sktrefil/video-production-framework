@@ -24,5 +24,5 @@ const ItemRenderer:FC<{item:TimelineItem;masterVolume:number}>=({item,masterVolu
 export const ProjectRenderer:FC<{project:EditProject}>=({project})=>{
   const trackMap=new Map(project.tracks.map((track)=>[track.id,track]));
   const entries=project.items.map((item,index)=>({item,index,track:trackMap.get(item.trackId)})).filter((entry)=>entry.item.enabled&&entry.track?.enabled===true).sort((a,b)=>(a.track?.order??0)-(b.track?.order??0)||(a.item.zIndex??0)-(b.item.zIndex??0)||a.index-b.index);
-  return <AbsoluteFill style={{backgroundColor:"black",overflow:"hidden"}}>{entries.map(({item})=><Sequence key={item.id} from={item.timelineStartFrame} durationInFrames={item.durationInFrames} name={`${item.trackId} · ${item.type} · ${item.id}`} layout="none"><ItemRenderer item={item} masterVolume={project.settings.masterVolume}/></Sequence>)}</AbsoluteFill>;
+  return <AbsoluteFill style={{backgroundColor:"black",overflow:"hidden"}}>{entries.map(({item})=><Sequence key={item.id} from={item.timelineStartFrame} durationInFrames={item.durationInFrames} name={`${item.trackId} · ${item.type} · ${item.id}`} premountFor={item.type==="VIDEO"?30:0}><ItemRenderer item={item} masterVolume={project.settings.masterVolume}/></Sequence>)}</AbsoluteFill>;
 };

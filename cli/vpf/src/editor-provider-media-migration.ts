@@ -250,7 +250,11 @@ export class EditorProviderMediaMigrationService {
           state: clip === null
             ? "CLIP_MISSING"
             : !clip.providerExecutionRequired
-              ? "EDITORIAL"
+              ? clipMedia !== null &&
+                  clipMedia.mediaType === "VIDEO" &&
+                  clipMedia.mimeType.toLowerCase().startsWith("video/")
+                ? "VIDEO_READY_FOR_REVIEW"
+                : "EDITORIAL"
               : clip.approvedMediaId !== undefined &&
                   qc !== null &&
                   (qc.status === "PASS" || qc.status === "TRIM_PASS") &&
@@ -308,6 +312,7 @@ export class EditorProviderMediaMigrationService {
         mappingStatus,
         providerCount: sceneProviderCount + openingProviderCount,
         approvedProviderCount: sceneApprovedProviderCount + openingApprovedProviderCount,
+        videoReadyForReviewCount: items.filter(item => item.state === "VIDEO_READY_FOR_REVIEW").length,
         awaitingApprovalCount:
           items.filter(item => item.state === "AWAITING_WF12_APPROVAL").length +
           (openingState === "OPENING_WF12_APPROVAL_REQUIRED" ? 1 : 0),
@@ -406,11 +411,10 @@ export class EditorProviderMediaMigrationService {
             `Current implementation ${ref.implementationId} has no active Clip.`
           );
         }
-        if (!clip.providerExecutionRequired) continue;
         if (!approvalReady(clip)) {
           throw new EditorProviderMigrationError(
             "PROVIDER_CLIP_NOT_APPROVABLE",
-            `Provider Clip ${clip.id} must be current, non-stale, and have Final Clip Design approval before migration.`
+            `Clip ${clip.id} must be current, non-stale, and have Final Clip Design approval before video migration.`
           );
         }
         const link = await repo.getLink(input.projectId, clip.linkId);
@@ -493,6 +497,8 @@ export class EditorProviderMediaMigrationService {
           revision: item.clip.revision + 1,
           lifecycleStatus: "ACTIVE",
           updatedAt: now,
+          clipMode: "DIRECT_START_END_I2V",
+          providerExecutionRequired: true,
           candidateMediaIds: [...new Set([...item.clip.candidateMediaIds, item.media.id])],
           approvedMediaId: item.media.id,
           clipStatus: "APPROVED"

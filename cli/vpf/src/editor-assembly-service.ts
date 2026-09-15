@@ -30,6 +30,7 @@ export type EditorAssemblyErrorCode =
   | "EDITOR_TTS_DURATION_MISSING"
   | "EDITOR_SUBTITLE_INPUT_MISSING"
   | "EDITOR_SUBTITLE_INPUT_INVALID"
+  | "EDITOR_TOP_ANNOTATION_INPUT_INVALID"
   | "EDITOR_VISUAL_TIMING_INVALID";
 
 export class EditorAssemblyServiceError extends Error {
@@ -56,8 +57,20 @@ type SubtitleDocument = {
   cues?: SubtitleCue[];
 };
 
+type TopAnnotation = {
+  id: string;
+  startMs: number;
+  endMs: number;
+  text: string;
+};
+
+type TopAnnotationDocument = {
+  annotations?: TopAnnotation[];
+};
+
 const clock = {nowIso: () => new Date().toISOString()};
 const ids = {next: (prefix: string) => `${prefix}_${randomUUID().replaceAll("-", "")}`};
+const EDITOR_KOREAN_FONT = "VPF Noto Sans KR";
 
 function formatPin(status: ProjectStatus): ResourcePin {
   const pin = status.resourcePins.find(item => item.resourceType === "FORMAT_PROFILE");
@@ -162,6 +175,57 @@ async function readSubtitleDocument(projectRoot: string): Promise<SubtitleDocume
   return parsed;
 }
 
+/**
+ * Optional, project-owned explanatory labels for the top safe area.
+ * They add source context or a clearly marked hypothesis without repeating the
+ * narration or embedding factual claims into a generated visual.
+ */
+async function readTopAnnotations(projectRoot: string): Promise<TopAnnotation[]> {
+  const filename = path.resolve(projectRoot, "08_editor", "top_annotations.json");
+  let raw: string;
+  try {
+    raw = await readFile(filename, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw new EditorAssemblyServiceError(
+      "EDITOR_TOP_ANNOTATION_INPUT_INVALID",
+      `Could not read top annotation file: ${filename}`
+    );
+  }
+  let parsed: TopAnnotationDocument;
+  try {
+    parsed = JSON.parse(raw) as TopAnnotationDocument;
+  } catch {
+    throw new EditorAssemblyServiceError(
+      "EDITOR_TOP_ANNOTATION_INPUT_INVALID",
+      "top_annotations.json is not valid JSON."
+    );
+  }
+  if (!Array.isArray(parsed.annotations)) {
+    throw new EditorAssemblyServiceError(
+      "EDITOR_TOP_ANNOTATION_INPUT_INVALID",
+      "top_annotations.json must contain an annotations array."
+    );
+  }
+  let previousEnd = 0;
+  for (const annotation of parsed.annotations) {
+    if (
+      typeof annotation.id !== "string" || !annotation.id.trim() ||
+      typeof annotation.text !== "string" || !annotation.text.trim() ||
+      !Number.isFinite(annotation.startMs) || !Number.isFinite(annotation.endMs) ||
+      annotation.startMs < 0 || annotation.endMs <= annotation.startMs ||
+      annotation.startMs < previousEnd
+    ) {
+      throw new EditorAssemblyServiceError(
+        "EDITOR_TOP_ANNOTATION_INPUT_INVALID",
+        `Invalid top annotation: ${annotation.id ?? "unknown"}`
+      );
+    }
+    previousEnd = annotation.endMs;
+  }
+  return parsed.annotations;
+}
+
 async function activeMediaByPath(
   repo: SqliteEditorTimelineRepository,
   projectId: string,
@@ -196,12 +260,14 @@ async function ensureContentPlan(input: {
       "Narration MediaArtifact requires durationMs. Re-run editor media import after media metadata probing is enabled."
     );
   }
+  const narrationDurationMs = narration.durationMs;
 
   const header = input.header.trim();
   if (!header) {
     throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
   }
   const bottomBlurY = Math.round(input.profile.height * 0.72);
+  const topAnnotations = await readTopAnnotations(input.projectRoot);
   const planInput = {
     audio: [{
       id: "tts-narration",
@@ -223,10 +289,10 @@ async function ensureContentPlan(input: {
       generatedFromAudioPlacementIds: ["tts-narration"],
       style: {
         x: input.profile.width / 2,
-        y: input.profile.height * 0.86,
-        width: input.profile.width * 0.8667,
-        fontFamily: "VITRO",
-        fontSize: Math.min(input.profile.width, input.profile.height) * 0.067,
+        y: Math.round(input.profile.height * 0.859375),
+        width: Math.round(input.profile.width * (5 / 6)),
+        fontFamily: EDITOR_KOREAN_FONT,
+        fontSize: Math.round(Math.min(input.profile.width, input.profile.height) / 15),
         fontWeight: 700,
         color: "#FFFFFF",
         strokeColor: "#17130F",
@@ -242,14 +308,14 @@ async function ensureContentPlan(input: {
     textOverlays: [{
       id: "top-title",
       startMs: 0,
-      endMs: narration.durationMs,
+      endMs: narrationDurationMs,
       text: header,
       textRole: "TOP_TITLE" as const,
       x: input.profile.width / 2,
-      y: input.profile.height * 0.094,
-      width: input.profile.width * 0.852,
-      fontFamily: "VITRO",
-      fontSize: Math.min(input.profile.width, input.profile.height) * 0.054,
+      y: Math.round(input.profile.height * 0.09375),
+      width: Math.round(input.profile.width * (23 / 27)),
+      fontFamily: EDITOR_KOREAN_FONT,
+      fontSize: Math.round(Math.min(input.profile.width, input.profile.height) * 0.053703704),
       fontWeight: 800,
       color: "#FFFDF7",
       strokeColor: "#17130F",
@@ -260,7 +326,29 @@ async function ensureContentPlan(input: {
       backgroundEnabled: false,
       backgroundColor: "#000000",
       backgroundOpacity: 0.2
-    }],
+    }, ...topAnnotations.map(annotation => ({
+      id: `top-info-${annotation.id}`,
+      startMs: annotation.startMs,
+      endMs: Math.min(annotation.endMs, narrationDurationMs),
+      text: annotation.text,
+      textRole: "LABEL" as const,
+      x: input.profile.width / 2,
+      y: Math.round(input.profile.height * 0.151),
+      width: Math.round(input.profile.width * (5 / 6)),
+      fontFamily: EDITOR_KOREAN_FONT,
+      fontSize: Math.round(Math.min(input.profile.width, input.profile.height) * 0.03),
+      fontWeight: 700,
+      color: "#E8D9BA",
+      strokeColor: "#17130F",
+      strokeWidth: 2,
+      textAlign: "center" as const,
+      lineHeight: 1.1,
+      maxLines: 1,
+      backgroundEnabled: false,
+      backgroundColor: "#000000",
+      backgroundOpacity: 0,
+      zIndex: 30
+    }))],
     graphics: [
       {
         id: "top-safe-blur",
