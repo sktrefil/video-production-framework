@@ -25,6 +25,8 @@ export type EditorAction =
   | {type:"REPLACE_SUBTITLE_ITEMS"; items:SubtitleTimelineItem[]} | {type:"DELETE_ITEM"; itemId:string}
   | {type:"DUPLICATE_ITEM"; itemId:string; newItemId:string; timelineStartFrame?:number; trackId?:string}
   | {type:"SPLIT_AUDIO_ITEM"; itemId:string; splitFrame:number; newItemId:string}
+  | {type:"SPLIT_SUBTITLE_ITEM"; itemId:string; splitFrame:number; newItemId:string}
+  | {type:"MERGE_SUBTITLE_ITEMS"; itemId:string; nextItemId:string}
   | {type:"SET_PLAYHEAD"; frame:number} | {type:"SET_TIMELINE_ZOOM"; zoom:number}
   | {type:"SET_SNAP"; enabled:boolean; toleranceFrames?:number};
 
@@ -41,6 +43,8 @@ export const editorActions = {
   updateGraphicStyle:(itemId:string,patch:GraphicStylePatch):EditorAction=>({type:"UPDATE_GRAPHIC_STYLE",itemId,patch}), updateTransform:(itemId:string,patch:TransformPatch):EditorAction=>({type:"UPDATE_TRANSFORM",itemId,patch}),
   addTrack:(track:EditorTrack):EditorAction=>({type:"ADD_TRACK",track}), addItem:(item:TimelineItem):EditorAction=>({type:"ADD_ITEM",item}), replaceSubtitleItems:(items:SubtitleTimelineItem[]):EditorAction=>({type:"REPLACE_SUBTITLE_ITEMS",items}),
   deleteItem:(itemId:string):EditorAction=>({type:"DELETE_ITEM",itemId}), duplicateItem:(itemId:string,newItemId:string,timelineStartFrame?:number,trackId?:string):EditorAction=>({type:"DUPLICATE_ITEM",itemId,newItemId,timelineStartFrame,trackId}),
-  splitAudioItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_AUDIO_ITEM",itemId,splitFrame,newItemId}), setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}),
-  setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
+  splitAudioItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_AUDIO_ITEM",itemId,splitFrame,newItemId}),
+  splitSubtitleItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_SUBTITLE_ITEM",itemId,splitFrame,newItemId}),
+  mergeSubtitleItems:(itemId:string,nextItemId:string):EditorAction=>({type:"MERGE_SUBTITLE_ITEMS",itemId,nextItemId}),
+  setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}), setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
 };
