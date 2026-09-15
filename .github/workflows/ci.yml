@@ -16,9 +16,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: npm run build
       - run: npm run typecheck
       - run: npm test
+      - run: npm run build
 
   e2e:
     runs-on: ubuntu-latest
