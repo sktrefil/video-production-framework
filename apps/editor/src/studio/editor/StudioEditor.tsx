@@ -1,9 +1,10 @@
 import {useCurrentFrame,useRemotionEnvironment} from "remotion";
 import {seek as seekStudio} from "@remotion/studio";
 import {createPortal} from "react-dom";
-import {useEffect,useState} from "react";
+import {useCallback,useEffect,useState} from "react";
 import type {FC} from "react";
 import {editorActions} from "./editorActions";
+import {canSplitAudioAtFrame,createAudioSplitId,selectedAudioForSplit} from "./audioSplitCommand";
 import {useStudioEditor} from "./StudioEditorContext";
 import {Timeline} from "./timeline/Timeline";
 import {Inspector} from "./inspector/Inspector";
@@ -21,15 +22,41 @@ const studioHostDocument=():Document|null=>{
   return window.document;
 };
 
+const isEditableKeyboardTarget=(target:EventTarget|null):boolean=>{
+  const element=target as HTMLElement|null;
+  const tagName=element?.tagName?.toLowerCase();
+  return tagName==="input"||tagName==="textarea"||tagName==="select"||element?.isContentEditable===true;
+};
+
 export const StudioEditor:FC=()=>{
   const frame=useCurrentFrame();
   const {isStudio,isReadOnlyStudio}=useRemotionEnvironment();
   const {state,dispatch,persistence,saveProject,reloadProject,canUndo,canRedo}=useStudioEditor();
   const [assetPanelsVisible,setAssetPanelsVisible]=useState(false);
+  const selectedAudio=selectedAudioForSplit(state);
+  const canSplitAudio=canSplitAudioAtFrame(selectedAudio,state.playheadFrame);
+  const splitSelectedAudio=useCallback(()=>{
+    const item=selectedAudioForSplit(state);
+    if(!canSplitAudioAtFrame(item,state.playheadFrame))return;
+    dispatch(editorActions.splitAudioItem(item.id,state.playheadFrame,createAudioSplitId(state)));
+  },[dispatch,state]);
   useEffect(()=>{
     if(!isStudio||isReadOnlyStudio||state.playheadFrame===frame)return;
     dispatch(editorActions.setPlayhead(frame));
   },[dispatch,frame,isReadOnlyStudio,isStudio,state.playheadFrame]);
+  useEffect(()=>{
+    if(!isStudio||isReadOnlyStudio)return;
+    const host=studioHostDocument();
+    if(host===null)return;
+    const onKeyDown=(event:KeyboardEvent)=>{
+      if(event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.key.toLowerCase()!=="s"||isEditableKeyboardTarget(event.target))return;
+      if(!canSplitAudio)return;
+      event.preventDefault();
+      splitSelectedAudio();
+    };
+    host.addEventListener("keydown",onKeyDown);
+    return()=>host.removeEventListener("keydown",onKeyDown);
+  },[canSplitAudio,isReadOnlyStudio,isStudio,splitSelectedAudio]);
   if(!isStudio||isReadOnlyStudio)return null;
   const host=studioHostDocument();
   if(host===null)return null;
@@ -55,7 +82,7 @@ export const StudioEditor:FC=()=>{
       </div>
       <Inspector/>
       {assetPanelsVisible?<div data-editor-asset-panels="true" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",maxHeight:100,overflow:"auto"}}><AudioAssetPanel/><SubtitleGeneratorPanel/><OverlayGeneratorPanel/></div>:null}
-      <Timeline currentFrame={state.playheadFrame} onSeek={seek} onZoomByFactor={zoom}/>
+      <Timeline currentFrame={state.playheadFrame} onSeek={seek} onZoomByFactor={zoom} canSplitAudio={canSplitAudio} onSplitAudio={splitSelectedAudio}/>
     </div>
   </div>;
   return createPortal(panel,host.body);
