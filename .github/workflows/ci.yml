@@ -16,9 +16,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
+      - run: npm run typecheck --workspace @vpf/editor-app
+      - run: npm test --workspace @vpf/editor-app
       - run: npm run typecheck
-      - run: npm test
       - run: npm run build
+      - run: npm test
 
   e2e:
     runs-on: ubuntu-latest
