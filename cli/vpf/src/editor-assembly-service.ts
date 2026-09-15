@@ -292,7 +292,7 @@ async function ensureContentPlan(input: {
         y: Math.round(input.profile.height * 0.859375),
         width: Math.round(input.profile.width * (5 / 6)),
         fontFamily: EDITOR_KOREAN_FONT,
-        fontSize: Math.round(Math.min(input.profile.width, input.profile.height) / 15),
+        fontSize: Math.round(Math.min(input.profile.width, input.profile.height) / 12),
         fontWeight: 700,
         color: "#FFFFFF",
         strokeColor: "#17130F",
