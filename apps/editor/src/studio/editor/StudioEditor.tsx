@@ -37,7 +37,7 @@ export const StudioEditor:FC=()=>{
   const canSplitAudio=canSplitAudioAtFrame(selectedAudio,state.playheadFrame);
   const splitSelectedAudio=useCallback(()=>{
     const item=selectedAudioForSplit(state);
-    if(!canSplitAudioAtFrame(item,state.playheadFrame))return;
+    if(item===null||!canSplitAudioAtFrame(item,state.playheadFrame))return;
     dispatch(editorActions.splitAudioItem(item.id,state.playheadFrame,createAudioSplitId(state)));
   },[dispatch,state]);
   useEffect(()=>{
