@@ -12,6 +12,7 @@ import {Inspector} from "./inspector/Inspector";
 import {AudioAssetPanel} from "./audio/AudioAssetPanel";
 import {SubtitleGeneratorPanel} from "./subtitles/SubtitleGeneratorPanel";
 import {OverlayGeneratorPanel} from "./overlays/OverlayGeneratorPanel";
+import {ClipboardControls} from "./clipboard/ClipboardControls";
 
 const studioHostDocument=():Document|null=>{
   if(typeof window==="undefined")return null;
@@ -109,6 +110,7 @@ export const StudioEditor:FC=()=>{
         <button data-editor-command="step-forward" onClick={()=>seek(state.playheadFrame+1)} title="Next frame (Right)">+1f</button>
         <button disabled={!canUndo} onClick={()=>dispatch(editorActions.undo())}>Undo</button>
         <button disabled={!canRedo} onClick={()=>dispatch(editorActions.redo())}>Redo</button>
+        <ClipboardControls/>
         <button onClick={()=>void saveProject()}>Save</button>
         <button onClick={()=>void reloadProject()}>Reload</button>
         <button aria-expanded={assetPanelsVisible} onClick={()=>setAssetPanelsVisible(visible=>!visible)}>{assetPanelsVisible?"Hide panels":"Show panels"}</button>
