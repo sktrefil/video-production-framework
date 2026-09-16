@@ -5,6 +5,7 @@ import {useCallback,useEffect,useState} from "react";
 import type {FC} from "react";
 import {editorActions} from "./editorActions";
 import {canSplitAudioAtFrame,createAudioSplitId,selectedAudioForSplit} from "./audioSplitCommand";
+import {canSplitVideoAtFrame,createVideoSplitId,selectedVideoForSplit} from "./videoSplitCommand";
 import {useStudioEditor} from "./StudioEditorContext";
 import {Timeline} from "./timeline/Timeline";
 import {Inspector} from "./inspector/Inspector";
@@ -34,11 +35,18 @@ export const StudioEditor:FC=()=>{
   const {state,dispatch,persistence,saveProject,reloadProject,canUndo,canRedo}=useStudioEditor();
   const [assetPanelsVisible,setAssetPanelsVisible]=useState(false);
   const selectedAudio=selectedAudioForSplit(state);
+  const selectedVideo=selectedVideoForSplit(state);
   const canSplitAudio=canSplitAudioAtFrame(selectedAudio,state.playheadFrame);
+  const canSplitVideo=canSplitVideoAtFrame(selectedVideo,state.playheadFrame);
   const splitSelectedAudio=useCallback(()=>{
     const item=selectedAudioForSplit(state);
     if(item===null||!canSplitAudioAtFrame(item,state.playheadFrame))return;
     dispatch(editorActions.splitAudioItem(item.id,state.playheadFrame,createAudioSplitId(state)));
+  },[dispatch,state]);
+  const splitSelectedVideo=useCallback(()=>{
+    const item=selectedVideoForSplit(state);
+    if(item===null||!canSplitVideoAtFrame(item,state.playheadFrame))return;
+    dispatch(editorActions.splitVideoItem(item.id,state.playheadFrame,createVideoSplitId(state)));
   },[dispatch,state]);
   useEffect(()=>{
     if(!isStudio||isReadOnlyStudio||state.playheadFrame===frame)return;
@@ -50,13 +58,13 @@ export const StudioEditor:FC=()=>{
     if(host===null)return;
     const onKeyDown=(event:KeyboardEvent)=>{
       if(event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.key.toLowerCase()!=="s"||isEditableKeyboardTarget(event.target))return;
-      if(!canSplitAudio)return;
+      if(!canSplitAudio&&!canSplitVideo)return;
       event.preventDefault();
-      splitSelectedAudio();
+      if(canSplitAudio)splitSelectedAudio();else splitSelectedVideo();
     };
     host.addEventListener("keydown",onKeyDown);
     return()=>host.removeEventListener("keydown",onKeyDown);
-  },[canSplitAudio,isReadOnlyStudio,isStudio,splitSelectedAudio]);
+  },[canSplitAudio,canSplitVideo,isReadOnlyStudio,isStudio,splitSelectedAudio,splitSelectedVideo]);
   if(!isStudio||isReadOnlyStudio)return null;
   const host=studioHostDocument();
   if(host===null)return null;
@@ -82,7 +90,7 @@ export const StudioEditor:FC=()=>{
       </div>
       <Inspector/>
       {assetPanelsVisible?<div data-editor-asset-panels="true" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",maxHeight:100,overflow:"auto"}}><AudioAssetPanel/><SubtitleGeneratorPanel/><OverlayGeneratorPanel/></div>:null}
-      <Timeline currentFrame={state.playheadFrame} onSeek={seek} onZoomByFactor={zoom} canSplitAudio={canSplitAudio} onSplitAudio={splitSelectedAudio}/>
+      <Timeline currentFrame={state.playheadFrame} onSeek={seek} onZoomByFactor={zoom} canSplitAudio={canSplitAudio} onSplitAudio={splitSelectedAudio} canSplitVideo={canSplitVideo} onSplitVideo={splitSelectedVideo}/>
     </div>
   </div>;
   return createPortal(panel,host.body);
