@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import {createServer} from "node:http";
 import {copyFile, mkdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
 import {basename, dirname, relative, resolve} from "node:path";
@@ -98,33 +99,68 @@ catch(error){
   materialized=await reviewFallback(projectId);
 }
 const referenceProject=materialized.executionProject;
+const referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
 const reviewPath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.json");
+const reviewBasePath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.base.json");
 
+const quarantineIncompatibleDraft=async error=>{
+  const stamp=Date.now();
+  const quarantinePath=`${reviewPath}.incompatible-${stamp}.json`;
+  const quarantineBasePath=`${reviewBasePath}.incompatible-${stamp}.json`;
+  await rename(reviewPath,quarantinePath);
+  await rename(reviewBasePath,quarantineBasePath).catch(()=>undefined);
+  console.warn(`[editor-studio-server] incompatible Studio draft quarantined: ${quarantinePath}`);
+  console.warn(`[editor-studio-server] draft reason: ${error instanceof Error?error.message:String(error)}`);
+  return referenceProject;
+};
 const loadProject=async()=>{
+  let saved;
   try{
-    const saved=await readJson(reviewPath);
+    saved=await readJson(reviewPath);
+  }catch(error){
+    if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return referenceProject;
+    if(error instanceof SyntaxError)return quarantineIncompatibleDraft(error);
+    throw error;
+  }
+  let base;
+  try{
+    base=await readJson(reviewBasePath);
+  }catch(error){
+    if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return quarantineIncompatibleDraft(new Error("Studio draft has no canonical base fingerprint."));
+    if(error instanceof SyntaxError)return quarantineIncompatibleDraft(error);
+    throw error;
+  }
+  if(base?.referenceSha256!==referenceSha256)return quarantineIncompatibleDraft(new Error("Studio draft belongs to a different canonical assembly revision."));
+  try{
     assertEditableProject(saved,projectId,referenceProject);
     return saved;
   }catch(error){
-    if(error&&typeof error==="object"&&"code" in error&&error.code==="ENOENT")return referenceProject;
-    throw error;
+    return quarantineIncompatibleDraft(error);
   }
 };
-const endpoint=`/api/editor/project/${encodeURIComponent(projectId)}`;
+const projectEndpoint=`/api/editor/project/${encodeURIComponent(projectId)}`;
+const activeEndpoint="/api/editor/active";
+const projectEnvelope=async()=>({success:true,projectId,project:await loadProject(),path:reviewPath,status:"REVIEW_DRAFT"});
 const server=createServer(async(request,response)=>{
   try{
     if(request.method==="OPTIONS"){json(response,204,{});return;}
     const origin=new URL(request.url??"/","http://127.0.0.1");
-    if(origin.pathname!==endpoint){json(response,404,fail(404,"Not found"));return;}
+    if(origin.pathname===activeEndpoint){
+      if(request.method!=="GET"){json(response,405,fail(405,"Method not allowed"));return;}
+      json(response,200,await projectEnvelope());
+      return;
+    }
+    if(origin.pathname!==projectEndpoint){json(response,404,fail(404,"Not found"));return;}
     if(request.method==="GET"){
-      json(response,200,{success:true,project:await loadProject(),path:reviewPath,status:"REVIEW_DRAFT"});
+      json(response,200,await projectEnvelope());
       return;
     }
     if(request.method!=="PUT"){json(response,405,fail(405,"Method not allowed"));return;}
     const submitted=JSON.parse(await readBody(request));
     assertEditableProject(submitted,projectId,referenceProject);
     await writeJson(reviewPath,submitted);
-    json(response,200,{success:true,path:reviewPath,savedAt:new Date().toISOString(),status:"REVIEW_DRAFT"});
+    await writeJson(reviewBasePath,{schemaVersion:1,referenceSha256});
+    json(response,200,{success:true,projectId,path:reviewPath,savedAt:new Date().toISOString(),status:"REVIEW_DRAFT"});
   }catch(error){
     json(response,400,{success:false,error:error instanceof Error?error.message:String(error)});
   }
@@ -133,6 +169,8 @@ server.listen(port,"127.0.0.1",()=>{
   const api=`http://127.0.0.1:${port}`;
   const studio=`http://localhost:3000/GenericVideoEditor?vpfProject=${encodeURIComponent(projectId)}&vpfEditorApi=${encodeURIComponent(api)}&vpfFrames=${referenceProject.project.durationInFrames}`;
   console.log(`[editor-studio-server] READY project=${projectId} api=${api}`);
+  console.log(`[editor-studio-server] active=${api}${activeEndpoint}`);
+  console.log(`[editor-studio-server] canonical-sha256=${referenceSha256}`);
   console.log(`[editor-studio-server] Open ${studio}`);
   console.log(`[editor-studio-server] mode=${materialized.reviewMode??"MATERIALIZED_REVIEW"} saves=${reviewPath}`);
   console.log("[editor-studio-server] project.db and the approved assembly remain unchanged. UNASSEMBLED_REVIEW cannot be rendered until a formal TimelineAssemblyRecord exists.");

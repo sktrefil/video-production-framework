@@ -672,6 +672,7 @@ export interface GenericEditorVideoItem extends GenericEditorBaseVisualItem {
   sourceDurationInFrames: number;
   sourceAssetDurationInFrames: number;
   playbackRate: number;
+  loop?: boolean;
   volume: number;
   x: number;
   y: number;

@@ -3,6 +3,12 @@ import {readProjectPolicy} from "./project-policy.js";
 import type {EditorMaterializationRepository} from "@vpf/editor-materializer";
 import {SqliteFinalOutputRepository} from "./final-output.js";
 
+function normalizeMediaChecksum(value: unknown): string {
+  const checksum = String(value ?? "").trim();
+  const prefixed = /^sha256:([a-f0-9]{64})$/iu.exec(checksum);
+  return prefixed === null ? checksum : prefixed[1]!.toLowerCase();
+}
+
 function mapMedia(row: any): MediaArtifact {
   return {
     id: row.id,
@@ -17,7 +23,7 @@ function mapMedia(row: any): MediaArtifact {
     ...(row.width == null ? {} : {width: row.width}),
     ...(row.height == null ? {} : {height: row.height}),
     ...(row.duration_ms == null ? {} : {durationMs: row.duration_ms}),
-    checksum: row.checksum,
+    checksum: normalizeMediaChecksum(row.checksum),
     ...(row.source_job_id == null ? {} : {sourceJobId: row.source_job_id}),
     mediaStatus: row.media_status
   };
