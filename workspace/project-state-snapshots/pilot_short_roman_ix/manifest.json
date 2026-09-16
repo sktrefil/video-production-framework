@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "projectId": "pilot_short_roman_ix",
+  "generatedAt": "2026-09-16T12:27:36.138Z",
+  "files": {
+    "database": {
+      "path": "project.db",
+      "bytes": 2138112,
+      "sha256": "4d7d4c6c0c7d5d2a3194b63a49dc8e8f57d27dee58231c574019f025fa49cc8c"
+    },
+    "projectJson": {
+      "path": "project.json",
+      "bytes": 3349,
+      "sha256": "691146ab9e3e3f4ad2c29e1f36c636f9328713a29806699078398ef6242d78b6"
+    }
+  }
+}
