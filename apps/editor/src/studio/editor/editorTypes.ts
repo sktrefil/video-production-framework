@@ -4,7 +4,7 @@ export type TimelineItemType =
 
 export type TrackType = "VIDEO" | "AUDIO" | "TEXT" | "GRAPHIC";
 
-export type EditorTrack = {id:string; type:TrackType; name:string; enabled:boolean; locked:boolean; order:number};
+export type EditorTrack = {id:string; type:TrackType; name:string; enabled:boolean; locked:boolean; order:number; muted?:boolean; solo?:boolean};
 export type EditorProjectMetadata = {id:string; name:string; fps:number; width:number; height:number; durationInFrames:number};
 export type EditorProjectSettings = {snapEnabled:boolean; snapToleranceFrames:number; timelineZoom:number; masterVolume:number};
 export type BaseTimelineItem = {id:string; type:TimelineItemType; trackId:string; timelineStartFrame:number; durationInFrames:number; enabled:boolean; locked:boolean; zIndex?:number};

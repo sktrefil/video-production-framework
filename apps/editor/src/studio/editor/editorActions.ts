@@ -24,6 +24,10 @@ export type EditorAction =
   | {type:"UPDATE_GRAPHIC_STYLE"; itemId:string; patch:GraphicStylePatch}
   | {type:"UPDATE_TRANSFORM"; itemId:string; patch:TransformPatch}
   | {type:"ADD_TRACK"; track:EditorTrack} | {type:"ADD_ITEM"; item:TimelineItem}
+  | {type:"SET_TRACK_LOCKED"; trackId:string; locked:boolean}
+  | {type:"SET_TRACK_ENABLED"; trackId:string; enabled:boolean}
+  | {type:"SET_TRACK_MUTED"; trackId:string; muted:boolean}
+  | {type:"SET_TRACK_SOLO"; trackId:string; solo:boolean}
   | {type:"REPLACE_SUBTITLE_ITEMS"; items:SubtitleTimelineItem[]} | {type:"DELETE_ITEM"; itemId:string}
   | {type:"DUPLICATE_ITEM"; itemId:string; newItemId:string; timelineStartFrame?:number; trackId?:string}
   | {type:"SPLIT_AUDIO_ITEM"; itemId:string; splitFrame:number; newItemId:string}
@@ -45,7 +49,9 @@ export const editorActions = {
   changeAudioFades:(itemId:string,patch:{fadeInFrames?:number;fadeOutFrames?:number}):EditorAction=>({type:"CHANGE_AUDIO_FADES",itemId,...patch}), updateText:(itemId:string,text:string):EditorAction=>({type:"UPDATE_TEXT",itemId,text}),
   updateSubtitleStyle:(itemId:string,patch:SubtitleStylePatch):EditorAction=>({type:"UPDATE_SUBTITLE_STYLE",itemId,patch}), updateTextStyle:(itemId:string,patch:TextOverlayStylePatch):EditorAction=>({type:"UPDATE_TEXT_STYLE",itemId,patch}),
   updateGraphicStyle:(itemId:string,patch:GraphicStylePatch):EditorAction=>({type:"UPDATE_GRAPHIC_STYLE",itemId,patch}), updateTransform:(itemId:string,patch:TransformPatch):EditorAction=>({type:"UPDATE_TRANSFORM",itemId,patch}),
-  addTrack:(track:EditorTrack):EditorAction=>({type:"ADD_TRACK",track}), addItem:(item:TimelineItem):EditorAction=>({type:"ADD_ITEM",item}), replaceSubtitleItems:(items:SubtitleTimelineItem[]):EditorAction=>({type:"REPLACE_SUBTITLE_ITEMS",items}),
+  addTrack:(track:EditorTrack):EditorAction=>({type:"ADD_TRACK",track}), addItem:(item:TimelineItem):EditorAction=>({type:"ADD_ITEM",item}),
+  setTrackLocked:(trackId:string,locked:boolean):EditorAction=>({type:"SET_TRACK_LOCKED",trackId,locked}), setTrackEnabled:(trackId:string,enabled:boolean):EditorAction=>({type:"SET_TRACK_ENABLED",trackId,enabled}), setTrackMuted:(trackId:string,muted:boolean):EditorAction=>({type:"SET_TRACK_MUTED",trackId,muted}), setTrackSolo:(trackId:string,solo:boolean):EditorAction=>({type:"SET_TRACK_SOLO",trackId,solo}),
+  replaceSubtitleItems:(items:SubtitleTimelineItem[]):EditorAction=>({type:"REPLACE_SUBTITLE_ITEMS",items}),
   deleteItem:(itemId:string):EditorAction=>({type:"DELETE_ITEM",itemId}), duplicateItem:(itemId:string,newItemId:string,timelineStartFrame?:number,trackId?:string):EditorAction=>({type:"DUPLICATE_ITEM",itemId,newItemId,timelineStartFrame,trackId}),
   splitAudioItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_AUDIO_ITEM",itemId,splitFrame,newItemId}), splitVideoItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_VIDEO_ITEM",itemId,splitFrame,newItemId}), splitSubtitleItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_SUBTITLE_ITEM",itemId,splitFrame,newItemId}), mergeSubtitleItems:(itemId:string,nextItemId:string):EditorAction=>({type:"MERGE_SUBTITLE_ITEMS",itemId,nextItemId}),
   setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}), setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
