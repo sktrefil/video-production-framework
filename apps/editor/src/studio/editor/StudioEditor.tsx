@@ -28,6 +28,7 @@ const isEditableKeyboardTarget=(target:EventTarget|null):boolean=>{
   const tagName=element?.tagName?.toLowerCase();
   return tagName==="input"||tagName==="textarea"||tagName==="select"||element?.isContentEditable===true;
 };
+const isNotSplitShortcut=(event:KeyboardEvent):boolean=>event.key.toLowerCase()!=="s";
 
 export const StudioEditor:FC=()=>{
   const frame=useCurrentFrame();
@@ -86,7 +87,7 @@ export const StudioEditor:FC=()=>{
       if(key==="home"){event.preventDefault();seek(0);return;}
       if(key==="end"){event.preventDefault();seek(state.project.project.durationInFrames-1);return;}
       if(key==="delete"){event.preventDefault();deleteSelected();return;}
-      if(key==="s"){
+      if(!isNotSplitShortcut(event)){
         if(!canSplitAudio&&!canSplitVideo)return;
         event.preventDefault();
         if(canSplitAudio)splitSelectedAudio();else splitSelectedVideo();
