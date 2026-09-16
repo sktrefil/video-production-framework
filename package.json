@@ -19,6 +19,7 @@
     "editor:studio": "npm run studio --workspace @vpf/editor-app",
     "editor:materialize": "npm run materialize --workspace @vpf/editor-app --",
     "editor:render": "npm run render --workspace @vpf/editor-app --",
+    "project:state": "node scripts/project-state-sync.mjs",
     "reference:register": "npm run build --workspace @vpf/reference-library && node packages/reference-library/dist/register-cli.js",
     "reference:index-tier": "npm run build --workspace @vpf/reference-library && node packages/reference-library/dist/tier-cli.js",
     "check:repository-boundaries": "node scripts/check-no-legacy-paths.mjs",

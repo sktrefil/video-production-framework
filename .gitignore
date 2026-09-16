@@ -22,6 +22,12 @@ logs/
 *.db
 *.db-wal
 *.db-shm
+
+# Reviewed GitHub project-state snapshots are single-writer SQLite handoffs.
+# Runtime databases, transient WAL/SHM files, media, and renders remain local.
+!workspace/project-state-snapshots/
+!workspace/project-state-snapshots/pilot_short_roman_ix/
+!workspace/project-state-snapshots/pilot_short_roman_ix/project.db
 local.config.*
 .DS_Store
 
