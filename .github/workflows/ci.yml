@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
+      - name: Install Linux Rspack native binding
+        run: npm install --no-save @rspack/binding-linux-x64-gnu@1.7.11
       - run: npm run typecheck --workspace @vpf/editor-app
       - run: npm test --workspace @vpf/editor-app
       - run: npm run typecheck
@@ -33,6 +35,8 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Install Linux Rspack native binding
+        run: npm install --no-save @rspack/binding-linux-x64-gnu@1.7.11
       - run: npm run check:e2e
 
   pilot-readiness:
@@ -44,4 +48,6 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - name: Install Linux Rspack native binding
+        run: npm install --no-save @rspack/binding-linux-x64-gnu@1.7.11
       - run: npm run check:pilot-readiness
