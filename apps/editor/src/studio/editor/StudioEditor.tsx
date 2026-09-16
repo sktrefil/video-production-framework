@@ -1,5 +1,5 @@
 import {useCurrentFrame,useRemotionEnvironment} from "remotion";
-import {seek as seekStudio} from "@remotion/studio";
+import {seek as seekStudio,toggle as toggleStudio} from "@remotion/studio";
 import {createPortal} from "react-dom";
 import {useCallback,useEffect,useState} from "react";
 import type {FC} from "react";
@@ -38,6 +38,12 @@ export const StudioEditor:FC=()=>{
   const selectedVideo=selectedVideoForSplit(state);
   const canSplitAudio=canSplitAudioAtFrame(selectedAudio,state.playheadFrame);
   const canSplitVideo=canSplitVideoAtFrame(selectedVideo,state.playheadFrame);
+  const seek=useCallback((next:number)=>{
+    const lastFrame=Math.max(0,state.project.project.durationInFrames-1);
+    const target=Math.max(0,Math.min(lastFrame,Math.round(next)));
+    seekStudio(target);
+    dispatch(editorActions.setPlayhead(target));
+  },[dispatch,state.project.project.durationInFrames]);
   const splitSelectedAudio=useCallback(()=>{
     const item=selectedAudioForSplit(state);
     if(item===null||!canSplitAudioAtFrame(item,state.playheadFrame))return;
@@ -48,6 +54,12 @@ export const StudioEditor:FC=()=>{
     if(item===null||!canSplitVideoAtFrame(item,state.playheadFrame))return;
     dispatch(editorActions.splitVideoItem(item.id,state.playheadFrame,createVideoSplitId(state)));
   },[dispatch,state]);
+  const deleteSelected=useCallback(()=>{
+    if(state.selectedItemIds.length===0)return;
+    dispatch(editorActions.beginEditTransaction());
+    for(const itemId of state.selectedItemIds)dispatch(editorActions.deleteItem(itemId));
+    dispatch(editorActions.endEditTransaction());
+  },[dispatch,state.selectedItemIds]);
   useEffect(()=>{
     if(!isStudio||isReadOnlyStudio||state.playheadFrame===frame)return;
     dispatch(editorActions.setPlayhead(frame));
@@ -57,28 +69,43 @@ export const StudioEditor:FC=()=>{
     const host=studioHostDocument();
     if(host===null)return;
     const onKeyDown=(event:KeyboardEvent)=>{
-      if(event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.key.toLowerCase()!=="s"||isEditableKeyboardTarget(event.target))return;
-      if(!canSplitAudio&&!canSplitVideo)return;
-      event.preventDefault();
-      if(canSplitAudio)splitSelectedAudio();else splitSelectedVideo();
+      if(event.defaultPrevented||isEditableKeyboardTarget(event.target))return;
+      const key=event.key.toLowerCase();
+      const commandModifier=event.ctrlKey||event.metaKey;
+      if(commandModifier){
+        if(event.altKey)return;
+        if(key==="z"&&!event.shiftKey){event.preventDefault();dispatch(editorActions.undo());return;}
+        if(key==="y"||(key==="z"&&event.shiftKey)){event.preventDefault();dispatch(editorActions.redo());return;}
+        return;
+      }
+      if(event.altKey)return;
+      if(event.repeat&&!(["arrowleft","arrowright"].includes(key)))return;
+      if(key===" "||event.code==="Space"){event.preventDefault();toggleStudio();return;}
+      if(key==="arrowleft"){event.preventDefault();seek(state.playheadFrame-(event.shiftKey?5:1));return;}
+      if(key==="arrowright"){event.preventDefault();seek(state.playheadFrame+(event.shiftKey?5:1));return;}
+      if(key==="home"){event.preventDefault();seek(0);return;}
+      if(key==="end"){event.preventDefault();seek(state.project.project.durationInFrames-1);return;}
+      if(key==="delete"){event.preventDefault();deleteSelected();return;}
+      if(key==="s"){
+        if(!canSplitAudio&&!canSplitVideo)return;
+        event.preventDefault();
+        if(canSplitAudio)splitSelectedAudio();else splitSelectedVideo();
+      }
     };
     host.addEventListener("keydown",onKeyDown);
     return()=>host.removeEventListener("keydown",onKeyDown);
-  },[canSplitAudio,canSplitVideo,isReadOnlyStudio,isStudio,splitSelectedAudio,splitSelectedVideo]);
+  },[canSplitAudio,canSplitVideo,deleteSelected,dispatch,isReadOnlyStudio,isStudio,seek,splitSelectedAudio,splitSelectedVideo,state.playheadFrame,state.project.project.durationInFrames]);
   if(!isStudio||isReadOnlyStudio)return null;
   const host=studioHostDocument();
   if(host===null)return null;
-  const seek=(next:number)=>{
-    const lastFrame=Math.max(0,state.project.project.durationInFrames-1);
-    const target=Math.max(0,Math.min(lastFrame,Math.round(next)));
-    seekStudio(target);
-    dispatch(editorActions.setPlayhead(target));
-  };
   const zoom=(factor:number)=>dispatch(editorActions.setTimelineZoom(state.project.settings.timelineZoom*factor));
   const panel=<div data-vpf-generic-editor="true" style={{position:"fixed",left:0,right:0,bottom:0,zIndex:2147483647,maxHeight:"42vh",background:"rgba(12,14,17,.98)",borderTop:"2px solid rgba(255,255,255,.2)",boxShadow:"0 -10px 30px rgba(0,0,0,.45)",color:"white",fontFamily:"sans-serif",fontSize:12,overflow:"hidden"}}>
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,padding:6,alignItems:"center"}}>
         <strong>Generic Editor</strong>
+        <button data-editor-command="toggle-playback" onClick={()=>toggleStudio()} title="Play/Pause (Space)">Play/Pause</button>
+        <button data-editor-command="step-back" onClick={()=>seek(state.playheadFrame-1)} title="Previous frame (Left)">-1f</button>
+        <button data-editor-command="step-forward" onClick={()=>seek(state.playheadFrame+1)} title="Next frame (Right)">+1f</button>
         <button disabled={!canUndo} onClick={()=>dispatch(editorActions.undo())}>Undo</button>
         <button disabled={!canRedo} onClick={()=>dispatch(editorActions.redo())}>Redo</button>
         <button onClick={()=>void saveProject()}>Save</button>
