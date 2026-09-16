@@ -8,6 +8,11 @@ const isSubtitle=(item:TimelineItem):item is SubtitleTimelineItem=>item.type==="
 
 const normalizeItem=(item:TimelineItem):TimelineItem=>{
   const normalized={...item,timelineStartFrame:Math.max(0,Math.round(item.timelineStartFrame)),durationInFrames:Math.max(1,Math.round(item.durationInFrames))} as TimelineItem;
+  if(isAudio(normalized)){
+    const duration=normalized.durationInFrames;
+    const ducking=normalized.type==="BGM"&&normalized.ducking?{enabled:normalized.ducking.enabled,duckVolume:clamp(normalized.ducking.duckVolume,0,1),attackFrames:Math.max(0,Math.round(normalized.ducking.attackFrames)),releaseFrames:Math.max(0,Math.round(normalized.ducking.releaseFrames)),minGapFrames:Math.max(0,Math.round(normalized.ducking.minGapFrames))}:normalized.ducking;
+    return{...normalized,fadeInFrames:clamp(Math.round(normalized.fadeInFrames),0,duration),fadeOutFrames:clamp(Math.round(normalized.fadeOutFrames),0,duration),...(ducking?{ducking}:{})};
+  }
   if(!isVideo(normalized))return normalized;
   const asset=Math.max(1,Math.round(normalized.sourceAssetDurationInFrames));
   const start=Math.min(asset-1,Math.max(0,Math.round(normalized.sourceStartFrame)));
@@ -65,7 +70,8 @@ export const editorReducer=(state:EditorState,action:EditorAction):EditorState=>
     case "CHANGE_VIDEO_SOURCE_POLICY": return updateItem(state,action.itemId,(item)=>{if(!isVideo(item))return item;const canonical=canonicalWindow(item);if(action.policy==="QC_TRIM")return{...item,sourceUsagePolicy:"QC_TRIM",sourceStartFrame:canonical.start,sourceDurationInFrames:canonical.duration,sourceWindowApprovalRequired:false};if(action.policy==="FULL_SOURCE"){if(canonical.start===0&&canonical.duration===item.sourceAssetDurationInFrames)return{...item,sourceUsagePolicy:"FULL_SOURCE",sourceStartFrame:0,sourceDurationInFrames:item.sourceAssetDurationInFrames,sourceWindowApprovalRequired:false};return{...item,sourceUsagePolicy:"FULL_SOURCE",sourceWindowApprovalRequired:true};}const designedDuration=Math.max(1,Math.round(item.durationInFrames*item.playbackRate));if(designedDuration<=canonical.duration)return{...item,sourceUsagePolicy:"DESIGNED_DURATION",sourceStartFrame:canonical.start,sourceDurationInFrames:designedDuration,sourceWindowApprovalRequired:false};return{...item,sourceUsagePolicy:"DESIGNED_DURATION",sourceWindowApprovalRequired:true};});
     case "CHANGE_AUDIO_MUTED": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,muted:action.muted}:item);
     case "CHANGE_AUDIO_LOOP": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,loop:action.loop}:item);
-    case "CHANGE_AUDIO_FADES": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,fadeInFrames:Math.max(0,Math.round(action.fadeInFrames??item.fadeInFrames)),fadeOutFrames:Math.max(0,Math.round(action.fadeOutFrames??item.fadeOutFrames))}:item);
+    case "CHANGE_AUDIO_FADES": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,fadeInFrames:clamp(Math.round(action.fadeInFrames??item.fadeInFrames),0,item.durationInFrames),fadeOutFrames:clamp(Math.round(action.fadeOutFrames??item.fadeOutFrames),0,item.durationInFrames)}:item);
+    case "CHANGE_AUDIO_DUCKING": return updateItem(state,action.itemId,(item)=>{if(item.type!=="BGM")return item;const current=item.ducking??{enabled:false,duckVolume:.25,attackFrames:6,releaseFrames:10,minGapFrames:4};return{...item,ducking:{enabled:action.patch.enabled??current.enabled,duckVolume:clamp(action.patch.duckVolume??current.duckVolume,0,1),attackFrames:Math.max(0,Math.round(action.patch.attackFrames??current.attackFrames)),releaseFrames:Math.max(0,Math.round(action.patch.releaseFrames??current.releaseFrames)),minGapFrames:Math.max(0,Math.round(action.patch.minGapFrames??current.minGapFrames))}};});
     case "UPDATE_TEXT": return updateItem(state,action.itemId,(item)=>(item.type==="TEXT"||item.type==="SUBTITLE")?{...item,text:action.text}:item);
     case "UPDATE_SUBTITLE_STYLE": return updateItem(state,action.itemId,(item)=>item.type==="SUBTITLE"?{...item,...action.patch}:item);
     case "UPDATE_TEXT_STYLE": return updateItem(state,action.itemId,(item)=>item.type==="TEXT"?{...item,...action.patch}:item);

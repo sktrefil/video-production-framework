@@ -1,4 +1,4 @@
-import type {EditProject, EditorTrack, GraphicTimelineItem, SubtitleTimelineItem, TextTimelineItem, TimelineItem, VideoSourceUsagePolicy} from "./editorTypes";
+import type {AudioDuckingSettings,EditProject, EditorTrack, GraphicTimelineItem, SubtitleTimelineItem, TextTimelineItem, TimelineItem, VideoSourceUsagePolicy} from "./editorTypes";
 
 export type TransformPatch = Partial<{x:number; y:number; scale:number; rotation:number; opacity:number}>;
 export type TextOverlayStylePatch = Partial<Pick<TextTimelineItem,"x"|"y"|"width"|"fontFamily"|"fontSize"|"fontWeight"|"color"|"strokeColor"|"strokeWidth"|"textAlign"|"lineHeight"|"maxLines"|"backgroundEnabled"|"backgroundColor"|"backgroundOpacity"|"textRole">>;
@@ -18,6 +18,7 @@ export type EditorAction =
   | {type:"CHANGE_VIDEO_SOURCE_POLICY"; itemId:string; policy:VideoSourceUsagePolicy}
   | {type:"CHANGE_AUDIO_MUTED"; itemId:string; muted:boolean} | {type:"CHANGE_AUDIO_LOOP"; itemId:string; loop:boolean}
   | {type:"CHANGE_AUDIO_FADES"; itemId:string; fadeInFrames?:number; fadeOutFrames?:number}
+  | {type:"CHANGE_AUDIO_DUCKING"; itemId:string; patch:Partial<AudioDuckingSettings>}
   | {type:"UPDATE_TEXT"; itemId:string; text:string}
   | {type:"UPDATE_SUBTITLE_STYLE"; itemId:string; patch:SubtitleStylePatch}
   | {type:"UPDATE_TEXT_STYLE"; itemId:string; patch:TextOverlayStylePatch}
@@ -46,7 +47,7 @@ export const editorActions = {
   changeVolume:(itemId:string,volume:number):EditorAction=>({type:"CHANGE_VOLUME",itemId,volume}), changeVideoFit:(itemId:string,fit:"cover"|"contain"):EditorAction=>({type:"CHANGE_VIDEO_FIT",itemId,fit}),
   changeVideoSourceWindow:(itemId:string,sourceStartFrame:number,sourceDurationInFrames:number):EditorAction=>({type:"CHANGE_VIDEO_SOURCE_WINDOW",itemId,sourceStartFrame,sourceDurationInFrames}), changeVideoSourcePolicy:(itemId:string,policy:VideoSourceUsagePolicy):EditorAction=>({type:"CHANGE_VIDEO_SOURCE_POLICY",itemId,policy}),
   changeAudioMuted:(itemId:string,muted:boolean):EditorAction=>({type:"CHANGE_AUDIO_MUTED",itemId,muted}), changeAudioLoop:(itemId:string,loop:boolean):EditorAction=>({type:"CHANGE_AUDIO_LOOP",itemId,loop}),
-  changeAudioFades:(itemId:string,patch:{fadeInFrames?:number;fadeOutFrames?:number}):EditorAction=>({type:"CHANGE_AUDIO_FADES",itemId,...patch}), updateText:(itemId:string,text:string):EditorAction=>({type:"UPDATE_TEXT",itemId,text}),
+  changeAudioFades:(itemId:string,patch:{fadeInFrames?:number;fadeOutFrames?:number}):EditorAction=>({type:"CHANGE_AUDIO_FADES",itemId,...patch}), changeAudioDucking:(itemId:string,patch:Partial<AudioDuckingSettings>):EditorAction=>({type:"CHANGE_AUDIO_DUCKING",itemId,patch}), updateText:(itemId:string,text:string):EditorAction=>({type:"UPDATE_TEXT",itemId,text}),
   updateSubtitleStyle:(itemId:string,patch:SubtitleStylePatch):EditorAction=>({type:"UPDATE_SUBTITLE_STYLE",itemId,patch}), updateTextStyle:(itemId:string,patch:TextOverlayStylePatch):EditorAction=>({type:"UPDATE_TEXT_STYLE",itemId,patch}),
   updateGraphicStyle:(itemId:string,patch:GraphicStylePatch):EditorAction=>({type:"UPDATE_GRAPHIC_STYLE",itemId,patch}), updateTransform:(itemId:string,patch:TransformPatch):EditorAction=>({type:"UPDATE_TRANSFORM",itemId,patch}),
   addTrack:(track:EditorTrack):EditorAction=>({type:"ADD_TRACK",track}), addItem:(item:TimelineItem):EditorAction=>({type:"ADD_ITEM",item}),
