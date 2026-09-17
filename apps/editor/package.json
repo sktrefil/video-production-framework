@@ -10,7 +10,7 @@
     "check:browser": "node scripts/check-browser.mjs",
     "check:render": "node scripts/check-render-fixture.mjs",
     "check": "npm run typecheck && npm test && npm run check:browser && npm run check:render",
-    "studio": "remotion studio src/index.ts",
+    "studio": "node scripts/prepare-remotion-studio-preview-zoom.mjs && remotion studio src/index.ts",
     "studio-server": "node scripts/editor-studio-server.mjs",
     "materialize": "node scripts/materialize-editor-project.mjs",
     "render": "node scripts/render-editor-project-canonical.mjs",
