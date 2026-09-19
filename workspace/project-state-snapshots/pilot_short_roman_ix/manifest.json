@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "projectId": "pilot_short_roman_ix",
-  "generatedAt": "2026-09-19T08:24:56.982Z",
+  "generatedAt": "2026-09-19T08:31:07.825Z",
   "files": {
     "database": {
       "path": "project.db",
@@ -12,6 +12,16 @@
       "path": "project.json",
       "bytes": 3349,
       "sha256": "691146ab9e3e3f4ad2c29e1f36c636f9328713a29806699078398ef6242d78b6"
+    },
+    "editorReview": {
+      "path": "studio_edit_project.json",
+      "bytes": 34048,
+      "sha256": "7fd12a542b735d66864a149297f81557c2f71e8ca040bb71265a8d8d98968bc8"
+    },
+    "editorReviewBase": {
+      "path": "studio_edit_project.base.json",
+      "bytes": 114,
+      "sha256": "e2b99844f461c16254ff23b7664112b7a1202af1b4ea8b80df935e713985e882"
     }
   }
 }
