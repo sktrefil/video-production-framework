@@ -5,6 +5,11 @@ const clamp=(value:number,min:number,max:number)=>Math.min(max,Math.max(min,Numb
 const isAudio=(item:TimelineItem):item is AudioTimelineItem=>["TTS","CLIP_AUDIO","BGM","SFX"].includes(item.type);
 const isVideo=(item:TimelineItem):item is VideoTimelineItem=>item.type==="VIDEO";
 const isSubtitle=(item:TimelineItem):item is SubtitleTimelineItem=>item.type==="SUBTITLE";
+const normalizeSubtitleEmphasis=(text:string,ranges:SubtitleTimelineItem["emphasisRanges"])=>{
+  const normalized=(ranges??[]).filter((range)=>Number.isFinite(range.start)&&Number.isFinite(range.end)).map((range)=>({start:Math.max(0,Math.min(text.length,Math.round(range.start))),end:Math.max(0,Math.min(text.length,Math.round(range.end))),color:range.color.trim()||"#D79A32",enabled:range.enabled===true})).filter((range)=>range.end>range.start).sort((a,b)=>a.start-b.start||a.end-b.end).reduce<NonNullable<SubtitleTimelineItem["emphasisRanges"]>>((accepted,range)=>range.start>=(accepted.at(-1)?.end??0)?[...accepted,range]:accepted,[]);
+  return normalized.length?normalized:undefined;
+};
+const replaceSubtitleEmphasis=(item:SubtitleTimelineItem,input:{text:string;color:string;enabled:boolean})=>{const start=input.text?item.text.indexOf(input.text):-1;return start<0?undefined:[{start,end:start+input.text.length,color:input.color.trim()||"#D79A32",enabled:input.enabled}];};
 
 const normalizeItem=(item:TimelineItem):TimelineItem=>{
   const normalized={...item,timelineStartFrame:Math.max(0,Math.round(item.timelineStartFrame)),durationInFrames:Math.max(1,Math.round(item.durationInFrames))} as TimelineItem;
@@ -12,6 +17,11 @@ const normalizeItem=(item:TimelineItem):TimelineItem=>{
     const duration=normalized.durationInFrames;
     const ducking=normalized.type==="BGM"&&normalized.ducking?{enabled:normalized.ducking.enabled,duckVolume:clamp(normalized.ducking.duckVolume,0,1),attackFrames:Math.max(0,Math.round(normalized.ducking.attackFrames)),releaseFrames:Math.max(0,Math.round(normalized.ducking.releaseFrames)),minGapFrames:Math.max(0,Math.round(normalized.ducking.minGapFrames))}:normalized.ducking;
     return{...normalized,fadeInFrames:clamp(Math.round(normalized.fadeInFrames),0,duration),fadeOutFrames:clamp(Math.round(normalized.fadeOutFrames),0,duration),...(ducking?{ducking}:{})};
+  }
+  if(isSubtitle(normalized)){
+    const emphasisRanges=normalizeSubtitleEmphasis(normalized.text,normalized.emphasisRanges);
+    const {emphasisRanges:_discarded,...subtitle}=normalized;
+    return{...subtitle,...(emphasisRanges?{emphasisRanges}:{})} as SubtitleTimelineItem;
   }
   if(!isVideo(normalized))return normalized;
   const asset=Math.max(1,Math.round(normalized.sourceAssetDurationInFrames));
@@ -72,7 +82,8 @@ export const editorReducer=(state:EditorState,action:EditorAction):EditorState=>
     case "CHANGE_AUDIO_LOOP": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,loop:action.loop}:item);
     case "CHANGE_AUDIO_FADES": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,fadeInFrames:clamp(Math.round(action.fadeInFrames??item.fadeInFrames),0,item.durationInFrames),fadeOutFrames:clamp(Math.round(action.fadeOutFrames??item.fadeOutFrames),0,item.durationInFrames)}:item);
     case "CHANGE_AUDIO_DUCKING": return updateItem(state,action.itemId,(item)=>{if(item.type!=="BGM")return item;const current=item.ducking??{enabled:false,duckVolume:.25,attackFrames:6,releaseFrames:10,minGapFrames:4};return{...item,ducking:{enabled:action.patch.enabled??current.enabled,duckVolume:clamp(action.patch.duckVolume??current.duckVolume,0,1),attackFrames:Math.max(0,Math.round(action.patch.attackFrames??current.attackFrames)),releaseFrames:Math.max(0,Math.round(action.patch.releaseFrames??current.releaseFrames)),minGapFrames:Math.max(0,Math.round(action.patch.minGapFrames??current.minGapFrames))}};});
-    case "UPDATE_TEXT": return updateItem(state,action.itemId,(item)=>(item.type==="TEXT"||item.type==="SUBTITLE")?{...item,text:action.text}:item);
+    case "UPDATE_TEXT": return updateItem(state,action.itemId,(item)=>{if(item.type==="TEXT")return{...item,text:action.text};if(item.type!=="SUBTITLE")return item;const {emphasisRanges:_discarded,...subtitle}=item;return{...subtitle,text:action.text};});
+    case "SET_SUBTITLE_EMPHASIS": return updateItem(state,action.itemId,(item)=>{if(item.type!=="SUBTITLE")return item;const emphasisRanges=replaceSubtitleEmphasis(item,{text:action.text,color:action.color,enabled:action.enabled});const {emphasisRanges:_discarded,...subtitle}=item;return{...subtitle,...(emphasisRanges?{emphasisRanges}:{})};});
     case "UPDATE_SUBTITLE_STYLE": return updateItem(state,action.itemId,(item)=>item.type==="SUBTITLE"?{...item,...action.patch}:item);
     case "UPDATE_TEXT_STYLE": return updateItem(state,action.itemId,(item)=>item.type==="TEXT"?{...item,...action.patch}:item);
     case "UPDATE_GRAPHIC_STYLE": return updateItem(state,action.itemId,(item)=>item.type==="GRAPHIC"?{...item,...action.patch}:item);

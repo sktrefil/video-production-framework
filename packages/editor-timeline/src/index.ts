@@ -989,6 +989,9 @@ export class EditorTimelineAssemblyPipeline {
         text: cue.text,
         ...style,
         generationSource,
+        ...(cue.emphasisRanges === undefined
+          ? {}
+          : { emphasisRanges: structuredClone(cue.emphasisRanges) }),
         ...(generatedFromTtsIds.length === 0
           ? {}
           : { generatedFromTtsIds })

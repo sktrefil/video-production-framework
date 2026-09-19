@@ -35,15 +35,16 @@ test("editor assembly resolves pinned format profile and emits DB-derived canoni
   assert.doesNotMatch(service,/height\s*:\s*1920/);
 });
 
-test("shortform editor content plan includes top 18 percent and bottom 28 percent blur panels",()=>{
+test("shortform editor content plan includes top 18 percent and bottom 26 percent blur panels",()=>{
   const service=read("cli/vpf/src/editor-assembly-service.ts");
 
   assert.match(service,/id: "top-safe-blur"/);
   assert.match(service,/id: "bottom-safe-blur"/);
   assert.match(service,/graphicType: "BLUR_PANEL"/);
   assert.match(service,/height: Math\.round\(input\.profile\.height \* 0\.18\)/);
-  assert.match(service,/bottomBlurY = Math\.round\(input\.profile\.height \* 0\.72\)/);
+  assert.match(service,/bottomBlurY = Math\.round\(input\.profile\.height \* 0\.74\)/);
   assert.match(service,/height: input\.profile\.height - bottomBlurY/);
+  assert.match(service,/backgroundColor: "rgba\(8,12,18,0\.30\)"/);
 });
 
 test("editor content plan pins the approved Korean title and subtitle layout",()=>{

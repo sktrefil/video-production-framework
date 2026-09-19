@@ -266,7 +266,7 @@ async function ensureContentPlan(input: {
   if (!header) {
     throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
   }
-  const bottomBlurY = Math.round(input.profile.height * 0.72);
+  const bottomBlurY = Math.round(input.profile.height * 0.74);
   const topAnnotations = await readTopAnnotations(input.projectRoot);
   const planInput = {
     audio: [{
@@ -360,7 +360,7 @@ async function ensureContentPlan(input: {
         height: input.profile.height - bottomBlurY,
         opacity: 1,
         blurPx: 22,
-        backgroundColor: "rgba(8,12,18,0.24)",
+        backgroundColor: "rgba(8,12,18,0.30)",
         borderRadius: 0,
         zIndex: 20
       }

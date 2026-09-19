@@ -766,6 +766,14 @@ export type GenericEditorSubtitleGenerationSource =
   | "SCRIPT_TIMING"
   | "MANUAL";
 
+/** A source-authored character range to emphasize within a subtitle. */
+export interface SubtitleEmphasisRange {
+  start: number;
+  end: number;
+  color: string;
+  enabled: boolean;
+}
+
 export interface GenericEditorSubtitleItem
   extends GenericEditorTextStyleFields {
   id: string;
@@ -778,6 +786,7 @@ export interface GenericEditorSubtitleItem
   zIndex?: number;
   generationSource?: GenericEditorSubtitleGenerationSource;
   generatedFromTtsIds?: string[];
+  emphasisRanges?: SubtitleEmphasisRange[];
 }
 
 export type GenericEditorTextRole =
@@ -887,6 +896,7 @@ export interface EditorSubtitleCue {
   generationSource?: GenericEditorSubtitleGenerationSource;
   generatedFromAudioPlacementIds?: string[];
   style?: EditorSubtitleStyle;
+  emphasisRanges?: SubtitleEmphasisRange[];
 }
 
 export interface EditorTextOverlay {

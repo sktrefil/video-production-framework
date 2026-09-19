@@ -21,6 +21,7 @@ export type EditorAction =
   | {type:"CHANGE_AUDIO_FADES"; itemId:string; fadeInFrames?:number; fadeOutFrames?:number}
   | {type:"CHANGE_AUDIO_DUCKING"; itemId:string; patch:Partial<AudioDuckingSettings>}
   | {type:"UPDATE_TEXT"; itemId:string; text:string}
+  | {type:"SET_SUBTITLE_EMPHASIS"; itemId:string; text:string; color:string; enabled:boolean}
   | {type:"UPDATE_SUBTITLE_STYLE"; itemId:string; patch:SubtitleStylePatch}
   | {type:"UPDATE_TEXT_STYLE"; itemId:string; patch:TextOverlayStylePatch}
   | {type:"UPDATE_GRAPHIC_STYLE"; itemId:string; patch:GraphicStylePatch}
@@ -50,6 +51,7 @@ export const editorActions = {
   changeVideoSourceWindow:(itemId:string,sourceStartFrame:number,sourceDurationInFrames:number):EditorAction=>({type:"CHANGE_VIDEO_SOURCE_WINDOW",itemId,sourceStartFrame,sourceDurationInFrames}), changeVideoSourcePolicy:(itemId:string,policy:VideoSourceUsagePolicy):EditorAction=>({type:"CHANGE_VIDEO_SOURCE_POLICY",itemId,policy}),
   changeAudioMuted:(itemId:string,muted:boolean):EditorAction=>({type:"CHANGE_AUDIO_MUTED",itemId,muted}), changeAudioLoop:(itemId:string,loop:boolean):EditorAction=>({type:"CHANGE_AUDIO_LOOP",itemId,loop}),
   changeAudioFades:(itemId:string,patch:{fadeInFrames?:number;fadeOutFrames?:number}):EditorAction=>({type:"CHANGE_AUDIO_FADES",itemId,...patch}), changeAudioDucking:(itemId:string,patch:Partial<AudioDuckingSettings>):EditorAction=>({type:"CHANGE_AUDIO_DUCKING",itemId,patch}), updateText:(itemId:string,text:string):EditorAction=>({type:"UPDATE_TEXT",itemId,text}),
+  setSubtitleEmphasis:(itemId:string,input:{text:string;color:string;enabled:boolean}):EditorAction=>({type:"SET_SUBTITLE_EMPHASIS",itemId,...input}),
   updateSubtitleStyle:(itemId:string,patch:SubtitleStylePatch):EditorAction=>({type:"UPDATE_SUBTITLE_STYLE",itemId,patch}), updateTextStyle:(itemId:string,patch:TextOverlayStylePatch):EditorAction=>({type:"UPDATE_TEXT_STYLE",itemId,patch}),
   updateGraphicStyle:(itemId:string,patch:GraphicStylePatch):EditorAction=>({type:"UPDATE_GRAPHIC_STYLE",itemId,patch}), updateTransform:(itemId:string,patch:TransformPatch):EditorAction=>({type:"UPDATE_TRANSFORM",itemId,patch}),
   addTrack:(track:EditorTrack):EditorAction=>({type:"ADD_TRACK",track}), addItem:(item:TimelineItem):EditorAction=>({type:"ADD_ITEM",item}),

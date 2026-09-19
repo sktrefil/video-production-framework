@@ -216,7 +216,8 @@ function approvedContentPlan(revision = 1): EditorContentPlan {
         endMs: 2000,
         text: "첫 번째 자막",
         generationSource: "SCRIPT_TTS_ALIGN",
-        generatedFromAudioPlacementIds: ["narration"]
+        generatedFromAudioPlacementIds: ["narration"],
+        emphasisRanges: [{start: 0, end: 1, color: "#D79A32", enabled: true}]
       },
       {
         id: "002",
@@ -595,6 +596,7 @@ test("WF-16 assembles TTS, clip audio, BGM, SFX, subtitles, text, and graphics i
   if (subtitle?.type !== "SUBTITLE") throw new Error("Expected SUBTITLE");
   assert.equal(subtitle.trackId, "T1");
   assert.deepEqual(subtitle.generatedFromTtsIds, ["audio-narration"]);
+  assert.deepEqual(subtitle.emphasisRanges, [{start: 0, end: 1, color: "#D79A32", enabled: true}]);
   assert.equal(subtitle.fontFamily, "VPF Noto Sans KR");
   assert.equal(subtitle.x, 540);
   assert.equal(subtitle.y, 1766);
