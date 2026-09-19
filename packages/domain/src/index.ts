@@ -652,6 +652,8 @@ export interface GenericEditorProjectSettings {
   snapToleranceFrames: number;
   timelineZoom: number;
   masterVolume: number;
+  /** Multiplier for all audio placed on the A2 Clip Audio track. */
+  clipAudioMasterVolume?: number;
 }
 
 export interface GenericEditorBaseVisualItem {
@@ -672,6 +674,7 @@ export interface GenericEditorVideoItem extends GenericEditorBaseVisualItem {
   sourceDurationInFrames: number;
   sourceAssetDurationInFrames: number;
   playbackRate: number;
+  loop?: boolean;
   volume: number;
   x: number;
   y: number;
@@ -765,6 +768,14 @@ export type GenericEditorSubtitleGenerationSource =
   | "SCRIPT_TIMING"
   | "MANUAL";
 
+/** A source-authored character range to emphasize within a subtitle. */
+export interface SubtitleEmphasisRange {
+  start: number;
+  end: number;
+  color: string;
+  enabled: boolean;
+}
+
 export interface GenericEditorSubtitleItem
   extends GenericEditorTextStyleFields {
   id: string;
@@ -777,6 +788,7 @@ export interface GenericEditorSubtitleItem
   zIndex?: number;
   generationSource?: GenericEditorSubtitleGenerationSource;
   generatedFromTtsIds?: string[];
+  emphasisRanges?: SubtitleEmphasisRange[];
 }
 
 export type GenericEditorTextRole =
@@ -886,6 +898,7 @@ export interface EditorSubtitleCue {
   generationSource?: GenericEditorSubtitleGenerationSource;
   generatedFromAudioPlacementIds?: string[];
   style?: EditorSubtitleStyle;
+  emphasisRanges?: SubtitleEmphasisRange[];
 }
 
 export interface EditorTextOverlay {
@@ -1337,3 +1350,4 @@ export interface TtsGenerationResult extends BaseEntity {
   chunkCount: number;
   completedAt: string;
 }
+export * from "./subtitle-visual-presets.js";

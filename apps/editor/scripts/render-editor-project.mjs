@@ -26,12 +26,16 @@ async function writeJson(path, value) {
 }
 
 async function runRemotion(args) {
-  const command = process.platform === "win32" ? "npm.cmd" : "npm";
+  // Node 24 on Windows throws EINVAL when spawning npm.cmd with shell:false.
+  // Invoke the locally installed JavaScript CLI through the current Node binary
+  // instead; this also keeps the renderer pinned to this workspace's Remotion.
+  const command = process.execPath;
+  const commandArgs = [resolve(APP_ROOT, "node_modules", "@remotion", "cli", "remotion-cli.js"), ...args];
   await new Promise((resolveRun, rejectRun) => {
-    const child = spawn(command, ["exec", "--", "remotion", ...args], {
+    const child = spawn(command, commandArgs, {
       cwd: APP_ROOT,
       stdio: "inherit",
-      windowsHide: false,
+      windowsHide: true,
       shell: false,
       env: {...process.env}
     });

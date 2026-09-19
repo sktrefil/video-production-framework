@@ -17,14 +17,18 @@
     "check:e2e": "npm run build && node tests/e2e/unified-project/run.mjs",
     "check:pilot-readiness": "npm run build && node tests/pilot-readiness/check.mjs",
     "editor:studio": "npm run studio --workspace @vpf/editor-app",
+    "editor:studio-server": "npm run studio-server --workspace @vpf/editor-app --",
+    "editor:subtitle-sync:setup": "node scripts/setup-whisper-runtime.mjs",
+    "editor:subtitle-sync:promote": "node apps/editor/scripts/promote-studio-subtitle-sync.mjs",
     "editor:materialize": "npm run materialize --workspace @vpf/editor-app --",
     "editor:render": "npm run render --workspace @vpf/editor-app --",
+    "project:state": "node scripts/project-state-sync.mjs",
     "reference:register": "npm run build --workspace @vpf/reference-library && node packages/reference-library/dist/register-cli.js",
     "reference:index-tier": "npm run build --workspace @vpf/reference-library && node packages/reference-library/dist/tier-cli.js",
     "check:repository-boundaries": "node scripts/check-no-legacy-paths.mjs",
     "check:foundation": "npm run build && npm run typecheck && npm test",
     "validate:resources": "npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/resource-registry && node packages/resource-registry/dist/validate-cli.js resources",
-    "vpf": "node cli/vpf/dist/main.js"
+    "vpf": "node cli/vpf/dist/entry.js"
   },
   "engines": {
     "node": ">=22"

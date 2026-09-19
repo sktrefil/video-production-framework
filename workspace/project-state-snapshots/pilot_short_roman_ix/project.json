@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "projectId": "pilot_short_roman_ix",
+  "title": "로마 제9군단은 어디로 사라졌을까?",
+  "format": "SHORTFORM",
+  "revision": 3,
+  "lifecycleStatus": "ACTIVE",
+  "pipeline": "VPF_UNIFIED_V1",
+  "legacyAllowed": false,
+  "versions": {
+    "frameworkVersion": "0.1.0",
+    "dataModelVersion": "0014",
+    "channelVisualBibleVersion": "1.2.0",
+    "productionSystemVersion": "2.0.0",
+    "ruleRegistryVersion": "1.0.0",
+    "formatProfileVersion": "1.0.0",
+    "providerProfileVersions": {
+      "FINAL_RENDER": "1.0.0",
+      "IMAGE": "1.2.0",
+      "TTS": "1.0.0",
+      "VIDEO_MANUAL": "1.0.0"
+    },
+    "projectStyleVersion": "UNMATERIALIZED",
+    "resourceHashes": {
+      "channelVisualBible": "sha256:3a8c9db8f9ace775c5bf9dbd8fb90a53dfe5508b65a34e34976bdffc8fa357ae",
+      "ruleRegistry": "sha256:961c5bb553867bec5b624baa289ff75c027baf859a4ff548d8de16a0023665bd",
+      "formatProfile": "sha256:7a6373c1964c80461f6f9a6d76c3b6b1d5fe6e6abd49e9e9c05c91600a99d4da",
+      "providerProfiles": {
+        "FINAL_RENDER": "sha256:bfc0726f82def5c49d8880e0e8a3423594027b7a6a7f32e01d42b44d83e803af",
+        "IMAGE": "sha256:8c6bc773465b367ba8a39fef12d74654d35414dda3bd35112f0a551ba399779c",
+        "TTS": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2",
+        "VIDEO_MANUAL": "sha256:9425d56f8e8271fe35fc5bb5aba2de1210d95035ef346b50607685f8332f5859"
+      },
+      "channelProfile": "sha256:a3674ca80844225ed8dc6a82050dec1b60c8decf35076f64453bc4bb63293514"
+    }
+  },
+  "resourcePins": [
+    {
+      "resourceType": "CHANNEL_PROFILE",
+      "resourceId": "HISTORY_MYSTERY_V1",
+      "version": "1.5.0",
+      "contentHash": "sha256:a3674ca80844225ed8dc6a82050dec1b60c8decf35076f64453bc4bb63293514"
+    },
+    {
+      "resourceType": "CHANNEL_VISUAL_BIBLE",
+      "resourceId": "HISTORY_MYSTERY_VISUAL_BIBLE",
+      "version": "1.2.0",
+      "contentHash": "sha256:3a8c9db8f9ace775c5bf9dbd8fb90a53dfe5508b65a34e34976bdffc8fa357ae"
+    },
+    {
+      "resourceType": "RULE_REGISTRY",
+      "resourceId": "PRODUCTION_RULE_REGISTRY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:961c5bb553867bec5b624baa289ff75c027baf859a4ff548d8de16a0023665bd"
+    },
+    {
+      "resourceType": "FORMAT_PROFILE",
+      "resourceId": "SHORTFORM_9X16_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:7a6373c1964c80461f6f9a6d76c3b6b1d5fe6e6abd49e9e9c05c91600a99d4da"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "REMOTION_FINAL_RENDER_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:bfc0726f82def5c49d8880e0e8a3423594027b7a6a7f32e01d42b44d83e803af"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "IMAGE_PROVIDER_EXECUTION_V1",
+      "version": "1.2.0",
+      "contentHash": "sha256:8c6bc773465b367ba8a39fef12d74654d35414dda3bd35112f0a551ba399779c"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "GOOGLE_FLOW_MANUAL_EXTERNAL_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:9425d56f8e8271fe35fc5bb5aba2de1210d95035ef346b50607685f8332f5859"
+    }
+  ]
+}
