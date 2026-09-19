@@ -29,7 +29,10 @@ const writeJson=async(path,value)=>{
   await rename(temporary,path);
 };
 const parseArgs=argv=>{
-  const [projectId,...rest]=argv;
+  // Some terminals and copied documentation escape underscores as `\\_`.
+  // Project IDs never use backslashes, so accept that harmless escaped form.
+  const [rawProjectId,...rest]=argv;
+  const projectId=typeof rawProjectId==="string"?rawProjectId.replaceAll("\\_","_"):rawProjectId;
   if(!projectId||!PROJECT_ID.test(projectId))throw new Error("Usage: editor-studio-server.mjs <project_id> [--port <1-65535>]");
   let port=DEFAULT_PORT;
   while(rest.length){

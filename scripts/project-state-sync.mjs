@@ -26,6 +26,13 @@ const pathExists = async filename => {
 };
 
 const hashFile = async filename => createHash("sha256").update(await readFile(filename)).digest("hex");
+// Git may check out tracked JSON with CRLF on Windows.  Project state checksums
+// must describe its JSON content, not that platform-specific line ending.
+const hashProjectJson = async filename => createHash("sha256")
+  .update((await readFile(filename, "utf8")).replaceAll("\r\n", "\n"), "utf8")
+  .digest("hex");
+const JSON_SNAPSHOT_KEYS = new Set(["projectJson", "editorReview", "editorReviewBase"]);
+const hashSnapshotFile = async (key, filename) => JSON_SNAPSHOT_KEYS.has(key) ? hashProjectJson(filename) : hashFile(filename);
 
 const ensureProjectId = projectId => {
   if (!/^[a-z0-9][a-z0-9_-]*$/i.test(projectId ?? "")) {
@@ -76,6 +83,8 @@ const snapshotPaths = projectId => {
     directory,
     database: resolve(directory, "project.db"),
     projectJson: resolve(directory, "project.json"),
+    editorReview: resolve(directory, "studio_edit_project.json"),
+    editorReviewBase: resolve(directory, "studio_edit_project.base.json"),
     manifest: resolve(directory, "manifest.json")
   };
 };
@@ -86,6 +95,8 @@ const runtimePaths = projectId => {
     directory,
     database: resolve(directory, "project.db"),
     projectJson: resolve(directory, "project.json"),
+    editorReview: resolve(directory, "08_editor", "studio_edit_project.json"),
+    editorReviewBase: resolve(directory, "08_editor", "studio_edit_project.base.json"),
     wal: resolve(directory, "project.db-wal"),
     shm: resolve(directory, "project.db-shm")
   };
@@ -119,13 +130,13 @@ const ensureRemoteIsNotAhead = branch => {
 
 const checkManifest = async (projectId, paths) => {
   const manifest = await readJson(paths.manifest);
-  if (manifest.schemaVersion !== 1 || manifest.projectId !== projectId) {
+  if (![1, 2].includes(manifest.schemaVersion) || manifest.projectId !== projectId) {
     throw new Error("Snapshot manifest has an unexpected schema version or project id.");
   }
   for (const [key, filename] of [["database", paths.database], ["projectJson", paths.projectJson]]) {
     if (!(await pathExists(filename))) throw new Error(`Snapshot file is missing: ${filename}`);
     const expected = manifest.files?.[key]?.sha256;
-    const actual = await hashFile(filename);
+    const actual = await hashSnapshotFile(key, filename);
     if (typeof expected !== "string" || expected !== actual) {
       throw new Error(`Snapshot checksum mismatch: ${key}`);
     }
@@ -133,7 +144,28 @@ const checkManifest = async (projectId, paths) => {
   assertSqliteIntegrity(paths.database);
   const snapshotProject = await readJson(paths.projectJson);
   if (snapshotProject.projectId !== projectId) throw new Error("Snapshot project.json does not match the requested project id.");
+  for (const [key, filename] of [["editorReview", paths.editorReview], ["editorReviewBase", paths.editorReviewBase]]) {
+    const expected = manifest.files?.[key];
+    if (expected === undefined || expected === null) continue;
+    if (!(await pathExists(filename))) throw new Error(`Snapshot file is missing: ${filename}`);
+    if (typeof expected.sha256 !== "string" || await hashSnapshotFile(key, filename) !== expected.sha256) {
+      throw new Error(`Snapshot checksum mismatch: ${key}`);
+    }
+    await readJson(filename);
+  }
   return manifest;
+};
+
+const copyOptionalJsonSnapshot = async (source, target, key) => {
+  if (!(await pathExists(source))) {
+    await rm(target, {force: true});
+    return null;
+  }
+  await readJson(source);
+  const temporary = `${target}.tmp-${process.pid}-${Date.now()}`;
+  await copyFile(source, temporary);
+  await replaceFile(temporary, target);
+  return {path: key === "editorReview" ? "studio_edit_project.json" : "studio_edit_project.base.json", bytes: (await stat(target)).size, sha256: await hashSnapshotFile(key, target)};
 };
 
 const commandSnapshot = async (projectId, flags) => {
@@ -162,13 +194,17 @@ const commandSnapshot = async (projectId, flags) => {
     await replaceFile(temporaryDatabase, target.database);
     await copyFile(source.projectJson, temporaryProjectJson);
     await replaceFile(temporaryProjectJson, target.projectJson);
+    const editorReview = await copyOptionalJsonSnapshot(source.editorReview, target.editorReview, "editorReview");
+    const editorReviewBase = await copyOptionalJsonSnapshot(source.editorReviewBase, target.editorReviewBase, "editorReviewBase");
     const manifest = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       projectId,
       generatedAt: new Date().toISOString(),
       files: {
         database: {path: "project.db", bytes: (await stat(target.database)).size, sha256: await hashFile(target.database)},
-        projectJson: {path: "project.json", bytes: (await stat(target.projectJson)).size, sha256: await hashFile(target.projectJson)}
+        projectJson: {path: "project.json", bytes: (await stat(target.projectJson)).size, sha256: await hashProjectJson(target.projectJson)},
+        editorReview,
+        editorReviewBase
       }
     };
     await writeJsonAtomically(target.manifest, manifest);
@@ -181,7 +217,7 @@ const commandSnapshot = async (projectId, flags) => {
 
 const backupExistingState = async (source, backupDirectory) => {
   await mkdir(backupDirectory, {recursive: true});
-  for (const [name, filename] of Object.entries({"project.db": source.database, "project.json": source.projectJson, "project.db-wal": source.wal, "project.db-shm": source.shm})) {
+  for (const [name, filename] of Object.entries({"project.db": source.database, "project.json": source.projectJson, "studio_edit_project.json": source.editorReview, "studio_edit_project.base.json": source.editorReviewBase, "project.db-wal": source.wal, "project.db-shm": source.shm})) {
     if (await pathExists(filename)) await copyFile(filename, resolve(backupDirectory, name));
   }
 };
@@ -190,6 +226,17 @@ const moveTransientFilesAside = async (source, backupDirectory) => {
   for (const [name, filename] of Object.entries({"project.db-wal": source.wal, "project.db-shm": source.shm})) {
     if (await pathExists(filename)) await rename(filename, resolve(backupDirectory, `${name}.pre-restore`));
   }
+};
+
+const restoreOptionalJsonSnapshot = async (source, target, expected, key) => {
+  if (expected === undefined) return;
+  if (expected === null) {
+    await rm(target, {force: true});
+    return;
+  }
+  await mkdir(dirname(target), {recursive: true});
+  await copyFile(source, target);
+  if (await hashSnapshotFile(key, target) !== expected.sha256) throw new Error(`Restored ${key} checksum does not match the snapshot.`);
 };
 
 const commandRestore = async (projectId, flags) => {
@@ -205,7 +252,9 @@ const commandRestore = async (projectId, flags) => {
   await copyFile(snapshot.projectJson, target.projectJson);
   assertSqliteIntegrity(target.database);
   if (await hashFile(target.database) !== manifest.files.database.sha256) throw new Error("Restored database checksum does not match the snapshot.");
-  if (await hashFile(target.projectJson) !== manifest.files.projectJson.sha256) throw new Error("Restored project.json checksum does not match the snapshot.");
+  if (await hashProjectJson(target.projectJson) !== manifest.files.projectJson.sha256) throw new Error("Restored project.json checksum does not match the snapshot.");
+  await restoreOptionalJsonSnapshot(snapshot.editorReview, target.editorReview, manifest.files.editorReview, "editorReview");
+  await restoreOptionalJsonSnapshot(snapshot.editorReviewBase, target.editorReviewBase, manifest.files.editorReviewBase, "editorReviewBase");
   console.log(JSON.stringify({status: "RESTORE_COMPLETE", projectId, backupDirectory, snapshotDirectory: snapshot.directory}, null, 2));
 };
 
@@ -213,8 +262,8 @@ const commandStatus = async projectId => {
   const runtime = runtimePaths(projectId);
   const snapshot = snapshotPaths(projectId);
   const output = {projectId, runtime: {}, snapshot: {}};
-  for (const [name, filename] of Object.entries({database: runtime.database, projectJson: runtime.projectJson})) {
-    output.runtime[name] = (await pathExists(filename)) ? {sha256: await hashFile(filename)} : null;
+  for (const [name, filename] of Object.entries({database: runtime.database, projectJson: runtime.projectJson, editorReview: runtime.editorReview, editorReviewBase: runtime.editorReviewBase})) {
+    output.runtime[name] = (await pathExists(filename)) ? {sha256: await hashSnapshotFile(name, filename)} : null;
   }
   if (await pathExists(snapshot.manifest)) {
     const manifest = await checkManifest(projectId, snapshot);
