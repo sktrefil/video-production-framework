@@ -595,9 +595,15 @@ test("WF-16 assembles TTS, clip audio, BGM, SFX, subtitles, text, and graphics i
   if (subtitle?.type !== "SUBTITLE") throw new Error("Expected SUBTITLE");
   assert.equal(subtitle.trackId, "T1");
   assert.deepEqual(subtitle.generatedFromTtsIds, ["audio-narration"]);
-  assert.equal(subtitle.fontFamily, "VITRO");
+  assert.equal(subtitle.fontFamily, "VPF Noto Sans KR");
   assert.equal(subtitle.x, 540);
-  assert.ok(Math.abs(subtitle.width - 936.036) < 0.000001);
+  assert.equal(subtitle.y, 1766);
+  assert.equal(subtitle.width, 972);
+  assert.equal(subtitle.fontSize, 100);
+  assert.equal(subtitle.fontWeight, 800);
+  assert.equal(subtitle.strokeWidth, 6);
+  assert.equal(subtitle.lineHeight, 1.06);
+  assert.equal(subtitle.maxLines, 2);
 
   const title = result.output.editProject.items.find(item => item.id === "text-title");
   assert.equal(title?.type, "TEXT");

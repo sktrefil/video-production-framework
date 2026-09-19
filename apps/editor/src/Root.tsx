@@ -8,7 +8,7 @@ import {
   calculateGenericFinalRenderMetadata,
 } from "./editor/GenericFinalRender";
 import {StudioToolbarProvider} from "./studio/StudioToolbar";
-import {configuredStudioProjectConnection,loadActiveEditorProject} from "./studio/editor/persistence/editorPersistenceApi";
+import {configuredStudioProjectConnection,loadActiveEditorProject,loadStudioRenderProject} from "./studio/editor/persistence/editorPersistenceApi";
 
 const SAMPLE_PROJECT = sampleProjectJson as EditProject;
 const studioConnection=configuredStudioProjectConnection();
@@ -32,13 +32,18 @@ const StudioWrappedGenericEditor: React.FC<{project?: EditProject}> = ({project}
 
 const calculateStudioMetadata:CalculateMetadataFunction<{project?:EditProject}>=async({props,abortSignal,isRendering})=>{
   let editorProject=props.project??studioInitialProject;
-  if(!isRendering){
-    try{
-      const activeProject=await loadActiveEditorProject({signal:abortSignal});
-      if(activeProject)editorProject=activeProject;
-    }catch(error){
-      if(!(error instanceof TypeError))throw error;
-    }
+  try{
+    // Studio's renderer can drop the editor URL query parameters. During a
+    // render, use the server-written snapshot first so it renders precisely
+    // the project that showed "saved" in the editing UI.
+    const savedProject=isRendering?await loadStudioRenderProject({signal:abortSignal}):null;
+    const activeProject=savedProject??await loadActiveEditorProject({signal:abortSignal});
+    if(activeProject)editorProject=activeProject;
+  }catch(error){
+    if(isRendering){
+      try{const activeProject=await loadActiveEditorProject({signal:abortSignal});if(activeProject)editorProject=activeProject;}
+      catch(fallbackError){if(!(fallbackError instanceof TypeError))throw fallbackError;}
+    }else if(!(error instanceof TypeError))throw error;
   }
   return {
     props:{...props,project:editorProject},

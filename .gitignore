@@ -11,6 +11,7 @@ workspace/projects/**
 
 # Generated editor runtime mirrors and renders are never source.
 apps/editor/public/projects/**
+apps/editor/public/vpf-active-editor-project.json
 apps/editor/out/**
 apps/editor/build/**
 apps/editor/.local/**
@@ -35,3 +36,6 @@ local.config.*
 .chrome-*/
 **/__pycache__/
 workspace/_reset_backup/
+
+apps\editor\build
+.venv-whisper/

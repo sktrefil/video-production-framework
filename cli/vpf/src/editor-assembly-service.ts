@@ -1,7 +1,7 @@
 import {randomUUID} from "node:crypto";
 import {mkdir, readFile, rename, writeFile} from "node:fs/promises";
 import * as path from "node:path";
-import type {EditorContentPlan, MediaArtifact} from "@vpf/domain";
+import {cinematicShortsSubtitleStyle,type EditorContentPlan, type MediaArtifact} from "@vpf/domain";
 import {
   EditorContentPlanService,
   EditorTimelineAssemblyPipeline,
@@ -287,23 +287,7 @@ async function ensureContentPlan(input: {
       text: cue.text,
       generationSource: cue.generationSource ?? "SCRIPT_TTS_ALIGN" as const,
       generatedFromAudioPlacementIds: ["tts-narration"],
-      style: {
-        x: input.profile.width / 2,
-        y: Math.round(input.profile.height * 0.859375),
-        width: Math.round(input.profile.width * (5 / 6)),
-        fontFamily: EDITOR_KOREAN_FONT,
-        fontSize: Math.round(Math.min(input.profile.width, input.profile.height) / 12),
-        fontWeight: 700,
-        color: "#FFFFFF",
-        strokeColor: "#17130F",
-        strokeWidth: 4,
-        textAlign: "center" as const,
-        lineHeight: 1.16,
-        maxLines: 2,
-        backgroundEnabled: false,
-        backgroundColor: "#000000",
-        backgroundOpacity: 0.4
-      }
+      style: cinematicShortsSubtitleStyle(input.profile)
     })),
     textOverlays: [{
       id: "top-title",

@@ -3,7 +3,9 @@ import {createServer} from "node:http";
 import {copyFile, mkdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
 import {basename, dirname, relative, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
-import {materializeProjectCommand} from "./materialize-editor-project.mjs";
+import {defaultProjectRoot,materializeProjectCommand} from "./materialize-editor-project.mjs";
+import {buildSubtitleAudioSyncPreview,transcribeFinalAudio} from "./subtitle-audio-sync.mjs";
+import {promoteStudioSubtitleSync} from "./promote-studio-subtitle-sync.mjs";
 import {sha256File} from "@vpf/editor-materializer";
 
 const APP_ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..");
@@ -14,7 +16,7 @@ const MEDIA_TYPES=new Set(["VIDEO","IMAGE","TTS","CLIP_AUDIO","BGM","SFX"]);
 
 const fail=(status,error)=>({status,error});
 const json=(response,status,value)=>{
-  response.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET, PUT, OPTIONS","Access-Control-Allow-Headers":"Content-Type"});
+  response.writeHead(status,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET, PUT, POST, OPTIONS","Access-Control-Allow-Headers":"Content-Type"});
   response.end(JSON.stringify(value));
 };
 const readJson=async path=>JSON.parse(await readFile(path,"utf8"));
@@ -102,6 +104,7 @@ const referenceProject=materialized.executionProject;
 const referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
 const reviewPath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.json");
 const reviewBasePath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.base.json");
+const studioRenderSnapshotPath=resolve(APP_ROOT,"public","vpf-active-editor-project.json");
 
 const quarantineIncompatibleDraft=async error=>{
   const stamp=Date.now();
@@ -138,9 +141,15 @@ const loadProject=async()=>{
     return quarantineIncompatibleDraft(error);
   }
 };
+// The Studio renderer is a separate browser process and may not retain the
+// editing URL query parameters. This snapshot is the exact last saved draft.
+await writeJson(studioRenderSnapshotPath,await loadProject());
 const projectEndpoint=`/api/editor/project/${encodeURIComponent(projectId)}`;
+const subtitleSyncEndpoint=`${projectEndpoint}/subtitle-sync/preview`;
+const subtitleSyncCommitEndpoint=`${projectEndpoint}/subtitle-sync/commit`;
 const activeEndpoint="/api/editor/active";
 const projectEnvelope=async()=>({success:true,projectId,project:await loadProject(),path:reviewPath,status:"REVIEW_DRAFT"});
+let canonicalPromotionRunning=false;
 const server=createServer(async(request,response)=>{
   try{
     if(request.method==="OPTIONS"){json(response,204,{});return;}
@@ -148,6 +157,42 @@ const server=createServer(async(request,response)=>{
     if(origin.pathname===activeEndpoint){
       if(request.method!=="GET"){json(response,405,fail(405,"Method not allowed"));return;}
       json(response,200,await projectEnvelope());
+      return;
+    }
+    if(origin.pathname===subtitleSyncEndpoint){
+      if(request.method!=="POST"){json(response,405,fail(405,"Method not allowed"));return;}
+      const submitted=JSON.parse(await readBody(request));
+      assertEditableProject(submitted,projectId,referenceProject);
+      const tts=submitted.items.find(item=>item.type==="TTS"&&item.trackId==="A1");
+      if(!tts)throw new Error("A1 TTS narration is required for final-audio subtitle sync.");
+      const root=defaultProjectRoot(projectId);
+      const report=await readJson(resolve(root,"08_editor","materialization_report.json"));
+      const media=Array.isArray(report?.media)?report.media.find(item=>item?.editorRelativePath===tts.src):null;
+      if(!media||typeof media.sourceRelativePath!=="string")throw new Error("The materialization report does not map the A1 TTS source.");
+      const audioPath=resolve(root,media.sourceRelativePath);
+      if(!isInside(root,audioPath))throw new Error("The A1 TTS source escapes the project workspace.");
+      const subtitles=submitted.items.filter(item=>item.type==="SUBTITLE"&&item.trackId==="T1");
+      if(subtitles.length===0)throw new Error("T1 has no subtitles to synchronize.");
+      const transcription=await transcribeFinalAudio({audioPath,prompt:subtitles.map(item=>item.text).join(" ")});
+      const preview=buildSubtitleAudioSyncPreview({subtitles,words:transcription.words,fps:submitted.project.fps,projectDurationInFrames:submitted.project.durationInFrames});
+      json(response,200,{success:true,projectId,model:transcription.model,language:transcription.language,...preview});
+      return;
+    }
+    if(origin.pathname===subtitleSyncCommitEndpoint){
+      if(request.method!=="POST"){json(response,405,fail(405,"Method not allowed"));return;}
+      if(canonicalPromotionRunning)throw new Error("A subtitle sync promotion is already running.");
+      canonicalPromotionRunning=true;
+      try{
+        const submitted=JSON.parse(await readBody(request));
+        assertEditableProject(submitted,projectId,referenceProject);
+        // Save the exact reviewed state first, then promote only its approved
+        // TTS_TRANSCRIBE timings into the canonical cue source and project.db.
+        await writeJson(reviewPath,submitted);
+        await writeJson(reviewBasePath,{schemaVersion:1,referenceSha256});
+        await writeJson(studioRenderSnapshotPath,submitted);
+        const promoted=await promoteStudioSubtitleSync({projectId,apply:true,draft:submitted});
+        json(response,200,{success:true,projectId,status:"CANONICAL_PROMOTED",changes:promoted.changes.length,backupPath:promoted.backupPath});
+      }finally{canonicalPromotionRunning=false;}
       return;
     }
     if(origin.pathname!==projectEndpoint){json(response,404,fail(404,"Not found"));return;}
@@ -160,6 +205,7 @@ const server=createServer(async(request,response)=>{
     assertEditableProject(submitted,projectId,referenceProject);
     await writeJson(reviewPath,submitted);
     await writeJson(reviewBasePath,{schemaVersion:1,referenceSha256});
+    await writeJson(studioRenderSnapshotPath,submitted);
     json(response,200,{success:true,projectId,path:reviewPath,savedAt:new Date().toISOString(),status:"REVIEW_DRAFT"});
   }catch(error){
     json(response,400,{success:false,error:error instanceof Error?error.message:String(error)});

@@ -48,6 +48,9 @@ test("actual render bridge pins the accepted production profile", async () => {
   assert.match(source, /--audio-codec=aac/);
   assert.match(source, /--pixel-format=yuv420p/);
   assert.match(source, /--crf=18/);
+  assert.match(source, /process\.execPath/);
+  assert.match(source, /remotion-cli\.js/);
+  assert.doesNotMatch(source, /spawn\(command, \["exec", "--", "remotion"/);
 });
 
 test("MIG-09 deliberately excludes the old Whisper subtitle cache bridge", async () => {
@@ -94,4 +97,14 @@ test("Studio can discover the active materialized project after Remotion normali
   assert.match(rootSource, /loadActiveEditorProject/);
   assert.match(rootSource, /props:\{\.\.\.props,project:editorProject\}/);
   assert.match(rootSource, /durationInFrames:editorProject\.project\.durationInFrames/);
+});
+
+test("Studio render uses the active project instead of the empty Studio fallback", async () => {
+  const rootSource = await read("src/Root.tsx");
+  const persistence = await read("src/studio/editor/persistence/editorPersistenceApi.ts");
+  assert.match(rootSource, /loadStudioRenderProject/);
+  assert.match(rootSource, /savedProject=isRendering/);
+  assert.match(persistence, /vpf-active-editor-project\.json/);
+  assert.match(rootSource, /const activeProject=await loadActiveEditorProject/);
+  assert.doesNotMatch(rootSource, /if\(!isRendering\)/);
 });

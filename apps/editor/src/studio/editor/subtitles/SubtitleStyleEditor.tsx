@@ -3,13 +3,13 @@ import type {FC} from "react";
 import {editorActions} from "../editorActions";
 import type {SubtitleTimelineItem} from "../editorTypes";
 import {useStudioEditor} from "../StudioEditorContext";
-import {CUSTOM_SUBTITLE_PRESET_KEY,parseSubtitleStylePreset,serializeSubtitleStylePreset,SUBTITLE_STYLE_PRESETS} from "../subtitleStylePresets";
+import {CUSTOM_SUBTITLE_PRESET_KEY,parseSubtitleStylePreset,resolveSubtitleStylePreset,serializeSubtitleStylePreset,SUBTITLE_STYLE_PRESETS} from "../subtitleStylePresets";
 
 const field={width:86} as const;
 export const SubtitleStyleEditor:FC<{item:SubtitleTimelineItem}>=({item})=>{
-  const {dispatch}=useStudioEditor();
+  const {state,dispatch}=useStudioEditor();
   const [customPreset,setCustomPreset]=useState(()=>typeof window==="undefined"?null:parseSubtitleStylePreset(window.localStorage.getItem(CUSTOM_SUBTITLE_PRESET_KEY)));
-  const applyBuiltin=(id:string)=>{const preset=SUBTITLE_STYLE_PRESETS.find((candidate)=>candidate.id===id);if(preset)dispatch(editorActions.updateSubtitleStyle(item.id,preset.patch));};
+  const applyBuiltin=(id:string)=>{const preset=SUBTITLE_STYLE_PRESETS.find((candidate)=>candidate.id===id);if(preset)dispatch(editorActions.updateSubtitleStyle(item.id,resolveSubtitleStylePreset(preset,state.project.project)));};
   const saveCustom=()=>{const value=serializeSubtitleStylePreset(item);if(typeof window!=="undefined")window.localStorage.setItem(CUSTOM_SUBTITLE_PRESET_KEY,value);setCustomPreset(parseSubtitleStylePreset(value));};
   return <div data-editor-subtitle-style-editor style={{display:"contents"}}>
     <label>Font <input data-editor-subtitle-font-family style={{width:150}} value={item.fontFamily} onChange={(e)=>dispatch(editorActions.updateSubtitleStyle(item.id,{fontFamily:e.currentTarget.value}))}/></label>

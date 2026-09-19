@@ -16,6 +16,7 @@ import type {
   TimelineAssemblyOutput,
   TimelineAssemblyRecord
 } from "@vpf/domain";
+import {cinematicShortsSubtitleStyle} from "@vpf/domain";
 import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
 
 export interface EditorHandoffSourcePort {
@@ -326,20 +327,20 @@ function defaultSubtitleStyle(
   | "generatedFromTtsIds"
   | "text"
 > {
-  const minimumDimension = Math.min(width, height);
+  const preset = cinematicShortsSubtitleStyle({width, height});
   return {
-    x: finiteNonNegative(style?.x, width / 2),
-    y: finiteNonNegative(style?.y, height * 0.86),
-    width: finitePositive(style?.width, width * 0.8667),
-    fontFamily: style?.fontFamily?.trim() || "VITRO",
-    fontSize: finitePositive(style?.fontSize, minimumDimension * 0.085),
-    fontWeight: finitePositive(style?.fontWeight, 700),
-    color: style?.color?.trim() || "#FFFDF7",
-    strokeColor: style?.strokeColor?.trim() || "#17130F",
-    strokeWidth: finiteNonNegative(style?.strokeWidth, 4),
+    x: finiteNonNegative(style?.x, preset.x),
+    y: finiteNonNegative(style?.y, preset.y),
+    width: finitePositive(style?.width, preset.width),
+    fontFamily: style?.fontFamily?.trim() || preset.fontFamily,
+    fontSize: finitePositive(style?.fontSize, preset.fontSize),
+    fontWeight: finitePositive(style?.fontWeight, preset.fontWeight),
+    color: style?.color?.trim() || preset.color,
+    strokeColor: style?.strokeColor?.trim() || preset.strokeColor,
+    strokeWidth: finiteNonNegative(style?.strokeWidth, preset.strokeWidth),
     textAlign: style?.textAlign ?? "center",
-    lineHeight: finitePositive(style?.lineHeight, 1.16),
-    maxLines: Math.max(1, Math.round(finitePositive(style?.maxLines, 2))),
+    lineHeight: finitePositive(style?.lineHeight, preset.lineHeight),
+    maxLines: Math.max(1, Math.round(finitePositive(style?.maxLines, preset.maxLines))),
     backgroundEnabled: style?.backgroundEnabled ?? false,
     backgroundColor: style?.backgroundColor?.trim() || "#000000",
     backgroundOpacity: Math.min(
