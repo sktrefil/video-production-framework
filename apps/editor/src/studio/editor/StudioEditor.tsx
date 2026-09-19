@@ -1,5 +1,5 @@
 import {useCurrentFrame,useRemotionEnvironment} from "remotion";
-import {seek as seekStudio,toggle as toggleStudio} from "@remotion/studio";
+import {pause as pauseStudio,play as playStudio,seek as seekStudio} from "@remotion/studio";
 import {createPortal} from "react-dom";
 import {useCallback,useEffect,useRef,useState} from "react";
 import type {FC,PointerEvent as ReactPointerEvent} from "react";
@@ -13,6 +13,7 @@ import {AudioAssetPanel} from "./audio/AudioAssetPanel";
 import {SubtitleGeneratorPanel} from "./subtitles/SubtitleGeneratorPanel";
 import {OverlayGeneratorPanel} from "./overlays/OverlayGeneratorPanel";
 import {ClipboardControls} from "./clipboard/ClipboardControls";
+import {ProjectRenderer} from "../../editor/ProjectRenderer";
 
 const studioHostDocument=():Document|null=>{
   if(typeof window==="undefined")return null;
@@ -29,8 +30,10 @@ const isEditableKeyboardTarget=(target:EventTarget|null):boolean=>{
   const tagName=element?.tagName?.toLowerCase();
   return tagName==="input"||tagName==="textarea"||tagName==="select"||element?.isContentEditable===true;
 };
-const isNotSplitShortcut=(event:KeyboardEvent):boolean=>event.key.toLowerCase()!=="s";
+const isNotSplitShortcut=(event:KeyboardEvent):boolean=>event.key.toLowerCase()!=="r";
 const clampPanelHeight=(height:number,viewportHeight:number)=>Math.round(Math.max(220,Math.min(height,Math.max(260,viewportHeight*.85))));
+const copyPopupStyles=(from:Document,to:Document)=>{for(const style of Array.from(from.head.querySelectorAll("style,link[rel=\"stylesheet\"]")))to.head.appendChild(style.cloneNode(true));};
+const popupPreviewScale=(popup:Window,width:number,height:number)=>Math.max(.05,Math.min(1,Math.max(1,popup.innerWidth-16)/width,Math.max(1,popup.innerHeight-50)/height));
 
 type PanelResize={pointerId:number;startY:number;startHeight:number};
 
@@ -46,12 +49,34 @@ export const StudioEditor:FC=()=>{
   const selectedVideo=selectedVideoForSplit(state);
   const canSplitAudio=canSplitAudioAtFrame(selectedAudio,state.playheadFrame);
   const canSplitVideo=canSplitVideoAtFrame(selectedVideo,state.playheadFrame);
+  const [previewPopup,setPreviewPopup]=useState<Window|null>(null);
+  const [previewScale,setPreviewScale]=useState(1);
+  const startPlayback=useCallback(()=>playStudio(),[]);
+  const stopPlayback=useCallback(()=>pauseStudio(),[]);
+  const openPreviewPopup=useCallback(()=>{
+    if(previewPopup!==null&&!previewPopup.closed){previewPopup.focus();return;}
+    const host=studioHostDocument();
+    const hostWindow=host?.defaultView??window;
+    const previewHeight=Math.min(980,Math.max(520,(hostWindow.outerHeight||900)-80));
+    const previewWidth=Math.round(previewHeight*state.project.project.width/state.project.project.height)+32;
+    const left=(hostWindow.screenX||0)+(hostWindow.outerWidth||0)+12;
+    const popup=hostWindow.open("","vpf-editor-preview",`popup=yes,width=${previewWidth},height=${previewHeight},left=${left},top=${hostWindow.screenY||0}`);
+    if(popup===null){setPreviewPopup(null);return;}
+    popup.document.title="VPF Video Preview";
+    popup.document.documentElement.style.cssText="height:100%;background:#101215;";
+    popup.document.body.style.cssText="margin:0;height:100%;overflow:hidden;background:#101215;";
+    copyPopupStyles(window.document,popup.document);
+    setPreviewScale(popupPreviewScale(popup,state.project.project.width,state.project.project.height));
+    setPreviewPopup(popup);
+  },[previewPopup,state.project.project.height,state.project.project.width]);
+  const closePreviewPopup=useCallback(()=>{if(previewPopup!==null&&!previewPopup.closed)previewPopup.close();setPreviewPopup(null);},[previewPopup]);
   const seek=useCallback((next:number)=>{
     const lastFrame=Math.max(0,state.project.project.durationInFrames-1);
     const target=Math.max(0,Math.min(lastFrame,Math.round(next)));
+    stopPlayback();
     seekStudio(target);
     dispatch(editorActions.setPlayhead(target));
-  },[dispatch,state.project.project.durationInFrames]);
+  },[dispatch,state.project.project.durationInFrames,stopPlayback]);
   const splitSelectedAudio=useCallback(()=>{
     const item=selectedAudioForSplit(state);
     if(item===null||!canSplitAudioAtFrame(item,state.playheadFrame))return;
@@ -73,6 +98,29 @@ export const StudioEditor:FC=()=>{
     dispatch(editorActions.setPlayhead(frame));
   },[dispatch,frame,isReadOnlyStudio,isStudio,state.playheadFrame]);
   useEffect(()=>{
+    if(previewPopup===null)return;
+    const checkClosed=window.setInterval(()=>{if(previewPopup.closed)setPreviewPopup(null);},500);
+    return()=>window.clearInterval(checkClosed);
+  },[previewPopup]);
+  useEffect(()=>{
+    if(previewPopup===null)return;
+    const resizePreview=()=>setPreviewScale(popupPreviewScale(previewPopup,state.project.project.width,state.project.project.height));
+    resizePreview();
+    previewPopup.addEventListener("resize",resizePreview);
+    return()=>previewPopup.removeEventListener("resize",resizePreview);
+  },[previewPopup,state.project.project.height,state.project.project.width]);
+  useEffect(()=>{
+    if(previewPopup===null)return;
+    const onPreviewKeyDown=(event:KeyboardEvent)=>{
+      if(event.defaultPrevented||isEditableKeyboardTarget(event.target))return;
+      const key=event.key.toLowerCase();
+      if(key==="s"){event.preventDefault();startPlayback();}
+      if(key==="d"){event.preventDefault();stopPlayback();}
+    };
+    previewPopup.document.addEventListener("keydown",onPreviewKeyDown);
+    return()=>previewPopup.document.removeEventListener("keydown",onPreviewKeyDown);
+  },[previewPopup,startPlayback,stopPlayback]);
+  useEffect(()=>{
     if(!isStudio||isReadOnlyStudio)return;
     const host=studioHostDocument();
     if(host===null)return;
@@ -88,7 +136,8 @@ export const StudioEditor:FC=()=>{
       }
       if(event.altKey)return;
       if(event.repeat&&!(["arrowleft","arrowright"].includes(key)))return;
-      if(key===" "||event.code==="Space"){event.preventDefault();toggleStudio();return;}
+      if(key==="s"){event.preventDefault();startPlayback();return;}
+      if(key==="d"){event.preventDefault();stopPlayback();return;}
       if(key==="arrowleft"){event.preventDefault();seek(state.playheadFrame-(event.shiftKey?5:1));return;}
       if(key==="arrowright"){event.preventDefault();seek(state.playheadFrame+(event.shiftKey?5:1));return;}
       if(key==="home"){event.preventDefault();seek(0);return;}
@@ -102,7 +151,7 @@ export const StudioEditor:FC=()=>{
     };
     host.addEventListener("keydown",onKeyDown);
     return()=>host.removeEventListener("keydown",onKeyDown);
-  },[canSplitAudio,canSplitVideo,deleteSelected,dispatch,isReadOnlyStudio,isStudio,seek,splitSelectedAudio,splitSelectedVideo,state.playheadFrame,state.project.project.durationInFrames]);
+  },[canSplitAudio,canSplitVideo,deleteSelected,dispatch,isReadOnlyStudio,isStudio,seek,splitSelectedAudio,splitSelectedVideo,startPlayback,state.playheadFrame,state.project.project.durationInFrames,stopPlayback]);
   if(!isStudio||isReadOnlyStudio)return null;
   const host=studioHostDocument();
   if(host===null)return null;
@@ -127,7 +176,9 @@ export const StudioEditor:FC=()=>{
     <div data-editor-panel-resizer="true" title="Drag to resize editor panel" onPointerDown={beginPanelResize} onPointerMove={movePanelResize} onPointerUp={endPanelResize} onPointerCancel={endPanelResize} style={{height:9,flex:"0 0 9px",cursor:panelCollapsed?"default":"ns-resize",display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,.04)",touchAction:"none"}}><div style={{width:54,height:3,borderRadius:3,background:"rgba(255,255,255,.42)"}}/></div>
     <div style={{display:"flex",gap:6,padding:"4px 6px 6px",alignItems:"center",flex:"0 0 auto"}}>
       <strong>Generic Editor</strong>
-      <button data-editor-command="toggle-playback" onClick={()=>toggleStudio()} title="Play/Pause (Space)">Play/Pause</button>
+      <button data-editor-command="play-playback" onClick={startPlayback} title="Play (S)">Play</button>
+      <button data-editor-command="stop-playback" onClick={stopPlayback} title="Stop (D)">Stop</button>
+      <button data-editor-command="open-preview-popup" onClick={openPreviewPopup} title="Open video preview in a separate window">Preview Pop-out</button>
       <button data-editor-command="step-back" onClick={()=>seek(state.playheadFrame-1)} title="Previous frame (Left)">-1f</button>
       <button data-editor-command="step-forward" onClick={()=>seek(state.playheadFrame+1)} title="Next frame (Right)">+1f</button>
       <button disabled={!canUndo} onClick={()=>dispatch(editorActions.undo())}>Undo</button>
@@ -144,8 +195,9 @@ export const StudioEditor:FC=()=>{
     {!panelCollapsed?<div data-editor-panel-content="true" style={{display:"flex",flexDirection:"column",minHeight:0,flex:"1 1 auto",overflow:"auto"}}>
       <Inspector/>
       {assetPanelsVisible?<div data-editor-asset-panels="true" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",maxHeight:100,overflow:"auto",flex:"0 0 auto"}}><AudioAssetPanel/><SubtitleGeneratorPanel/><OverlayGeneratorPanel/></div>:null}
-      <Timeline currentFrame={state.playheadFrame} onSeek={seek} onZoomByFactor={zoom} canSplitAudio={canSplitAudio} onSplitAudio={splitSelectedAudio} canSplitVideo={canSplitVideo} onSplitVideo={splitSelectedVideo}/>
+      <Timeline currentFrame={state.playheadFrame} onSeek={seek} onStartPlayback={startPlayback} onZoomByFactor={zoom} canSplitAudio={canSplitAudio} onSplitAudio={splitSelectedAudio} canSplitVideo={canSplitVideo} onSplitVideo={splitSelectedVideo}/>
     </div>:null}
   </div>;
-  return createPortal(panel,host.body);
+  const popupPreview=previewPopup!==null&&!previewPopup.closed?createPortal(<div data-editor-preview-popup="true" style={{height:"100%",display:"flex",flexDirection:"column",background:"#101215",color:"white",fontFamily:"sans-serif"}}><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"7px 10px",fontSize:12,borderBottom:"1px solid #34383d"}}><span>Video Preview · F{state.playheadFrame}</span><button onClick={closePreviewPopup}>Close</button></div><div style={{minHeight:0,flex:"1 1 auto",display:"grid",placeItems:"center",padding:8,overflow:"hidden"}}><div style={{width:state.project.project.width*previewScale,height:state.project.project.height*previewScale,position:"relative",boxShadow:"0 6px 24px rgba(0,0,0,.55)"}}><div style={{width:state.project.project.width,height:state.project.project.height,transform:`scale(${previewScale})`,transformOrigin:"top left"}}><ProjectRenderer project={state.project} muted/></div></div></div></div>,previewPopup.document.body):null;
+  return <>{createPortal(panel,host.body)}{popupPreview}</>;
 };
