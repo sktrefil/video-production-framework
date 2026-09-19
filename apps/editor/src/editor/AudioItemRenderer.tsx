@@ -12,5 +12,12 @@ const envelope=(frame:number,duration:number,fadeIn:number,fadeOut:number)=>{
   return Math.min(incoming,outgoing);
 };
 export const AudioItemRenderer:FC<{item:AudioTimelineItem;masterVolume:number;duckingRanges?:DuckingRange[]}>=({item,masterVolume,duckingRanges=[]})=>(
-  <Audio src={resolveEditorMediaSrc(item.src)} trimBefore={item.sourceStartFrame} trimAfter={item.sourceStartFrame+item.sourceDurationInFrames} muted={item.muted} loop={item.loop===true} loopVolumeCurveBehavior="extend" volume={(frame)=>item.volume*masterVolume*envelope(frame,item.durationInFrames,item.fadeInFrames,item.fadeOutFrames)*duckingGainAtFrame(frame,duckingRanges,item.ducking)} />
+  <Audio
+  src={resolveEditorMediaSrc(item.src)}
+  trimBefore={item.sourceStartFrame}
+  trimAfter={item.sourceStartFrame+item.sourceDurationInFrames}
+  muted={item.muted}
+  loop={item.loop===true}
+  loopVolumeCurveBehavior="extend"
+  volume={(frame)=>item.volume*masterVolume*envelope(frame,item.durationInFrames,item.fadeInFrames,item.fadeOutFrames)*duckingGainAtFrame(frame,duckingRanges,item.ducking)} />
 );
