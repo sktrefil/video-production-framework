@@ -1,7 +1,7 @@
 import {createHash} from "node:crypto";
 import {createServer} from "node:http";
-import {copyFile, mkdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
-import {basename, dirname, relative, resolve} from "node:path";
+import {copyFile, mkdir, readdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
+import {basename, dirname, extname, relative, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import {defaultProjectRoot,materializeProjectCommand} from "./materialize-editor-project.mjs";
 import {buildSubtitleAudioSyncPreview,transcribeFinalAudio} from "./subtitle-audio-sync.mjs";
@@ -13,6 +13,9 @@ const DEFAULT_PORT=4318;
 const MAX_BODY_BYTES=5*1024*1024;
 const PROJECT_ID=/^[a-z0-9][a-z0-9_-]{0,99}$/;
 const MEDIA_TYPES=new Set(["VIDEO","IMAGE","TTS","CLIP_AUDIO","BGM","SFX"]);
+const DEFAULT_BGM_LIBRARY_ROOT="D:\\OneDrive\\VPF-assets\\bgm-assets\\inbox";
+const BGM_LIBRARY_ROOT=resolve(process.env.VPF_BGM_LIBRARY_ROOT??DEFAULT_BGM_LIBRARY_ROOT);
+const BGM_LIBRARY_EXTENSIONS=new Set([".mp3",".wav",".m4a",".aac",".flac",".ogg",".opus"]);
 
 const fail=(status,error)=>({status,error});
 const json=(response,status,value)=>{
@@ -54,6 +57,34 @@ const assertEditableProject=(project,projectId,referenceProject)=>{
 };
 
 const isInside=(root,candidate)=>{const path=relative(root,candidate);return path!==""&&!path.startsWith("..")&&!path.includes(":");};
+const bgmLibraryAssets=async()=>{
+  let entries;
+  try{entries=await readdir(BGM_LIBRARY_ROOT,{withFileTypes:true});}
+  catch(error){throw new Error(`BGM library is unavailable: ${BGM_LIBRARY_ROOT} (${error instanceof Error?error.message:String(error)})`);}
+  const assets=[];
+  for(const entry of entries){
+    if(!entry.isFile()||!BGM_LIBRARY_EXTENSIONS.has(extname(entry.name).toLowerCase()))continue;
+    const sourcePath=resolve(BGM_LIBRARY_ROOT,entry.name);
+    if(!isInside(BGM_LIBRARY_ROOT,sourcePath))continue;
+    const info=await stat(sourcePath);
+    if(!info.isFile()||info.size<=0)continue;
+    assets.push({id:createHash("sha256").update(entry.name).digest("hex"),name:entry.name,extension:extname(entry.name).toLowerCase(),sizeBytes:info.size});
+  }
+  return assets.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+};
+const importBgmLibraryAsset=async assetId=>{
+  const asset=(await bgmLibraryAssets()).find(candidate=>candidate.id===assetId);
+  if(!asset)throw new Error("Selected BGM asset is no longer available in the library.");
+  const sourcePath=resolve(BGM_LIBRARY_ROOT,asset.name);
+  if(!isInside(BGM_LIBRARY_ROOT,sourcePath))throw new Error("Selected BGM asset escapes the configured library.");
+  const checksum=await sha256File(sourcePath);
+  const relativeDestination=`projects/${projectId}/studio-review/media/bgm/${checksum.slice(0,16)}/${basename(asset.name)}`;
+  const destination=resolve(APP_ROOT,"public",relativeDestination);
+  if(!isInside(resolve(APP_ROOT,"public"),destination))throw new Error("BGM review destination escapes the editor public root.");
+  await mkdir(dirname(destination),{recursive:true});
+  try{await stat(destination);}catch{await copyFile(sourcePath,destination);}
+  return{...asset,src:relativeDestination};
+};
 const reviewFallback=async projectId=>{
   const projectRoot=resolve(APP_ROOT,"..","..","workspace","projects",projectId);
   const canonicalPath=resolve(projectRoot,"08_editor","edit-project.json");
@@ -151,12 +182,26 @@ const projectEndpoint=`/api/editor/project/${encodeURIComponent(projectId)}`;
 const subtitleSyncEndpoint=`${projectEndpoint}/subtitle-sync/preview`;
 const subtitleSyncCommitEndpoint=`${projectEndpoint}/subtitle-sync/commit`;
 const activeEndpoint="/api/editor/active";
+const bgmLibraryEndpoint="/api/editor/bgm-library";
+const bgmLibraryImportEndpoint=`${bgmLibraryEndpoint}/import`;
 const projectEnvelope=async()=>({success:true,projectId,project:await loadProject(),path:reviewPath,status:"REVIEW_DRAFT"});
 let canonicalPromotionRunning=false;
 const server=createServer(async(request,response)=>{
   try{
     if(request.method==="OPTIONS"){json(response,204,{});return;}
     const origin=new URL(request.url??"/","http://127.0.0.1");
+    if(origin.pathname===bgmLibraryEndpoint){
+      if(request.method!=="GET"){json(response,405,fail(405,"Method not allowed"));return;}
+      json(response,200,{success:true,root:BGM_LIBRARY_ROOT,assets:await bgmLibraryAssets()});
+      return;
+    }
+    if(origin.pathname===bgmLibraryImportEndpoint){
+      if(request.method!=="POST"){json(response,405,fail(405,"Method not allowed"));return;}
+      const submitted=JSON.parse(await readBody(request));
+      if(!submitted||typeof submitted.assetId!=="string")throw new Error("BGM library import requires an assetId.");
+      json(response,200,{success:true,projectId,asset:await importBgmLibraryAsset(submitted.assetId)});
+      return;
+    }
     if(origin.pathname===activeEndpoint){
       if(request.method!=="GET"){json(response,405,fail(405,"Method not allowed"));return;}
       json(response,200,await projectEnvelope());
