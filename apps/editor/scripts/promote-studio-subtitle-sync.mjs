@@ -59,9 +59,18 @@ async function writeJsonAtomically(filename,value){
 async function runCanonicalAssembly({projectId,header}){
   const entry=resolve(REPOSITORY_ROOT,"cli","vpf","dist","entry.js");
   await new Promise((resolveRun,rejectRun)=>{
-    const child=spawn(process.execPath,[entry,"editor","assemble",projectId,"--header",header],{cwd:REPOSITORY_ROOT,stdio:"inherit",windowsHide:true,shell:false,env:{...process.env}});
+    const output=[];
+    const collect=chunk=>output.push(Buffer.isBuffer(chunk)?chunk.toString("utf8"):String(chunk));
+    const child=spawn(process.execPath,[entry,"editor","assemble",projectId,"--header",header],{cwd:REPOSITORY_ROOT,stdio:["ignore","pipe","pipe"],windowsHide:true,shell:false,env:{...process.env}});
+    child.stdout?.on("data",collect);
+    child.stderr?.on("data",collect);
     child.once("error",rejectRun);
-    child.once("exit",(code,signal)=>code===0?resolveRun():rejectRun(new Error(signal?`Canonical assembly terminated by ${signal}`:`Canonical assembly failed with exit code ${code??"unknown"}`)));
+    child.once("exit",(code,signal)=>{
+      if(code===0){resolveRun();return;}
+      const detail=output.join("").trim().replace(/\s+/g," ").slice(-1200);
+      const reason=signal?`Canonical assembly terminated by ${signal}`:`Canonical assembly failed with exit code ${code??"unknown"}`;
+      rejectRun(new Error(detail?`${reason}: ${detail}`:reason));
+    });
   });
 }
 

@@ -12,6 +12,7 @@ workspace/projects/**
 # Generated editor runtime mirrors and renders are never source.
 apps/editor/public/projects/**
 apps/editor/public/vpf-active-editor-project.json
+apps/editor/public/vpf-active-editor-connection.json
 apps/editor/out/**
 apps/editor/build/**
 apps/editor/.local/**
@@ -39,3 +40,5 @@ workspace/_reset_backup/
 
 apps\editor\build
 .venv-whisper/
+
+apps\editor\build

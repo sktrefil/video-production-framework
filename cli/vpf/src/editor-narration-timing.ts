@@ -1,6 +1,7 @@
 import type {
   EditorContentPlan,
   EditorCutBoundary,
+  GenericEditorAudioItem,
   EditorHandoffItem,
   EditorHandoffManifest,
   GenericEditorImageItem,
@@ -197,7 +198,9 @@ export class NarrationTimedAssemblyRepository implements TimelineAssemblyReposit
       }
     }
 
-    const replacement: Array<GenericEditorVideoItem | GenericEditorImageItem> = [];
+    const replacement: Array<
+      GenericEditorVideoItem | GenericEditorImageItem | GenericEditorAudioItem
+    > = [];
     const cutBoundaries: EditorCutBoundary[] = [];
 
     for (const segment of this.plan.segments) {
@@ -258,6 +261,27 @@ export class NarrationTimedAssemblyRepository implements TimelineAssemblyReposit
           rotation: 0,
           opacity: 1,
           fit: "cover"
+        });
+        // The narration-timing projection initially represents every scene as
+        // an editorial placeholder. Restore the original clip sound here,
+        // after the final scene timing is known, so A2 follows the V1 source
+        // window exactly and can be mixed independently of video playback.
+        replacement.push({
+          id: `audio-${placeholder.id}`,
+          type: "CLIP_AUDIO",
+          trackId: "A2",
+          timelineStartFrame: segment.startFrame,
+          durationInFrames: sourceDurationInFrames,
+          enabled: true,
+          locked: false,
+          src: source.relativePath,
+          sourceStartFrame,
+          sourceDurationInFrames,
+          sourceAssetDurationInFrames,
+          volume: this.profile.clipAudioVolume ?? 1,
+          muted: false,
+          fadeInFrames: 0,
+          fadeOutFrames: 0
         });
       } else if (source.bindingKind === "EDITORIAL") {
         if (source.relativePath === undefined) {

@@ -36,6 +36,8 @@ const copyPopupStyles=(from:Document,to:Document)=>{for(const style of Array.fro
 const popupPreviewScale=(popup:Window,width:number,height:number)=>Math.max(.05,Math.min(1,Math.max(1,popup.innerWidth-16)/width,Math.max(1,popup.innerHeight-50)/height));
 
 type PanelResize={pointerId:number;startY:number;startHeight:number};
+type DocumentPictureInPictureApi={window:Window|null;requestWindow:(options?:{width?:number;height?:number;disallowReturnToOpener?:boolean})=>Promise<Window>};
+type PictureInPictureHostWindow=Window&{documentPictureInPicture?:DocumentPictureInPictureApi};
 
 export const StudioEditor:FC=()=>{
   const frame=useCurrentFrame();
@@ -53,14 +55,20 @@ export const StudioEditor:FC=()=>{
   const [previewScale,setPreviewScale]=useState(1);
   const startPlayback=useCallback(()=>playStudio(),[]);
   const stopPlayback=useCallback(()=>pauseStudio(),[]);
-  const openPreviewPopup=useCallback(()=>{
+  const openPreviewPopup=useCallback(async()=>{
     if(previewPopup!==null&&!previewPopup.closed){previewPopup.focus();return;}
     const host=studioHostDocument();
     const hostWindow=host?.defaultView??window;
     const previewHeight=Math.min(980,Math.max(520,(hostWindow.outerHeight||900)-80));
     const previewWidth=Math.round(previewHeight*state.project.project.width/state.project.project.height)+32;
+    const pictureInPicture=(hostWindow as PictureInPictureHostWindow).documentPictureInPicture;
     const left=(hostWindow.screenX||0)+(hostWindow.outerWidth||0)+12;
-    const popup=hostWindow.open("","vpf-editor-preview",`popup=yes,width=${previewWidth},height=${previewHeight},left=${left},top=${hostWindow.screenY||0}`);
+    let popup:Window|null=null;
+    if(pictureInPicture){
+      try{popup=await pictureInPicture.requestWindow({width:previewWidth,height:previewHeight,disallowReturnToOpener:true});}
+      catch{popup=null;}
+    }
+    if(popup===null)popup=hostWindow.open("","vpf-editor-preview",`popup=yes,width=${previewWidth},height=${previewHeight},left=${left},top=${hostWindow.screenY||0}`);
     if(popup===null){setPreviewPopup(null);return;}
     popup.document.title="VPF Video Preview";
     popup.document.documentElement.style.cssText="height:100%;background:#101215;";
@@ -178,7 +186,7 @@ export const StudioEditor:FC=()=>{
       <strong>Generic Editor</strong>
       <button data-editor-command="play-playback" onClick={startPlayback} title="Play (S)">Play</button>
       <button data-editor-command="stop-playback" onClick={stopPlayback} title="Stop (D)">Stop</button>
-      <button data-editor-command="open-preview-popup" onClick={openPreviewPopup} title="Open video preview in a separate window">Preview Pop-out</button>
+      <button data-editor-command="open-preview-popup" onClick={()=>void openPreviewPopup()} title="Open an always-on-top video preview (Picture-in-Picture)">Preview Always-on-top</button>
       <button data-editor-command="step-back" onClick={()=>seek(state.playheadFrame-1)} title="Previous frame (Left)">-1f</button>
       <button data-editor-command="step-forward" onClick={()=>seek(state.playheadFrame+1)} title="Next frame (Right)">+1f</button>
       <button disabled={!canUndo} onClick={()=>dispatch(editorActions.undo())}>Undo</button>

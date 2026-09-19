@@ -100,11 +100,13 @@ catch(error){
   if(!(error&&typeof error==="object"&&"code" in error&&error.code==="ASSEMBLY_NOT_FOUND"))throw error;
   materialized=await reviewFallback(projectId);
 }
-const referenceProject=materialized.executionProject;
-const referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
+let referenceProject=materialized.executionProject;
+let referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
 const reviewPath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.json");
 const reviewBasePath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.base.json");
 const studioRenderSnapshotPath=resolve(APP_ROOT,"public","vpf-active-editor-project.json");
+const studioConnectionPath=resolve(APP_ROOT,"public","vpf-active-editor-connection.json");
+const api=`http://127.0.0.1:${port}`;
 
 const quarantineIncompatibleDraft=async error=>{
   const stamp=Date.now();
@@ -144,6 +146,7 @@ const loadProject=async()=>{
 // The Studio renderer is a separate browser process and may not retain the
 // editing URL query parameters. This snapshot is the exact last saved draft.
 await writeJson(studioRenderSnapshotPath,await loadProject());
+await writeJson(studioConnectionPath,{schemaVersion:1,projectId,apiBase:api});
 const projectEndpoint=`/api/editor/project/${encodeURIComponent(projectId)}`;
 const subtitleSyncEndpoint=`${projectEndpoint}/subtitle-sync/preview`;
 const subtitleSyncCommitEndpoint=`${projectEndpoint}/subtitle-sync/commit`;
@@ -191,7 +194,16 @@ const server=createServer(async(request,response)=>{
         await writeJson(reviewBasePath,{schemaVersion:1,referenceSha256});
         await writeJson(studioRenderSnapshotPath,submitted);
         const promoted=await promoteStudioSubtitleSync({projectId,apply:true,draft:submitted});
-        json(response,200,{success:true,projectId,status:"CANONICAL_PROMOTED",changes:promoted.changes.length,backupPath:promoted.backupPath});
+        // Canonical assembly owns visual defaults. Re-materialize it after a
+        // timing promotion so a stale Studio review draft cannot keep old
+        // subtitle styling in either the editor preview or its render snapshot.
+        materialized=await materializeProjectCommand({projectId});
+        referenceProject=materialized.executionProject;
+        referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
+        await writeJson(reviewPath,referenceProject);
+        await writeJson(reviewBasePath,{schemaVersion:1,referenceSha256});
+        await writeJson(studioRenderSnapshotPath,referenceProject);
+        json(response,200,{success:true,projectId,status:"CANONICAL_PROMOTED",project:referenceProject,changes:promoted.changes.length,backupPath:promoted.backupPath});
       }finally{canonicalPromotionRunning=false;}
       return;
     }
@@ -212,7 +224,6 @@ const server=createServer(async(request,response)=>{
   }
 });
 server.listen(port,"127.0.0.1",()=>{
-  const api=`http://127.0.0.1:${port}`;
   const studio=`http://localhost:3000/GenericVideoEditor?vpfProject=${encodeURIComponent(projectId)}&vpfEditorApi=${encodeURIComponent(api)}&vpfFrames=${referenceProject.project.durationInFrames}`;
   console.log(`[editor-studio-server] READY project=${projectId} api=${api}`);
   console.log(`[editor-studio-server] active=${api}${activeEndpoint}`);

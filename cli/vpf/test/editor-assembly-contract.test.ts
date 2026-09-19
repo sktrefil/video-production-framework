@@ -27,6 +27,10 @@ test("editor assembly resolves pinned format profile and emits DB-derived canoni
 
   assert.match(service,/resourceType === "FORMAT_PROFILE"/);
   assert.match(service,/resolvePinned<FormatProfilePayload>/);
+  assert.match(service,/resource\.payload\.format === "SHORTFORM" \? 3 : 1/);
+  assert.match(service,/REPOSITORY_RESOURCES_ROOT/);
+  assert.match(service,/fileURLToPath\(import\.meta\.url\)/);
+  assert.doesNotMatch(service,/status\.projectRoot, "\.\.", "\.\.", "\.\.", "resources"/);
   assert.match(service,/result\.assembly\.editProject/);
   assert.match(service,/"edit_project\.json"/);
   assert.doesNotMatch(service,/totalFrames\s*=\s*1500/);
@@ -49,13 +53,17 @@ test("shortform editor content plan includes top 18 percent and bottom 26 percen
 
 test("editor content plan pins the approved Korean title and subtitle layout",()=>{
   const service=read("cli/vpf/src/editor-assembly-service.ts");
+  const visuals=read("packages/domain/src/subtitle-visual-presets.ts");
 
-  assert.match(service,/const EDITOR_KOREAN_FONT = "VPF Noto Sans KR"/);
-  assert.match(service,/y: Math\.round\(input\.profile\.height \* 0\.859375\)/);
-  assert.match(service,/width: Math\.round\(input\.profile\.width \* \(5 \/ 6\)\)/);
-  assert.match(service,/fontSize: Math\.round\(Math\.min\(input\.profile\.width, input\.profile\.height\) \/ 15\)/);
-  assert.match(service,/y: Math\.round\(input\.profile\.height \* 0\.09375\)/);
-  assert.match(service,/width: Math\.round\(input\.profile\.width \* \(23 \/ 27\)\)/);
+  assert.match(visuals,/cinematicShortsHeaderVisuals/);
+  assert.match(visuals,/cinematicShortsSubtitleFontSize/);
+  assert.match(visuals,/fontFamily:"VPF Noto Sans KR"/);
+  assert.match(service,/style: cinematicShortsSubtitleStyle\(input\.profile\)/);
+  assert.match(service,/const headerVisuals=cinematicShortsHeaderVisuals\(input\.profile\)/);
+  assert.match(service,/\.\.\.headerVisuals\.title/);
+  assert.match(service,/\.\.\.headerVisuals\.info/);
+  assert.match(service,/\.\.\.headerVisuals\.panel/);
+  assert.match(service,/\.\.\.headerVisuals\.goldRule/);
 });
 
 test("editor assembly accepts project-owned, non-overlapping top information labels",()=>{
@@ -75,6 +83,17 @@ test("video-only narration timing replaces image holds and loops only when the s
   assert.match(timing,/\{loop: true\}/);
   assert.match(timing,/const holdFrames = source\.bindingKind === "VIDEO" \? 0/);
   assert.match(timing,/allNarrationSegmentsUseVideo && containsLegacyImageHold/);
+});
+
+test("narration-timed video scenes restore source sound on A2",()=>{
+  const timing=read("cli/vpf/src/editor-narration-timing.ts");
+  const service=read("cli/vpf/src/editor-assembly-service.ts");
+
+  assert.match(timing,/type: "CLIP_AUDIO"/);
+  assert.match(timing,/trackId: "A2"/);
+  assert.match(timing,/id: `audio-\$\{placeholder\.id\}`/);
+  assert.match(timing,/volume: this\.profile\.clipAudioVolume \?\? 1/);
+  assert.match(service,/clipAudioVolume: finiteNumber\(defaults\.clipAudioVolume, 1\)/);
 });
 
 test("canonical render wrapper rejects assembly lineage drift",()=>{

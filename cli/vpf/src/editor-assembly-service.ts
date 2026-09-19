@@ -1,7 +1,8 @@
 import {randomUUID} from "node:crypto";
 import {mkdir, readFile, rename, writeFile} from "node:fs/promises";
 import * as path from "node:path";
-import {cinematicShortsSubtitleStyle,type EditorContentPlan, type MediaArtifact} from "@vpf/domain";
+import {fileURLToPath} from "node:url";
+import {cinematicShortsHeaderVisuals,cinematicShortsSubtitleStyle,type EditorContentPlan, type MediaArtifact} from "@vpf/domain";
 import {
   EditorContentPlanService,
   EditorTimelineAssemblyPipeline,
@@ -70,7 +71,12 @@ type TopAnnotationDocument = {
 
 const clock = {nowIso: () => new Date().toISOString()};
 const ids = {next: (prefix: string) => `${prefix}_${randomUUID().replaceAll("-", "")}`};
-const EDITOR_KOREAN_FONT = "VPF Noto Sans KR";
+// Project media may live in an external workspace (for example OneDrive), but
+// pinned resource documents are always owned by the checked-out repository.
+const REPOSITORY_RESOURCES_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..", "..", "..", "resources"
+);
 
 function formatPin(status: ProjectStatus): ResourcePin {
   const pin = status.resourcePins.find(item => item.resourceType === "FORMAT_PROFILE");
@@ -93,8 +99,7 @@ function bool(value: unknown, fallback: boolean): boolean {
 
 export async function resolveTimelineProfile(status: ProjectStatus): Promise<TimelineProfile> {
   const pin = formatPin(status);
-  const resourcesRoot = path.resolve(status.projectRoot, "..", "..", "..", "resources");
-  const registry = new FileSystemResourceRegistry(resourcesRoot);
+  const registry = new FileSystemResourceRegistry(REPOSITORY_RESOURCES_ROOT);
   const resource = await registry.resolvePinned<FormatProfilePayload>(pin);
   const defaults = resource.payload.editorDefaults;
   const fps = resource.payload.fpsPreference;
@@ -112,9 +117,13 @@ export async function resolveTimelineProfile(status: ProjectStatus): Promise<Tim
     height,
     snapEnabled: bool(defaults.snapEnabled, true),
     snapToleranceFrames: finiteNumber(defaults.snapToleranceFrames, 4),
-    timelineZoom: finiteNumber(defaults.timelineZoom, 1),
+    // A 9:16 narration timeline is unreadable at the generic 1x fallback.
+    // A profile may still explicitly choose another value, and saved Studio
+    // review drafts retain the user's own zoom after the first open.
+    timelineZoom: finiteNumber(defaults.timelineZoom, resource.payload.format === "SHORTFORM" ? 3 : 1),
     masterVolume: finiteNumber(defaults.masterVolume, 1),
-    videoVolume: finiteNumber(defaults.videoVolume, 0)
+    videoVolume: finiteNumber(defaults.videoVolume, 0),
+    clipAudioVolume: finiteNumber(defaults.clipAudioVolume, 1)
   };
 }
 
@@ -267,6 +276,7 @@ async function ensureContentPlan(input: {
     throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
   }
   const bottomBlurY = Math.round(input.profile.height * 0.74);
+  const headerVisuals=cinematicShortsHeaderVisuals(input.profile);
   const topAnnotations = await readTopAnnotations(input.projectRoot);
   const planInput = {
     audio: [{
@@ -295,18 +305,7 @@ async function ensureContentPlan(input: {
       endMs: narrationDurationMs,
       text: header,
       textRole: "TOP_TITLE" as const,
-      x: input.profile.width / 2,
-      y: Math.round(input.profile.height * 0.09375),
-      width: Math.round(input.profile.width * (23 / 27)),
-      fontFamily: EDITOR_KOREAN_FONT,
-      fontSize: Math.round(Math.min(input.profile.width, input.profile.height) * 0.053703704),
-      fontWeight: 800,
-      color: "#FFFDF7",
-      strokeColor: "#17130F",
-      strokeWidth: 3,
-      textAlign: "center" as const,
-      lineHeight: 1.1,
-      maxLines: 2,
+      ...headerVisuals.title,
       backgroundEnabled: false,
       backgroundColor: "#000000",
       backgroundOpacity: 0.2
@@ -316,18 +315,7 @@ async function ensureContentPlan(input: {
       endMs: Math.min(annotation.endMs, narrationDurationMs),
       text: annotation.text,
       textRole: "LABEL" as const,
-      x: input.profile.width / 2,
-      y: Math.round(input.profile.height * 0.151),
-      width: Math.round(input.profile.width * (5 / 6)),
-      fontFamily: EDITOR_KOREAN_FONT,
-      fontSize: Math.round(Math.min(input.profile.width, input.profile.height) * 0.03),
-      fontWeight: 700,
-      color: "#E8D9BA",
-      strokeColor: "#17130F",
-      strokeWidth: 2,
-      textAlign: "center" as const,
-      lineHeight: 1.1,
-      maxLines: 1,
+      ...headerVisuals.info,
       backgroundEnabled: false,
       backgroundColor: "#000000",
       backgroundOpacity: 0,
@@ -345,9 +333,31 @@ async function ensureContentPlan(input: {
         height: Math.round(input.profile.height * 0.18),
         opacity: 1,
         blurPx: 18,
-        backgroundColor: "rgba(8,12,18,0.18)",
+        backgroundColor: "rgba(8,12,18,0.26)",
         borderRadius: 0,
         zIndex: 10
+      },
+      {
+        id: "top-header-panel",
+        startMs: 0,
+        endMs: narration.durationMs,
+        graphicType: "SOLID_PANEL" as const,
+        ...headerVisuals.panel,
+        opacity: 1,
+        blurPx: 0,
+        borderRadius: 0,
+        zIndex: 11
+      },
+      {
+        id: "top-header-gold-rule",
+        startMs: 0,
+        endMs: narration.durationMs,
+        graphicType: "SOLID_PANEL" as const,
+        ...headerVisuals.goldRule,
+        opacity: 1,
+        blurPx: 0,
+        borderRadius: 0,
+        zIndex: 12
       },
       {
         id: "bottom-safe-blur",

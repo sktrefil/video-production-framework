@@ -70,6 +70,7 @@ export interface TimelineProfile {
   timelineZoom?: number;
   masterVolume?: number;
   videoVolume?: number;
+  clipAudioVolume?: number;
 }
 
 export class TimelineAssemblyValidationError extends Error {
@@ -195,7 +196,8 @@ function validateProfile(profile: TimelineProfile): void {
     profile.snapToleranceFrames,
     profile.timelineZoom,
     profile.masterVolume,
-    profile.videoVolume
+    profile.videoVolume,
+    profile.clipAudioVolume
   ]) {
     if (value !== undefined && (!Number.isFinite(value) || value < 0)) {
       throw new TimelineAssemblyValidationError(
@@ -305,7 +307,7 @@ function audioTrackId(type: GenericEditorAudioItem["type"]): string {
 
 function defaultAudioVolume(type: GenericEditorAudioItem["type"]): number {
   if (type === "TTS") return 1;
-  if (type === "CLIP_AUDIO") return 0.12;
+  if (type === "CLIP_AUDIO") return 1;
   if (type === "BGM") return 0.1;
   return 0.35;
 }
@@ -382,18 +384,41 @@ function profileEqual(
     settings.masterVolume === (input.profile.masterVolume ?? 1) &&
     assembly.editProject.items
       .filter(item => item.type === "VIDEO")
-      .every(item => item.type === "VIDEO" && item.volume === (input.profile.videoVolume ?? 0))
+      .every(item =>
+        item.type === "VIDEO" &&
+        item.volume === (input.profile.videoVolume ?? 0) &&
+        assembly.editProject.items.some(
+          candidate =>
+            candidate.type === "CLIP_AUDIO" &&
+            candidate.id === "audio-" + item.id &&
+            candidate.trackId === "A2" &&
+            candidate.src === item.src &&
+            candidate.timelineStartFrame === item.timelineStartFrame &&
+            candidate.durationInFrames === item.durationInFrames &&
+            candidate.sourceStartFrame === item.sourceStartFrame &&
+            candidate.sourceDurationInFrames === item.sourceDurationInFrames &&
+            candidate.volume === (input.profile.clipAudioVolume ?? 1)
+        )
+      )
   );
 }
 
-function baseTracks(includeContentLayers: boolean): GenericEditProject["tracks"] {
+function baseTracks(
+  includeContentLayers: boolean,
+  includeAutomaticClipAudio: boolean
+): GenericEditProject["tracks"] {
   const tracks: GenericEditProject["tracks"] = [
     { id: "V1", type: "VIDEO", name: "Main Visual", enabled: true, locked: false, order: 0 },
     { id: "G1", type: "GRAPHIC", name: "Graphics", enabled: true, locked: false, order: 1 },
     { id: "T1", type: "TEXT", name: "Subtitles", enabled: true, locked: false, order: 2 },
     { id: "A1", type: "AUDIO", name: "TTS", enabled: true, locked: false, order: 3 }
   ];
-  if (!includeContentLayers) return tracks;
+  if (!includeContentLayers) {
+    if (includeAutomaticClipAudio) {
+      tracks.push({ id: "A2", type: "AUDIO", name: "Clip Audio", enabled: true, locked: false, order: 5 });
+    }
+    return tracks;
+  }
   tracks.push(
     { id: "T2", type: "TEXT", name: "Text", enabled: true, locked: false, order: 4 },
     { id: "A2", type: "AUDIO", name: "Clip Audio", enabled: true, locked: false, order: 5 },
@@ -455,6 +480,7 @@ export class EditorTimelineAssemblyPipeline {
     const cutBoundaries: EditorCutBoundary[] = [];
     const motionDirectives: EditorMotionDirective[] = [];
     const items: GenericEditProject["items"] = [];
+    const automaticClipAudio: GenericEditorAudioItem[] = [];
     let cursor = 0;
 
     if (source.status !== "READY") {
@@ -538,6 +564,23 @@ export class EditorTimelineAssemblyPipeline {
           fit: "cover"
         };
         items.push(visual);
+        automaticClipAudio.push({
+          id: "audio-" + itemId,
+          type: "CLIP_AUDIO",
+          trackId: "A2",
+          timelineStartFrame: cursor,
+          durationInFrames: sourceDurationInFrames,
+          enabled: true,
+          locked: false,
+          src: item.relativePath,
+          sourceStartFrame,
+          sourceDurationInFrames,
+          sourceAssetDurationInFrames,
+          volume: input.profile.clipAudioVolume ?? 1,
+          muted: false,
+          fadeInFrames: 0,
+          fadeOutFrames: 0
+        });
         cursor += sourceDurationInFrames;
         continue;
       }
@@ -609,6 +652,14 @@ export class EditorTimelineAssemblyPipeline {
       }
     }
 
+    // Video source sound is an editorial asset in its own right. Put it on A2
+    // so it has a visible waveform and can be mixed independently from the
+    // video layer. A source-authored CLIP_AUDIO placement takes precedence.
+    for (const candidate of automaticClipAudio) {
+      const manuallyPlaced=items.some(item=>item.type === "CLIP_AUDIO" && item.src === candidate.src && item.timelineStartFrame === candidate.timelineStartFrame && item.sourceStartFrame === candidate.sourceStartFrame);
+      if (!manuallyPlaced) items.push(candidate);
+    }
+
     if (visualItemCount === 0) {
       blockers.push("NO_RENDERABLE_VISUAL_ITEMS");
     }
@@ -630,13 +681,14 @@ export class EditorTimelineAssemblyPipeline {
         height: input.profile.height,
         durationInFrames: cursor
       },
-      tracks: baseTracks(contentPlan !== null),
+      tracks: baseTracks(contentPlan !== null, automaticClipAudio.length > 0),
       items,
       settings: {
         snapEnabled: input.profile.snapEnabled ?? true,
         snapToleranceFrames: input.profile.snapToleranceFrames ?? 4,
         timelineZoom: input.profile.timelineZoom ?? 1,
-        masterVolume: input.profile.masterVolume ?? 1
+        masterVolume: input.profile.masterVolume ?? 1,
+        clipAudioMasterVolume: 1
       }
     };
 

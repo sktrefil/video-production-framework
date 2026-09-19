@@ -38,10 +38,10 @@ const normalizeProject=(project:EditProject):EditProject=>({
   project:{...project.project,fps:Math.max(1,Math.round(project.project.fps)),width:Math.max(1,Math.round(project.project.width)),height:Math.max(1,Math.round(project.project.height)),durationInFrames:Math.max(1,Math.round(project.project.durationInFrames))},
   tracks:project.tracks.map((track)=>({...track})).sort((a,b)=>a.order-b.order),
   items:project.items.map(normalizeItem),
-  settings:{...project.settings,timelineZoom:clamp(project.settings.timelineZoom,0.05,100),masterVolume:Math.max(0,project.settings.masterVolume),snapToleranceFrames:Math.max(0,Math.round(project.settings.snapToleranceFrames))},
+  settings:{...project.settings,timelineZoom:clamp(project.settings.timelineZoom,0.05,100),masterVolume:Math.max(0,project.settings.masterVolume),clipAudioMasterVolume:Math.max(0,project.settings.clipAudioMasterVolume??1),snapToleranceFrames:Math.max(0,Math.round(project.settings.snapToleranceFrames))},
 });
 
-export const createEmptyEditProject=():EditProject=>({schemaVersion:1,project:{id:"untitled",name:"Untitled Edit",fps:30,width:1080,height:1920,durationInFrames:1},tracks:[],items:[],settings:{snapEnabled:true,snapToleranceFrames:4,timelineZoom:1,masterVolume:1}});
+export const createEmptyEditProject=():EditProject=>({schemaVersion:1,project:{id:"untitled",name:"Untitled Edit",fps:30,width:1080,height:1920,durationInFrames:1},tracks:[],items:[],settings:{snapEnabled:true,snapToleranceFrames:4,timelineZoom:1,masterVolume:1,clipAudioMasterVolume:1}});
 export const createEditorState=(project:EditProject=createEmptyEditProject()):EditorState=>{const normalized=normalizeProject(project);return{project:normalized,selectedItemIds:[],playheadFrame:0,history:{past:[],future:[],transactionBase:null},savedProjectJson:JSON.stringify(normalized),dirty:false}};
 
 const isTrackLockedById=(state:EditorState,trackId:string)=>state.project.tracks.find((track)=>track.id===trackId)?.locked===true;
@@ -104,6 +104,7 @@ export const editorReducer=(state:EditorState,action:EditorAction):EditorState=>
     case "MERGE_SUBTITLE_ITEMS": {const first=state.project.items.find((item)=>item.id===action.itemId);const second=state.project.items.find((item)=>item.id===action.nextItemId);if(!first||!second||!isSubtitle(first)||!isSubtitle(second)||itemLocked(state,first)||itemLocked(state,second)||first.trackId!==second.trackId||first.id===second.id)return state;const start=Math.min(first.timelineStartFrame,second.timelineStartFrame);const end=Math.max(first.timelineStartFrame+first.durationInFrames,second.timelineStartFrame+second.durationInFrames);const text=[first.text.trim(),second.text.trim()].filter(Boolean).join(" ");const generatedFromTtsIds=[...new Set([...(first.generatedFromTtsIds??[]),...(second.generatedFromTtsIds??[])])];const merged={...first,timelineStartFrame:start,durationInFrames:Math.max(1,end-start),text,...(generatedFromTtsIds.length?{generatedFromTtsIds}:{})};return {...state,project:{...state.project,items:state.project.items.filter((item)=>item.id!==second.id).map((item)=>item.id===first.id?merged:item)},selectedItemIds:[first.id]};}
     case "SET_PLAYHEAD": return {...state,playheadFrame:Math.min(state.project.project.durationInFrames-1,Math.max(0,Math.round(action.frame)))};
     case "SET_TIMELINE_ZOOM": return {...state,project:{...state.project,settings:{...state.project.settings,timelineZoom:clamp(action.zoom,0.05,100)}}};
+    case "SET_CLIP_AUDIO_MASTER_VOLUME": return {...state,project:{...state.project,settings:{...state.project.settings,clipAudioMasterVolume:Math.max(0,action.volume)}}};
     case "SET_SNAP": return {...state,project:{...state.project,settings:{...state.project.settings,snapEnabled:action.enabled,snapToleranceFrames:Math.max(0,Math.round(action.toleranceFrames??state.project.settings.snapToleranceFrames))}}};
     default: return state;
   }

@@ -39,6 +39,7 @@ export type EditorAction =
   | {type:"SPLIT_SUBTITLE_ITEM"; itemId:string; splitFrame:number; newItemId:string}
   | {type:"MERGE_SUBTITLE_ITEMS"; itemId:string; nextItemId:string}
   | {type:"SET_PLAYHEAD"; frame:number} | {type:"SET_TIMELINE_ZOOM"; zoom:number}
+  | {type:"SET_CLIP_AUDIO_MASTER_VOLUME"; volume:number}
   | {type:"SET_SNAP"; enabled:boolean; toleranceFrames?:number};
 
 export const editorActions = {
@@ -60,5 +61,5 @@ export const editorActions = {
   applySubtitleSync:(changes:SubtitleTimingChange[]):EditorAction=>({type:"APPLY_SUBTITLE_SYNC",changes}),
   deleteItem:(itemId:string):EditorAction=>({type:"DELETE_ITEM",itemId}), duplicateItem:(itemId:string,newItemId:string,timelineStartFrame?:number,trackId?:string):EditorAction=>({type:"DUPLICATE_ITEM",itemId,newItemId,timelineStartFrame,trackId}),
   splitAudioItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_AUDIO_ITEM",itemId,splitFrame,newItemId}), splitVideoItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_VIDEO_ITEM",itemId,splitFrame,newItemId}), splitSubtitleItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_SUBTITLE_ITEM",itemId,splitFrame,newItemId}), mergeSubtitleItems:(itemId:string,nextItemId:string):EditorAction=>({type:"MERGE_SUBTITLE_ITEMS",itemId,nextItemId}),
-  setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}), setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
+  setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}), setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setClipAudioMasterVolume:(volume:number):EditorAction=>({type:"SET_CLIP_AUDIO_MASTER_VOLUME",volume}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
 };

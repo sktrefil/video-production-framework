@@ -15,10 +15,10 @@ export const ImageItemRenderer:FC<{item:ImageTimelineItem}>=({item})=>{
   const x=motion?motionValue(motion.from.x,motion.to.x):item.x;const y=motion?motionValue(motion.from.y,motion.to.y):item.y;const scale=motion?motionValue(motion.from.scale,motion.to.scale):item.scale;const rotation=motion?motionValue(motion.from.rotation,motion.to.rotation):item.rotation;const opacity=motion?motionValue(motion.from.opacity,motion.to.opacity):item.opacity;
   return <AbsoluteFill style={{overflow:"hidden"}}><Img src={resolveEditorMediaSrc(item.src)} style={{width:"100%",height:"100%",objectFit:item.fit,opacity,transform:`translate(${x}px, ${y}px) scale(${scale}) rotate(${rotation}deg)`,transformOrigin:"center center"}}/></AbsoluteFill>;
 };
-const ItemRenderer:FC<{item:TimelineItem;masterVolume:number;trackMuted:boolean;project:EditProject;muted:boolean}>=({item,masterVolume,trackMuted,project,muted})=>{
+const ItemRenderer:FC<{item:TimelineItem;masterVolume:number;clipAudioMasterVolume:number;trackMuted:boolean;project:EditProject;muted:boolean}>=({item,masterVolume,clipAudioMasterVolume,trackMuted,project,muted})=>{
   if(item.type==="VIDEO")return <VideoItemRenderer item={item} masterVolume={masterVolume} muted={muted}/>;
   if(item.type==="IMAGE")return <ImageItemRenderer item={item}/>;
-  if(isAudioItem(item)){const duckingRanges=item.type==="BGM"?bgmDuckingRanges(project,item):[];return <AudioItemRenderer item={trackMuted||muted?{...item,muted:true}:item} masterVolume={masterVolume} duckingRanges={duckingRanges}/>;}
+  if(isAudioItem(item)){const duckingRanges=item.type==="BGM"?bgmDuckingRanges(project,item):[];const trackVolume=item.trackId==="A2"?clipAudioMasterVolume:1;return <AudioItemRenderer item={trackMuted||muted?{...item,muted:true}:item} masterVolume={masterVolume*trackVolume} duckingRanges={duckingRanges}/>;}
   if(item.type==="SUBTITLE"||item.type==="TEXT")return <TextItemRenderer item={item}/>;
   return <GraphicItemRenderer item={item}/>;
 };
@@ -26,5 +26,5 @@ export const ProjectRenderer:FC<{project:EditProject;muted?:boolean}>=({project,
   const trackMap=new Map(project.tracks.map((track)=>[track.id,track]));
   const audioSoloActive=project.tracks.some((track)=>track.type==="AUDIO"&&track.enabled&&track.solo===true);
   const entries=project.items.map((item,index)=>({item,index,track:trackMap.get(item.trackId)})).filter((entry)=>entry.item.enabled&&entry.track?.enabled===true).sort((a,b)=>(a.track?.order??0)-(b.track?.order??0)||(a.item.zIndex??0)-(b.item.zIndex??0)||a.index-b.index);
-  return <AbsoluteFill style={{backgroundColor:"black",overflow:"hidden"}}>{entries.map(({item,track})=>{const trackMuted=track?.type==="AUDIO"&&(track.muted===true||(audioSoloActive&&track.solo!==true));return <Sequence key={item.id} from={item.timelineStartFrame} durationInFrames={item.durationInFrames} name={`${item.trackId} · ${item.type} · ${item.id}`} premountFor={item.type==="VIDEO"?30:0}><ItemRenderer item={item} masterVolume={project.settings.masterVolume} trackMuted={trackMuted} project={project} muted={muted}/></Sequence>;})}</AbsoluteFill>;
+  return <AbsoluteFill style={{backgroundColor:"black",overflow:"hidden"}}>{entries.map(({item,track})=>{const trackMuted=track?.type==="AUDIO"&&(track.muted===true||(audioSoloActive&&track.solo!==true));return <Sequence key={item.id} from={item.timelineStartFrame} durationInFrames={item.durationInFrames} name={`${item.trackId} · ${item.type} · ${item.id}`} premountFor={item.type==="VIDEO"?30:0}><ItemRenderer item={item} masterVolume={project.settings.masterVolume} clipAudioMasterVolume={project.settings.clipAudioMasterVolume??1} trackMuted={trackMuted} project={project} muted={muted}/></Sequence>;})}</AbsoluteFill>;
 };

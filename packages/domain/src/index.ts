@@ -652,6 +652,8 @@ export interface GenericEditorProjectSettings {
   snapToleranceFrames: number;
   timelineZoom: number;
   masterVolume: number;
+  /** Multiplier for all audio placed on the A2 Clip Audio track. */
+  clipAudioMasterVolume?: number;
 }
 
 export interface GenericEditorBaseVisualItem {

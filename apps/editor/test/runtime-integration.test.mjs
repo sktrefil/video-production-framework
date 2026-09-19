@@ -108,3 +108,14 @@ test("Studio render uses the active project instead of the empty Studio fallback
   assert.match(rootSource, /const activeProject=await loadActiveEditorProject/);
   assert.doesNotMatch(rootSource, /if\(!isRendering\)/);
 });
+
+test("Studio persistence discovers the live API port instead of trusting a stale editor URL", async () => {
+  const server = await read("scripts/editor-studio-server.mjs");
+  const persistence = await read("src/studio/editor/persistence/editorPersistenceApi.ts");
+  assert.match(server, /vpf-active-editor-connection\.json/);
+  assert.match(server, /apiBase:api/);
+  assert.match(persistence, /loadActiveEditorConnection/);
+  assert.match(persistence, /resolveEditorApiBase/);
+  assert.match(persistence, /active\.projectId===projectId/);
+  assert.match(persistence, /requireResolvedBase/);
+});
