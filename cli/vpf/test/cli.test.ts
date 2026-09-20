@@ -88,7 +88,7 @@ test("CLI rejects legacy control-plane and repository commands before dispatch",
 test("compiled public CLI binary creates a real unified project", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-cli-binary-"));
   const workspaceRoot = path.join(root, "workspace");
-  const cliEntry = path.join(cliPackageRoot, "dist", "index.js");
+  const cliEntry = path.join(cliPackageRoot, "dist", "entry.js");
 
   const created = await execFileAsync(process.execPath, [
     cliEntry,

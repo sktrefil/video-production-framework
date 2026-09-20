@@ -24,11 +24,11 @@ test("ChatGPT Browser transport preserves approved prompt and negative constrain
   const negativePrompt = "fantasy armor, unsupported heraldry";
   assert.equal(
     module.buildChatGptTransmissionText({ prompt, negativePrompt }),
-    `이미지 생성해줘\n\n${prompt}\n\nNEGATIVE CONSTRAINTS (transported verbatim):\n${negativePrompt}`
+    `Generate an image from the following production brief.\n\n${prompt}\n\nNEGATIVE CONSTRAINTS (transported verbatim):\n${negativePrompt}`
   );
 });
 
-test("reference roles become explicit visual-use instructions instead of generic attachments", async () => {
+test("reference guidance is a transport inventory and does not inject creative policy", async () => {
   const module = await loadAdapterModule();
   const references = [
     {
@@ -41,20 +41,18 @@ test("reference roles become explicit visual-use instructions instead of generic
     }
   ];
   const guidance = module.buildReferenceGuidance(references);
+  assert.match(guidance, /ATTACHED REFERENCE INVENTORY/u);
   assert.match(guidance, /COMPOSITION_GRAMMAR/u);
-  assert.match(guidance, /MANDATORY GLOBAL VISUAL BIBLE/u);
-  assert.match(guidance, /non-negotiable show tone and manner/u);
-  assert.match(guidance, /cinematic fantasy matte-painting/u);
-  assert.match(guidance, /EDITORIAL SAFE-ZONE CONTRACT/u);
-  assert.match(guidance, /deliberately not attached/u);
-  assert.match(guidance, /generate no header band, caption panel, frame, border, or lettering/u);
+  assert.doesNotMatch(guidance, /KNF_LAYOUT/u);
+  assert.doesNotMatch(guidance, /MANDATORY GLOBAL VISUAL BIBLE/u);
+  assert.doesNotMatch(guidance, /SAFE-ZONE CONTRACT/u);
 
   const transmitted = module.buildChatGptTransmissionText({ prompt: "exact prompt", references });
   assert.ok(transmitted.includes(guidance));
   assert.ok(transmitted.endsWith("exact prompt"));
 });
 
-test("ChatGPT Browser adapter uploads visual references but keeps KNF templates as text-only safe-zone cues", async () => {
+test("ChatGPT Browser adapter uploads visual references and excludes KNF layout pixels without creative injection", async () => {
   const module = await loadAdapterModule();
   let captured: Record<string, unknown> | undefined;
   const adapter = module.createImageProviderAdapter({
@@ -103,9 +101,13 @@ test("ChatGPT Browser adapter uploads visual references but keeps KNF templates 
   })));
   assert.equal(captured?.width, 864);
   assert.equal(captured?.height, 1536);
-  assert.match(String(captured?.transmissionText), /VISUAL REFERENCE TRANSFER CONTRACT/u);
-  assert.match(String(captured?.transmissionText), /EDITORIAL SAFE-ZONE CONTRACT/u);
-  assert.match(String(captured?.transmissionText), /deliberately not attached/u);
+  const transmission = String(captured?.transmissionText);
+  assert.match(transmission, /ATTACHED REFERENCE INVENTORY/u);
+  assert.match(transmission, /COMPOSITION_GRAMMAR/u);
+  assert.match(transmission, /exact prompt/u);
+  assert.match(transmission, /exact negative/u);
+  assert.doesNotMatch(transmission, /KNF_LAYOUT/u);
+  assert.doesNotMatch(transmission, /SAFE-ZONE CONTRACT/u);
   assert.equal(Buffer.from(result.bytes as Uint8Array).toString("utf8"), "fixture-png");
   assert.deepEqual(result.providerRequestIds, ["fixture-request"]);
 });
@@ -124,18 +126,19 @@ test("ChatGPT Browser adapter exposes a non-generating browser health probe", as
   assert.equal(result.status, "READY");
 });
 
-test("ChatGPT Browser worker only accepts images from a ChatGPT generation card", async () => {
+test("ChatGPT Browser worker accepts only a stable new assistant image and downloads its source", async () => {
   const worker = await readFile(
     new URL("../../../runtimes/image/adapters/chatgpt_browser_worker_v2.py", import.meta.url),
     "utf8"
   );
-  assert.match(worker, /\[class~='group\/imagegen-image'\] img\[alt\]:not\(\[alt=''\]\)/);
+  assert.match(worker, /main \[class~='group\/imagegen-image'\] img, main img\[alt\]:not\(\[alt=''\]\)/);
+  assert.match(worker, /str\(item\.get\("authorRole"\) or ""\)\.lower\(\) != "user"/);
   assert.match(worker, /str\(item\.get\("src"\) or ""\) not in before_sources/);
+  assert.match(worker, /stable_polls >= 3 and not generation_in_progress\(page\)/);
   assert.match(worker, /Generated ChatGPT image has no downloadable source URL/);
   assert.match(worker, /Could not download the generated ChatGPT image source/);
   assert.match(worker, /"downloadVerified": True/);
   assert.doesNotMatch(worker, /locator\.screenshot/);
-  assert.doesNotMatch(worker, /page\.locator\("main img"\)/);
 });
 
 test("ChatGPT Browser worker reuses one managed conversation per exact reference set", async () => {

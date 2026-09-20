@@ -45,7 +45,7 @@ test("environment preflight resolves canonical providers without exposing secret
   assert.equal(result.ready, true);
   assert.equal(result.format, "SHORTFORM");
   assert.ok(result.providers.some(provider => provider.provider === "ELEVENLABS"));
-  assert.ok(result.providers.some(provider => provider.provider === "IMAGE_PROVIDER"));
+  assert.ok(result.providers.some(provider => provider.provider === "CHATGPT_BROWSER"));
   assert.ok(result.providers.some(provider => provider.provider === "GOOGLE_FLOW"));
   assert.ok(result.providers.every(provider => provider.missingSecretNames.length === 0));
   const serialized = JSON.stringify(result);

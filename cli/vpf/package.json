@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "vpf": "./dist/main.js"
+    "vpf": "./dist/entry.js"
   },
   "dependencies": {
     "@vpf/domain": "0.1.0",
