@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -24,6 +24,13 @@ async function seedLibrary(target: string, libraryId: string): Promise<void> {
     files: ROMAN_IX_REFERENCE_FILES,
     createdAt: "2026-09-12T00:00:00.000Z"
   });
+  if (libraryId === "GLOBAL_VISUAL_V1") {
+    const manifestPath=join(target,"manifest.json");
+    const manifest=JSON.parse(await readFile(manifestPath,"utf8"));
+    const roles=["COMPOSITION_GRAMMAR","ATMOSPHERE_GRAMMAR","NARRATIVE_GRAMMAR","MYSTERY_CLOSURE_GRAMMAR"];
+    manifest.entries.forEach((entry:any,index:number)=>{entry.role=roles[index]??"VISUAL_GRAMMAR";});
+    await writeFile(manifestPath,JSON.stringify(manifest,null,2)+"\n","utf8");
+  }
 }
 
 function request(knfBeat?: string) {

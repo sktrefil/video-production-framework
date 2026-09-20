@@ -34,12 +34,13 @@ function plan(): TtsGenerationPlan {
 class FakeBridgeRepo implements TtsRuntimeBridgeRepository {
   plan:TtsGenerationPlan|null=plan(); result:TtsGenerationResult|null=null; job:ProviderJob|null=null; committedMedia:MediaArtifact[]=[];
   async getLatestApprovedFinalScript(){return null;}
+  async listApprovedTtsScenes(){return [];}
   async getLatestTtsPlan(){return this.plan===null?null:structuredClone(this.plan);}
   async getLatestTtsResult(){return this.result===null?null:structuredClone(this.result);}
   async getLatestTtsProviderJob(){return this.job===null?null:structuredClone(this.job);}
   async commitTtsPlan():Promise<void>{throw new Error("not used");}
   async commitTtsProviderJob(input:{job:ProviderJob;event:WorkflowEvent;outbox:OutboxRecord}){this.job=structuredClone(input.job);}
-  async commitTtsResult(input:{previousPlan:TtsGenerationPlan;nextPlan:TtsGenerationPlan;previousResult:TtsGenerationResult|null;result:TtsGenerationResult;audioMedia:MediaArtifact;event:WorkflowEvent;outbox:OutboxRecord}){this.plan=structuredClone(input.nextPlan);this.result=structuredClone(input.result);this.committedMedia.push(structuredClone(input.audioMedia));}
+  async commitTtsResult(input:{previousPlan:TtsGenerationPlan;nextPlan:TtsGenerationPlan;previousResult:TtsGenerationResult|null;result:TtsGenerationResult;audioMedia:MediaArtifact;audioMediaItems?:MediaArtifact[];event:WorkflowEvent;outbox:OutboxRecord}){this.plan=structuredClone(input.nextPlan);this.result=structuredClone(input.result);this.committedMedia.push(...structuredClone(input.audioMediaItems??[input.audioMedia]));}
 }
 function ids():TtsRuntimeIdFactory{let n=0;return {next:prefix=>`${prefix}_${++n}`};}
 async function canonicalProfile(){const registry=new FileSystemResourceRegistry(path.join(repositoryRoot,"resources"));const snapshot=await registry.resolve({resourceType:"PROVIDER_PROFILE",resourceId:ELEVENLABS_PROVIDER_PROFILE_ID,version:ELEVENLABS_PROVIDER_PROFILE_VERSION});assert.ok(snapshot);return {registry,snapshot};}
@@ -76,4 +77,26 @@ test("runtime-ingested narration AUDIO is consumable as WF-16 TTS on A1",async()
     {nowIso:()=>now},{next:prefix=>`${prefix}-1`},{getLatestEditorContentPlan:async()=>contentPlan,getMedia:async(_p,id)=>id===audio.id?audio:null}
   );
   const assembled=await pipeline.assembleProject({projectId:"p1",projectName:"MIG-05",profile:{fps:30,width:1920,height:1080}});const tts=assembled.output.editProject.items.find(x=>x.type==="TTS");assert.ok(tts&&tts.type==="TTS");assert.equal(tts.trackId,"A1");assert.equal(tts.src,"03_tts/narration.mp3");assert.equal(stored.assemblyStatus,"READY");
+});
+
+
+test("SEGMENTED LONGFORM runtime exposes one AUDIO and alignment output per section without merged narration",async()=>{
+  const repo=new FakeBridgeRepo();
+  repo.plan={
+    ...plan(),
+    narrationMode:"SEGMENTED",
+    sections:[
+      {id:"tts-section-001",index:1,sequenceId:"seq-1",sceneIds:["sc-1"],text:"첫 청크",textCharacterCount:4,audioRelativePath:"03_tts/sections/section_001.mp3",characterAlignmentRelativePath:"03_tts/alignment/section_001.json"},
+      {id:"tts-section-002",index:2,sequenceId:"seq-2",sceneIds:["sc-2"],text:"둘째 청크",textCharacterCount:5,audioRelativePath:"03_tts/sections/section_002.mp3",characterAlignmentRelativePath:"03_tts/alignment/section_002.json"}
+    ],
+    chunks:[
+      {index:1,text:"첫 청크",textCharacterCount:4,outputRelativePath:"03_tts/sections/section_001.mp3",sectionId:"tts-section-001",sectionIndex:1},
+      {index:2,text:"둘째 청크",textCharacterCount:5,outputRelativePath:"03_tts/sections/section_002.mp3",sectionId:"tts-section-002",sectionIndex:2}
+    ],
+    outputPaths:{...plan().outputPaths,narrationManifest:"03_tts/narration_manifest.json"}
+  };
+  const options=elevenLabsRuntimeExecutionOptions(repo.plan);
+  assert.equal(options.expectedOutputs.some(output=>output.role==="narration"),false);
+  assert.equal(options.expectedOutputs.filter(output=>output.mediaType==="AUDIO").length,2);
+  assert.ok(options.expectedOutputs.some(output=>output.role==="narration_manifest"));
 });

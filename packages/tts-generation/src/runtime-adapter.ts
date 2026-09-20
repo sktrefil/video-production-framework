@@ -110,7 +110,7 @@ function sectionSuffix(index: number): string {
 }
 
 function expectedOutputsForPlan(plan?: TtsGenerationPlan): RuntimeExpectedOutput[] {
-  if ((plan?.narrationMode ?? "SINGLE") !== "SEGMENTED") {
+  if (plan === undefined || (plan.narrationMode ?? "SINGLE") !== "SEGMENTED") {
     return [
       {role: "narration", mediaType: "AUDIO", required: true, acceptedMimeTypes: ["audio/mpeg"]},
       {role: "character_alignment", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]},

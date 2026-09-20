@@ -42,6 +42,21 @@ class FakeRepo implements TtsGenerationRepository {
     return this.script;
   }
 
+  async listApprovedTtsScenes() {
+    const body = this.script?.body ?? "";
+    const raw = body.split(/(?<=\.)\s+/u).map(value => value.trim()).filter(Boolean);
+    const parts = raw.length > 0 ? raw : [body].filter(Boolean);
+    return parts.map((scriptSegment, index) => ({
+      chapterOrder: 1,
+      sequenceId: "seq-1",
+      sequenceOrder: 1,
+      sceneId: `scene-${index + 1}`,
+      sceneOrder: index + 1,
+      scriptSegment,
+      sourceScriptRevision: this.script?.revision ?? 0
+    }));
+  }
+
   async getLatestTtsPlan(): Promise<TtsGenerationPlan | null> {
     return [...this.plans].reverse().find(x => x.lifecycleStatus === "ACTIVE") ?? null;
   }
@@ -102,7 +117,7 @@ test("TTS requires the current human-approved FINAL script", async () => {
   );
 });
 
-test("LONGFORM reuses the legacy history preset with Eleven v3 and 4000-char chunks", async () => {
+test("LONGFORM creates scene-bound segmented narration with the history preset", async () => {
   const repo = new FakeRepo();
   repo.script = {
     ...repo.script!,
@@ -119,8 +134,12 @@ test("LONGFORM reuses the legacy history preset with Eleven v3 and 4000-char chu
   assert.equal(result.plan.modelId, "eleven_v3");
   assert.equal(result.plan.outputFormat, "mp3_44100_128");
   assert.equal(result.plan.maxChunkCharacters, 4000);
+  assert.equal(result.plan.narrationMode, "SEGMENTED");
+  assert.ok((result.plan.sections?.length ?? 0) >= 2);
   assert.ok(result.plan.chunks.length >= 2);
   assert.ok(result.plan.chunks.every(chunk => chunk.text.length <= 4000));
+  assert.ok(result.plan.sections?.every(section => section.audioRelativePath.startsWith("03_tts/sections/")));
+  assert.equal(result.plan.outputPaths.narrationManifest, "03_tts/narration_manifest.json");
   assert.deepEqual(result.plan.configuredVoiceSettings, {
     stability: 0.62,
     similarityBoost: 0.8,
@@ -144,10 +163,9 @@ test("LONGFORM reuses the legacy history preset with Eleven v3 and 4000-char chu
   );
   assert.equal(result.runtimeJob.secretRefs.apiKeyEnv, "ELEVENLABS_API_KEY");
   assert.equal(result.runtimeJob.secretRefs.voiceIdFallbackEnv, "ELEVENLABS_VOICE_ID");
-  assert.equal(
-    result.runtimeJob.outputPaths.narration,
-    "03_tts/narration.mp3"
-  );
+  assert.equal(result.runtimeJob.narrationMode, "SEGMENTED");
+  assert.equal(result.runtimeJob.sections.length, result.plan.sections?.length);
+  assert.equal(result.runtimeJob.outputPaths.narrationManifest, "03_tts/narration_manifest.json");
 });
 
 test("SHORTFORM uses the existing history shorts voice preset with Eleven v3", async () => {
@@ -195,7 +213,7 @@ test("completed ElevenLabs alignment becomes a WF-16 compatible AUDIO MediaArtif
   const pipeline = new TtsGenerationPipeline(repo, clock, ids());
   const prepared = await pipeline.prepare({
     projectId: "p1",
-    format: "LONGFORM"
+    format: "SHORTFORM"
   });
   const expectedText = prepared.plan.chunks.map(chunk => chunk.text).join("\n\n");
   const chars = [...expectedText];
