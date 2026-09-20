@@ -189,7 +189,7 @@ def execute(job:dict[str,Any])->dict[str,Any]:
             outputs.append(artifact(f"character_alignment_section_{suffix}",ap,root,"application/json"))
             section_manifest.append({
                 "id":section["id"],"index":section["index"],"sequenceId":section.get("sequenceId"),"sceneIds":section.get("sceneIds") or [],
-                "textSha256":sha(str(section["text"]).encode("utf-8")),"audioRelativePath":section["audioRelativePath"],
+                "text":str(section["text"]),"textSha256":sha(str(section["text"]).encode("utf-8")),"audioRelativePath":section["audioRelativePath"],
                 "audioSha256":sha(p.read_bytes()),"audioDurationMs":duration,
                 "characterAlignmentRelativePath":section["characterAlignmentRelativePath"],"characterAlignmentSha256":sha(ap.read_bytes()),
                 "requestIds":[rid] if rid else []

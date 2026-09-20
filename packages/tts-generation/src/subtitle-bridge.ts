@@ -1,10 +1,14 @@
 import {createHash} from "node:crypto";
 import {readFile} from "node:fs/promises";
 import type {
+  EditorAudioPlacement,
   EditorSubtitleCue,
   ScriptVersion,
   TtsCharacterAlignment,
-  TtsGenerationResult
+  TtsGenerationPlan,
+  TtsGenerationResult,
+  TtsNarrationSectionPlan,
+  TtsNarrationSectionResult
 } from "@vpf/domain";
 import {resolveProjectRelativePath} from "@vpf/workspace";
 import {sanitizeTtsText} from "./index.js";
@@ -328,4 +332,149 @@ export async function buildTtsAlignedSubtitleCuesFromArtifacts(input: {
       ? {}
       : {maximumCharacters: input.maximumCharacters})
   });
+}
+
+
+function orderedSegmentedSections(input: {
+  plan: TtsGenerationPlan;
+  result: TtsGenerationResult;
+}): Array<{plan: TtsNarrationSectionPlan; result: TtsNarrationSectionResult}> {
+  if (
+    (input.plan.narrationMode ?? "SINGLE") !== "SEGMENTED" ||
+    (input.result.narrationMode ?? "SINGLE") !== "SEGMENTED" ||
+    input.plan.sections === undefined ||
+    input.result.sections === undefined ||
+    input.plan.sections.length === 0 ||
+    input.plan.sections.length !== input.result.sections.length ||
+    input.plan.sourceScriptId !== input.result.sourceScriptId ||
+    input.plan.sourceScriptRevision !== input.result.sourceScriptRevision ||
+    input.plan.sourceScriptSha256 !== input.result.sourceScriptSha256
+  ) {
+    throw new TtsSubtitleBridgeError(
+      "SUBTITLE_SCRIPT_PROVENANCE_MISMATCH",
+      "SEGMENTED subtitle generation requires matching current TTS plan/result provenance."
+    );
+  }
+
+  const planned = [...input.plan.sections].sort((a,b)=>a.index-b.index);
+  const completed = [...input.result.sections].sort((a,b)=>a.index-b.index);
+  return planned.map((section,index)=>{
+    const output=completed[index]!;
+    if (
+      section.index !== index + 1 ||
+      output.index !== section.index ||
+      output.id !== section.id ||
+      output.audioRelativePath !== section.audioRelativePath ||
+      output.characterAlignmentRelativePath !== section.characterAlignmentRelativePath ||
+      sha256Text(section.text) !== output.textSha256
+    ) {
+      throw new TtsSubtitleBridgeError(
+        "SUBTITLE_SCRIPT_PROVENANCE_MISMATCH",
+        `SEGMENTED narration section provenance mismatch at index ${index + 1}.`
+      );
+    }
+    return {plan:section,result:output};
+  });
+}
+
+export async function loadVerifiedTtsSectionAlignmentArtifact(input: {
+  projectRoot: string;
+  section: TtsNarrationSectionResult;
+}): Promise<TtsCharacterAlignment> {
+  const absolutePath = resolveProjectRelativePath(
+    input.projectRoot,
+    input.section.characterAlignmentRelativePath
+  );
+  let bytes: Uint8Array;
+  try {
+    bytes = await readFile(absolutePath);
+  } catch {
+    throw new TtsSubtitleBridgeError(
+      "SUBTITLE_ALIGNMENT_INVALID",
+      `TTS section alignment artifact is missing: ${input.section.characterAlignmentRelativePath}`
+    );
+  }
+  const actualSha = sha256Bytes(bytes);
+  if (actualSha !== input.section.characterAlignmentSha256.toLowerCase()) {
+    throw new TtsSubtitleBridgeError(
+      "SUBTITLE_ALIGNMENT_HASH_MISMATCH",
+      `TTS section alignment checksum does not match section ${input.section.id}.`
+    );
+  }
+  return parseElevenLabsAlignmentDocument(Buffer.from(bytes).toString("utf8"));
+}
+
+export async function buildSegmentedTtsTimelineFromArtifacts(input: {
+  projectRoot: string;
+  plan: TtsGenerationPlan;
+  result: TtsGenerationResult;
+  maximumCharacters?: number;
+}): Promise<{
+  audio: EditorAudioPlacement[];
+  subtitles: EditorSubtitleCue[];
+  totalDurationMs: number;
+}> {
+  const sections = orderedSegmentedSections(input);
+  const audio: EditorAudioPlacement[] = [];
+  const subtitles: EditorSubtitleCue[] = [];
+  let timelineOffsetMs = 0;
+
+  for (const section of sections) {
+    const durationMs = section.result.audioDurationMs;
+    if (!Number.isFinite(durationMs) || durationMs <= 0) {
+      throw new TtsSubtitleBridgeError(
+        "SUBTITLE_ALIGNMENT_INVALID",
+        `TTS section ${section.plan.id} has invalid audioDurationMs.`
+      );
+    }
+    const alignment = await loadVerifiedTtsSectionAlignmentArtifact({
+      projectRoot: input.projectRoot,
+      section: section.result
+    });
+    const local = buildTtsAlignedSubtitleCues({
+      displayText: section.plan.text,
+      alignment,
+      audioPlacementId: section.plan.id,
+      audioDurationMs: durationMs,
+      ...(input.maximumCharacters === undefined
+        ? {}
+        : {maximumCharacters: input.maximumCharacters})
+    });
+
+    audio.push({
+      id: section.plan.id,
+      type: "TTS",
+      mediaId: section.result.audioMediaId,
+      timelineStartMs: timelineOffsetMs,
+      sourceInMs: 0,
+      sourceOutMs: durationMs,
+      durationMs,
+      volume: 1,
+      muted: false
+    });
+
+    for (const cue of local) {
+      subtitles.push({
+        ...cue,
+        id: `${section.plan.id}-${cue.id}`,
+        startMs: cue.startMs + timelineOffsetMs,
+        endMs: cue.endMs + timelineOffsetMs,
+        generatedFromAudioPlacementIds: [section.plan.id]
+      });
+    }
+    timelineOffsetMs += durationMs;
+  }
+
+  const declaredTotal = input.result.totalAudioDurationMs;
+  if (
+    declaredTotal !== undefined &&
+    Math.abs(declaredTotal - timelineOffsetMs) > Math.max(4, sections.length * 2)
+  ) {
+    throw new TtsSubtitleBridgeError(
+      "SUBTITLE_ALIGNMENT_INVALID",
+      `SEGMENTED narration duration mismatch: sections=${timelineOffsetMs}ms result=${declaredTotal}ms.`
+    );
+  }
+
+  return {audio, subtitles, totalDurationMs: timelineOffsetMs};
 }
