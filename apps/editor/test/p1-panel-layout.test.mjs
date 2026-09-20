@@ -11,7 +11,8 @@ test("Studio editor panel is vertically resizable, scrollable and collapsible",(
   assert.match(source,/data-editor-panel-resizer=\"true\"/);
   assert.match(source,/cursor:panelCollapsed\?\"default\":\"ns-resize\"/);
   assert.match(source,/setPanelHeight\(clampPanelHeight/);
-  assert.match(source,/maxHeight:\"85vh\"/);
+  assert.match(source,/viewportHeight\*\.85/);
+  assert.match(source,/maxHeight:workspacePreviewVisible\?\"88vh\":assetPanelsVisible\?\"68vh\":\"48vh\"/);
   assert.match(source,/data-editor-panel-content=\"true\"/);
   assert.match(source,/overflow:\"auto\"/);
   assert.match(source,/data-editor-command=\"toggle-panel-collapse\"/);

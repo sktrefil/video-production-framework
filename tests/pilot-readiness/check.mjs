@@ -8,7 +8,7 @@ import {promisify} from "node:util";
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
-const cli = join(repositoryRoot, "cli", "vpf", "dist", "index.js");
+const cli = join(repositoryRoot, "cli", "vpf", "dist", "main.js");
 
 const requiredDocs = [
   "docs/operations/PILOT_RUNBOOK_SHORTFORM.md",

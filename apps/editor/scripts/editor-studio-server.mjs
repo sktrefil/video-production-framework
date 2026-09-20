@@ -208,6 +208,7 @@ catch(error){
 }
 let referenceProject=materialized.executionProject;
 let referenceSha256=createHash("sha256").update(JSON.stringify(referenceProject)).digest("hex");
+// Ordinary Studio saves write only a review derivative; project.db and the approved assembly remain unchanged until explicit canonical promotion.
 const reviewPath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.json");
 const reviewBasePath=resolve(materialized.canonicalProjectAbsolutePath,"..","studio_edit_project.base.json");
 const studioRenderSnapshotPath=resolve(APP_ROOT,"public","vpf-active-editor-project.json");
