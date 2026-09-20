@@ -26,12 +26,16 @@ async function writeJson(path, value) {
 }
 
 async function runRemotion(args) {
-  const command = process.platform === "win32" ? "npm.cmd" : "npm";
+  // Node 24 on Windows throws EINVAL when spawning npm.cmd with shell:false.
+  // Invoke the locally installed JavaScript CLI through the current Node binary
+  // instead; this also keeps the renderer pinned to this workspace's Remotion.
+  const command = process.execPath;
+  const commandArgs = [resolve(APP_ROOT, "node_modules", "@remotion", "cli", "remotion-cli.js"), ...args];
   await new Promise((resolveRun, rejectRun) => {
-    const child = spawn(command, ["exec", "--", "remotion", ...args], {
+    const child = spawn(command, commandArgs, {
       cwd: APP_ROOT,
       stdio: "inherit",
-      windowsHide: false,
+      windowsHide: true,
       shell: false,
       env: {...process.env}
     });
@@ -53,7 +57,8 @@ export async function renderEditorProject({
   projectId,
   projectRoot = defaultProjectRoot(projectId),
   gateOnly = false,
-  allowVisualGaps = false
+  allowVisualGaps = false,
+  forceRender = false
 }) {
   const materialized = await materializeProjectCommand({
     projectId,
@@ -84,7 +89,7 @@ export async function renderEditorProject({
   const repository = new SqliteFinalRenderRepository(dbPath);
   const pipeline = new FinalRenderPipeline(repository, clock, ids);
   try {
-    const prepared = await pipeline.prepareRender({projectId});
+    const prepared = await pipeline.prepareRender({projectId,force:forceRender});
     if (!prepared.created && prepared.renderAttempt.status === "DELIVERY_READY") {
       const delivery = await repository.getLatestDeliveryManifest(projectId);
       return {status: "DELIVERY_READY", materialized, gate, renderAttempt: prepared.renderAttempt, delivery};
@@ -201,7 +206,7 @@ export async function renderEditorProject({
 
 function parseArgs(argv) {
   if (argv.length === 0 || argv.includes("--help") || argv.includes("-h")) return null;
-  const result = {projectId: argv.shift(), projectRoot: null, gateOnly: false, allowVisualGaps: false};
+  const result = {projectId: argv.shift(), projectRoot: null, gateOnly: false, allowVisualGaps: false, forceRender: false};
   while (argv.length) {
     const arg = argv.shift();
     if (arg === "--project-root") {
@@ -210,6 +215,7 @@ function parseArgs(argv) {
       result.projectRoot = resolve(value);
     } else if (arg === "--gate-only") result.gateOnly = true;
     else if (arg === "--allow-visual-gaps") result.allowVisualGaps = true;
+    else if (arg === "--force") result.forceRender = true;
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return result;
@@ -225,7 +231,8 @@ if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
       projectId: args.projectId,
       ...(args.projectRoot ? {projectRoot: args.projectRoot} : {}),
       gateOnly: args.gateOnly,
-      allowVisualGaps: args.allowVisualGaps
+      allowVisualGaps: args.allowVisualGaps,
+      forceRender: args.forceRender
     }).then(result => {
       console.log(`[final-render] ${result.status} · project=${args.projectId}${result.physicalOutputPath ? ` · output=${result.physicalOutputPath}` : ""}`);
       if (result.status === "TECHNICAL_QC_FAILED") process.exitCode = 3;

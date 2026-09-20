@@ -218,7 +218,7 @@ export async function runCli(
       }
       const project = await service.getStatus(projectId);
       const projectRoot = path.resolve(process.cwd(), "workspace", "projects", projectId);
-      const result = assembleEditorProject({
+      const result = await assembleEditorProject({
         projectId,
         projectRoot,
         header: readOption(args, "--header") ?? "로마 제9군단의 미스터리"
@@ -397,12 +397,4 @@ export async function runCli(
     io.error("[UNEXPECTED] Unknown error.");
     return 1;
   }
-}
-
-const invokedPath = process.argv[1];
-if (
-  invokedPath !== undefined &&
-  path.resolve(invokedPath) === path.resolve(fileURLToPath(import.meta.url))
-) {
-  process.exitCode = await runCli(process.argv.slice(2));
 }

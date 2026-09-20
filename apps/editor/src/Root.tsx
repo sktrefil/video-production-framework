@@ -1,4 +1,5 @@
-import {Composition} from "remotion";
+import { Composition } from "remotion";
+import type {CalculateMetadataFunction} from "remotion";
 import type {EditProject} from "./studio/editor/editorTypes";
 import sampleProjectJson from "./generated/edit_project.sample.json";
 import {GenericEditorComposition} from "./editor/GenericEditorComposition";
@@ -7,23 +8,52 @@ import {
   calculateGenericFinalRenderMetadata,
 } from "./editor/GenericFinalRender";
 import {StudioToolbarProvider} from "./studio/StudioToolbar";
-import {configuredStudioProjectConnection} from "./studio/editor/persistence/editorPersistenceApi";
+import {configuredStudioProjectConnection,loadActiveEditorProject,loadStudioRenderProject} from "./studio/editor/persistence/editorPersistenceApi";
 
 const SAMPLE_PROJECT = sampleProjectJson as EditProject;
 const studioConnection=configuredStudioProjectConnection();
 const studioDurationInFrames=Math.max(SAMPLE_PROJECT.project.durationInFrames,studioConnection.durationInFrames??SAMPLE_PROJECT.project.durationInFrames);
-const studioInitialProject:EditProject=studioConnection.projectId===undefined?SAMPLE_PROJECT:{
+const studioInitialProject:EditProject={
   ...SAMPLE_PROJECT,
-  project:{...SAMPLE_PROJECT.project,id:studioConnection.projectId,durationInFrames:studioDurationInFrames},
-  tracks:[],
+  project:{
+    ...SAMPLE_PROJECT.project,
+    ...(studioConnection.projectId===undefined?{}:{id:studioConnection.projectId}),
+    durationInFrames:studioDurationInFrames
+  },
+  tracks:[...SAMPLE_PROJECT.tracks],
   items:[]
 };
 
 const StudioWrappedGenericEditor: React.FC<{project?: EditProject}> = ({project}) => (
-  <StudioToolbarProvider compositionId="GenericVideoEditor">
-    <GenericEditorComposition project={project} />
-  </StudioToolbarProvider>
+  <StudioToolbarProvider compositionId="GenericVideoEditor"><GenericEditorComposition project={project} /></StudioToolbarProvider>
 );
+
+const calculateStudioMetadata:CalculateMetadataFunction<{project?:EditProject}>=async({props,abortSignal,isRendering})=>{
+  let editorProject=props.project??studioInitialProject;
+  try{
+    // Studio's renderer can drop the editor URL query parameters. During a
+    // render, use the server-written snapshot first so it renders precisely
+    // the project that showed "saved" in the editing UI.
+    // The Studio timeline is rebuilt on refresh. Prefer the server-written
+    // draft snapshot in both preview and render modes so every saved audio
+    // item (A1–A4) becomes part of the rebuilt Composition tree.
+    const savedProject=await loadStudioRenderProject({signal:abortSignal});
+    const activeProject=savedProject??(await loadActiveEditorProject({signal:abortSignal}));
+    if(activeProject)editorProject=activeProject;
+  }catch(error){
+    if(isRendering){
+      try{const activeProject=await loadActiveEditorProject({signal:abortSignal});if(activeProject)editorProject=activeProject;}
+      catch(fallbackError){if(!(fallbackError instanceof TypeError))throw fallbackError;}
+    }else if(!(error instanceof TypeError))throw error;
+  }
+  return {
+    props:{...props,project:editorProject},
+    durationInFrames:editorProject.project.durationInFrames,
+    fps:editorProject.project.fps,
+    width:editorProject.project.width,
+    height:editorProject.project.height,
+  };
+};
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -32,25 +62,19 @@ export const RemotionRoot: React.FC = () => (
       component={StudioWrappedGenericEditor}
       defaultProps={{project: studioInitialProject}}
       durationInFrames={studioDurationInFrames}
-      calculateMetadata={({props}: {props: {project?: EditProject}}) => {
-        const editorProject = props.project ?? studioInitialProject;
-        return {
-          durationInFrames: Math.max(editorProject.project.durationInFrames,studioDurationInFrames),
-          fps: editorProject.project.fps,
-          width: editorProject.project.width,
-          height: editorProject.project.height,
-        };
-      }}
+      calculateMetadata={calculateStudioMetadata}
     />
-    <Composition
-      id="GenericFinalRender"
-      component={GenericFinalRender}
-      defaultProps={{project: SAMPLE_PROJECT}}
-      durationInFrames={SAMPLE_PROJECT.project.durationInFrames}
-      fps={SAMPLE_PROJECT.project.fps}
-      width={SAMPLE_PROJECT.project.width}
-      height={SAMPLE_PROJECT.project.height}
-      calculateMetadata={calculateGenericFinalRenderMetadata}
-    />
+    {studioConnection.projectId===undefined ? (
+      <Composition
+        id="GenericFinalRender"
+        component={GenericFinalRender}
+        defaultProps={{project: studioInitialProject}}
+        durationInFrames={studioInitialProject.project.durationInFrames}
+        fps={studioInitialProject.project.fps}
+        width={studioInitialProject.project.width}
+        height={studioInitialProject.project.height}
+        calculateMetadata={calculateGenericFinalRenderMetadata}
+      />
+    ) : null}
   </>
 );

@@ -11,6 +11,8 @@ workspace/projects/**
 
 # Generated editor runtime mirrors and renders are never source.
 apps/editor/public/projects/**
+apps/editor/public/vpf-active-editor-project.json
+apps/editor/public/vpf-active-editor-connection.json
 apps/editor/out/**
 apps/editor/build/**
 apps/editor/.local/**
@@ -22,6 +24,12 @@ logs/
 *.db
 *.db-wal
 *.db-shm
+
+# Reviewed GitHub project-state snapshots are single-writer SQLite handoffs.
+# Runtime databases, transient WAL/SHM files, media, and renders remain local.
+!workspace/project-state-snapshots/
+!workspace/project-state-snapshots/pilot_short_roman_ix/
+!workspace/project-state-snapshots/pilot_short_roman_ix/project.db
 local.config.*
 .DS_Store
 
@@ -29,3 +37,6 @@ local.config.*
 .chrome-*/
 **/__pycache__/
 workspace/_reset_backup/
+
+apps\editor\build
+.venv-whisper/

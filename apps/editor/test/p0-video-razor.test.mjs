@@ -1,0 +1,19 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+import {dirname,resolve} from "node:path";
+import {fileURLToPath} from "node:url";
+import ts from "typescript";
+const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
+const read=(path)=>readFile(resolve(root,path),"utf8");
+const importTs=async(path)=>{const source=await read(path);const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ES2022,target:ts.ScriptTarget.ES2022}}).outputText;return import(`data:text/javascript;base64,${Buffer.from(output).toString("base64")}`);};
+const video={id:"v1",type:"VIDEO",trackId:"V1",timelineStartFrame:10,durationInFrames:60,enabled:true,locked:false,src:"v.mp4",sourceStartFrame:20,sourceDurationInFrames:90,sourceAssetDurationInFrames:180,playbackRate:1.5,volume:0,x:0,y:0,scale:1,rotation:0,opacity:1,fit:"cover",canonicalSourceStartFrame:20,canonicalSourceDurationInFrames:90,sourceUsagePolicy:"QC_TRIM",sourceWindowApprovalRequired:false};
+const project={schemaVersion:1,project:{id:"p",name:"p",fps:30,width:1080,height:1920,durationInFrames:200},tracks:[{id:"V1",type:"VIDEO",name:"Video",enabled:true,locked:false,order:0}],items:[video],settings:{snapEnabled:true,snapToleranceFrames:4,timelineZoom:1,masterVolume:1}};
+
+test("P0-06 video split command requires one approved unlocked video strictly around playhead",async()=>{const {selectedVideoForSplit,canSplitVideoAtFrame,createVideoSplitId}=await importTs("src/studio/editor/videoSplitCommand.ts");const state={project:{items:[video,{...video,id:"video-split-dup"}]},selectedItemIds:["v1"]};assert.equal(selectedVideoForSplit(state).id,"v1");assert.equal(canSplitVideoAtFrame(video,10),false);assert.equal(canSplitVideoAtFrame(video,40),true);assert.equal(canSplitVideoAtFrame({...video,locked:true},40),false);assert.equal(canSplitVideoAtFrame({...video,sourceWindowApprovalRequired:true},40),false);let calls=0;assert.equal(createVideoSplitId(state,()=>calls++===0?"dup":"fresh"),"video-split-fresh");});
+
+test("P0-06 reducer razor preserves timeline and playback-rate-adjusted source continuity",async()=>{const {createEditorState,editorReducer}=await importTs("src/studio/editor/editorReducer.ts");const state=createEditorState(project);const next=editorReducer(state,{type:"SPLIT_VIDEO_ITEM",itemId:"v1",splitFrame:40,newItemId:"v2"});assert.equal(next.project.items.length,2);const [first,second]=next.project.items;assert.equal(first.durationInFrames,30);assert.equal(second.timelineStartFrame,40);assert.equal(second.durationInFrames,30);assert.equal(first.sourceDurationInFrames,45);assert.equal(second.sourceStartFrame,65);assert.equal(second.sourceDurationInFrames,45);assert.equal(first.sourceStartFrame+first.sourceDurationInFrames,second.sourceStartFrame);assert.equal(first.sourceDurationInFrames+second.sourceDurationInFrames,90);assert.equal(first.canonicalSourceDurationInFrames,45);assert.equal(second.canonicalSourceStartFrame,65);assert.deepEqual(next.selectedItemIds,["v2"]);});
+
+test("P0-06 reducer blocks razor on a source awaiting reapproval",async()=>{const {createEditorState,editorReducer}=await importTs("src/studio/editor/editorReducer.ts");const state=createEditorState({...project,items:[{...video,sourceWindowApprovalRequired:true}]});assert.strictEqual(editorReducer(state,{type:"SPLIT_VIDEO_ITEM",itemId:"v1",splitFrame:40,newItemId:"v2"}),state);});
+
+test("P0-06 Studio exposes Razor Video and routes S to selected audio or video",async()=>{const studio=await read("src/studio/editor/StudioEditor.tsx");const timeline=await read("src/studio/editor/timeline/Timeline.tsx");for(const token of ["selectedVideoForSplit","splitVideoItem","canSplitVideo","splitSelectedVideo"])assert.match(studio,new RegExp(token));assert.match(timeline,/data-editor-command="split-video"/);assert.match(timeline,/Razor Video/);});

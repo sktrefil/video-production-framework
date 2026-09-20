@@ -4,6 +4,7 @@ import {assertIsolatedPath} from "@vpf/legacy-guard/filesystem";
 import {createReadStream} from "node:fs";
 import {
   copyFile,
+  cp,
   mkdir,
   readFile,
   rename,
@@ -337,9 +338,19 @@ export async function materializeEditorProject(
     await writeJson(resolve(stagingRoot, "edit_project.json"), executionProject);
     await writeJson(resolve(stagingRoot, "materialization_report.json"), report);
 
-    await rm(mirrorRoot, {recursive: true, force: true});
-    await mkdir(dirname(mirrorRoot), {recursive: true});
-    await rename(stagingRoot, mirrorRoot);
+    try {
+      await rm(mirrorRoot, {recursive: true, force: true});
+      await mkdir(dirname(mirrorRoot), {recursive: true});
+      await rename(stagingRoot, mirrorRoot);
+    } catch (error: any) {
+      // Remotion Studio can keep the public project directory open on Windows.
+      // Preserve atomic replacement where possible, but fall back to an
+      // in-place refresh so a user can run final render from the Studio UI.
+      if (error?.code !== "EPERM") throw error;
+      await mkdir(mirrorRoot, {recursive: true});
+      await cp(stagingRoot, mirrorRoot, {recursive: true, force: true});
+      await rm(stagingRoot, {recursive: true, force: true});
+    }
 
     const canonicalProjectAbsolutePath = resolveProjectRelativePath(
       input.projectRoot,

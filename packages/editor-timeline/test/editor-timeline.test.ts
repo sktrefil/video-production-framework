@@ -216,7 +216,8 @@ function approvedContentPlan(revision = 1): EditorContentPlan {
         endMs: 2000,
         text: "첫 번째 자막",
         generationSource: "SCRIPT_TTS_ALIGN",
-        generatedFromAudioPlacementIds: ["narration"]
+        generatedFromAudioPlacementIds: ["narration"],
+        emphasisRanges: [{start: 0, end: 1, color: "#D79A32", enabled: true}]
       },
       {
         id: "002",
@@ -338,7 +339,7 @@ test("WF-14 converts approved TRIM_PASS window to Generic Editor frames", async 
   assert.equal(result.output.editProject.schemaVersion, 1);
   assert.deepEqual(
     result.output.editProject.tracks.map(track => track.id),
-    ["V1", "G1", "T1", "A1"]
+    ["V1", "G1", "T1", "A1", "A2"]
   );
 
   const item = result.output.editProject.items[0];
@@ -350,6 +351,16 @@ test("WF-14 converts approved TRIM_PASS window to Generic Editor frames", async 
   assert.equal(item.sourceAssetDurationInFrames, 150);
   assert.equal(item.durationInFrames, 120);
   assert.equal(item.volume, 0);
+  const clipAudio = result.output.editProject.items.find(item => item.id === "audio-visual-bind-video-r1");
+  assert.equal(clipAudio?.type, "CLIP_AUDIO");
+  if (clipAudio?.type !== "CLIP_AUDIO") throw new Error("Expected automatic CLIP_AUDIO");
+  assert.equal(clipAudio.trackId, "A2");
+  assert.equal(clipAudio.src, item.src);
+  assert.equal(clipAudio.timelineStartFrame, item.timelineStartFrame);
+  assert.equal(clipAudio.durationInFrames, item.durationInFrames);
+  assert.equal(clipAudio.sourceStartFrame, item.sourceStartFrame);
+  assert.equal(clipAudio.sourceDurationInFrames, item.sourceDurationInFrames);
+  assert.equal(clipAudio.volume, 1);
   assert.equal(result.output.editProject.project.durationInFrames, 120);
 });
 
@@ -366,7 +377,7 @@ test("WF-14 lays visual items contiguously on V1", async () => {
   });
 
   assert.equal(result.output.status, "READY");
-  assert.equal(result.output.editProject.items.length, 2);
+  assert.equal(result.output.editProject.items.length, 3);
   assert.equal(result.output.editProject.items[0]?.timelineStartFrame, 0);
   assert.equal(result.output.editProject.items[0]?.durationInFrames, 120);
   assert.equal(result.output.editProject.items[1]?.timelineStartFrame, 120);
@@ -386,7 +397,7 @@ test("WF-14 keeps CUT as a zero-duration boundary instead of a fake media item",
     profile
   });
 
-  assert.equal(result.output.editProject.items.length, 2);
+  assert.equal(result.output.editProject.items.length, 3);
   assert.equal(result.output.cutBoundaries.length, 1);
   assert.equal(result.output.cutBoundaries[0]?.timelineFrame, 120);
   assert.equal(result.output.cutBoundaries[0]?.transitionMethod, "HARD_CUT");
@@ -484,6 +495,26 @@ test("WF-14 is idempotent for identical bindings and timeline profile", async ()
   assert.equal(changedVideo?.type, "VIDEO");
   if (changedVideo?.type !== "VIDEO") throw new Error("Expected VIDEO");
   assert.equal(changedVideo.volume, 0.25);
+
+  const changedAudio = changedProfile.output.editProject.items.find(
+    item => item.id === "audio-visual-bind-video-r1"
+  );
+  assert.equal(changedAudio?.type, "CLIP_AUDIO");
+  if (changedAudio?.type !== "CLIP_AUDIO") throw new Error("Expected automatic CLIP_AUDIO");
+  assert.equal(changedAudio.volume, 1);
+
+  const changedClipAudio = await pipeline.assembleProject({
+    projectId: "p1",
+    projectName: "History Project",
+    profile: { ...profile, videoVolume: 0.25, clipAudioVolume: 0.2 }
+  });
+  assert.equal(changedClipAudio.created, true);
+  const louderAudio = changedClipAudio.output.editProject.items.find(
+    item => item.id === "audio-visual-bind-video-r1"
+  );
+  assert.equal(louderAudio?.type, "CLIP_AUDIO");
+  if (louderAudio?.type !== "CLIP_AUDIO") throw new Error("Expected automatic CLIP_AUDIO");
+  assert.equal(louderAudio.volume, 0.2);
 });
 
 test("WF-14 marks an existing assembly stale when a source binding revision changes", async () => {
@@ -595,9 +626,16 @@ test("WF-16 assembles TTS, clip audio, BGM, SFX, subtitles, text, and graphics i
   if (subtitle?.type !== "SUBTITLE") throw new Error("Expected SUBTITLE");
   assert.equal(subtitle.trackId, "T1");
   assert.deepEqual(subtitle.generatedFromTtsIds, ["audio-narration"]);
-  assert.equal(subtitle.fontFamily, "VITRO");
+  assert.deepEqual(subtitle.emphasisRanges, [{start: 0, end: 1, color: "#D79A32", enabled: true}]);
+  assert.equal(subtitle.fontFamily, "VPF Noto Sans KR");
   assert.equal(subtitle.x, 540);
-  assert.ok(Math.abs(subtitle.width - 936.036) < 0.000001);
+  assert.equal(subtitle.y, 1766);
+  assert.equal(subtitle.width, 972);
+  assert.equal(subtitle.fontSize, 100);
+  assert.equal(subtitle.fontWeight, 800);
+  assert.equal(subtitle.strokeWidth, 6);
+  assert.equal(subtitle.lineHeight, 1.24);
+  assert.equal(subtitle.maxLines, 2);
 
   const title = result.output.editProject.items.find(item => item.id === "text-title");
   assert.equal(title?.type, "TEXT");
@@ -611,7 +649,7 @@ test("WF-16 assembles TTS, clip audio, BGM, SFX, subtitles, text, and graphics i
   assert.equal(graphic.trackId, "G1");
   assert.equal(graphic.graphicType, "BLUR_PANEL");
 
-  assert.equal(result.output.editProject.items.length, 9);
+  assert.equal(result.output.editProject.items.length, 10);
   const readiness = await pipeline.getReadiness("p1");
   assert.equal(readiness.remotionHandoffReady, true);
 });
@@ -640,7 +678,7 @@ test("WF-16 blocks an unapproved content plan without polluting the editor items
 
   assert.equal(result.output.status, "PARTIAL");
   assert.ok(result.output.blockers.includes("CONTENT_PLAN_NOT_APPROVED"));
-  assert.equal(result.output.editProject.items.length, 1);
+  assert.equal(result.output.editProject.items.length, 2);
 });
 
 test("WF-16 allows source-longer BGM only when loop is explicitly enabled", async () => {
