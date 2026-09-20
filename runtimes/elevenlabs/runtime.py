@@ -74,7 +74,20 @@ def validate_job(job:dict[str,Any])->dict[str,Any]:
         safe_rel(str(c.get("outputRelativePath") or ""))
     paths=plan.get("outputPaths")
     if not isinstance(paths,dict): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","outputPaths required.")
-    for name in ("narration","characterAlignment","metadata","resolvedVoiceProfile"): safe_rel(str(paths.get(name) or ""))
+    mode=str(plan.get("narrationMode") or "SINGLE")
+    if mode not in {"SINGLE","SEGMENTED"}: raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Invalid narrationMode.")
+    if mode=="SEGMENTED":
+        sections=plan.get("sections")
+        if not isinstance(sections,list) or len(sections)!=len(chunks): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","SEGMENTED sections must match chunks.")
+        for i,(section,chunk) in enumerate(zip(sections,chunks),1):
+            if not isinstance(section,dict) or section.get("index")!=i or section.get("id")!=chunk.get("sectionId"): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Invalid SEGMENTED section identity.")
+            if str(section.get("text") or "")!=str(chunk.get("text") or ""): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Section/chunk text mismatch.")
+            safe_rel(str(section.get("audioRelativePath") or ""))
+            safe_rel(str(section.get("characterAlignmentRelativePath") or ""))
+        safe_rel(str(paths.get("narrationManifest") or ""))
+    else:
+        for name in ("narration","characterAlignment"): safe_rel(str(paths.get(name) or ""))
+    for name in ("metadata","resolvedVoiceProfile"): safe_rel(str(paths.get(name) or ""))
     return plan
 
 def resolve_voice(plan:dict[str,Any])->tuple[str,str]:
@@ -157,20 +170,53 @@ def execute(job:dict[str,Any])->dict[str,Any]:
     if not key: raise RuntimeFailure("RUNTIME_SECRET_MISSING","ELEVENLABS_API_KEY required.")
     voice,voice_source=resolve_voice(plan); timeout=float(os.environ.get("ELEVENLABS_TIMEOUT_SECONDS","120")); retries=int(os.environ.get("ELEVENLABS_REQUEST_RETRIES","2"))
     if timeout<=0 or retries<0 or retries>5: raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Invalid timeout/retry config.")
-    chunk_paths=[]; parts=[]; request_ids=[]
+    paths=plan["outputPaths"]; mode=str(plan.get("narrationMode") or "SINGLE")
+    request_ids=[]; parts=[]; chunk_paths=[]; outputs=[]; section_manifest=[]
+
     for c in plan["chunks"]:
-        audio,rid,a=request_tts(c["text"],voice,key,dict(plan.get("effectiveVoiceSettings") or {}),timeout,retries); p=project_path(root,c["outputRelativePath"]); p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(audio); chunk_paths.append(p); parts.append((c["text"],a)); request_ids += [rid] if rid else []
-    paths=plan["outputPaths"]; narration=project_path(root,paths["narration"]); combine(chunk_paths,narration); alignment=aggregate(parts); expected="\n\n".join(c["text"] for c in plan["chunks"])
-    if "".join(alignment["characters"])!=expected: raise RuntimeFailure("PROVIDER_RESULT_INVALID","Aggregated alignment text mismatch.")
-    duration=int(round(max(alignment["character_end_times_seconds"] or [0])*1000))
-    if duration<=0: raise RuntimeFailure("PROVIDER_RESULT_INVALID","Alignment duration invalid.")
-    ap=project_path(root,paths["characterAlignment"]); mp=project_path(root,paths["metadata"]); vp=project_path(root,paths["resolvedVoiceProfile"])
-    for p in (ap,mp,vp): p.parent.mkdir(parents=True,exist_ok=True)
-    ap.write_bytes(json_bytes(alignment)); audio_sha=sha(narration.read_bytes()); align_sha=sha(ap.read_bytes()); completed=now_iso()
-    metadata={"schemaVersion":1,"provider":"ELEVENLABS","providerProfile":{"resourceId":PROFILE_ID,"version":PROFILE_VERSION,"contentHash":job["input"]["providerProfile"]["contentHash"]},"modelId":MODEL_ID,"endpoint":ENDPOINT,"outputFormat":OUTPUT_FORMAT,"jobId":job["jobId"],"jobRevision":job["jobRevision"],"attempt":job["attempt"],"planId":plan["id"],"planRevision":plan["revision"],"inputHash":job["inputHash"],"requestIds":request_ids,"chunkCount":len(plan["chunks"]),"audioSha256":audio_sha,"characterAlignmentSha256":align_sha,"startedAt":started,"completedAt":completed}
+        audio,rid,a=request_tts(c["text"],voice,key,dict(plan.get("effectiveVoiceSettings") or {}),timeout,retries)
+        p=project_path(root,c["outputRelativePath"]); p.parent.mkdir(parents=True,exist_ok=True); p.write_bytes(audio)
+        chunk_paths.append(p); parts.append((c["text"],a)); request_ids += [rid] if rid else []
+
+        if mode=="SEGMENTED":
+            section=plan["sections"][c["index"]-1]
+            if p.resolve()!=project_path(root,section["audioRelativePath"]).resolve(): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Section audio path must equal chunk output path.")
+            duration=int(round(max(a.get("character_end_times_seconds") or [0])*1000))
+            if duration<=0: raise RuntimeFailure("PROVIDER_RESULT_INVALID","Section alignment duration invalid.")
+            ap=project_path(root,section["characterAlignmentRelativePath"]); ap.parent.mkdir(parents=True,exist_ok=True); ap.write_bytes(json_bytes(a))
+            suffix=str(int(section["index"])).zfill(3)
+            outputs.append(artifact(f"narration_section_{suffix}",p,root,"audio/mpeg",duration))
+            outputs.append(artifact(f"character_alignment_section_{suffix}",ap,root,"application/json"))
+            section_manifest.append({
+                "id":section["id"],"index":section["index"],"sequenceId":section.get("sequenceId"),"sceneIds":section.get("sceneIds") or [],
+                "textSha256":sha(str(section["text"]).encode("utf-8")),"audioRelativePath":section["audioRelativePath"],
+                "audioSha256":sha(p.read_bytes()),"audioDurationMs":duration,
+                "characterAlignmentRelativePath":section["characterAlignmentRelativePath"],"characterAlignmentSha256":sha(ap.read_bytes()),
+                "requestIds":[rid] if rid else []
+            })
+
+    completed=now_iso()
+    if mode=="SEGMENTED":
+        manifest_path=project_path(root,paths["narrationManifest"]); manifest_path.parent.mkdir(parents=True,exist_ok=True)
+        manifest={"schemaVersion":2,"mode":"SEGMENTED","planId":plan["id"],"planRevision":plan["revision"],"sections":section_manifest,"totalAudioDurationMs":sum(int(x["audioDurationMs"]) for x in section_manifest)}
+        manifest_path.write_bytes(json_bytes(manifest))
+        outputs.append(artifact("narration_manifest",manifest_path,root,"application/json"))
+        audio_sha=None; align_sha=None
+    else:
+        narration=project_path(root,paths["narration"]); combine(chunk_paths,narration); alignment=aggregate(parts); expected="\n\n".join(c["text"] for c in plan["chunks"])
+        if "".join(alignment["characters"])!=expected: raise RuntimeFailure("PROVIDER_RESULT_INVALID","Aggregated alignment text mismatch.")
+        duration=int(round(max(alignment["character_end_times_seconds"] or [0])*1000))
+        if duration<=0: raise RuntimeFailure("PROVIDER_RESULT_INVALID","Alignment duration invalid.")
+        ap=project_path(root,paths["characterAlignment"]); ap.parent.mkdir(parents=True,exist_ok=True); ap.write_bytes(json_bytes(alignment))
+        audio_sha=sha(narration.read_bytes()); align_sha=sha(ap.read_bytes())
+        outputs += [artifact("narration",narration,root,"audio/mpeg",duration),artifact("character_alignment",ap,root,"application/json")]
+
+    mp=project_path(root,paths["metadata"]); vp=project_path(root,paths["resolvedVoiceProfile"])
+    for p in (mp,vp): p.parent.mkdir(parents=True,exist_ok=True)
+    metadata={"schemaVersion":2 if mode=="SEGMENTED" else 1,"provider":"ELEVENLABS","providerProfile":{"resourceId":PROFILE_ID,"version":PROFILE_VERSION,"contentHash":job["input"]["providerProfile"]["contentHash"]},"modelId":MODEL_ID,"endpoint":ENDPOINT,"outputFormat":OUTPUT_FORMAT,"jobId":job["jobId"],"jobRevision":job["jobRevision"],"attempt":job["attempt"],"planId":plan["id"],"planRevision":plan["revision"],"inputHash":job["inputHash"],"narrationMode":mode,"requestIds":request_ids,"chunkCount":len(plan["chunks"]),"sectionCount":len(section_manifest) if mode=="SEGMENTED" else 1,"audioSha256":audio_sha,"characterAlignmentSha256":align_sha,"startedAt":started,"completedAt":completed}
     voice_profile={"schemaVersion":1,"voicePreset":plan["voicePreset"],"voiceId":"REDACTED","voiceIdSource":voice_source,"modelId":MODEL_ID,"configuredVoiceSettings":plan.get("configuredVoiceSettings") or {},"effectiveVoiceSettings":plan.get("effectiveVoiceSettings") or {},"preserveProviderCadence":True}
     mp.write_bytes(json_bytes(metadata)); vp.write_bytes(json_bytes(voice_profile))
-    outputs=[artifact("narration",narration,root,"audio/mpeg",duration),artifact("character_alignment",ap,root,"application/json"),artifact("tts_metadata",mp,root,"application/json"),artifact("resolved_voice_profile",vp,root,"application/json")]
+    outputs += [artifact("tts_metadata",mp,root,"application/json"),artifact("resolved_voice_profile",vp,root,"application/json")]
     return {"schemaVersion":1,"jobId":job["jobId"],"jobRevision":job["jobRevision"],"projectId":job["projectId"],"attempt":job["attempt"],"status":"COMPLETE","providerRequestIds":request_ids,"outputs":outputs,"startedAt":started,"completedAt":now_iso()}
 
 def failure_result(job:dict[str,Any],f:RuntimeFailure,started:str)->dict[str,Any]|None:
