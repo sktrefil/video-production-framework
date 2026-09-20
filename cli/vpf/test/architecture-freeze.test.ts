@@ -16,11 +16,14 @@ test("architecture freeze: Codex authority and worker boundaries match the maste
   assert.match(agents,/only agent allowed to advance canonical project approvals/);
   assert.match(agents,/project\.db.*single canonical production state/);
   assert.match(agents,/Do not merge all section narration into one final `narration\.mp3`/);
+  assert.match(agents,/do not fan out TTS\/Subtitle and Visual\/Image production until the current FINAL script and Scene graph have passed the manager Story Gate/);
   assert.match(agents,/browser automation may only transport that package/);
   assert.match(agents,/prompt revisions v1\/v2\/v3/);
   assert.match(story,/Do not approve canonical project gates/);
   assert.match(visual,/RETRY .*REGENERATE .*REDESIGN/);
   assert.match(visual,/sequence continuity/);
+  assert.match(visual,/Scene purpose, essential visible elements, composition, historical\/factual constraints, continuity requirements, negative constraints/);
+  assert.match(visual,/exact reference inventory with semantic roles/);
   assert.match(visual,/manager-approved recurring characters/);
   assert.match(config,/max_concurrent_threads_per_session = 2/);
 });
