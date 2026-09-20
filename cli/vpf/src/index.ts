@@ -221,7 +221,7 @@ export async function runCli(
       const result = await assembleEditorProject({
         projectId,
         projectRoot,
-        header: readOption(args, "--header") ?? "로마 제9군단의 미스터리"
+        header: readOption(args, "--header") ?? ""
       });
       printJson(io, {status: "ASSEMBLED", projectId: project.project.projectId, ...result});
       return 0;

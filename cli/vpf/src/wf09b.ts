@@ -240,8 +240,7 @@ export function parseQcPlan(value: unknown): Wf09bQcPlan {
 }
 
 async function importAdapter(moduleSpec: string): Promise<ImageProviderAdapter> {
-  const trimmed = moduleSpec.trim();
-  if (!trimmed) throw new Wf09bCliError("WF09B_ADAPTER_REQUIRED", "VPF_IMAGE_ADAPTER_MODULE must point to an image provider adapter module.");
+  const trimmed = moduleSpec.trim() || path.join(repositoryRoot, "runtimes", "image", "adapters", "chatgpt-browser-adapter.mjs");
   let specifier = trimmed;
   if (path.isAbsolute(trimmed) || path.win32.isAbsolute(trimmed)) specifier = pathToFileURL(trimmed).href;
   else if (trimmed.startsWith(".")) specifier = pathToFileURL(path.resolve(trimmed)).href;
@@ -263,10 +262,10 @@ async function importAdapter(moduleSpec: string): Promise<ImageProviderAdapter> 
 
 function classifyKnfBeat(scene: Scene): string {
   const text = [scene.scriptSegment, scene.primaryVisualIdea, ...scene.mustBeSeen].join(" ").toLowerCase();
-  if (/[?？]|어디|왜|사라|실종|mystery|question|vanish|disappear/u.test(text) && scene.displayNumber === 1) return "HOOK QUESTION";
-  if (/하지만|그러나|반면|실제로|contrast|however|reveal/u.test(text)) return "CONTRAST REVEAL";
-  if (/비문|기록|연대|타임라인|증거|inscription|record|evidence|124|107|108/u.test(text)) return "EVIDENCE";
-  if (/지도|경로|마지막|어디|map|route|close|마무리/u.test(text)) return "MAP CLOSE";
+  if (scene.displayNumber === 1 && /[?？]|어디|왜|사라|실종|mystery|question|vanish|disappear/u.test(text)) return "HOOK QUESTION";
+  if (/하지만|그러나|반면|실제로|contrast|however|reveal|turn/u.test(text)) return "CONTRAST REVEAL";
+  if (/비문|기록|연대|타임라인|증거|문서|사료|inscription|record|evidence|timeline|document/u.test(text)) return "EVIDENCE";
+  if (/지도|경로|마지막|어디|map|route|close|ending|마무리/u.test(text)) return "MAP CLOSE";
   return "DEVELOPMENT EXPLANATION";
 }
 

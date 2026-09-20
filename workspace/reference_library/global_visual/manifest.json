@@ -11,7 +11,7 @@
       "relativePath": "1.png",
       "sha256": "77e85cd9224e3005e9da67b2d82e2d377466b9f75a80043acd12bd4d59b68d9e",
       "mimeType": "image/png",
-      "role": "NORMAL_CAPTION",
+      "role": "COMPOSITION_GRAMMAR",
       "beatTags": [],
       "sceneTags": [],
       "priority": 4
@@ -22,7 +22,7 @@
       "relativePath": "2.png",
       "sha256": "05bae73b9567aed2cb3750ca13fe62ae47ddca70202924c0d121b1d0be6d6b41",
       "mimeType": "image/png",
-      "role": "NORMAL_CAPTION",
+      "role": "ATMOSPHERE_GRAMMAR",
       "beatTags": [],
       "sceneTags": [],
       "priority": 3
@@ -33,7 +33,7 @@
       "relativePath": "3.png",
       "sha256": "4d6f96a6959ae2432ded1714165b83184c365a98d2e6aac1963142503adaf2ba",
       "mimeType": "image/png",
-      "role": "NORMAL_CAPTION",
+      "role": "NARRATIVE_GRAMMAR",
       "beatTags": [],
       "sceneTags": [],
       "priority": 2
@@ -44,7 +44,7 @@
       "relativePath": "6.png",
       "sha256": "522c5bb60a07ea6d7a402f4640c7f0304563e59a301e7fd58c4f467271783697",
       "mimeType": "image/png",
-      "role": "NORMAL_CAPTION",
+      "role": "MYSTERY_CLOSURE_GRAMMAR",
       "beatTags": [],
       "sceneTags": [],
       "priority": 1

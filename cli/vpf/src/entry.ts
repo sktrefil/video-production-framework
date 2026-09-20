@@ -121,7 +121,7 @@ if (args[0] === "editor" && args[1] === "diagnose") {
     try {
       const result = await new EditorAssemblyCliService().assemble({
         projectId,
-        header: readOption(args, "--header") ?? "로마 제9군단의 미스터리"
+        header: readOption(args, "--header") ?? ""
       });
       console.log(JSON.stringify(result, null, 2));
       process.exitCode = result.status === "READY" ? 0 : 1;

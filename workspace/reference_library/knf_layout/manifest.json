@@ -23,8 +23,6 @@
         "question",
         "disappear",
         "vanish",
-        "ninth",
-        "legion",
         "미스터리",
         "의문",
         "실종"
@@ -47,14 +45,12 @@
       "sceneTags": [
         "where",
         "when",
-        "britain",
-        "rome",
         "location",
         "date",
-        "브리튼",
-        "로마",
+        "context",
         "위치",
-        "시기"
+        "시기",
+        "배경"
       ],
       "priority": 5
     },
@@ -151,14 +147,14 @@
         "map",
         "route",
         "object",
-        "stone",
+        "artifact",
         "inscription",
-        "fort",
+        "location",
         "지도",
         "경로",
         "유물",
         "비문",
-        "요새"
+        "장소"
       ],
       "priority": 1
     }

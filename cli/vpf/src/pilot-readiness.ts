@@ -458,25 +458,26 @@ export class PilotReadinessService {
   }
 
   private async imageAdapterChecks(providers: ProviderReadinessSummary[]): Promise<ReadinessCheck[]> {
-    if (!providers.some(provider => provider.provider === "IMAGE_PROVIDER" && provider.executionMode === "AUTOMATED")) {
-      return [];
-    }
+    const browserImage = providers.some(
+      provider => provider.provider === "CHATGPT_BROWSER" && provider.executionMode === "AUTOMATED"
+    );
+    const legacyAutomated = providers.some(
+      provider => provider.provider === "IMAGE_PROVIDER" && provider.executionMode === "AUTOMATED"
+    );
+    if (!browserImage && !legacyAutomated) return [];
+
     const configured = this.environment.VPF_IMAGE_ADAPTER_MODULE;
-    if (!nonEmpty(configured)) {
-      return [check(
-        "IMAGE_ADAPTER_MODULE",
-        false,
-        "",
-        "VPF_IMAGE_ADAPTER_MODULE is required for the automated image runtime."
-      )];
-    }
-    const resolved = safeConfiguredPath(configured!);
-    const readable = resolved !== null && await pathIsReadable(resolved);
+    const candidate = nonEmpty(configured)
+      ? safeConfiguredPath(configured!)
+      : browserImage
+        ? path.join(this.repositoryRoot, "runtimes", "image", "adapters", "chatgpt-browser-adapter.mjs")
+        : null;
+    const readable = candidate !== null && await pathIsReadable(candidate);
     return [check(
       "IMAGE_ADAPTER_MODULE",
       readable,
-      "Configured image provider adapter module is readable and is not a legacy path.",
-      "Configured image provider adapter module is missing, unreadable or points at a forbidden legacy path."
+      "Image transport adapter is readable and is not a legacy path.",
+      "Image transport adapter is missing, unreadable or points at a forbidden legacy path."
     )];
   }
 }
