@@ -1279,11 +1279,41 @@ export interface ElevenLabsEffectiveV3VoiceSettings {
   style: number;
 }
 
+export type TtsNarrationMode = "SINGLE" | "SEGMENTED";
+
 export interface TtsChunkPlan {
   index: number;
   text: string;
   textCharacterCount: number;
   outputRelativePath: string;
+  sectionId?: string;
+  sectionIndex?: number;
+}
+
+export interface TtsNarrationSectionPlan {
+  id: string;
+  index: number;
+  sequenceId?: string;
+  sceneIds: string[];
+  text: string;
+  textCharacterCount: number;
+  audioRelativePath: string;
+  characterAlignmentRelativePath: string;
+}
+
+export interface TtsNarrationSectionResult {
+  id: string;
+  index: number;
+  sequenceId?: string;
+  sceneIds: string[];
+  textSha256: string;
+  audioMediaId: string;
+  audioRelativePath: string;
+  audioSha256: string;
+  audioDurationMs: number;
+  characterAlignmentRelativePath: string;
+  characterAlignmentSha256: string;
+  requestIds: string[];
 }
 
 export type TtsGenerationStatus =
@@ -1313,10 +1343,13 @@ export interface TtsGenerationPlan extends BaseEntity {
     "similarity_boost" | "speed" | "use_speaker_boost"
   >;
   preserveProviderCadence: true;
+  narrationMode?: TtsNarrationMode;
+  sections?: TtsNarrationSectionPlan[];
   chunks: TtsChunkPlan[];
   outputPaths: {
     narration: "03_tts/narration.mp3";
     characterAlignment: "03_tts/character_alignment.json";
+    narrationManifest?: "03_tts/narration_manifest.json";
     metadata: "03_tts/tts_metadata.json";
     resolvedVoiceProfile: "03_tts/resolved_voice_profile.json";
   };
@@ -1339,12 +1372,17 @@ export interface TtsGenerationResult extends BaseEntity {
   modelId: "eleven_v3";
   voiceId: "REDACTED";
   outputFormat: "mp3_44100_128";
+  narrationMode?: TtsNarrationMode;
   requestIds: string[];
+  sections?: TtsNarrationSectionResult[];
+  totalAudioDurationMs?: number;
+  narrationManifestRelativePath?: string;
+  narrationManifestSha256?: string;
   audioMediaId: string;
-  audioRelativePath: "03_tts/narration.mp3";
+  audioRelativePath: string;
   audioSha256: string;
   audioDurationMs: number;
-  characterAlignmentRelativePath: "03_tts/character_alignment.json";
+  characterAlignmentRelativePath: string;
   characterAlignmentSha256: string;
   metadataRelativePath: "03_tts/tts_metadata.json";
   chunkCount: number;

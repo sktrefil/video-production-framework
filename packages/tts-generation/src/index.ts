@@ -10,8 +10,19 @@ import type {
 } from "@vpf/domain";
 import type {OutboxRecord, WorkflowEvent} from "@vpf/workflow";
 
+export interface TtsStorySceneRef {
+  chapterOrder: number;
+  sequenceId: string;
+  sequenceOrder: number;
+  sceneId: string;
+  sceneOrder: number;
+  scriptSegment: string;
+  sourceScriptRevision: number;
+}
+
 export interface TtsGenerationRepository {
   getLatestApprovedFinalScript(projectId: string): Promise<ScriptVersion | null>;
+  listApprovedTtsScenes(projectId: string): Promise<TtsStorySceneRef[]>;
   getLatestTtsPlan(projectId: string): Promise<TtsGenerationPlan | null>;
   getLatestTtsResult(projectId: string): Promise<TtsGenerationResult | null>;
   commitTtsPlan(input: {
@@ -26,6 +37,7 @@ export interface TtsGenerationRepository {
     previousResult: TtsGenerationResult | null;
     result: TtsGenerationResult;
     audioMedia: MediaArtifact;
+    audioMediaItems?: MediaArtifact[];
     event: WorkflowEvent;
     outbox: OutboxRecord;
   }): Promise<void>;
@@ -68,6 +80,8 @@ export interface ElevenLabsRuntimeJob {
   configuredVoiceSettings: TtsGenerationPlan["configuredVoiceSettings"];
   effectiveVoiceSettings: TtsGenerationPlan["effectiveVoiceSettings"];
   preserveProviderCadence: true;
+  narrationMode: "SINGLE" | "SEGMENTED";
+  sections: NonNullable<TtsGenerationPlan["sections"]>;
   sourceScript: {
     id: string;
     revision: number;
@@ -201,6 +215,77 @@ export function voicePresetForFormat(format: ProjectFormat): TtsVoicePresetId {
     : "HISTORY_MYSTERY_SHORTS";
 }
 
+function longformSectionPath(index: number, kind: "audio" | "alignment"): string {
+  const suffix = String(index).padStart(3, "0");
+  return kind === "audio"
+    ? `03_tts/sections/section_${suffix}.mp3`
+    : `03_tts/alignment/section_${suffix}.json`;
+}
+
+function buildLongformSections(
+  scenes: TtsStorySceneRef[],
+  sourceScriptRevision: number,
+  maximumCharacters: number
+) {
+  if (scenes.length === 0) {
+    throw new TtsGenerationValidationError(
+      "TTS_RESULT_INVALID",
+      "LONGFORM TTS requires current human-approved Scenes before narration can be planned."
+    );
+  }
+  const ordered = [...scenes].sort((a, b) =>
+    a.chapterOrder - b.chapterOrder ||
+    a.sequenceOrder - b.sequenceOrder ||
+    a.sceneOrder - b.sceneOrder
+  );
+  if (ordered.some(scene => scene.sourceScriptRevision !== sourceScriptRevision)) {
+    throw new TtsGenerationValidationError(
+      "TTS_RESULT_INVALID",
+      "Approved LONGFORM Scenes are stale relative to the current FINAL script."
+    );
+  }
+
+  const groups: Array<{sequenceId: string; sceneIds: string[]; text: string}> = [];
+  let current: {sequenceId: string; sceneIds: string[]; text: string} | null = null;
+  for (const scene of ordered) {
+    const text = sanitizeTtsText(scene.scriptSegment);
+    if (!text) continue;
+    if (text.length > maximumCharacters) {
+      throw new TtsGenerationValidationError(
+        "TTS_RESULT_INVALID",
+        `Scene ${scene.sceneId} exceeds ${maximumCharacters} TTS characters. Split the Scene at the Story stage instead of slicing narration inside a Scene.`
+      );
+    }
+    const sameSequence = current !== null && current.sequenceId === scene.sequenceId;
+    const candidate = sameSequence ? current!.text + "\n\n" + text : text;
+    if (current === null || !sameSequence || candidate.length > maximumCharacters) {
+      if (current !== null) groups.push(current);
+      current = {sequenceId: scene.sequenceId, sceneIds: [scene.sceneId], text};
+    } else {
+      current.sceneIds.push(scene.sceneId);
+      current.text = candidate;
+    }
+  }
+  if (current !== null) groups.push(current);
+  if (groups.length === 0) {
+    throw new TtsGenerationValidationError(
+      "TTS_RESULT_INVALID",
+      "Approved LONGFORM Scenes contain no speakable text."
+    );
+  }
+
+  return groups.map((group, index) => ({
+    id: `tts-section-${String(index + 1).padStart(3, "0")}`,
+    index: index + 1,
+    sequenceId: group.sequenceId,
+    sceneIds: [...group.sceneIds],
+    text: group.text,
+    textCharacterCount: group.text.length,
+    audioRelativePath: longformSectionPath(index + 1, "audio"),
+    characterAlignmentRelativePath: longformSectionPath(index + 1, "alignment")
+  }));
+}
+
 function durableEvent(
   ids: TtsGenerationIdFactory,
   clock: TtsGenerationClock,
@@ -286,15 +371,30 @@ export class TtsGenerationPipeline {
     }
 
     const sanitized = sanitizeTtsText(script.body);
-    const chunks =
-      input.format === "LONGFORM"
-        ? splitTextForTts(sanitized, 4000)
-        : [sanitized].filter(Boolean);
+    const narrationMode = input.format === "LONGFORM" ? "SEGMENTED" as const : "SINGLE" as const;
+    const sections = narrationMode === "SEGMENTED"
+      ? buildLongformSections(
+          await this.repository.listApprovedTtsScenes(input.projectId),
+          script.revision,
+          4000
+        )
+      : [{
+          id: "tts-section-001",
+          index: 1,
+          sceneIds: [] as string[],
+          text: sanitized,
+          textCharacterCount: sanitized.length,
+          audioRelativePath: "03_tts/narration.mp3",
+          characterAlignmentRelativePath: "03_tts/character_alignment.json"
+        }];
 
-    if (chunks.length === 0 || chunks.some(chunk => chunk.length > 4000)) {
+    if (
+      sections.length === 0 ||
+      sections.some(section => !section.text || section.text.length > 4000)
+    ) {
       throw new TtsGenerationValidationError(
         "TTS_RESULT_INVALID",
-        "Approved script could not be converted into valid ElevenLabs chunks."
+        "Approved script could not be converted into valid TTS sections."
       );
     }
 
@@ -350,18 +450,22 @@ export class TtsGenerationPipeline {
       ),
       droppedVoiceSettings: [...presetSettings.droppedVoiceSettings],
       preserveProviderCadence: true,
-      chunks: chunks.map((text, index) => ({
-        index: index + 1,
-        text,
-        textCharacterCount: text.length,
-        outputRelativePath:
-          "03_tts/chunks/chunk_" +
-          String(index + 1).padStart(3, "0") +
-          ".mp3"
+      narrationMode,
+      sections,
+      chunks: sections.map(section => ({
+        index: section.index,
+        text: section.text,
+        textCharacterCount: section.textCharacterCount,
+        outputRelativePath: section.audioRelativePath,
+        sectionId: section.id,
+        sectionIndex: section.index
       })),
       outputPaths: {
         narration: "03_tts/narration.mp3",
         characterAlignment: "03_tts/character_alignment.json",
+        ...(narrationMode === "SEGMENTED"
+          ? {narrationManifest: "03_tts/narration_manifest.json" as const}
+          : {}),
         metadata: "03_tts/tts_metadata.json",
         resolvedVoiceProfile: "03_tts/resolved_voice_profile.json"
       },
@@ -381,6 +485,8 @@ export class TtsGenerationPipeline {
         scriptRevision: script.revision,
         voicePreset: next.voicePreset,
         modelId: next.modelId,
+        narrationMode: next.narrationMode,
+        sectionCount: next.sections?.length ?? 1,
         chunkCount: next.chunks.length
       }
     });
@@ -418,6 +524,12 @@ export class TtsGenerationPipeline {
       throw new TtsGenerationValidationError(
         "TTS_PLAN_NOT_READY",
         "Current ElevenLabs TTS plan is not ready for completion."
+      );
+    }
+    if ((plan.narrationMode ?? "SINGLE") === "SEGMENTED") {
+      throw new TtsGenerationValidationError(
+        "TTS_RESULT_INVALID",
+        "SEGMENTED LONGFORM completion must use the runtime bridge so section audio remains separate."
       );
     }
     if (
@@ -468,11 +580,13 @@ export class TtsGenerationPipeline {
       modelId: "eleven_v3",
       voiceId: "REDACTED",
       outputFormat: "mp3_44100_128",
+      narrationMode: "SINGLE",
       requestIds: [...input.requestIds],
       audioMediaId: audioMedia.id,
       audioRelativePath: "03_tts/narration.mp3",
       audioSha256: input.audioSha256.toLowerCase(),
       audioDurationMs: input.audioDurationMs,
+      totalAudioDurationMs: input.audioDurationMs,
       characterAlignmentRelativePath: "03_tts/character_alignment.json",
       characterAlignmentSha256:
         input.characterAlignmentSha256.toLowerCase(),
@@ -534,6 +648,8 @@ export class TtsGenerationPipeline {
       configuredVoiceSettings: structuredClone(plan.configuredVoiceSettings),
       effectiveVoiceSettings: structuredClone(plan.effectiveVoiceSettings),
       preserveProviderCadence: true,
+      narrationMode: plan.narrationMode ?? "SINGLE",
+      sections: structuredClone(plan.sections ?? []),
       sourceScript: {
         id: plan.sourceScriptId,
         revision: plan.sourceScriptRevision,
