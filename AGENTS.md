@@ -21,6 +21,8 @@
 ## Quality gates
 - Workers perform self-QC; Agent1 independently performs cross-artifact QC before a stage advances.
 - Image review must cover scene requirements and sequence continuity.
+- Creative image regeneration is limited to prompt revisions v1/v2/v3 by default; after three failed creative attempts Agent1 must BLOCK and reassess instead of looping.
+- Only Agent1-approved recurring characters, recurring locations, critical props, or canonical appearance anchors may be promoted into the project reference library.
 - A changed approved script/scene invalidates only dependent downstream artifacts; do not regenerate unrelated work.
 - Do not start a real LONGFORM pilot unless typecheck, build, tests, LONGFORM E2E, and pilot-readiness are green.
 

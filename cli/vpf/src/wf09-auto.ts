@@ -1,7 +1,7 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Scene, VersionPins } from "@vpf/domain";
+import type { ProjectFormat, Scene, VersionPins } from "@vpf/domain";
 import {
   ProjectBootstrapService,
   type ProjectStatus
@@ -86,36 +86,33 @@ function visualBiblePin(status: ProjectStatus): ResourcePin | undefined {
   return pin(status, "CHANNEL_VISUAL_BIBLE", targetVisualBible.resourceId);
 }
 
-function projectStyleDecision() {
+function projectStyleDecision(format: ProjectFormat) {
+  const longform = format === "LONGFORM";
   return {
-    eraRegion: "A cinematic fantasy reconstruction inspired by early second-century Roman Britain and northern Britannia",
-    visualApproach: "Story-first cinematic fantasy matte-painting; every image inherits the approved GLOBAL_VISUAL tone and manner without individual stylistic drift",
-    realismLevel: "Stylized cinematic fantasy reconstruction with materially tactile stone, timber, wool, leather, iron and monumental fantasy-world extensions",
-    colorLanguage: "Mandatory GLOBAL_VISUAL cool slate-and-mist against selective luminous gold and ember warmth; strong cinematic tonal separation rather than muted documentary grading",
-    lightingLanguage: "Volumetric cloud, mist and atmospheric depth with dramatic controlled light, including motivated or compositional warm breaks through storm light",
-    materialLanguage: "Painterly fantasy matte-painting surfaces with tactile weathered stone, timber, wool, leather, iron and monumental ruins; never a grey photographic documentary look",
-    environmentLanguage: "Monumental layered fantasy landscapes, roads, forts, ruins, maps and evidence spaces with strong foreground-midground-background depth",
-    characterRenderingPrinciple: "Roman-inspired personnel may be stylized fantasy reconstructions. Historical deviations are disclosed in editorial overlays rather than suppressed in image generation",
-    cameraCompositionTendency: "Medium-wide to wide by default; essential story information in central 60-70%; upper and lower margins remain atmospheric and crop-safe",
-    moodRange: [
-      "cinematic fantasy historical mystery",
-      "monumental northern frontier uncertainty",
-      "evidence-led fantasy reconstruction",
-      "luminous unresolved ending"
-    ],
+    eraRegion: "Project-defined historical setting derived from the approved script and Scene graph",
+    visualApproach: "Follow the pinned channel Visual Bible and approved project context consistently; keep scene imagery editable and continuity-safe",
+    realismLevel: "Use the pinned Visual Bible realism/stylization contract; do not inject a project-specific era or franchise style",
+    colorLanguage: "Inherit the approved GLOBAL_VISUAL tonal hierarchy and the current Project Style without unrelated palette drift",
+    lightingLanguage: "Use motivated, controlled cinematic light and atmosphere consistent with the approved Project Style",
+    materialLanguage: "Use tactile, setting-appropriate materials derived from the approved Scene and Project Style",
+    environmentLanguage: "Environment-first depth and readable geography appropriate to the approved Scene",
+    characterRenderingPrinciple: "Preserve approved identity anchors, wardrobe logic, age, role and continuity; do not invent project-specific identities",
+    cameraCompositionTendency: longform
+      ? "Horizontal 16:9 medium-wide/wide coverage by default with sustained geography, editability and continuity; no vertical crop-safe central-band rule"
+      : "Vertical 9:16 composition using the pinned SHORTFORM Format Profile and protected story area",
+    moodRange: ["historical mystery","evidence-led reconstruction","controlled cinematic tension","unresolved documentary atmosphere"],
     factualConstraints: [
-      "Preserve the narrative distinction between known evidence and visual reconstruction through later editorial disclosure",
+      "Preserve the distinction between documented evidence, reconstruction and uncertainty",
       "Generated imagery must not contain readable invented historical text"
     ],
     avoidances: [
-      "modern objects or weapons",
-      "grey photographic documentary styling that departs from GLOBAL_VISUAL",
-      "unrelated game-render styling that departs from GLOBAL_VISUAL",
-      "readable generated Latin, dates, map labels or other historical text"
+      "modern objects unsupported by the Scene",
+      "unrelated franchise or game-render styling",
+      "readable invented dates, labels, maps or historical text",
+      longform ? "vertical 9:16 crop continuity assumptions" : "horizontal-only composition that ignores the SHORTFORM profile"
     ]
   };
 }
-
 function scenePriority(scene: Scene, index: number, count: number): "CRITICAL" | "IMPORTANT" | "SUPPORTING" {
   const text = [scene.scriptSegment, scene.primaryVisualIdea, ...scene.mustBeSeen].join(" ");
   if (index === 0 || index === count - 1) return "CRITICAL";
@@ -130,35 +127,35 @@ function sceneRole(scene: Scene, index: number, count: number): "HERO" | "STORY_
   return "STANDARD";
 }
 
-function scenePrompt(scene: Scene): { prompt: string; negativePrompt: string } {
+function scenePrompt(scene: Scene, format: ProjectFormat): { prompt: string; negativePrompt: string } {
   const visual = scene.primaryVisualIdea.trim();
-  const mustSee = scene.mustBeSeen
-    .filter(item => !/^(AD\s*)?\d{2,4}$/iu.test(item.trim()))
-    .join(", ");
+  const mustSee = scene.mustBeSeen.filter(item => !/^(AD\s*)?\d{2,4}$/iu.test(item.trim())).join(", ");
+  const formatInstruction = format === "LONGFORM"
+    ? "LONGFORM FORMAT: create a horizontal 16:9 image plate with sustained geography and edit-safe left/right composition. Do not use a vertical 9:16 central-band or top/bottom crop-continuity layout."
+    : "SHORTFORM FORMAT: create a vertical 9:16 image plate using the pinned SHORTFORM safe-area and composition contract.";
   const prompt = [
     visual,
     mustSee ? `Essential visible elements: ${mustSee}.` : "",
-    "Cinematic fantasy reconstruction inspired by Roman Britain. The approved GLOBAL_VISUAL images are mandatory, non-negotiable tone and manner: monumental layered fantasy environments, painterly matte-painting texture, cool-versus-warm cinematic contrast, volumetric cloud and haze, dramatic controlled light, and epic compositional depth.",
-    "Story-first environment-first medium-wide or wide framing, people and objects small-to-medium in frame, readable foreground-midground-background depth.",
-    "Preserve the GLOBAL_VISUAL fantasy finish in this individual shot; do not drift into grey photographic documentary or a separate game-render style. Historical deviation is disclosed later by editorial overlay, not suppressed in the image.",
-    "Essential story information stays in the central 60-70%; upper and lower margins remain atmospheric and lower-detail for vertical 9:16 crop continuity.",
-    "No readable generated historical text or labels; editorial disclosure and captions are applied later."
+    "Follow the approved Project Style and pinned Visual Bible. Preserve the project's established composition grammar, atmosphere, palette, materials, identity anchors and factual constraints.",
+    formatInstruction,
+    "Treat this as a sequential production image, not a standalone poster. Keep the visual hierarchy readable for later editing and adjacent-scene continuity.",
+    "No readable generated historical text, captions, borders, logos or UI; editorial text is added later."
   ].filter(Boolean).join(" ");
   const negativePrompt = [
-    "modern objects",
-    "readable generated Latin, dates or map labels",
-    "grey photographic documentary styling",
-    "unrelated game-render styling",
-    "baked captions, borders, logos or UI panels"
+    "modern or unsupported objects",
+    "readable generated dates, labels, map text or invented historical writing",
+    "unrelated franchise or game-render styling",
+    "identity drift",
+    "baked captions, borders, logos or UI panels",
+    ...(format === "LONGFORM" ? ["vertical 9:16 framing", "central-band crop-safe composition"] : [])
   ].join(", ");
   return { prompt, negativePrompt };
 }
-
-function buildSceneAssetPlan(scenes: Scene[]) {
+function buildSceneAssetPlan(scenes: Scene[], format: ProjectFormat) {
   return {
     schemaVersion: 1,
     scenes: scenes.map((scene, index) => {
-      const prompt = scenePrompt(scene);
+      const prompt = scenePrompt(scene, format);
       return {
         sceneId: scene.id,
         assetPlan: {
@@ -171,7 +168,7 @@ function buildSceneAssetPlan(scenes: Scene[]) {
         },
         imageAssetDesign: {
           visualGoal: scene.primaryVisualIdea,
-          composition: "Environment-first medium-wide/wide composition with central story information and crop-safe atmospheric margins.",
+          composition: format === "LONGFORM" ? "Horizontal 16:9 environment-first medium-wide/wide composition with sustained geography and edit-safe left/right depth." : "Vertical 9:16 environment-first composition using the pinned SHORTFORM protected story area.",
           continuityRequirements: [
             `Enter from: ${scene.stateIn}`,
             `Current state: ${scene.stateCurrent}`,
@@ -179,14 +176,15 @@ function buildSceneAssetPlan(scenes: Scene[]) {
           ],
           factualConstraints: [
             ...scene.mustBeSeen.map(item => `Scene requirement: ${item}`),
-            "Cinematic fantasy reconstruction inspired by Roman Britain; factual deviation is disclosed in editorial overlays",
+            "Follow the approved Project Style and pinned Visual Bible without injecting a project-specific era",
             "No readable generated historical text; dates, labels and disclosure are editorial overlays"
           ],
           avoidances: [
-            "modern objects",
-            "grey photographic documentary styling that departs from GLOBAL_VISUAL",
-            "unrelated game-render finish that departs from GLOBAL_VISUAL",
-            "oversized subject without narrative reason"
+            "modern or unsupported objects",
+            "unrelated franchise or game-render styling",
+            "identity drift",
+            "oversized subject without narrative reason",
+            ...(format === "LONGFORM" ? ["vertical 9:16 crop-continuity composition"] : [])
           ]
         },
         imagePrompt: prompt
@@ -310,7 +308,7 @@ export class Wf09AutoService {
     }
     const status = await this.projects.getStatus(projectId);
     const styleFile = path.join(status.projectRoot, "04_visual_identity", "project-style.auto.json");
-    await writeJsonAtomic(styleFile, projectStyleDecision());
+    await writeJsonAtomic(styleFile, projectStyleDecision(status.project.format));
     const style = await this.wf08.applyProjectStyle(projectId, styleFile);
     await this.wf08.approveProjectStyle(projectId, "wf09-auto");
     return { created: true, styleId: style.id };
@@ -345,7 +343,7 @@ export class Wf09AutoService {
     if (scenes.length === 0) {
       throw new Wf09AutoError("WF09_AUTO_PROJECT_STATE", "WF-09 requires at least one approved current Scene.");
     }
-    await writeJsonAtomic(filename, buildSceneAssetPlan(scenes));
+    await writeJsonAtomic(filename, buildSceneAssetPlan(scenes, status.project.format));
     return { file: filename, created: true, sceneCount: scenes.length };
   }
 
