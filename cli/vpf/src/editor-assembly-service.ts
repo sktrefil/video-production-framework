@@ -49,6 +49,7 @@ type SubtitleCue = {
   endMs: number;
   text: string;
   generationSource?: "TTS_TRANSCRIBE" | "SCRIPT_TTS_ALIGN" | "SCRIPT_TIMING" | "MANUAL";
+  generatedFromAudioPlacementIds?: string[];
 };
 
 type SubtitleDocument = {
@@ -327,8 +328,12 @@ async function ensureContentPlan(input: {
       durationMs: timeline.totalDurationMs,
       audioPlacementIds: timeline.audio.map(item => item.id),
       cues: timeline.subtitles,
-      narrationManifestRelativePath: input.ttsResult.narrationManifestRelativePath,
-      narrationManifestSha256: input.ttsResult.narrationManifestSha256
+      ...(input.ttsResult.narrationManifestRelativePath === undefined
+        ? {}
+        : {narrationManifestRelativePath: input.ttsResult.narrationManifestRelativePath}),
+      ...(input.ttsResult.narrationManifestSha256 === undefined
+        ? {}
+        : {narrationManifestSha256: input.ttsResult.narrationManifestSha256})
     });
   } else {
     const subtitles = await readSubtitleDocument(input.projectRoot);
@@ -529,6 +534,7 @@ export class EditorAssemblyCliService {
   async assemble(input: {projectId: string; header: string}) {
     const status = await this.projects.getStatus(input.projectId);
     const repo = new SqliteEditorTimelineRepository(status.projectDbPath);
+    const ttsRepo = new SqliteTtsGenerationRepository(status.projectDbPath);
     try {
       const profile = await resolveTimelineProfile(status);
       const binding = new MediaBindingPipeline(repo, repo, clock, ids);
