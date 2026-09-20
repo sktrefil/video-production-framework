@@ -317,49 +317,115 @@ class MockTtsRuntimeExecutor {
     this.projectRoot = projectRoot;
     this.fixtureAudioPath = fixtureAudioPath;
   }
+
+  alignment(text, durationMs) {
+    const characters = [...text];
+    const totalSeconds = Math.max(0.001, durationMs / 1000 - 0.02);
+    const step = totalSeconds / Math.max(1, characters.length);
+    return {
+      characters,
+      character_start_times_seconds: characters.map((_, index) => Number((index * step).toFixed(6))),
+      character_end_times_seconds: characters.map((_, index) => Number(((index + 1) * step).toFixed(6)))
+    };
+  }
+
+  async writeOutput(role, relativePath, mimeType, bytes, durationMs) {
+    const absolute = join(this.projectRoot, relativePath);
+    await mkdir(dirname(absolute), {recursive: true});
+    await writeFile(absolute, bytes);
+    return {
+      role,
+      relativePath,
+      mimeType,
+      sizeBytes: bytes.length,
+      sha256: sha256(bytes),
+      ...(durationMs === undefined ? {} : {durationMs})
+    };
+  }
+
   async execute(job) {
     const plan = job.input.plan;
-    const text = plan.chunks.map(chunk => chunk.text).join("\n\n");
     const audioBytes = await readFile(this.fixtureAudioPath);
-    const characters = [...text];
-    const totalSeconds = 0.55;
-    const step = totalSeconds / Math.max(1, characters.length);
-    const starts = characters.map((_, index) => Number((index * step).toFixed(6)));
-    const ends = characters.map((_, index) => Number(((index + 1) * step).toFixed(6)));
-    const alignment = {
-      characters,
-      character_start_times_seconds: starts,
-      character_end_times_seconds: ends
-    };
-    const metadata = {
+    const outputs = [];
+    const providerRequestIds = [];
+
+    if (plan.narrationMode === "SEGMENTED") {
+      const sections = [...plan.sections].sort((a,b)=>a.index-b.index);
+      const durationMs = Math.max(120, Math.floor(600 / sections.length));
+      const manifestSections = [];
+      for (const section of sections) {
+        const suffix = String(section.index).padStart(3,"0");
+        const alignment = this.alignment(section.text, durationMs);
+        const alignmentBytes = Buffer.from(JSON.stringify(alignment));
+        const requestId = `mig12-tts-request-${suffix}`;
+        providerRequestIds.push(requestId);
+        outputs.push(await this.writeOutput(
+          `narration_section_${suffix}`,
+          section.audioRelativePath,
+          "audio/mpeg",
+          audioBytes,
+          durationMs
+        ));
+        outputs.push(await this.writeOutput(
+          `character_alignment_section_${suffix}`,
+          section.characterAlignmentRelativePath,
+          "application/json",
+          alignmentBytes
+        ));
+        manifestSections.push({
+          id: section.id,
+          index: section.index,
+          sequenceId: section.sequenceId,
+          sceneIds: section.sceneIds,
+          text: section.text,
+          textSha256: sha256(Buffer.from(section.text,"utf8")),
+          audioRelativePath: section.audioRelativePath,
+          audioSha256: sha256(audioBytes),
+          audioDurationMs: durationMs,
+          characterAlignmentRelativePath: section.characterAlignmentRelativePath,
+          characterAlignmentSha256: sha256(alignmentBytes),
+          requestIds: [requestId]
+        });
+      }
+      const manifest = Buffer.from(JSON.stringify({
+        schemaVersion: 2,
+        mode: "SEGMENTED",
+        planId: plan.id,
+        planRevision: plan.revision,
+        sections: manifestSections,
+        totalAudioDurationMs: manifestSections.reduce((sum,item)=>sum+item.audioDurationMs,0)
+      }));
+      outputs.push(await this.writeOutput(
+        "narration_manifest",
+        plan.outputPaths.narrationManifest,
+        "application/json",
+        manifest
+      ));
+    } else {
+      const text = plan.chunks.map(chunk => chunk.text).join("\n\n");
+      const alignment = this.alignment(text, 600);
+      const requestId = "mig12-tts-request";
+      providerRequestIds.push(requestId);
+      outputs.push(await this.writeOutput("narration", plan.outputPaths.narration, "audio/mpeg", audioBytes, 600));
+      outputs.push(await this.writeOutput(
+        "character_alignment",
+        plan.outputPaths.characterAlignment,
+        "application/json",
+        Buffer.from(JSON.stringify(alignment))
+      ));
+    }
+
+    const metadata = Buffer.from(JSON.stringify({
       provider: "ELEVENLABS",
       model: "eleven_v3",
+      narrationMode: plan.narrationMode ?? "SINGLE",
       mock: true,
-      requestIds: ["mig12-tts-request"]
-    };
-    const voice = {provider: "ELEVENLABS", voiceId: "fixture-voice"};
+      requestIds: providerRequestIds
+    }));
+    const voice = Buffer.from(JSON.stringify({provider: "ELEVENLABS", voiceId: "fixture-voice"}));
+    outputs.push(await this.writeOutput("tts_metadata", plan.outputPaths.metadata, "application/json", metadata));
+    outputs.push(await this.writeOutput("resolved_voice_profile", plan.outputPaths.resolvedVoiceProfile, "application/json", voice));
 
-    const documents = [
-      ["narration", plan.outputPaths.narration, "audio/mpeg", audioBytes],
-      ["character_alignment", plan.outputPaths.characterAlignment, "application/json", Buffer.from(JSON.stringify(alignment))],
-      ["tts_metadata", plan.outputPaths.metadata, "application/json", Buffer.from(JSON.stringify(metadata))],
-      ["resolved_voice_profile", plan.outputPaths.resolvedVoiceProfile, "application/json", Buffer.from(JSON.stringify(voice))]
-    ];
-
-    const outputs = [];
-    for (const [role, relativePath, mimeType, bytes] of documents) {
-      const absolute = join(this.projectRoot, relativePath);
-      await mkdir(dirname(absolute), {recursive: true});
-      await writeFile(absolute, bytes);
-      outputs.push({
-        role,
-        relativePath,
-        mimeType,
-        sizeBytes: bytes.length,
-        sha256: sha256(bytes),
-        ...(role === "narration" ? {durationMs: 600} : {})
-      });
-    }
     return {
       schemaVersion: 1,
       jobId: job.jobId,
@@ -367,7 +433,7 @@ class MockTtsRuntimeExecutor {
       projectId: job.projectId,
       attempt: job.attempt,
       status: "COMPLETE",
-      providerRequestIds: ["mig12-tts-request"],
+      providerRequestIds,
       outputs,
       startedAt: fixedNow,
       completedAt: fixedNow

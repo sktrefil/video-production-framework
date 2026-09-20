@@ -24,7 +24,10 @@ import {
   TtsRuntimeCompletionService,
   elevenLabsRuntimeExecutionOptions
 } from "@vpf/tts-generation/runtime-adapter";
-import {buildTtsAlignedSubtitleCuesFromArtifacts} from "@vpf/tts-generation/subtitle-bridge";
+import {
+  buildSegmentedTtsTimelineFromArtifacts,
+  buildTtsAlignedSubtitleCuesFromArtifacts
+} from "@vpf/tts-generation/subtitle-bridge";
 import {
   RuntimeExecutorRegistry,
   RuntimeOrchestrator
@@ -443,14 +446,25 @@ export async function runUpstreamFixture({workspaceRoot, format, projectId, nega
   const ttsRuntimeOutcome = await ttsOrchestrator.executeAutomated(
     projectId,
     ttsProviderJob.job.id,
-    elevenLabsRuntimeExecutionOptions()
+    elevenLabsRuntimeExecutionOptions(ttsPreparedPlan.plan)
   );
   assert.equal(ttsRuntimeOutcome.result.status, "COMPLETE");
   assert.equal(ttsProviderCalls, 1);
-  const alignmentDocument = await readFile(
-    join(projectRoot, ttsPreparedPlan.plan.outputPaths.characterAlignment),
-    "utf8"
-  );
+  const isSegmented = (ttsPreparedPlan.plan.narrationMode ?? "SINGLE") === "SEGMENTED";
+  const alignmentDocument = isSegmented
+    ? undefined
+    : await readFile(
+        join(projectRoot, ttsPreparedPlan.plan.outputPaths.characterAlignment),
+        "utf8"
+      );
+  const alignmentDocuments = isSegmented
+    ? Object.fromEntries(await Promise.all(
+        (ttsPreparedPlan.plan.sections ?? []).map(async section => [
+          section.id,
+          await readFile(join(projectRoot, section.characterAlignmentRelativePath), "utf8")
+        ])
+      ))
+    : undefined;
   const ttsCompletion = new TtsRuntimeCompletionService(
     ttsRepo,
     clock,
@@ -461,19 +475,54 @@ export async function runUpstreamFixture({workspaceRoot, format, projectId, nega
     runtimeJob: ttsRuntimeOutcome.runtimeJob,
     runtimeResult: ttsRuntimeOutcome.result,
     media: ttsRuntimeOutcome.media,
-    alignmentDocument
+    ...(alignmentDocument === undefined ? {} : {alignmentDocument}),
+    ...(alignmentDocuments === undefined ? {} : {alignmentDocuments})
   });
   assert.equal(completedTts.result.audioMediaId, completedTts.audioMedia.id);
+  assert.equal(
+    completedTts.audioMediaItems.length,
+    isSegmented ? ttsPreparedPlan.plan.sections.length : 1
+  );
   ttsRuntimeRepo.close();
 
-  const subtitles = await buildTtsAlignedSubtitleCuesFromArtifacts({
-    projectRoot,
-    script,
-    result: completedTts.result,
-    audioPlacementId: "narration"
-  });
+  let ttsAudio;
+  let subtitles;
+  let narrationDurationMs;
+  if (isSegmented) {
+    const segmented = await buildSegmentedTtsTimelineFromArtifacts({
+      projectRoot,
+      plan: ttsPreparedPlan.plan,
+      result: completedTts.result
+    });
+    ttsAudio = segmented.audio;
+    subtitles = segmented.subtitles;
+    narrationDurationMs = segmented.totalDurationMs;
+    assert.equal(ttsAudio.length, ttsPreparedPlan.plan.sections.length);
+    assert.ok(ttsAudio.every((item,index)=>
+      item.type === "TTS" &&
+      item.timelineStartMs === ttsAudio.slice(0,index).reduce((sum,previous)=>sum+(previous.durationMs ?? 0),0)
+    ));
+  } else {
+    subtitles = await buildTtsAlignedSubtitleCuesFromArtifacts({
+      projectRoot,
+      script,
+      result: completedTts.result,
+      audioPlacementId: "narration"
+    });
+    ttsAudio = [{
+      id: "narration",
+      type: "TTS",
+      mediaId: completedTts.audioMedia.id,
+      timelineStartMs: 0,
+      sourceInMs: 0,
+      sourceOutMs: completedTts.result.audioDurationMs,
+      durationMs: completedTts.result.audioDurationMs,
+      volume: 1
+    }];
+    narrationDurationMs = completedTts.result.audioDurationMs;
+  }
   assert.ok(subtitles.length >= 1);
-  assert.ok(subtitles.every(cue => cue.endMs <= completedTts.result.audioDurationMs));
+  assert.ok(subtitles.every(cue => cue.endMs <= narrationDurationMs));
   ttsRepo.close();
 
   const audioRepo = new SqliteAudioImportRepository(dbPath);
@@ -500,7 +549,7 @@ export async function runUpstreamFixture({workspaceRoot, format, projectId, nega
     projectId,
     planStatus: "APPROVED",
     audio: [
-      {id: "narration", type: "TTS", mediaId: completedTts.audioMedia.id, timelineStartMs: 0, volume: 1},
+      ...ttsAudio,
       {id: "clip-audio", type: "CLIP_AUDIO", mediaId: clipAudio.media.id, timelineStartMs: 0, durationMs: 200, volume: 0.12},
       {id: "bgm", type: "BGM", mediaId: bgm.media.id, timelineStartMs: 0, durationMs: 600, volume: 0.1, loop: true},
       {id: "impact", type: "SFX", mediaId: sfx.media.id, timelineStartMs: 300, durationMs: 200, volume: 0.35}
@@ -554,6 +603,15 @@ export async function runUpstreamFixture({workspaceRoot, format, projectId, nega
   assert.equal(timeline.output.status, "READY");
   assert.equal(timeline.assembly.assemblyStatus, "READY");
   assert.equal(timeline.output.editProject.project.durationInFrames, Math.round(profile.fps * 0.6));
+  assert.equal(
+    timeline.output.editProject.items.filter(item=>item.type==="TTS").length,
+    format === "LONGFORM" ? ttsAudio.length : 1
+  );
+  assert.ok(
+    timeline.output.editProject.items
+      .filter(item=>item.type==="TTS")
+      .every(item=>item.trackId==="A1")
+  );
   for (const type of ["VIDEO", "TTS", "CLIP_AUDIO", "BGM", "SFX", "SUBTITLE", "TEXT", "GRAPHIC"]) {
     assert.ok(timeline.output.editProject.items.some(item => item.type === type), `missing ${type} timeline item`);
   }

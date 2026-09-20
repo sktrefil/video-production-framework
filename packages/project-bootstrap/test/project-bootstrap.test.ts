@@ -65,8 +65,8 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
   assert.equal(created.record.pipeline, "VPF_UNIFIED_V1");
   assert.equal(created.record.legacyAllowed, false);
   assert.equal(created.migrations.current, true);
-  assert.equal(created.migrations.latestMigrationId, "0014");
-  assert.equal(created.record.project.versions.dataModelVersion, "0014");
+  assert.equal(created.migrations.latestMigrationId, "0015");
+  assert.equal(created.record.project.versions.dataModelVersion, "0015");
   assert.equal(
     created.record.project.versions.projectStyleVersion,
     PROJECT_STYLE_UNMATERIALIZED_VERSION
@@ -81,7 +81,7 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
     const migrationCount = db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get() as {count: number};
     assert.equal(projectCount.count, 1);
     assert.equal(styleCount.count, 0);
-    assert.equal(migrationCount.count, 14);
+    assert.equal(migrationCount.count, 15);
   } finally {
     db.close();
   }
