@@ -143,11 +143,10 @@ function requireFormatDimensions(formatProfile: FormatProfileSnapshot): {
   };
 }
 
-function outputPath(assetId: string, attempt: number): string {
-  // Keep every final runtime download in one browsable project folder. The
-  // asset id and attempt retain deterministic provenance without nesting each
-  // generated image in a separate directory.
-  return `05_images/generated/${encodeURIComponent(assetId)}--attempt-${attempt}.png`;
+function outputPath(assetId: string, assetRevision: number, attempt: number): string {
+  // Include the generating Asset revision so a creative prompt revision can
+  // never overwrite an earlier accepted/rejected candidate on disk.
+  return `05_images/generated/${encodeURIComponent(assetId)}--r${assetRevision}--attempt-${attempt}.png`;
 }
 
 function isReferenceOrConfigFailure(job: ProviderJob): boolean {
@@ -209,7 +208,7 @@ export class UnifiedImageRuntimeJobService {
       height: dimensions.height,
       aspectRatio: dimensions.aspectRatio,
       references,
-      outputRelativePath: outputPath(asset.id, 1)
+      outputRelativePath: outputPath(asset.id, nextAsset.revision, 1)
     };
     validateImageRuntimeInput(runtimeInput);
 
@@ -403,7 +402,7 @@ export class UnifiedImageRuntimeJobService {
     const runtimeInput: ImageRuntimeInput = {
       ...previousInput,
       references: previousInput.references.map(reference => ({ ...reference })),
-      outputRelativePath: outputPath(asset.id, attempt)
+      outputRelativePath: outputPath(asset.id, nextAsset.revision, attempt)
     };
     validateImageRuntimeInput(runtimeInput);
 

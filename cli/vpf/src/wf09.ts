@@ -613,12 +613,12 @@ export class Wf09CliService {
         }
         if (
           asset.stale ||
-          asset.assetStatus !== "DESIGNED" ||
+          (asset.assetStatus !== "DESIGNED" && asset.assetStatus !== "REGENERATE_REQUIRED") ||
           asset.sourceStrategy !== "GENERATE"
         ) {
           throw new Wf09CliError(
             "WF09_ASSET_STATE",
-            `Scene ${item.sceneId} Asset must be current, DESIGNED and GENERATE before prompt materialization.`
+            `Scene ${item.sceneId} Asset must be current, DESIGNED/REGENERATE_REQUIRED and GENERATE before prompt materialization.`
           );
         }
         pending.push({ item, asset, prompt: item.imagePrompt });
@@ -628,10 +628,16 @@ export class Wf09CliService {
       for (const entry of pending) {
         const prompt = entry.prompt.prompt.trim();
         const negativePrompt = entry.prompt.negativePrompt?.trim();
-        if (
+        const unchanged =
           entry.asset.design.imagePrompt === prompt &&
-          entry.asset.design.negativePrompt === negativePrompt
-        ) {
+          entry.asset.design.negativePrompt === negativePrompt;
+        if (unchanged) {
+          if (entry.asset.assetStatus === "REGENERATE_REQUIRED") {
+            throw new Wf09CliError(
+              "WF09_ASSET_STATE",
+              `Scene ${entry.item.sceneId} requires a revised IMAGE_PROMPT after creative QC failure; use runtime retry only for technical failure.`
+            );
+          }
           assets.push(entry.asset);
           continue;
         }
@@ -642,6 +648,7 @@ export class Wf09CliService {
           ...entry.asset,
           revision: entry.asset.revision + 1,
           updatedAt: now,
+          assetStatus: "DESIGNED",
           design: {
             ...design,
             imagePrompt: prompt,
@@ -651,13 +658,17 @@ export class Wf09CliService {
         const event: WorkflowEvent = {
           eventId: `evt_${randomUUID().replaceAll("-", "")}`,
           projectId,
-          eventType: "IMAGE_PROMPT_MATERIALIZED",
+          eventType: entry.asset.assetStatus === "REGENERATE_REQUIRED"
+            ? "IMAGE_PROMPT_REVISED"
+            : "IMAGE_PROMPT_MATERIALIZED",
           targetType: "ASSET",
           targetId: next.id,
           trigger: "WORKFLOW_ENGINE",
           payload: {
             sceneId: entry.item.sceneId,
             assetRevision: next.revision,
+            previousAssetStatus: entry.asset.assetStatus,
+            promptSha256: createHash("sha256").update(prompt).digest("hex"),
             providerJobCreated: false
           },
           createdAt: now

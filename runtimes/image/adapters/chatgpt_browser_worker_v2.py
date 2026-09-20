@@ -130,6 +130,10 @@ def reference_session_marker(request: dict[str, Any]) -> str:
         })
     encoded = json.dumps({
         "sessionKey": str(request.get("sessionKey") or ""),
+        "promptSha256": hashlib.sha256(str(request.get("transmissionText") or "").encode("utf-8")).hexdigest(),
+        "width": int(request.get("width") or 0),
+        "height": int(request.get("height") or 0),
+        "aspectRatio": str(request.get("aspectRatio") or ""),
         "references": identity,
     }, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")
     return "vpf-image-session:" + hashlib.sha256(encoded).hexdigest()
@@ -518,6 +522,17 @@ def normalize_png(raw: bytes, width: int, height: int) -> bytes:
             raise RuntimeError("Generated image has invalid dimensions.")
         target_ratio = width / height
         source_ratio = image.width / image.height
+        try:
+            max_ratio_error = float(os.environ.get("CHATGPT_IMAGE_MAX_ASPECT_ERROR", "0.08"))
+        except ValueError as exc:
+            raise RuntimeError("CHATGPT_IMAGE_MAX_ASPECT_ERROR must be numeric.") from exc
+        if max_ratio_error < 0 or max_ratio_error > 0.25:
+            raise RuntimeError("CHATGPT_IMAGE_MAX_ASPECT_ERROR must be between 0 and 0.25.")
+        ratio_error = abs(source_ratio - target_ratio) / target_ratio
+        if ratio_error > max_ratio_error:
+            raise RuntimeError(
+                f"Generated image aspect ratio {source_ratio:.4f} differs too far from required {target_ratio:.4f}; regenerate instead of destructive crop."
+            )
         if source_ratio > target_ratio:
             crop_width = max(1, round(image.height * target_ratio))
             left = max(0, (image.width - crop_width) // 2)

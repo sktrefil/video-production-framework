@@ -58,19 +58,12 @@ function requestToSceneInput(input: ReferenceSelectionRequest, maxReferences: nu
   };
 }
 
-const GLOBAL_ROLE_BY_FILE: Record<string, string> = {
-  "1.png": "COMPOSITION_GRAMMAR",
-  "2.png": "ATMOSPHERE_GRAMMAR",
-  "3.png": "NARRATIVE_GRAMMAR",
-  "6.png": "MYSTERY_CLOSURE_GRAMMAR"
-};
-
 function globalRole(entry: ReferenceLibraryEntry): string {
-  return GLOBAL_ROLE_BY_FILE[basename(entry.relativePath).toLowerCase()] ?? "VISUAL_GRAMMAR";
+  return entry.role?.trim() || "VISUAL_GRAMMAR";
 }
 
-function findGlobalEntry(manifest: ReferenceLibraryManifest, filename: string): ReferenceLibraryEntry | undefined {
-  return manifest.entries.find(entry => basename(entry.relativePath).toLowerCase() === filename.toLowerCase());
+function findGlobalEntry(manifest: ReferenceLibraryManifest, role: string): ReferenceLibraryEntry | undefined {
+  return manifest.entries.find(entry => entry.role?.toUpperCase() === role.toUpperCase());
 }
 
 /**
@@ -92,21 +85,21 @@ function selectGlobalEntries(
     input.knfBeat ?? ""
   ].join(" ").toLowerCase();
 
-  const preferred: string[] = ["1.png"];
+  const preferred: string[] = ["COMPOSITION_GRAMMAR"];
   if (/지도|경로|마지막|어디|미스터리|공백|unknown|mystery|map|route|close|ending/u.test(text)) {
-    preferred.push("6.png", "3.png", "2.png");
+    preferred.push("MYSTERY_CLOSURE_GRAMMAR", "NARRATIVE_GRAMMAR", "ATMOSPHERE_GRAMMAR");
   } else if (/비문|기록|증거|연대|타임라인|문서|inscription|evidence|record|timeline|document/u.test(text)) {
-    preferred.push("3.png", "2.png", "6.png");
+    preferred.push("NARRATIVE_GRAMMAR", "ATMOSPHERE_GRAMMAR", "MYSTERY_CLOSURE_GRAMMAR");
   } else if (/안개|풍경|행군|도로|전투|환경|mist|landscape|march|road|battle|environment/u.test(text)) {
-    preferred.push("2.png", "3.png", "6.png");
+    preferred.push("ATMOSPHERE_GRAMMAR", "NARRATIVE_GRAMMAR", "MYSTERY_CLOSURE_GRAMMAR");
   } else {
-    preferred.push("3.png", "2.png", "6.png");
+    preferred.push("NARRATIVE_GRAMMAR", "ATMOSPHERE_GRAMMAR", "MYSTERY_CLOSURE_GRAMMAR");
   }
 
   const selected: ReferenceLibraryEntry[] = [];
   const seen = new Set<string>();
-  for (const filename of preferred) {
-    const entry = findGlobalEntry(manifest, filename);
+  for (const role of preferred) {
+    const entry = findGlobalEntry(manifest, role);
     if (entry === undefined || seen.has(entry.relativePath)) continue;
     selected.push(entry);
     seen.add(entry.relativePath);
