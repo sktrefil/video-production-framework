@@ -15,6 +15,7 @@ export type EditorAction =
   | {type:"CHANGE_ITEM_DURATION"; itemId:string; durationInFrames:number}
   | {type:"CHANGE_PLAYBACK_RATE"; itemId:string; playbackRate:number} | {type:"CHANGE_VOLUME"; itemId:string; volume:number}
   | {type:"CHANGE_VIDEO_FIT"; itemId:string; fit:"cover"|"contain"}
+  | {type:"CHANGE_VIDEO_TRANSITION"; itemId:string; transitionInFrames:number}
   | {type:"CHANGE_VIDEO_SOURCE_WINDOW"; itemId:string; sourceStartFrame:number; sourceDurationInFrames:number}
   | {type:"CHANGE_VIDEO_SOURCE_POLICY"; itemId:string; policy:VideoSourceUsagePolicy}
   | {type:"CHANGE_AUDIO_MUTED"; itemId:string; muted:boolean} | {type:"CHANGE_AUDIO_LOOP"; itemId:string; loop:boolean}
@@ -38,7 +39,7 @@ export type EditorAction =
   | {type:"SPLIT_VIDEO_ITEM"; itemId:string; splitFrame:number; newItemId:string}
   | {type:"SPLIT_SUBTITLE_ITEM"; itemId:string; splitFrame:number; newItemId:string}
   | {type:"MERGE_SUBTITLE_ITEMS"; itemId:string; nextItemId:string}
-  | {type:"SET_PLAYHEAD"; frame:number} | {type:"SET_TIMELINE_ZOOM"; zoom:number}
+  | {type:"SET_PLAYHEAD"; frame:number} | {type:"SET_TIMELINE_ZOOM"; zoom:number} | {type:"SET_FORCED_END_FRAME"; frame:number}
   | {type:"SET_CLIP_AUDIO_MASTER_VOLUME"; volume:number}
   | {type:"SET_SNAP"; enabled:boolean; toleranceFrames?:number};
 
@@ -49,6 +50,7 @@ export const editorActions = {
   trimItemStart:(itemId:string,deltaFrames:number):EditorAction=>({type:"TRIM_ITEM_START",itemId,deltaFrames}), trimItemEnd:(itemId:string,deltaFrames:number):EditorAction=>({type:"TRIM_ITEM_END",itemId,deltaFrames}),
   changeItemDuration:(itemId:string,durationInFrames:number):EditorAction=>({type:"CHANGE_ITEM_DURATION",itemId,durationInFrames}), changePlaybackRate:(itemId:string,playbackRate:number):EditorAction=>({type:"CHANGE_PLAYBACK_RATE",itemId,playbackRate}),
   changeVolume:(itemId:string,volume:number):EditorAction=>({type:"CHANGE_VOLUME",itemId,volume}), changeVideoFit:(itemId:string,fit:"cover"|"contain"):EditorAction=>({type:"CHANGE_VIDEO_FIT",itemId,fit}),
+  changeVideoTransition:(itemId:string,transitionInFrames:number):EditorAction=>({type:"CHANGE_VIDEO_TRANSITION",itemId,transitionInFrames}),
   changeVideoSourceWindow:(itemId:string,sourceStartFrame:number,sourceDurationInFrames:number):EditorAction=>({type:"CHANGE_VIDEO_SOURCE_WINDOW",itemId,sourceStartFrame,sourceDurationInFrames}), changeVideoSourcePolicy:(itemId:string,policy:VideoSourceUsagePolicy):EditorAction=>({type:"CHANGE_VIDEO_SOURCE_POLICY",itemId,policy}),
   changeAudioMuted:(itemId:string,muted:boolean):EditorAction=>({type:"CHANGE_AUDIO_MUTED",itemId,muted}), changeAudioLoop:(itemId:string,loop:boolean):EditorAction=>({type:"CHANGE_AUDIO_LOOP",itemId,loop}),
   changeAudioFades:(itemId:string,patch:{fadeInFrames?:number;fadeOutFrames?:number}):EditorAction=>({type:"CHANGE_AUDIO_FADES",itemId,...patch}), changeAudioDucking:(itemId:string,patch:Partial<AudioDuckingSettings>):EditorAction=>({type:"CHANGE_AUDIO_DUCKING",itemId,patch}), updateText:(itemId:string,text:string):EditorAction=>({type:"UPDATE_TEXT",itemId,text}),
@@ -61,5 +63,5 @@ export const editorActions = {
   applySubtitleSync:(changes:SubtitleTimingChange[]):EditorAction=>({type:"APPLY_SUBTITLE_SYNC",changes}),
   deleteItem:(itemId:string):EditorAction=>({type:"DELETE_ITEM",itemId}), duplicateItem:(itemId:string,newItemId:string,timelineStartFrame?:number,trackId?:string):EditorAction=>({type:"DUPLICATE_ITEM",itemId,newItemId,timelineStartFrame,trackId}),
   splitAudioItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_AUDIO_ITEM",itemId,splitFrame,newItemId}), splitVideoItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_VIDEO_ITEM",itemId,splitFrame,newItemId}), splitSubtitleItem:(itemId:string,splitFrame:number,newItemId:string):EditorAction=>({type:"SPLIT_SUBTITLE_ITEM",itemId,splitFrame,newItemId}), mergeSubtitleItems:(itemId:string,nextItemId:string):EditorAction=>({type:"MERGE_SUBTITLE_ITEMS",itemId,nextItemId}),
-  setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}), setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setClipAudioMasterVolume:(volume:number):EditorAction=>({type:"SET_CLIP_AUDIO_MASTER_VOLUME",volume}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
+  setPlayhead:(frame:number):EditorAction=>({type:"SET_PLAYHEAD",frame}), setTimelineZoom:(zoom:number):EditorAction=>({type:"SET_TIMELINE_ZOOM",zoom}), setForcedEndFrame:(frame:number):EditorAction=>({type:"SET_FORCED_END_FRAME",frame}), setClipAudioMasterVolume:(volume:number):EditorAction=>({type:"SET_CLIP_AUDIO_MASTER_VOLUME",volume}), setSnap:(enabled:boolean,toleranceFrames?:number):EditorAction=>({type:"SET_SNAP",enabled,toleranceFrames}),
 };

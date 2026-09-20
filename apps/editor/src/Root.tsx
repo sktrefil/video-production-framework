@@ -1,4 +1,4 @@
-import {Composition} from "remotion";
+import { Composition } from "remotion";
 import type {CalculateMetadataFunction} from "remotion";
 import type {EditProject} from "./studio/editor/editorTypes";
 import sampleProjectJson from "./generated/edit_project.sample.json";
@@ -25,9 +25,7 @@ const studioInitialProject:EditProject={
 };
 
 const StudioWrappedGenericEditor: React.FC<{project?: EditProject}> = ({project}) => (
-  <StudioToolbarProvider compositionId="GenericVideoEditor">
-    <GenericEditorComposition project={project} />
-  </StudioToolbarProvider>
+  <StudioToolbarProvider compositionId="GenericVideoEditor"><GenericEditorComposition project={project} /></StudioToolbarProvider>
 );
 
 const calculateStudioMetadata:CalculateMetadataFunction<{project?:EditProject}>=async({props,abortSignal,isRendering})=>{
@@ -36,8 +34,11 @@ const calculateStudioMetadata:CalculateMetadataFunction<{project?:EditProject}>=
     // Studio's renderer can drop the editor URL query parameters. During a
     // render, use the server-written snapshot first so it renders precisely
     // the project that showed "saved" in the editing UI.
-    const savedProject=isRendering?await loadStudioRenderProject({signal:abortSignal}):null;
-    const activeProject=savedProject??await loadActiveEditorProject({signal:abortSignal});
+    // The Studio timeline is rebuilt on refresh. Prefer the server-written
+    // draft snapshot in both preview and render modes so every saved audio
+    // item (A1–A4) becomes part of the rebuilt Composition tree.
+    const savedProject=await loadStudioRenderProject({signal:abortSignal});
+    const activeProject=savedProject??(await loadActiveEditorProject({signal:abortSignal}));
     if(activeProject)editorProject=activeProject;
   }catch(error){
     if(isRendering){

@@ -256,6 +256,7 @@ export class FinalRenderPipeline {
   async prepareRender(input: {
     projectId: string;
     outputPath?: string;
+    force?: boolean;
   }): Promise<PrepareRenderOutcome> {
     await this.reconcileStale(input.projectId);
     const assembly = await this.requireReadyAssembly(input.projectId);
@@ -263,6 +264,7 @@ export class FinalRenderPipeline {
     const latest = await this.repository.getLatestRenderAttempt(input.projectId);
 
     if (
+      input.force !== true &&
       latest !== null &&
       latest.assemblyId === assembly.id &&
       latest.assemblyRevision === assembly.revision &&

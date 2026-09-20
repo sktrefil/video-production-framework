@@ -4,7 +4,7 @@ import {renderEditorProject} from "./render-editor-project.mjs";
 
 function parseArgs(argv) {
   if (argv.length === 0 || argv.includes("--help") || argv.includes("-h")) return null;
-  const result = {projectId: argv.shift(), projectRoot: null, gateOnly: false, allowVisualGaps: false};
+  const result = {projectId: argv.shift(), projectRoot: null, gateOnly: false, allowVisualGaps: false, forceRender: false};
   while (argv.length) {
     const arg = argv.shift();
     if (arg === "--project-root") {
@@ -13,6 +13,7 @@ function parseArgs(argv) {
       result.projectRoot = resolve(value);
     } else if (arg === "--gate-only") result.gateOnly = true;
     else if (arg === "--allow-visual-gaps") result.allowVisualGaps = true;
+    else if (arg === "--force") result.forceRender = true;
     else throw new Error(`Unknown argument: ${arg}`);
   }
   return result;
@@ -45,7 +46,8 @@ if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
       projectId: args.projectId,
       ...(args.projectRoot ? {projectRoot: args.projectRoot} : {}),
       gateOnly: args.gateOnly,
-      allowVisualGaps: args.allowVisualGaps
+      allowVisualGaps: args.allowVisualGaps,
+      forceRender: args.forceRender
     }).then(result => {
       console.log(
         `[editor-render] ${result.status} · assembly=${result.materialized.report.assemblyId}@${result.materialized.report.assemblyRevision}`

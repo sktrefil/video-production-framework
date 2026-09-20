@@ -25,6 +25,17 @@ const ItemRenderer:FC<{item:TimelineItem;masterVolume:number;clipAudioMasterVolu
 export const ProjectRenderer:FC<{project:EditProject;muted?:boolean}>=({project,muted=false})=>{
   const trackMap=new Map(project.tracks.map((track)=>[track.id,track]));
   const audioSoloActive=project.tracks.some((track)=>track.type==="AUDIO"&&track.enabled&&track.solo===true);
-  const entries=project.items.map((item,index)=>({item,index,track:trackMap.get(item.trackId)})).filter((entry)=>entry.item.enabled&&entry.track?.enabled===true).sort((a,b)=>(a.track?.order??0)-(b.track?.order??0)||(a.item.zIndex??0)-(b.item.zIndex??0)||a.index-b.index);
+  const videoItems=project.items.filter((item)=>item.type==="VIDEO"&&item.trackId==="V1");
+  const entries=project.items.map((original,index)=>{let item=original;if(original.type==="VIDEO"&&original.trackId==="V1"&&original.transitionInFrames===undefined){const overlap=Math.max(0,...videoItems.filter((candidate)=>candidate.id!==original.id&&candidate.timelineStartFrame<original.timelineStartFrame&&candidate.timelineStartFrame+candidate.durationInFrames>original.timelineStartFrame).map((candidate)=>candidate.timelineStartFrame+candidate.durationInFrames-original.timelineStartFrame));const dissolve=Math.min(10,overlap);if(dissolve>0)item={...original,transitionInFrames:dissolve};else{const touching=videoItems.some((candidate)=>candidate.id!==original.id&&candidate.timelineStartFrame+candidate.durationInFrames===original.timelineStartFrame);if(touching){const frames=Math.min(10,original.durationInFrames-1);item={...original,timelineStartFrame:original.timelineStartFrame-frames,durationInFrames:original.durationInFrames,transitionInFrames:frames};}}}return{item,index,track:trackMap.get(item.trackId)};}).filter((entry)=>entry.item.enabled&&entry.track?.enabled===true).sort((a,b)=>{
+    const trackOrder=(a.track?.order??0)-(b.track?.order??0);
+    if(trackOrder!==0)return trackOrder;
+    // V1 overlap behaves like an editorial overwrite: the clip placed later
+    // on the timeline is rendered above the earlier clip.
+    if(a.item.trackId==="V1"&&a.item.type==="VIDEO"&&b.item.trackId==="V1"&&b.item.type==="VIDEO"){
+      const timelineOrder=a.item.timelineStartFrame-b.item.timelineStartFrame;
+      if(timelineOrder!==0)return timelineOrder;
+    }
+    return (a.item.zIndex??0)-(b.item.zIndex??0)||a.index-b.index;
+  });
   return <AbsoluteFill style={{backgroundColor:"black",overflow:"hidden"}}>{entries.map(({item,track})=>{const trackMuted=track?.type==="AUDIO"&&(track.muted===true||(audioSoloActive&&track.solo!==true));return <Sequence key={item.id} from={item.timelineStartFrame} durationInFrames={item.durationInFrames} name={`${item.trackId} · ${item.type} · ${item.id}`} premountFor={item.type==="VIDEO"?30:0}><ItemRenderer item={item} masterVolume={project.settings.masterVolume} clipAudioMasterVolume={project.settings.clipAudioMasterVolume??1} trackMuted={trackMuted} project={project} muted={muted}/></Sequence>;})}</AbsoluteFill>;
 };

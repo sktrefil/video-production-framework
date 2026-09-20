@@ -38,7 +38,7 @@ const normalizeProject=(project:EditProject):EditProject=>({
   project:{...project.project,fps:Math.max(1,Math.round(project.project.fps)),width:Math.max(1,Math.round(project.project.width)),height:Math.max(1,Math.round(project.project.height)),durationInFrames:Math.max(1,Math.round(project.project.durationInFrames))},
   tracks:project.tracks.map((track)=>({...track})).sort((a,b)=>a.order-b.order),
   items:project.items.map(normalizeItem),
-  settings:{...project.settings,timelineZoom:clamp(project.settings.timelineZoom,0.05,100),masterVolume:Math.max(0,project.settings.masterVolume),clipAudioMasterVolume:Math.max(0,project.settings.clipAudioMasterVolume??1),snapToleranceFrames:Math.max(0,Math.round(project.settings.snapToleranceFrames))},
+  settings:{...project.settings,timelineZoom:clamp(project.settings.timelineZoom,0.05,100),masterVolume:Math.max(0,project.settings.masterVolume),clipAudioMasterVolume:Math.max(0,project.settings.clipAudioMasterVolume??1),forcedEndFrame:project.settings.forcedEndFrame===undefined?undefined:Math.max(1,Math.round(project.settings.forcedEndFrame)),snapToleranceFrames:Math.max(0,Math.round(project.settings.snapToleranceFrames))},
 });
 
 export const createEmptyEditProject=():EditProject=>({schemaVersion:1,project:{id:"untitled",name:"Untitled Edit",fps:30,width:1080,height:1920,durationInFrames:1},tracks:[],items:[],settings:{snapEnabled:true,snapToleranceFrames:4,timelineZoom:1,masterVolume:1,clipAudioMasterVolume:1}});
@@ -61,11 +61,23 @@ const mediaTrim=(item:TimelineItem,delta:number,start:boolean):TimelineItem=>{
     if(isAudio(item)||isVideo(item)){const rate=isVideo(item)?item.playbackRate:1; const srcDelta=Math.round(applied*rate);return{...item,timelineStartFrame:nextStart,durationInFrames:Math.max(1,item.durationInFrames-applied),sourceStartFrame:Math.max(0,item.sourceStartFrame+srcDelta),sourceDurationInFrames:Math.max(1,item.sourceDurationInFrames-srcDelta)};}
     return{...item,timelineStartFrame:nextStart,durationInFrames:Math.max(1,item.durationInFrames-applied)};
   }
-  if(isAudio(item)||isVideo(item)){const rate=isVideo(item)?item.playbackRate:1; const srcDelta=Math.round(actual*rate);return{...item,durationInFrames:Math.max(1,item.durationInFrames-actual),sourceDurationInFrames:Math.max(1,item.sourceDurationInFrames-srcDelta)};}
-  return{...item,durationInFrames:Math.max(1,item.durationInFrames-actual)};
+  // The right edge follows the pointer: drag right to extend, left to shorten.
+  const edgeDelta=Math.max(-maxInward,d);
+  if(isAudio(item)||isVideo(item)){const rate=isVideo(item)?item.playbackRate:1;const srcDelta=Math.round(edgeDelta*rate);return{...item,durationInFrames:Math.max(1,item.durationInFrames+edgeDelta),sourceDurationInFrames:Math.max(1,item.sourceDurationInFrames+srcDelta)};}
+  return{...item,durationInFrames:Math.max(1,item.durationInFrames+edgeDelta)};
 };
 
-export const editorReducer=(state:EditorState,action:EditorAction):EditorState=>{
+// BGM/SFX may loop beyond the deliverable, but every visual, subtitle, text,
+// graphic, narration and clip-audio placement must fit the composition.
+const syncEditorialDuration=(state:EditorState):EditorState=>{
+  const editorialItems=state.project.items.filter((item)=>item.enabled&&item.trackId!=="A3"&&item.trackId!=="A4");
+  if(editorialItems.length===0)return state;
+  const duration=Math.max(1,state.project.settings.forcedEndFrame??1,...editorialItems.map((item)=>item.timelineStartFrame+item.durationInFrames));
+  if(duration===state.project.project.durationInFrames)return state;
+  return {...state,playheadFrame:Math.min(state.playheadFrame,duration-1),project:{...state.project,project:{...state.project.project,durationInFrames:duration}}};
+};
+
+const editorReducerCore=(state:EditorState,action:EditorAction):EditorState=>{
   switch(action.type){
     case "LOAD_PROJECT": return createEditorState(action.project);
     case "SELECT_ITEM": return {...state,selectedItemIds:action.itemIds.filter((id)=>state.project.items.some((item)=>item.id===id))};
@@ -76,6 +88,7 @@ export const editorReducer=(state:EditorState,action:EditorAction):EditorState=>
     case "CHANGE_PLAYBACK_RATE": return updateItem(state,action.itemId,(item)=>isVideo(item)?{...item,playbackRate:clamp(action.playbackRate,0.0625,16)}:item);
     case "CHANGE_VOLUME": return updateItem(state,action.itemId,(item)=>(isAudio(item)||isVideo(item))?{...item,volume:Math.max(0,action.volume)}:item);
     case "CHANGE_VIDEO_FIT": return updateItem(state,action.itemId,(item)=>isVideo(item)?{...item,fit:action.fit}:item);
+    case "CHANGE_VIDEO_TRANSITION": return updateItem(state,action.itemId,(item)=>isVideo(item)?{...item,transitionInFrames:Math.max(0,Math.round(action.transitionInFrames))}:item);
     case "CHANGE_VIDEO_SOURCE_WINDOW": return updateItem(state,action.itemId,(item)=>{if(!isVideo(item))return item;const asset=Math.max(1,item.sourceAssetDurationInFrames);const start=Math.min(asset-1,Math.max(0,Math.round(action.sourceStartFrame)));const duration=Math.min(asset-start,Math.max(1,Math.round(action.sourceDurationInFrames)));const canonical=canonicalWindow(item);if(start<canonical.start||start+duration>canonical.end)return{...item,sourceWindowApprovalRequired:true};return{...item,sourceStartFrame:start,sourceDurationInFrames:duration,sourceWindowApprovalRequired:false};});
     case "CHANGE_VIDEO_SOURCE_POLICY": return updateItem(state,action.itemId,(item)=>{if(!isVideo(item))return item;const canonical=canonicalWindow(item);if(action.policy==="QC_TRIM")return{...item,sourceUsagePolicy:"QC_TRIM",sourceStartFrame:canonical.start,sourceDurationInFrames:canonical.duration,sourceWindowApprovalRequired:false};if(action.policy==="FULL_SOURCE"){if(canonical.start===0&&canonical.duration===item.sourceAssetDurationInFrames)return{...item,sourceUsagePolicy:"FULL_SOURCE",sourceStartFrame:0,sourceDurationInFrames:item.sourceAssetDurationInFrames,sourceWindowApprovalRequired:false};return{...item,sourceUsagePolicy:"FULL_SOURCE",sourceWindowApprovalRequired:true};}const designedDuration=Math.max(1,Math.round(item.durationInFrames*item.playbackRate));if(designedDuration<=canonical.duration)return{...item,sourceUsagePolicy:"DESIGNED_DURATION",sourceStartFrame:canonical.start,sourceDurationInFrames:designedDuration,sourceWindowApprovalRequired:false};return{...item,sourceUsagePolicy:"DESIGNED_DURATION",sourceWindowApprovalRequired:true};});
     case "CHANGE_AUDIO_MUTED": return updateItem(state,action.itemId,(item)=>isAudio(item)?{...item,muted:action.muted}:item);
@@ -104,8 +117,13 @@ export const editorReducer=(state:EditorState,action:EditorAction):EditorState=>
     case "MERGE_SUBTITLE_ITEMS": {const first=state.project.items.find((item)=>item.id===action.itemId);const second=state.project.items.find((item)=>item.id===action.nextItemId);if(!first||!second||!isSubtitle(first)||!isSubtitle(second)||itemLocked(state,first)||itemLocked(state,second)||first.trackId!==second.trackId||first.id===second.id)return state;const start=Math.min(first.timelineStartFrame,second.timelineStartFrame);const end=Math.max(first.timelineStartFrame+first.durationInFrames,second.timelineStartFrame+second.durationInFrames);const text=[first.text.trim(),second.text.trim()].filter(Boolean).join(" ");const generatedFromTtsIds=[...new Set([...(first.generatedFromTtsIds??[]),...(second.generatedFromTtsIds??[])])];const merged={...first,timelineStartFrame:start,durationInFrames:Math.max(1,end-start),text,...(generatedFromTtsIds.length?{generatedFromTtsIds}:{})};return {...state,project:{...state.project,items:state.project.items.filter((item)=>item.id!==second.id).map((item)=>item.id===first.id?merged:item)},selectedItemIds:[first.id]};}
     case "SET_PLAYHEAD": return {...state,playheadFrame:Math.min(state.project.project.durationInFrames-1,Math.max(0,Math.round(action.frame)))};
     case "SET_TIMELINE_ZOOM": return {...state,project:{...state.project,settings:{...state.project.settings,timelineZoom:clamp(action.zoom,0.05,100)}}};
+    case "SET_FORCED_END_FRAME": return {...state,project:{...state.project,settings:{...state.project.settings,forcedEndFrame:Math.max(1,Math.round(action.frame))}}};
     case "SET_CLIP_AUDIO_MASTER_VOLUME": return {...state,project:{...state.project,settings:{...state.project.settings,clipAudioMasterVolume:Math.max(0,action.volume)}}};
     case "SET_SNAP": return {...state,project:{...state.project,settings:{...state.project.settings,snapEnabled:action.enabled,snapToleranceFrames:Math.max(0,Math.round(action.toleranceFrames??state.project.settings.snapToleranceFrames))}}};
     default: return state;
   }
 };
+
+// Studio review keeps composition metadata fixed. Duration changes must be
+// promoted through the materialization/runtime path, not saved as a draft.
+export const editorReducer=(state:EditorState,action:EditorAction)=>{const next=editorReducerCore(state,action);return next===state?state:syncEditorialDuration(next);};
