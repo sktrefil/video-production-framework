@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import type {
   MediaArtifact,
   ProviderJob,
@@ -52,6 +53,8 @@ export interface ElevenLabsRuntimeInput {
     effectiveVoiceSettings: TtsGenerationPlan["effectiveVoiceSettings"];
     droppedVoiceSettings: TtsGenerationPlan["droppedVoiceSettings"];
     preserveProviderCadence: true;
+    narrationMode: NonNullable<TtsGenerationPlan["narrationMode"]>;
+    sections: NonNullable<TtsGenerationPlan["sections"]>;
     chunks: TtsGenerationPlan["chunks"];
     outputPaths: TtsGenerationPlan["outputPaths"];
   };
@@ -102,32 +105,33 @@ export class TtsRuntimeBridgeError extends Error {
   }
 }
 
-const EXPECTED_OUTPUTS: readonly RuntimeExpectedOutput[] = [
-  {
-    role: "narration",
-    mediaType: "AUDIO",
-    required: true,
-    acceptedMimeTypes: ["audio/mpeg"]
-  },
-  {
-    role: "character_alignment",
-    mediaType: "DOCUMENT",
-    required: true,
-    acceptedMimeTypes: ["application/json"]
-  },
-  {
-    role: "tts_metadata",
-    mediaType: "DOCUMENT",
-    required: true,
-    acceptedMimeTypes: ["application/json"]
-  },
-  {
-    role: "resolved_voice_profile",
-    mediaType: "DOCUMENT",
-    required: true,
-    acceptedMimeTypes: ["application/json"]
+function sectionSuffix(index: number): string {
+  return String(index).padStart(3, "0");
+}
+
+function expectedOutputsForPlan(plan?: TtsGenerationPlan): RuntimeExpectedOutput[] {
+  if ((plan?.narrationMode ?? "SINGLE") !== "SEGMENTED") {
+    return [
+      {role: "narration", mediaType: "AUDIO", required: true, acceptedMimeTypes: ["audio/mpeg"]},
+      {role: "character_alignment", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]},
+      {role: "tts_metadata", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]},
+      {role: "resolved_voice_profile", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]}
+    ];
   }
-];
+  const sections = plan.sections ?? [];
+  return [
+    ...sections.flatMap(section => {
+      const suffix = sectionSuffix(section.index);
+      return [
+        {role: `narration_section_${suffix}`, mediaType: "AUDIO" as const, required: true, acceptedMimeTypes: ["audio/mpeg"]},
+        {role: `character_alignment_section_${suffix}`, mediaType: "DOCUMENT" as const, required: true, acceptedMimeTypes: ["application/json"]}
+      ];
+    }),
+    {role: "narration_manifest", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]},
+    {role: "tts_metadata", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]},
+    {role: "resolved_voice_profile", mediaType: "DOCUMENT", required: true, acceptedMimeTypes: ["application/json"]}
+  ];
+}
 
 const SECRET_REQUIREMENTS: readonly RuntimeSecretRequirement[] = [
   {envName: "ELEVENLABS_API_KEY", required: true}
@@ -171,6 +175,10 @@ function validatePlan(plan: TtsGenerationPlan): void {
     plan.maxChunkCharacters !== 4000 ||
     plan.preserveProviderCadence !== true ||
     plan.chunks.length === 0 ||
+    ((plan.narrationMode ?? "SINGLE") === "SEGMENTED" &&
+      (plan.sections === undefined ||
+       plan.sections.length === 0 ||
+       plan.sections.length !== plan.chunks.length)) ||
     plan.chunks.some((chunk, index) =>
       chunk.index !== index + 1 ||
       !chunk.text ||
@@ -243,12 +251,12 @@ export async function resolvePinnedElevenLabsProfile(
   return snapshot;
 }
 
-export function elevenLabsRuntimeExecutionOptions(): {
+export function elevenLabsRuntimeExecutionOptions(plan?: TtsGenerationPlan): {
   expectedOutputs: RuntimeExpectedOutput[];
   secretRequirements: RuntimeSecretRequirement[];
 } {
   return {
-    expectedOutputs: EXPECTED_OUTPUTS.map(item => ({
+    expectedOutputs: expectedOutputsForPlan(plan).map(item => ({
       ...item,
       ...(item.acceptedMimeTypes === undefined
         ? {}
@@ -289,6 +297,8 @@ export function toElevenLabsRuntimeInput(
       effectiveVoiceSettings: structuredClone(plan.effectiveVoiceSettings),
       droppedVoiceSettings: [...plan.droppedVoiceSettings],
       preserveProviderCadence: true,
+      narrationMode: plan.narrationMode ?? "SINGLE",
+      sections: structuredClone(plan.sections ?? []),
       chunks: structuredClone(plan.chunks),
       outputPaths: structuredClone(plan.outputPaths)
     }
@@ -306,7 +316,7 @@ export class TtsRuntimePreparationService {
   async prepare(input: {
     projectId: string;
     providerPin: ResourcePin;
-  }): Promise<{job: ProviderJob; created: boolean}> {
+  }): Promise<{job: ProviderJob; created: boolean; expectedOutputs: RuntimeExpectedOutput[]; secretRequirements: RuntimeSecretRequirement[]}> {
     const plan = await this.repository.getLatestTtsPlan(input.projectId);
     if (plan === null) {
       throw new TtsRuntimeBridgeError(
@@ -331,7 +341,10 @@ export class TtsRuntimePreparationService {
         existing.provider === "ELEVENLABS" &&
         existing.jobType === "TTS_GENERATION" &&
         existing.executionMode === "AUTOMATED";
-      if (same) return {job: existing, created: false};
+      if (same) {
+        const options = elevenLabsRuntimeExecutionOptions(plan);
+        return {job: existing, created: false, ...options};
+      }
       throw new TtsRuntimeBridgeError(
         "PROVIDER_JOB_ALREADY_EXISTS",
         "An incompatible active provider job already exists for this TTS plan."
@@ -374,7 +387,8 @@ export class TtsRuntimePreparationService {
       }
     });
     await this.repository.commitTtsProviderJob({job, event, outbox});
-    return {job, created: true};
+    const options = elevenLabsRuntimeExecutionOptions(plan);
+    return {job, created: true, ...options};
   }
 }
 
@@ -490,8 +504,9 @@ export class TtsRuntimeCompletionService {
     runtimeJob: RuntimeJob<ElevenLabsRuntimeInput>;
     runtimeResult: RuntimeResult;
     media: MediaArtifact[];
-    alignmentDocument: string | unknown;
-  }): Promise<{result: TtsGenerationResult; audioMedia: MediaArtifact}> {
+    alignmentDocument?: string | unknown;
+    alignmentDocuments?: Record<string, string | unknown>;
+  }): Promise<{result: TtsGenerationResult; audioMedia: MediaArtifact; audioMediaItems: MediaArtifact[]}> {
     validateRuntimeJob(input.runtimeJob);
     validateRuntimeResult(input.runtimeJob, input.runtimeResult);
     if (
@@ -521,101 +536,192 @@ export class TtsRuntimeCompletionService {
       );
     }
 
-    const narration = input.runtimeResult.outputs.find(
-      output => output.role === "narration"
-    );
-    const alignmentOutput = input.runtimeResult.outputs.find(
-      output => output.role === "character_alignment"
-    );
-    const metadataOutput = input.runtimeResult.outputs.find(
-      output => output.role === "tts_metadata"
-    );
-    if (
-      narration === undefined ||
-      alignmentOutput === undefined ||
-      metadataOutput === undefined ||
-      narration.relativePath !== plan.outputPaths.narration ||
-      narration.mimeType !== "audio/mpeg" ||
-      narration.durationMs === undefined ||
-      narration.durationMs <= 0 ||
-      alignmentOutput.relativePath !== plan.outputPaths.characterAlignment ||
-      metadataOutput.relativePath !== plan.outputPaths.metadata
-    ) {
-      throw new TtsRuntimeBridgeError(
-        "RUNTIME_RESULT_INVALID",
-        "RuntimeResult is missing required TTS outputs or paths."
-      );
+    const metadataOutput = input.runtimeResult.outputs.find(output => output.role === "tts_metadata");
+    if (metadataOutput === undefined || metadataOutput.relativePath !== plan.outputPaths.metadata) {
+      throw new TtsRuntimeBridgeError("RUNTIME_RESULT_INVALID", "RuntimeResult is missing current TTS metadata.");
     }
 
-    const candidates = input.media.filter(media =>
-      media.projectId === input.projectId &&
-      media.lifecycleStatus === "ACTIVE" &&
-      media.mediaStatus === "AVAILABLE" &&
-      media.mediaType === "AUDIO" &&
-      media.relativePath === narration.relativePath &&
-      media.mimeType === "audio/mpeg" &&
-      media.sourceJobId === input.runtimeJob.jobId
-    );
-    if (candidates.length !== 1) {
-      throw new TtsRuntimeBridgeError(
-        "RUNTIME_MEDIA_INVALID",
-        "Framework artifact ingestion must provide exactly one narration AUDIO MediaArtifact."
-      );
-    }
-    const audioMedia = candidates[0]!;
-    const narrationSha = rawSha(narration.sha256);
-    if (
-      rawSha(audioMedia.checksum) !== narrationSha ||
-      audioMedia.durationMs !== narration.durationMs
-    ) {
-      throw new TtsRuntimeBridgeError(
-        "RUNTIME_MEDIA_INVALID",
-        "Ingested narration media does not match the verified RuntimeResult artifact."
-      );
-    }
-
-    const alignment = parseElevenLabsAlignmentDocument(input.alignmentDocument);
-    validateAlignment(
-      alignment,
-      plan.chunks.map(chunk => chunk.text).join("\n\n")
-    );
-
+    const mode = plan.narrationMode ?? "SINGLE";
     const now = this.clock.nowIso();
     const previousResult = await this.repository.getLatestTtsResult(input.projectId);
-    const result: TtsGenerationResult = {
-      id: previousResult?.id ?? this.ids.next("tts-result"),
-      projectId: input.projectId,
-      revision: previousResult === null ? 1 : previousResult.revision + 1,
-      lifecycleStatus: "ACTIVE",
-      createdAt: previousResult?.createdAt ?? now,
-      updatedAt: now,
-      planId: plan.id,
-      planRevision: plan.revision + 1,
-      sourceScriptId: plan.sourceScriptId,
-      sourceScriptRevision: plan.sourceScriptRevision,
-      sourceScriptSha256: plan.sourceScriptSha256,
-      provider: "ELEVENLABS",
-      modelId: "eleven_v3",
-      voiceId: "REDACTED",
-      outputFormat: "mp3_44100_128",
-      requestIds: [...input.runtimeResult.providerRequestIds],
-      audioMediaId: audioMedia.id,
-      audioRelativePath: plan.outputPaths.narration,
-      audioSha256: narrationSha,
-      audioDurationMs: narration.durationMs,
-      characterAlignmentRelativePath: plan.outputPaths.characterAlignment,
-      characterAlignmentSha256: rawSha(alignmentOutput.sha256),
-      metadataRelativePath: plan.outputPaths.metadata,
-      chunkCount: plan.chunks.length,
-      completedAt: now
-    };
-    const nextPlan: TtsGenerationPlan = {
-      ...plan,
-      revision: plan.revision + 1,
-      lifecycleStatus: "ACTIVE",
-      updatedAt: now,
-      status: "COMPLETE"
-    };
+    let result: TtsGenerationResult;
+    let audioMediaItems: MediaArtifact[];
+
+    if (mode === "SEGMENTED") {
+      const sections = plan.sections ?? [];
+      const manifestOutput = input.runtimeResult.outputs.find(output => output.role === "narration_manifest");
+      if (
+        sections.length === 0 ||
+        manifestOutput === undefined ||
+        plan.outputPaths.narrationManifest === undefined ||
+        manifestOutput.relativePath !== plan.outputPaths.narrationManifest
+      ) {
+        throw new TtsRuntimeBridgeError("RUNTIME_RESULT_INVALID", "SEGMENTED runtime result is missing sections or narration_manifest.");
+      }
+
+      const sectionResults: NonNullable<TtsGenerationResult["sections"]> = [];
+      audioMediaItems = [];
+      for (const section of sections) {
+        const suffix = sectionSuffix(section.index);
+        const audioOutput = input.runtimeResult.outputs.find(output => output.role === `narration_section_${suffix}`);
+        const alignmentOutput = input.runtimeResult.outputs.find(output => output.role === `character_alignment_section_${suffix}`);
+        if (
+          audioOutput === undefined ||
+          alignmentOutput === undefined ||
+          audioOutput.relativePath !== section.audioRelativePath ||
+          alignmentOutput.relativePath !== section.characterAlignmentRelativePath ||
+          audioOutput.mimeType !== "audio/mpeg" ||
+          audioOutput.durationMs === undefined ||
+          audioOutput.durationMs <= 0
+        ) {
+          throw new TtsRuntimeBridgeError("RUNTIME_RESULT_INVALID", `Runtime outputs do not match section ${section.id}.`);
+        }
+        const candidates = input.media.filter(media =>
+          media.projectId === input.projectId &&
+          media.lifecycleStatus === "ACTIVE" &&
+          media.mediaStatus === "AVAILABLE" &&
+          media.mediaType === "AUDIO" &&
+          media.relativePath === audioOutput.relativePath &&
+          media.mimeType === "audio/mpeg" &&
+          media.sourceJobId === input.runtimeJob.jobId
+        );
+        if (candidates.length !== 1) {
+          throw new TtsRuntimeBridgeError("RUNTIME_MEDIA_INVALID", `Section ${section.id} requires exactly one AUDIO MediaArtifact.`);
+        }
+        const audioMedia = candidates[0]!;
+        const audioSha = rawSha(audioOutput.sha256);
+        if (rawSha(audioMedia.checksum) !== audioSha || audioMedia.durationMs !== audioOutput.durationMs) {
+          throw new TtsRuntimeBridgeError("RUNTIME_MEDIA_INVALID", `Section ${section.id} media provenance mismatch.`);
+        }
+        const alignmentDocument =
+          input.alignmentDocuments?.[section.id] ??
+          input.alignmentDocuments?.[section.characterAlignmentRelativePath] ??
+          input.alignmentDocuments?.[`character_alignment_section_${suffix}`];
+        if (alignmentDocument === undefined) {
+          throw new TtsRuntimeBridgeError("RUNTIME_ALIGNMENT_INVALID", `Alignment is missing for section ${section.id}.`);
+        }
+        const alignment = parseElevenLabsAlignmentDocument(alignmentDocument);
+        validateAlignment(alignment, section.text);
+        audioMediaItems.push(audioMedia);
+        sectionResults.push({
+          id: section.id,
+          index: section.index,
+          ...(section.sequenceId === undefined ? {} : {sequenceId: section.sequenceId}),
+          sceneIds: [...section.sceneIds],
+          textSha256: createHash("sha256").update(section.text).digest("hex"),
+          audioMediaId: audioMedia.id,
+          audioRelativePath: section.audioRelativePath,
+          audioSha256: audioSha,
+          audioDurationMs: audioOutput.durationMs,
+          characterAlignmentRelativePath: section.characterAlignmentRelativePath,
+          characterAlignmentSha256: rawSha(alignmentOutput.sha256),
+          requestIds: []
+        });
+      }
+      const first = sectionResults[0]!;
+      const totalDuration = sectionResults.reduce((sum, section) => sum + section.audioDurationMs, 0);
+      result = {
+        id: previousResult?.id ?? this.ids.next("tts-result"),
+        projectId: input.projectId,
+        revision: previousResult === null ? 1 : previousResult.revision + 1,
+        lifecycleStatus: "ACTIVE",
+        createdAt: previousResult?.createdAt ?? now,
+        updatedAt: now,
+        planId: plan.id,
+        planRevision: plan.revision + 1,
+        sourceScriptId: plan.sourceScriptId,
+        sourceScriptRevision: plan.sourceScriptRevision,
+        sourceScriptSha256: plan.sourceScriptSha256,
+        provider: "ELEVENLABS",
+        modelId: "eleven_v3",
+        voiceId: "REDACTED",
+        outputFormat: "mp3_44100_128",
+        narrationMode: "SEGMENTED",
+        requestIds: [...input.runtimeResult.providerRequestIds],
+        sections: sectionResults,
+        totalAudioDurationMs: totalDuration,
+        narrationManifestRelativePath: plan.outputPaths.narrationManifest,
+        narrationManifestSha256: rawSha(manifestOutput.sha256),
+        audioMediaId: first.audioMediaId,
+        audioRelativePath: first.audioRelativePath,
+        audioSha256: first.audioSha256,
+        audioDurationMs: first.audioDurationMs,
+        characterAlignmentRelativePath: first.characterAlignmentRelativePath,
+        characterAlignmentSha256: first.characterAlignmentSha256,
+        metadataRelativePath: plan.outputPaths.metadata,
+        chunkCount: plan.chunks.length,
+        completedAt: now
+      };
+    } else {
+      const narration = input.runtimeResult.outputs.find(output => output.role === "narration");
+      const alignmentOutput = input.runtimeResult.outputs.find(output => output.role === "character_alignment");
+      if (
+        narration === undefined ||
+        alignmentOutput === undefined ||
+        narration.relativePath !== plan.outputPaths.narration ||
+        narration.mimeType !== "audio/mpeg" ||
+        narration.durationMs === undefined ||
+        narration.durationMs <= 0 ||
+        alignmentOutput.relativePath !== plan.outputPaths.characterAlignment
+      ) {
+        throw new TtsRuntimeBridgeError("RUNTIME_RESULT_INVALID", "RuntimeResult is missing required SINGLE TTS outputs.");
+      }
+      const candidates = input.media.filter(media =>
+        media.projectId === input.projectId &&
+        media.lifecycleStatus === "ACTIVE" &&
+        media.mediaStatus === "AVAILABLE" &&
+        media.mediaType === "AUDIO" &&
+        media.relativePath === narration.relativePath &&
+        media.mimeType === "audio/mpeg" &&
+        media.sourceJobId === input.runtimeJob.jobId
+      );
+      if (candidates.length !== 1) {
+        throw new TtsRuntimeBridgeError("RUNTIME_MEDIA_INVALID", "SINGLE narration requires exactly one AUDIO MediaArtifact.");
+      }
+      const audioMedia = candidates[0]!;
+      const narrationSha = rawSha(narration.sha256);
+      if (rawSha(audioMedia.checksum) !== narrationSha || audioMedia.durationMs !== narration.durationMs) {
+        throw new TtsRuntimeBridgeError("RUNTIME_MEDIA_INVALID", "SINGLE narration media provenance mismatch.");
+      }
+      if (input.alignmentDocument === undefined) {
+        throw new TtsRuntimeBridgeError("RUNTIME_ALIGNMENT_INVALID", "SINGLE narration alignment is missing.");
+      }
+      const alignment = parseElevenLabsAlignmentDocument(input.alignmentDocument);
+      validateAlignment(alignment, plan.chunks.map(chunk => chunk.text).join("\n\n"));
+      audioMediaItems = [audioMedia];
+      result = {
+        id: previousResult?.id ?? this.ids.next("tts-result"),
+        projectId: input.projectId,
+        revision: previousResult === null ? 1 : previousResult.revision + 1,
+        lifecycleStatus: "ACTIVE",
+        createdAt: previousResult?.createdAt ?? now,
+        updatedAt: now,
+        planId: plan.id,
+        planRevision: plan.revision + 1,
+        sourceScriptId: plan.sourceScriptId,
+        sourceScriptRevision: plan.sourceScriptRevision,
+        sourceScriptSha256: plan.sourceScriptSha256,
+        provider: "ELEVENLABS",
+        modelId: "eleven_v3",
+        voiceId: "REDACTED",
+        outputFormat: "mp3_44100_128",
+        narrationMode: "SINGLE",
+        requestIds: [...input.runtimeResult.providerRequestIds],
+        totalAudioDurationMs: narration.durationMs,
+        audioMediaId: audioMedia.id,
+        audioRelativePath: plan.outputPaths.narration,
+        audioSha256: narrationSha,
+        audioDurationMs: narration.durationMs,
+        characterAlignmentRelativePath: plan.outputPaths.characterAlignment,
+        characterAlignmentSha256: rawSha(alignmentOutput.sha256),
+        metadataRelativePath: plan.outputPaths.metadata,
+        chunkCount: plan.chunks.length,
+        completedAt: now
+      };
+    }
+
+    const nextPlan: TtsGenerationPlan = {...plan, revision: plan.revision + 1, lifecycleStatus: "ACTIVE", updatedAt: now, status: "COMPLETE"};
+    const primaryAudio = audioMediaItems[0]!;
     const {event, outbox} = makeEvent(this.ids, this.clock, {
       projectId: input.projectId,
       eventType: "TTS_GENERATION_COMPLETE",
@@ -626,9 +732,10 @@ export class TtsRuntimeCompletionService {
         planId: plan.id,
         planRevision: nextPlan.revision,
         providerJobId: input.runtimeJob.jobId,
-        audioMediaId: audioMedia.id,
-        modelId: result.modelId,
-        audioDurationMs: result.audioDurationMs
+        narrationMode: result.narrationMode ?? "SINGLE",
+        sectionCount: result.sections?.length ?? 1,
+        audioMediaIds: audioMediaItems.map(media => media.id),
+        totalAudioDurationMs: result.totalAudioDurationMs ?? result.audioDurationMs
       }
     });
     await this.repository.commitTtsResult({
@@ -636,10 +743,11 @@ export class TtsRuntimeCompletionService {
       nextPlan,
       previousResult,
       result,
-      audioMedia,
+      audioMedia: primaryAudio,
+      audioMediaItems,
       event,
       outbox
     });
-    return {result, audioMedia};
+    return {result, audioMedia: primaryAudio, audioMediaItems};
   }
 }
