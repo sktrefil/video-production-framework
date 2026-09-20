@@ -1376,10 +1376,11 @@ test("WF-07 -> WF-18 completes in one project.db through publish handoff readine
     );
     assert.equal(timeline.output.editProject.items.length, 9);
     const automaticClipAudio = timeline.output.editProject.items.find(
-      item => item.id === "audio-video-wf11_clip_1"
+      item => item.type === "CLIP_AUDIO" && item.trackId === "A2"
     );
     assert.equal(automaticClipAudio?.type, "CLIP_AUDIO");
     assert.equal(automaticClipAudio?.trackId, "A2");
+    assert.equal(automaticClipAudio?.src, "07_generated_clips/wf11_clip_1.mp4");
     assert.deepEqual(timeline.assembly.sourceContentPlanRef, {
       contentPlanId: contentPlan.id,
       contentPlanRevision: 1
