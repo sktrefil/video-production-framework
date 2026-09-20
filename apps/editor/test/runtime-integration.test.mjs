@@ -103,7 +103,7 @@ test("Studio render uses the active project instead of the empty Studio fallback
   const rootSource = await read("src/Root.tsx");
   const persistence = await read("src/studio/editor/persistence/editorPersistenceApi.ts");
   assert.match(rootSource, /loadStudioRenderProject/);
-  assert.match(rootSource, /savedProject=isRendering/);
+  assert.match(rootSource, /savedProject=await loadStudioRenderProject/);
   assert.match(persistence, /vpf-active-editor-project\.json/);
   assert.match(rootSource, /const activeProject=await loadActiveEditorProject/);
   assert.doesNotMatch(rootSource, /if\(!isRendering\)/);

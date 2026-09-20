@@ -399,19 +399,18 @@ export class UnifiedImageRuntimeJobService {
     validateImageRuntimeInput(failedJob.inputPayload);
     const previousInput = failedJob.inputPayload as ImageRuntimeInput;
     const attempt = failedJob.attempt + 1;
-    const runtimeInput: ImageRuntimeInput = {
-      ...previousInput,
-      references: previousInput.references.map(reference => ({ ...reference })),
-      outputRelativePath: outputPath(asset.id, nextAsset.revision, attempt)
-    };
-    validateImageRuntimeInput(runtimeInput);
-
     const now = this.clock.nowIso();
     const nextAsset = nextAssetRevision(
       asset,
       { assetStatus: "GENERATING" },
       now
     );
+    const runtimeInput: ImageRuntimeInput = {
+      ...previousInput,
+      references: previousInput.references.map(reference => ({ ...reference })),
+      outputRelativePath: outputPath(asset.id, nextAsset.revision, attempt)
+    };
+    validateImageRuntimeInput(runtimeInput);
     const job: ProviderJob = {
       id: this.ids.next("job"),
       projectId: failedJob.projectId,
