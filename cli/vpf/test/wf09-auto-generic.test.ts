@@ -13,3 +13,8 @@ test("WF09 auto is project-generic and format-aware",()=>{
   assert.match(source,/vertical 9:16 image plate/);
   assert.match(source,/approved Project Style and pinned Visual Bible/);
 });
+
+
+test("WF09 auto cannot bypass Agent3 review for LONGFORM",()=>{
+  assert.match(source,/LONGFORM visual production must use the Agent3-reviewed explicit WF09A\/WF09B prompt package path/);
+});

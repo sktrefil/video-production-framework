@@ -348,6 +348,13 @@ export class Wf09AutoService {
   }
 
   async prepare(projectId: string, options: { file?: string | undefined } = {}) {
+    const initialStatus = await this.projects.getStatus(projectId);
+    if (initialStatus.project.format === "LONGFORM") {
+      throw new Wf09AutoError(
+        "WF09_AUTO_PROJECT_STATE",
+        "LONGFORM visual production must use the Agent3-reviewed explicit WF09A/WF09B prompt package path; wf09-auto is not a canonical LONGFORM authoring path."
+      );
+    }
     const pinResult = await this.ensureReferenceAwarePins(projectId);
     const style = await this.ensureProjectStyle(projectId);
     const plan = await this.ensureSceneAssetPlan(projectId, options.file);
