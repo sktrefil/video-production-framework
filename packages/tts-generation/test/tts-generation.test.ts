@@ -37,6 +37,7 @@ class FakeRepo implements TtsGenerationRepository {
   plans: TtsGenerationPlan[] = [];
   results: TtsGenerationResult[] = [];
   media: MediaArtifact[] = [];
+  sequenceIds: string[] | null = null;
 
   async getLatestApprovedFinalScript(): Promise<ScriptVersion | null> {
     return this.script;
@@ -48,8 +49,8 @@ class FakeRepo implements TtsGenerationRepository {
     const parts = raw.length > 0 ? raw : [body].filter(Boolean);
     return parts.map((scriptSegment, index) => ({
       chapterOrder: 1,
-      sequenceId: "seq-1",
-      sequenceOrder: 1,
+      sequenceId: this.sequenceIds?.[index] ?? "seq-1",
+      sequenceOrder: (this.sequenceIds?.[index] ?? "seq-1") === "seq-1" ? 1 : 2,
       sceneId: `scene-${index + 1}`,
       sceneOrder: index + 1,
       scriptSegment,
@@ -281,4 +282,19 @@ test("splitTextForTts preserves the legacy 4000-character hard ceiling", () => {
   );
   assert.ok(chunks.length >= 2);
   assert.ok(chunks.every(chunk => chunk.length <= 4000));
+});
+
+
+test("LONGFORM does not reuse a TTS plan when approved Scene grouping changes",async()=>{
+  const repo=new FakeRepo();
+  const pipeline=new TtsGenerationPipeline(repo,clock,ids());
+  repo.sequenceIds=["seq-1","seq-1"];
+  const first=await pipeline.prepare({projectId:"p1",format:"LONGFORM"});
+  repo.sequenceIds=["seq-1","seq-2"];
+  const second=await pipeline.prepare({projectId:"p1",format:"LONGFORM"});
+  assert.equal(first.created,true);
+  assert.equal(second.created,true);
+  assert.equal(second.plan.id,first.plan.id);
+  assert.equal(second.plan.revision,first.plan.revision+1);
+  assert.equal(second.plan.sections?.length,2);
 });

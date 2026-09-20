@@ -498,6 +498,7 @@ export async function runUpstreamFixture({workspaceRoot, format, projectId, nega
     subtitles = segmented.subtitles;
     narrationDurationMs = segmented.totalDurationMs;
     assert.equal(ttsAudio.length, ttsPreparedPlan.plan.sections.length);
+    if (format === "LONGFORM") assert.ok(ttsAudio.length >= 2, "LONGFORM E2E must exercise multiple narration sections");
     assert.ok(ttsAudio.every((item,index)=>
       item.type === "TTS" &&
       item.timelineStartMs === ttsAudio.slice(0,index).reduce((sum,previous)=>sum+(previous.durationMs ?? 0),0)

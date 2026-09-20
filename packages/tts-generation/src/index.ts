@@ -351,6 +351,26 @@ function validateAlignment(
   }
 }
 
+function sameNarrationSections(
+  left: TtsGenerationPlan["sections"],
+  right: NonNullable<TtsGenerationPlan["sections"]>
+): boolean {
+  if (left === undefined || left.length !== right.length) return false;
+  return left.every((section, index) => {
+    const candidate = right[index]!;
+    return (
+      section.id === candidate.id &&
+      section.index === candidate.index &&
+      section.sequenceId === candidate.sequenceId &&
+      section.text === candidate.text &&
+      section.audioRelativePath === candidate.audioRelativePath &&
+      section.characterAlignmentRelativePath === candidate.characterAlignmentRelativePath &&
+      section.sceneIds.length === candidate.sceneIds.length &&
+      section.sceneIds.every((sceneId, sceneIndex) => sceneId === candidate.sceneIds[sceneIndex])
+    );
+  });
+}
+
 export class TtsGenerationPipeline {
   constructor(
     private readonly repository: TtsGenerationRepository,
@@ -411,7 +431,11 @@ export class TtsGenerationPipeline {
       previous.sourceScriptSha256 === scriptSha &&
       previous.contentFormat === input.format &&
       previous.voicePreset === preset &&
-      previous.modelId === "eleven_v3"
+      previous.modelId === "eleven_v3" &&
+      (
+        narrationMode === "SINGLE" ||
+        sameNarrationSections(previous.sections, sections)
+      )
     ) {
       return {
         plan: previous,

@@ -31,6 +31,7 @@ export type EditorAssemblyErrorCode =
   | "EDITOR_PROFILE_INVALID"
   | "EDITOR_TTS_MEDIA_MISSING"
   | "EDITOR_TTS_DURATION_MISSING"
+  | "EDITOR_TTS_STALE"
   | "EDITOR_SUBTITLE_INPUT_MISSING"
   | "EDITOR_SUBTITLE_INPUT_INVALID"
   | "EDITOR_TOP_ANNOTATION_INPUT_INVALID"
@@ -561,11 +562,42 @@ export class EditorAssemblyCliService {
 
       const ttsPlan = await ttsRepo.getLatestTtsPlan(input.projectId);
       const ttsResult = await ttsRepo.getLatestTtsResult(input.projectId);
+      const approvedScript = await ttsRepo.getLatestApprovedFinalScript(input.projectId);
+      const approvedScenes = status.project.format === "LONGFORM"
+        ? await ttsRepo.listApprovedTtsScenes(input.projectId)
+        : [];
+      if (ttsPlan !== null && ttsResult !== null) {
+        const staleScript =
+          approvedScript === null ||
+          ttsPlan.sourceScriptId !== approvedScript.id ||
+          ttsPlan.sourceScriptRevision !== approvedScript.revision ||
+          ttsResult.sourceScriptId !== approvedScript.id ||
+          ttsResult.sourceScriptRevision !== approvedScript.revision ||
+          ttsResult.planId !== ttsPlan.id ||
+          ttsResult.planRevision !== ttsPlan.revision;
+        const plannedSceneIds = (ttsPlan.sections ?? []).flatMap(section => section.sceneIds).sort();
+        const currentSceneIds = approvedScenes.map(scene => scene.sceneId).sort();
+        const staleScenes =
+          status.project.format === "LONGFORM" &&
+          (
+            approvedScenes.some(scene => scene.sourceScriptRevision !== approvedScript?.revision) ||
+            plannedSceneIds.length !== currentSceneIds.length ||
+            plannedSceneIds.some((id, index) => id !== currentSceneIds[index])
+          );
+        if (staleScript || staleScenes) {
+          throw new EditorAssemblyServiceError(
+            "EDITOR_TTS_STALE",
+            "Current TTS plan/result no longer matches the approved FINAL script and Scene graph. Prepare and complete a new TTS generation before Editor Assembly."
+          );
+        }
+      }
       const content = await ensureContentPlan({
         repo,
         projectId: input.projectId,
         projectRoot: status.projectRoot,
-        header: input.header.trim() || status.project.title,
+        header: status.project.format === "LONGFORM"
+          ? input.header.trim()
+          : input.header.trim() || status.project.title,
         format: status.project.format,
         profile,
         ttsPlan,

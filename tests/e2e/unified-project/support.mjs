@@ -73,13 +73,22 @@ const storyDecisions = {
   },
   async designSequences() {
     return {
-      sequences: [{
-        key: "q1",
-        chapterKey: "c1",
-        displayNumber: 1,
-        title: "Fixture Sequence",
-        storyPurpose: "single-repository continuity proof"
-      }]
+      sequences: [
+        {
+          key: "q1",
+          chapterKey: "c1",
+          displayNumber: 1,
+          title: "Fixture Sequence 1",
+          storyPurpose: "first narration section"
+        },
+        {
+          key: "q2",
+          chapterKey: "c1",
+          displayNumber: 2,
+          title: "Fixture Sequence 2",
+          storyPurpose: "second narration section"
+        }
+      ]
     };
   },
   async designScenes() {
@@ -101,8 +110,8 @@ const storyDecisions = {
         },
         {
           key: "s2",
-          sequenceKey: "q1",
-          displayNumber: 2,
+          sequenceKey: "q2",
+          displayNumber: 1,
           scriptSegment: "둘째 장면.",
           stateIn: "C",
           stateCurrent: "D",

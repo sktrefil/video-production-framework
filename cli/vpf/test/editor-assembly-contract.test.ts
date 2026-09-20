@@ -123,3 +123,13 @@ test("LONGFORM persistent header is off by default and an explicit title is open
   assert.match(service,/\.\.\.\(header \? \[\{/);
   assert.doesNotMatch(service,/endMs: narrationDurationMs,\n\s*text: header/);
 });
+
+
+test("LONGFORM assembly omits implicit header and rejects stale TTS provenance",()=>{
+  const service=read("cli/vpf/src/editor-assembly-service.ts");
+  assert.match(service,/status\.project\.format === "LONGFORM"[\s\S]*\? input\.header\.trim\(\)/);
+  assert.match(service,/EDITOR_TTS_STALE/);
+  assert.match(service,/getLatestApprovedFinalScript/);
+  assert.match(service,/listApprovedTtsScenes/);
+  assert.match(service,/ttsResult\.planRevision !== ttsPlan\.revision/);
+});
