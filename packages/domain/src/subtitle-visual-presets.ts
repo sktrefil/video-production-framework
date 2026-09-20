@@ -23,6 +23,17 @@ export const cinematicShortsSubtitleStyle=(profile:SubtitleVisualProfile):Subtit
   x:Math.round(profile.width*.5),y:Math.round(profile.height*.92),width:Math.round(profile.width*.9),fontFamily:VPF_SUBTITLE_VISUAL_TOKENS.fontFamily,fontSize:Math.round(Math.min(profile.width,profile.height)/10.8),fontWeight:800,color:VPF_SUBTITLE_VISUAL_TOKENS.paper,strokeColor:VPF_SUBTITLE_VISUAL_TOKENS.ink,strokeWidth:6,textAlign:"center",lineHeight:VPF_SUBTITLE_VISUAL_TOKENS.cinematicLineHeight,maxLines:2,backgroundEnabled:false,backgroundColor:"#000000",backgroundOpacity:.4
 });
 
+export const cinematicLongformSubtitleStyle=(profile:SubtitleVisualProfile):SubtitleVisualStyle=>({
+  x:Math.round(profile.width*.5),y:Math.round(profile.height*.885),width:Math.round(profile.width*.82),fontFamily:VPF_SUBTITLE_VISUAL_TOKENS.fontFamily,fontSize:Math.round(Math.min(profile.width,profile.height)/22),fontWeight:750,color:VPF_SUBTITLE_VISUAL_TOKENS.paper,strokeColor:VPF_SUBTITLE_VISUAL_TOKENS.ink,strokeWidth:3,textAlign:"center",lineHeight:1.22,maxLines:2,backgroundEnabled:false,backgroundColor:"#000000",backgroundOpacity:.3
+});
+
+export const cinematicSubtitleStyleForFormat=(
+  profile:SubtitleVisualProfile,
+  format:"LONGFORM"|"SHORTFORM"
+):SubtitleVisualStyle=>format==="LONGFORM"
+  ? cinematicLongformSubtitleStyle(profile)
+  : cinematicShortsSubtitleStyle(profile);
+
 export type CinematicShortsHeaderVisuals={title:HeaderTextVisualStyle;info:HeaderTextVisualStyle;panel:HeaderPanelVisualStyle;goldRule:HeaderPanelVisualStyle};
 
 // Shared 9:16 documentary header: dark information panel, gold rule, gold

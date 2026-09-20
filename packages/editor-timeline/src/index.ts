@@ -16,7 +16,7 @@ import type {
   TimelineAssemblyOutput,
   TimelineAssemblyRecord
 } from "@vpf/domain";
-import {cinematicShortsSubtitleStyle} from "@vpf/domain";
+import {cinematicSubtitleStyleForFormat} from "@vpf/domain";
 import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
 
 export interface EditorHandoffSourcePort {
@@ -329,7 +329,7 @@ function defaultSubtitleStyle(
   | "generatedFromTtsIds"
   | "text"
 > {
-  const preset = cinematicShortsSubtitleStyle({width, height});
+  const preset = cinematicSubtitleStyleForFormat({width, height}, width >= height ? "LONGFORM" : "SHORTFORM");
   return {
     x: finiteNonNegative(style?.x, preset.x),
     y: finiteNonNegative(style?.y, preset.y),
