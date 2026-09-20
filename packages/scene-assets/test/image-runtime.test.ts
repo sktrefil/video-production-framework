@@ -247,7 +247,7 @@ test("MIG-06 job stores exact prompt, format dimensions, references and current 
   assert.equal(result.runtimeInput.aspectRatio, "16:9");
   assert.equal(
     result.runtimeInput.outputRelativePath,
-    `05_images/generated/${encodeURIComponent(repo.asset.id)}--attempt-1.png`
+    `05_images/generated/${encodeURIComponent(repo.asset.id)}--r${result.asset.revision}--attempt-1.png`
   );
   assert.deepEqual(result.runtimeInput.references, [{
     mediaId: "reference-1",
@@ -356,6 +356,6 @@ test("retry preserves semantic prompt, negative prompt, dimensions and exact ref
   assert.notEqual(retry.runtimeInput.outputRelativePath, prepared.runtimeInput.outputRelativePath);
   assert.equal(
     retry.runtimeInput.outputRelativePath,
-    `05_images/generated/${encodeURIComponent(repo.asset.id)}--attempt-2.png`
+    `05_images/generated/${encodeURIComponent(repo.asset.id)}--r${retry.asset.revision}--attempt-2.png`
   );
 });
