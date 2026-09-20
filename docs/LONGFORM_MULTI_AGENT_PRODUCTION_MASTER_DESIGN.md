@@ -1,8 +1,8 @@
 # LONGFORM Multi-Agent Production Master Design
 
-> Status: **FINAL / Architecture Freeze Candidate v1.0**  
+> Status: **FINAL / Architecture Freeze v1.0**  
 > Scope: `video-production-framework` LONGFORM production path  
-> Implementation baseline: `e149df6e8665093a546d9af79ac0ba838f71f63b`  
+> Implementation baseline: `eeb4683b43a590b4bae805e1fed9c434acc7a85d`  
 > Format authority: `LONGFORM_16X9_V1@1.0.0`  
 > Channel profile baseline: `HISTORY_MYSTERY_V1@1.5.0`
 
@@ -789,7 +789,7 @@ LONGFORM E2E가 검증해야 하는 최소 계약:
 - Render
 - Final output / publish handoff
 
-현재 Architecture Freeze baseline `e149df6e8665093a546d9af79ac0ba838f71f63b`에서 위 CI는 모두 PASS했다.
+Architecture Freeze implementation baseline `eeb4683b43a590b4bae805e1fed9c434acc7a85d`에서 Node 22/24 validate, unified E2E, pilot-readiness가 모두 PASS했다.
 
 ---
 
