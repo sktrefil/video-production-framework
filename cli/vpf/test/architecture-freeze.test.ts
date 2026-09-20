@@ -32,7 +32,7 @@ test("architecture freeze: LONGFORM format profile and bootstrap pin the canonic
   assert.equal(profile.payload.width,1920);
   assert.equal(profile.payload.height,1080);
   assert.deepEqual(profile.payload.imageGeneration,{width:1536,height:864});
-  assert.equal(profile.payload.editorTrackDefaults.primaryAudioTrack,"A1");
+  assert.equal(profile.payload.editorDefaults.primaryAudioTrack,"A1");
   assert.equal(profile.payload.delivery.audioCodec,"aac");
   assert.equal(profile.payload.delivery.pixelFormat,"yuv420p");
   assert.match(bootstrap,/DEFAULT_CHANNEL_PROFILE_VERSION = "1\.5\.0"/);
