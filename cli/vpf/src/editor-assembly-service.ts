@@ -372,10 +372,13 @@ async function ensureContentPlan(input: {
     );
   }
   const header = input.header.trim();
-  if (!header) {
-    throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
-  }
   const isShortform = input.format === "SHORTFORM";
+  if (isShortform && !header) {
+    throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "SHORTFORM editor header must not be empty.");
+  }
+  const headerDurationMs = isShortform
+    ? narrationDurationMs
+    : Math.min(narrationDurationMs, 3000);
   const bottomBlurY = Math.round(input.profile.height * (isShortform ? 0.74 : 0.82));
   const topBlurHeight = Math.round(input.profile.height * (isShortform ? 0.18 : 0.12));
   const headerVisuals=cinematicHeaderVisualsForFormat(input.profile,input.format);
@@ -394,66 +397,71 @@ async function ensureContentPlan(input: {
         [audio[0]!.id],
       style: subtitleStyle
     })),
-    textOverlays: [{
-      id: "top-title",
-      startMs: 0,
-      endMs: narrationDurationMs,
-      text: header,
-      textRole: "TOP_TITLE" as const,
-      ...headerVisuals.title,
-      backgroundEnabled: false,
-      backgroundColor: "#000000",
-      backgroundOpacity: 0.2
-    }, ...topAnnotations.map(annotation => ({
-      id: `top-info-${annotation.id}`,
-      startMs: annotation.startMs,
-      endMs: Math.min(annotation.endMs, narrationDurationMs),
-      text: annotation.text,
-      textRole: "LABEL" as const,
-      ...headerVisuals.info,
-      backgroundEnabled: false,
-      backgroundColor: "#000000",
-      backgroundOpacity: 0,
-      zIndex: 30
-    }))],
+    textOverlays: [
+      ...(header ? [{
+        id: "top-title",
+        startMs: 0,
+        endMs: headerDurationMs,
+        text: header,
+        textRole: "TOP_TITLE" as const,
+        ...headerVisuals.title,
+        backgroundEnabled: false,
+        backgroundColor: "#000000",
+        backgroundOpacity: 0.2
+      }] : []),
+      ...topAnnotations.map(annotation => ({
+        id: `top-info-${annotation.id}`,
+        startMs: annotation.startMs,
+        endMs: Math.min(annotation.endMs, narrationDurationMs),
+        text: annotation.text,
+        textRole: "LABEL" as const,
+        ...headerVisuals.info,
+        backgroundEnabled: false,
+        backgroundColor: "#000000",
+        backgroundOpacity: 0,
+        zIndex: 30
+      }))
+    ],
     graphics: [
-      {
-        id: "top-safe-blur",
-        startMs: 0,
-        endMs: narrationDurationMs,
-        graphicType: "BLUR_PANEL" as const,
-        x: 0,
-        y: 0,
-        width: input.profile.width,
-        height: topBlurHeight,
-        opacity: 1,
-        blurPx: 18,
-        backgroundColor: "rgba(8,12,18,0.26)",
-        borderRadius: 0,
-        zIndex: 10
-      },
-      {
-        id: "top-header-panel",
-        startMs: 0,
-        endMs: narrationDurationMs,
-        graphicType: "SOLID_PANEL" as const,
-        ...headerVisuals.panel,
-        opacity: 1,
-        blurPx: 0,
-        borderRadius: 0,
-        zIndex: 11
-      },
-      {
-        id: "top-header-gold-rule",
-        startMs: 0,
-        endMs: narrationDurationMs,
-        graphicType: "SOLID_PANEL" as const,
-        ...headerVisuals.goldRule,
-        opacity: 1,
-        blurPx: 0,
-        borderRadius: 0,
-        zIndex: 12
-      },
+      ...(header ? [
+        {
+          id: "top-safe-blur",
+          startMs: 0,
+          endMs: headerDurationMs,
+          graphicType: "BLUR_PANEL" as const,
+          x: 0,
+          y: 0,
+          width: input.profile.width,
+          height: topBlurHeight,
+          opacity: 1,
+          blurPx: 18,
+          backgroundColor: "rgba(8,12,18,0.26)",
+          borderRadius: 0,
+          zIndex: 10
+        },
+        {
+          id: "top-header-panel",
+          startMs: 0,
+          endMs: headerDurationMs,
+          graphicType: "SOLID_PANEL" as const,
+          ...headerVisuals.panel,
+          opacity: 1,
+          blurPx: 0,
+          borderRadius: 0,
+          zIndex: 11
+        },
+        {
+          id: "top-header-gold-rule",
+          startMs: 0,
+          endMs: headerDurationMs,
+          graphicType: "SOLID_PANEL" as const,
+          ...headerVisuals.goldRule,
+          opacity: 1,
+          blurPx: 0,
+          borderRadius: 0,
+          zIndex: 12
+        }
+      ] : []),
       {
         id: "bottom-safe-blur",
         startMs: 0,

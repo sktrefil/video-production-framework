@@ -114,3 +114,12 @@ test("LONGFORM editor assembly materializes segmented TTS placements on A1 with 
   assert.match(service,/audioPlacementIds: timeline\.audio\.map/);
   assert.match(service,/totalNarrationDurationMs\(content\.plan\.audio\)/);
 });
+
+
+test("LONGFORM persistent header is off by default and an explicit title is opening-only",()=>{
+  const service=read("cli/vpf/src/editor-assembly-service.ts");
+  assert.match(service,/if \(isShortform && !header\)/);
+  assert.match(service,/Math\.min\(narrationDurationMs, 3000\)/);
+  assert.match(service,/\.\.\.\(header \? \[\{/);
+  assert.doesNotMatch(service,/endMs: narrationDurationMs,\n\s*text: header/);
+});
