@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import {mkdir, readFile, rename, writeFile} from "node:fs/promises";
 import * as path from "node:path";
 import {fileURLToPath} from "node:url";
-import {cinematicShortsHeaderVisuals,cinematicShortsSubtitleStyle,type EditorContentPlan, type MediaArtifact} from "@vpf/domain";
+import {cinematicHeaderVisualsForFormat,cinematicSubtitleStyleForFormat,type EditorContentPlan, type MediaArtifact, type ProjectFormat, type TtsGenerationPlan, type TtsGenerationResult} from "@vpf/domain";
 import {
   EditorContentPlanService,
   EditorTimelineAssemblyPipeline,
@@ -17,6 +17,8 @@ import {
   type ResourcePin
 } from "@vpf/resource-registry";
 import {SqliteEditorTimelineRepository} from "@vpf/storage/editor-timeline";
+import {SqliteTtsGenerationRepository} from "@vpf/storage/tts-generation";
+import {buildSegmentedTtsTimelineFromArtifacts} from "@vpf/tts-generation/subtitle-bridge";
 import {
   NarrationTimedAssemblyRepository,
   NarrationTimedHandoffSource,
@@ -51,9 +53,13 @@ type SubtitleCue = {
 
 type SubtitleDocument = {
   source?: {
+    narrationMode?: "SINGLE" | "SEGMENTED";
     audioDurationMs?: number;
     narrationRelativePath?: string;
     characterAlignmentRelativePath?: string;
+    narrationManifestRelativePath?: string;
+    narrationManifestSha256?: string;
+    audioPlacementIds?: string[];
   };
   cues?: SubtitleCue[];
 };
@@ -184,6 +190,42 @@ async function readSubtitleDocument(projectRoot: string): Promise<SubtitleDocume
   return parsed;
 }
 
+async function writeDerivedSubtitleDocument(input: {
+  projectRoot: string;
+  mode: "SINGLE" | "SEGMENTED";
+  durationMs: number;
+  audioPlacementIds: string[];
+  cues: SubtitleCue[];
+  narrationManifestRelativePath?: string;
+  narrationManifestSha256?: string;
+}): Promise<void> {
+  const directory = path.resolve(input.projectRoot, "03_tts");
+  await mkdir(directory, {recursive: true});
+  const filename = path.resolve(directory, "subtitle-cues.json");
+  await writeFile(filename, JSON.stringify({
+    schemaVersion: 2,
+    kind: "TTS_ALIGNED_SUBTITLE_CUES",
+    source: {
+      narrationMode: input.mode,
+      audioDurationMs: input.durationMs,
+      audioPlacementIds: input.audioPlacementIds,
+      ...(input.narrationManifestRelativePath === undefined ? {} : {narrationManifestRelativePath: input.narrationManifestRelativePath}),
+      ...(input.narrationManifestSha256 === undefined ? {} : {narrationManifestSha256: input.narrationManifestSha256})
+    },
+    cues: input.cues
+  }, null, 2) + "\n", "utf8");
+}
+
+function totalNarrationDurationMs(audio: EditorContentPlan["audio"]): number {
+  const tts = audio.filter(item => item.type === "TTS");
+  if (tts.length === 0) return 0;
+  return Math.max(...tts.map(item => {
+    const duration = item.durationMs ??
+      ((item.sourceOutMs ?? 0) - (item.sourceInMs ?? 0));
+    return item.timelineStartMs + duration;
+  }));
+}
+
 /**
  * Optional, project-owned explanatory labels for the top safe area.
  * They add source context or a clearly marked hypothesis without repeating the
@@ -253,35 +295,59 @@ async function ensureContentPlan(input: {
   projectId: string;
   projectRoot: string;
   header: string;
+  format: ProjectFormat;
   profile: TimelineProfile;
+  ttsPlan: TtsGenerationPlan | null;
+  ttsResult: TtsGenerationResult | null;
 }): Promise<{plan: EditorContentPlan; created: boolean}> {
-  const subtitles = await readSubtitleDocument(input.projectRoot);
-  const narration = await activeMediaByPath(input.repo, input.projectId, "03_tts/narration.mp3");
-  if (narration === null || narration.mediaType !== "AUDIO") {
-    throw new EditorAssemblyServiceError(
-      "EDITOR_TTS_MEDIA_MISSING",
-      "03_tts/narration.mp3 must be imported as an AVAILABLE AUDIO MediaArtifact before assembly."
-    );
-  }
-  if (narration.durationMs === undefined || !Number.isFinite(narration.durationMs) || narration.durationMs <= 0) {
-    throw new EditorAssemblyServiceError(
-      "EDITOR_TTS_DURATION_MISSING",
-      "Narration MediaArtifact requires durationMs. Re-run editor media import after media metadata probing is enabled."
-    );
-  }
-  const narrationDurationMs = narration.durationMs;
+  let audio: EditorContentPlan["audio"];
+  let subtitleCues: SubtitleCue[];
+  let narrationDurationMs: number;
 
-  const header = input.header.trim();
-  if (!header) {
-    throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
-  }
-  const bottomBlurY = Math.round(input.profile.height * 0.74);
-  const headerVisuals=cinematicShortsHeaderVisuals(input.profile);
-  const topAnnotations = await readTopAnnotations(input.projectRoot);
-  const planInput = {
-    audio: [{
+  if (
+    input.format === "LONGFORM" &&
+    input.ttsPlan !== null &&
+    input.ttsResult !== null &&
+    input.ttsPlan.status === "COMPLETE" &&
+    (input.ttsPlan.narrationMode ?? "SINGLE") === "SEGMENTED" &&
+    (input.ttsResult.narrationMode ?? "SINGLE") === "SEGMENTED"
+  ) {
+    const timeline = await buildSegmentedTtsTimelineFromArtifacts({
+      projectRoot: input.projectRoot,
+      plan: input.ttsPlan,
+      result: input.ttsResult,
+      maximumCharacters: 42
+    });
+    audio = timeline.audio;
+    subtitleCues = timeline.subtitles;
+    narrationDurationMs = timeline.totalDurationMs;
+    await writeDerivedSubtitleDocument({
+      projectRoot: input.projectRoot,
+      mode: "SEGMENTED",
+      durationMs: timeline.totalDurationMs,
+      audioPlacementIds: timeline.audio.map(item => item.id),
+      cues: timeline.subtitles,
+      narrationManifestRelativePath: input.ttsResult.narrationManifestRelativePath,
+      narrationManifestSha256: input.ttsResult.narrationManifestSha256
+    });
+  } else {
+    const subtitles = await readSubtitleDocument(input.projectRoot);
+    const narration = await activeMediaByPath(input.repo, input.projectId, "03_tts/narration.mp3");
+    if (narration === null || narration.mediaType !== "AUDIO") {
+      throw new EditorAssemblyServiceError(
+        "EDITOR_TTS_MEDIA_MISSING",
+        "Current SINGLE narration must be imported as an AVAILABLE AUDIO MediaArtifact before assembly."
+      );
+    }
+    if (narration.durationMs === undefined || !Number.isFinite(narration.durationMs) || narration.durationMs <= 0) {
+      throw new EditorAssemblyServiceError(
+        "EDITOR_TTS_DURATION_MISSING",
+        "Narration MediaArtifact requires durationMs."
+      );
+    }
+    audio = [{
       id: "tts-narration",
-      type: "TTS" as const,
+      type: "TTS",
       mediaId: narration.id,
       timelineStartMs: 0,
       sourceInMs: 0,
@@ -289,15 +355,39 @@ async function ensureContentPlan(input: {
       durationMs: narration.durationMs,
       volume: 1,
       muted: false
-    }],
-    subtitles: subtitles.cues!.map(cue => ({
+    }];
+    subtitleCues = subtitles.cues!;
+    narrationDurationMs = narration.durationMs;
+  }
+
+  if (!Number.isFinite(narrationDurationMs) || narrationDurationMs <= 0) {
+    throw new EditorAssemblyServiceError(
+      "EDITOR_TTS_DURATION_MISSING",
+      "TTS narration requires a positive total duration."
+    );
+  }
+  const header = input.header.trim();
+  if (!header) {
+    throw new EditorAssemblyServiceError("EDITOR_SUBTITLE_INPUT_INVALID", "Editor header must not be empty.");
+  }
+  const isShortform = input.format === "SHORTFORM";
+  const bottomBlurY = Math.round(input.profile.height * (isShortform ? 0.74 : 0.82));
+  const topBlurHeight = Math.round(input.profile.height * (isShortform ? 0.18 : 0.12));
+  const headerVisuals=cinematicHeaderVisualsForFormat(input.profile,input.format);
+  const subtitleStyle=cinematicSubtitleStyleForFormat(input.profile,input.format);
+  const topAnnotations = await readTopAnnotations(input.projectRoot);
+  const planInput = {
+    audio,
+    subtitles: subtitleCues.map(cue => ({
       id: cue.id,
       startMs: cue.startMs,
       endMs: cue.endMs,
       text: cue.text,
       generationSource: cue.generationSource ?? "SCRIPT_TTS_ALIGN" as const,
-      generatedFromAudioPlacementIds: ["tts-narration"],
-      style: cinematicShortsSubtitleStyle(input.profile)
+      generatedFromAudioPlacementIds:
+        cue.generatedFromAudioPlacementIds ??
+        [audio[0]!.id],
+      style: subtitleStyle
     })),
     textOverlays: [{
       id: "top-title",
@@ -325,12 +415,12 @@ async function ensureContentPlan(input: {
       {
         id: "top-safe-blur",
         startMs: 0,
-        endMs: narration.durationMs,
+        endMs: narrationDurationMs,
         graphicType: "BLUR_PANEL" as const,
         x: 0,
         y: 0,
         width: input.profile.width,
-        height: Math.round(input.profile.height * 0.18),
+        height: topBlurHeight,
         opacity: 1,
         blurPx: 18,
         backgroundColor: "rgba(8,12,18,0.26)",
@@ -340,7 +430,7 @@ async function ensureContentPlan(input: {
       {
         id: "top-header-panel",
         startMs: 0,
-        endMs: narration.durationMs,
+        endMs: narrationDurationMs,
         graphicType: "SOLID_PANEL" as const,
         ...headerVisuals.panel,
         opacity: 1,
@@ -351,7 +441,7 @@ async function ensureContentPlan(input: {
       {
         id: "top-header-gold-rule",
         startMs: 0,
-        endMs: narration.durationMs,
+        endMs: narrationDurationMs,
         graphicType: "SOLID_PANEL" as const,
         ...headerVisuals.goldRule,
         opacity: 1,
@@ -362,7 +452,7 @@ async function ensureContentPlan(input: {
       {
         id: "bottom-safe-blur",
         startMs: 0,
-        endMs: narration.durationMs,
+        endMs: narrationDurationMs,
         graphicType: "BLUR_PANEL" as const,
         x: 0,
         y: bottomBlurY,
@@ -406,6 +496,7 @@ export class EditorAssemblyCliService {
   async diagnose(projectId: string) {
     const status = await this.projects.getStatus(projectId);
     const repo = new SqliteEditorTimelineRepository(status.projectDbPath);
+    const ttsRepo = new SqliteTtsGenerationRepository(status.projectDbPath);
     try {
       const binding = new MediaBindingPipeline(repo, repo, clock, ids);
       const handoff = await binding.buildEditorHandoff(projectId);
@@ -454,25 +545,23 @@ export class EditorAssemblyCliService {
         };
       }
 
+      const ttsPlan = await ttsRepo.getLatestTtsPlan(input.projectId);
+      const ttsResult = await ttsRepo.getLatestTtsResult(input.projectId);
       const content = await ensureContentPlan({
         repo,
         projectId: input.projectId,
         projectRoot: status.projectRoot,
-        header: input.header,
-        profile
+        header: input.header.trim() || status.project.title,
+        format: status.project.format,
+        profile,
+        ttsPlan,
+        ttsResult
       });
-      const narration = content.plan.audio.find(
-        item => item.id === "tts-narration" && item.type === "TTS"
-      );
-      if (
-        narration === undefined ||
-        narration.durationMs === undefined ||
-        !Number.isFinite(narration.durationMs) ||
-        narration.durationMs <= 0
-      ) {
+      const narrationDurationMs = totalNarrationDurationMs(content.plan.audio);
+      if (!Number.isFinite(narrationDurationMs) || narrationDurationMs <= 0) {
         throw new EditorAssemblyServiceError(
           "EDITOR_TTS_DURATION_MISSING",
-          "Approved EditorContentPlan requires the positive tts-narration duration."
+          "Approved EditorContentPlan requires at least one positive TTS placement."
         );
       }
 
@@ -483,7 +572,7 @@ export class EditorAssemblyCliService {
           projectId: input.projectId,
           handoff,
           contentPlan: content.plan,
-          narrationDurationMs: narration.durationMs,
+          narrationDurationMs,
           profile
         });
       } catch (error) {
@@ -531,6 +620,7 @@ export class EditorAssemblyCliService {
         profile
       };
     } finally {
+      ttsRepo.close();
       repo.close();
     }
   }

@@ -45,8 +45,8 @@ test("shortform editor content plan includes top 18 percent and bottom 26 percen
   assert.match(service,/id: "top-safe-blur"/);
   assert.match(service,/id: "bottom-safe-blur"/);
   assert.match(service,/graphicType: "BLUR_PANEL"/);
-  assert.match(service,/height: Math\.round\(input\.profile\.height \* 0\.18\)/);
-  assert.match(service,/bottomBlurY = Math\.round\(input\.profile\.height \* 0\.74\)/);
+  assert.match(service,/isShortform \? 0\.18 : 0\.12/);
+  assert.match(service,/isShortform \? 0\.74 : 0\.82/);
   assert.match(service,/height: input\.profile\.height - bottomBlurY/);
   assert.match(service,/backgroundColor: "rgba\(8,12,18,0\.30\)"/);
 });
@@ -58,8 +58,8 @@ test("editor content plan pins the approved Korean title and subtitle layout",()
   assert.match(visuals,/cinematicShortsHeaderVisuals/);
   assert.match(visuals,/cinematicShortsSubtitleFontSize/);
   assert.match(visuals,/fontFamily:"VPF Noto Sans KR"/);
-  assert.match(service,/style: cinematicShortsSubtitleStyle\(input\.profile\)/);
-  assert.match(service,/const headerVisuals=cinematicShortsHeaderVisuals\(input\.profile\)/);
+  assert.match(service,/cinematicSubtitleStyleForFormat/);
+  assert.match(service,/cinematicHeaderVisualsForFormat/);
   assert.match(service,/\.\.\.headerVisuals\.title/);
   assert.match(service,/\.\.\.headerVisuals\.info/);
   assert.match(service,/\.\.\.headerVisuals\.panel/);
@@ -104,4 +104,13 @@ test("canonical render wrapper rejects assembly lineage drift",()=>{
   assert.match(wrapper,/ASSEMBLY_LINEAGE_MISMATCH/);
   assert.match(wrapper,/materializedRevision !== renderRevision/);
   assert.match(wrapper,/materializedId !== renderId/);
+});
+
+
+test("LONGFORM editor assembly materializes segmented TTS placements on A1 with generated subtitle provenance",()=>{
+  const service=read("cli/vpf/src/editor-assembly-service.ts");
+  assert.match(service,/buildSegmentedTtsTimelineFromArtifacts/);
+  assert.match(service,/narrationMode \?\? "SINGLE"\) === "SEGMENTED"/);
+  assert.match(service,/audioPlacementIds: timeline\.audio\.map/);
+  assert.match(service,/totalNarrationDurationMs\(content\.plan\.audio\)/);
 });

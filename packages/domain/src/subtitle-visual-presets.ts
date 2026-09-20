@@ -34,7 +34,8 @@ export const cinematicSubtitleStyleForFormat=(
   ? cinematicLongformSubtitleStyle(profile)
   : cinematicShortsSubtitleStyle(profile);
 
-export type CinematicShortsHeaderVisuals={title:HeaderTextVisualStyle;info:HeaderTextVisualStyle;panel:HeaderPanelVisualStyle;goldRule:HeaderPanelVisualStyle};
+export type CinematicHeaderVisuals={title:HeaderTextVisualStyle;info:HeaderTextVisualStyle;panel:HeaderPanelVisualStyle;goldRule:HeaderPanelVisualStyle};
+export type CinematicShortsHeaderVisuals=CinematicHeaderVisuals;
 
 // Shared 9:16 documentary header: dark information panel, gold rule, gold
 // subject title, and white scene-specific supporting information.
@@ -62,3 +63,18 @@ export const cinematicShortsSubtitleFontSize=(input:SubtitleTextFitInput):number
   const fitted=Math.floor((usableWidth*Math.max(1,input.maxLines))/capacity);
   return Math.min(input.fontSize,Math.max(48,fitted));
 };
+
+
+export const cinematicLongformHeaderVisuals=(profile:SubtitleVisualProfile):CinematicHeaderVisuals=>({
+  title:{x:Math.round(profile.width*.5),y:Math.round(profile.height*.055),width:Math.round(profile.width*.72),fontFamily:VPF_SUBTITLE_VISUAL_TOKENS.fontFamily,fontSize:Math.round(Math.min(profile.width,profile.height)*.038),fontWeight:800,color:VPF_SUBTITLE_VISUAL_TOKENS.gold,strokeColor:VPF_SUBTITLE_VISUAL_TOKENS.ink,strokeWidth:2,textAlign:"center",lineHeight:1.08,maxLines:2},
+  info:{x:Math.round(profile.width*.5),y:Math.round(profile.height*.092),width:Math.round(profile.width*.72),fontFamily:VPF_SUBTITLE_VISUAL_TOKENS.fontFamily,fontSize:Math.round(Math.min(profile.width,profile.height)*.022),fontWeight:700,color:VPF_SUBTITLE_VISUAL_TOKENS.paper,strokeColor:VPF_SUBTITLE_VISUAL_TOKENS.ink,strokeWidth:1,textAlign:"center",lineHeight:1.08,maxLines:1},
+  panel:{x:Math.round(profile.width*.14),y:Math.round(profile.height*.015),width:Math.round(profile.width*.72),height:Math.round(profile.height*.105),backgroundColor:"rgba(7,10,14,0.78)"},
+  goldRule:{x:Math.round(profile.width*.16),y:Math.round(profile.height*.021),width:Math.round(profile.width*.68),height:Math.max(2,Math.round(profile.height*.002)),backgroundColor:VPF_SUBTITLE_VISUAL_TOKENS.gold}
+});
+
+export const cinematicHeaderVisualsForFormat=(
+  profile:SubtitleVisualProfile,
+  format:"LONGFORM"|"SHORTFORM"
+):CinematicHeaderVisuals=>format==="LONGFORM"
+  ? cinematicLongformHeaderVisuals(profile)
+  : cinematicShortsHeaderVisuals(profile);
