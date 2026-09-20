@@ -371,7 +371,7 @@ Scene > 4000 chars
 - alignment SHA256
 - provider request IDs
 
-Section revision이 바뀌어도 관련 없는 Section 음성은 재생성하지 않는다.
+Architecture v1에서는 현재 FINAL Script revision 또는 승인된 Scene 집합이 바뀌면 기존 SEGMENTED TTS Plan 전체를 current 상태로 재사용하지 않는다. 새 Plan을 준비하고 Section 음성을 다시 생성한다. 기존 Section 파일/Result는 revision provenance를 위해 보존되지만, **변경되지 않은 Section 음성을 새 Plan에 자동 재사용하는 기능은 v1 Freeze 범위가 아니다.** 이 기능을 추가하려면 Architecture Change 절차를 거친다.
 
 ---
 
@@ -401,7 +401,7 @@ Section 3 → global 37~54
 generatedFromAudioPlacementIds = [tts-section-002]
 ```
 
-Section audio duration이 바뀌면 이후 Section의 **timeline offset만 재계산**할 수 있다. 관련 없는 TTS content 자체를 다시 생성하지 않는다.
+완료된 SEGMENTED Result 내부에서는 Section duration을 기준으로 이후 Section의 global timeline offset을 결정한다. 새로운 TTS Result가 들어오면 Subtitle/Editor offset은 다시 계산한다. 단, Architecture v1은 Script/Scene provenance가 바뀐 Plan 사이에서 unchanged Section audio를 자동 재사용한다고 보장하지 않는다.
 
 ---
 
@@ -681,19 +681,20 @@ Subtitle safe area는 Format Profile과 LONGFORM preset을 기준으로 한다.
 ```text
 Scene 07 script changed
 ↓
-Scene 07 downstream stale
+Story impact 분석
 ↓
-관련 TTS Section stale
-관련 Alignment stale
-관련 Subtitle stale
-관련 Image Prompt stale
-관련 Image stale
-관련 Clip stale
+영향받는 Scene/Image/Clip dependency stale
+↓
+현재 SEGMENTED TTS Plan/Result는 FINAL Script 또는 승인 Scene provenance mismatch로 Editor 진입 차단
+↓
+새 TTS Plan 생성 및 Section TTS/Alignment/Subtitle 재생성
+↓
+영향받지 않은 Image/Clip은 dependency가 유지되면 보존
 ```
 
-영향이 없는 Scene / Section / Image는 유지한다.
+영향이 없는 Scene / Image / Clip은 dependency가 유지되면 보존한다.
 
-TTS Section duration만 달라지고 text provenance가 유지되는 경우 이후 timeline offset 재계산으로 처리할 수 있다.
+TTS는 Architecture v1에서 Plan 단위 currentness를 사용한다. FINAL Script revision 또는 승인 Scene 집합이 변경되면 Editor Assembly는 기존 TTS를 거부하고 새 SEGMENTED Plan/Result를 요구한다. Section별 파일과 hash provenance는 유지되지만, cross-plan selective audio reuse는 v1의 필수 기능이 아니다.
 
 ---
 
@@ -853,6 +854,7 @@ Change proposal
 - Final render: `packages/final-render`
 - Final output / publish: `packages/final-output`
 - Unified LONGFORM/SHORTFORM E2E: `tests/e2e/unified-project`
+- Architecture conformance checks: `cli/vpf/test/architecture-freeze.test.ts`
 
 ---
 

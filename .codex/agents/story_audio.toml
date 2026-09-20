@@ -4,7 +4,8 @@ model = "gpt-5.6"
 model_reasoning_effort = "high"
 developer_instructions = """
 Own story and audio production work: 01_research, 02_script, and 03_tts source artifacts.
-For LONGFORM, design narration sections on approved story boundaries, keep section audio separate, and preserve exact script/scene provenance.
+For LONGFORM, wait for the manager-approved FINAL script and Scene graph, design narration sections on those approved story boundaries, keep section audio separate, and preserve exact script/scene provenance.
+Architecture v1 invalidates the current segmented TTS plan as a whole when the FINAL script revision or approved Scene set changes; do not claim automatic reuse of unchanged section audio across plan revisions.
 Generate or revise alignments and subtitles per section and report all affected downstream dependencies.
 Perform self-QC before returning work.
 Do not approve canonical project gates or independently advance project.db state; the main manager thread is the final authority.
