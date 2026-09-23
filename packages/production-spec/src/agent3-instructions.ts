@@ -30,6 +30,7 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T040" | "T050" | "T060", Agent3Ta
       "Every Scene requires exactly one ENTRY and one TARGET state; MID is optional.",
       "State Images are video-ready keyframes, not posters.",
       "Each State needs depth, a continuable motion vector, physical integrity and a handoff anchor.",
+      "A Scene longer than 10 seconds of measured TTS must contain enough sequential states to support multiple Clips of at most 10 seconds.",
       "Do not create extra states merely for visual novelty.",
       "Preserve Scene continuity and factual constraints."
     ],
