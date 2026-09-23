@@ -385,3 +385,60 @@ export function validateTtsCompletionInput(input: unknown, expectedProjectId?: s
   }
   return validation(errors);
 }
+
+
+export interface Agent2TaskInstruction {
+  instruction_id: string;
+  task_id: "T010" | "T020" | "T030";
+  purpose: string;
+  rules: string[];
+  required_outputs: string[];
+}
+
+export const AGENT2_TASK_INSTRUCTIONS: Record<"T010" | "T020" | "T030", Agent2TaskInstruction> = {
+  T010: {
+    instruction_id: "RESEARCH_FACT_CHECK_V1",
+    task_id: "T010",
+    purpose: "Research the project topic, separate evidence from interpretation, and create a traceable fact base before script writing.",
+    rules: [
+      "Do not write the final script during T010.",
+      "Every VERIFIED_FACT must reference supporting research sources.",
+      "Distinguish VERIFIED_FACT, LIKELY_INTERPRETATION, HYPOTHESIS, LEGEND and EDITORIAL_RECONSTRUCTION.",
+      "Preserve uncertainty instead of upgrading a disputed claim into a fact.",
+      "Record enough source metadata for Agent 1 to audit the claim."
+    ],
+    required_outputs: ["research_spec", "fact_check_spec"]
+  },
+  T020: {
+    instruction_id: "STORY_SCRIPT_V1",
+    task_id: "T020",
+    purpose: "Turn the approved fact base into one coherent narrative and an exact Scene/Beat-addressable script.",
+    rules: [
+      "Use only fact IDs present in the active fact_check_spec.",
+      "A Scene is defined by one narrative purpose, not by a fixed one-or-two-sentence rule.",
+      "Long Scenes may contain multiple Beats; each Beat must retain its exact script segment.",
+      "Scene script segments in order must reconstruct the entire Korean script.",
+      "Beat script segments in order must reconstruct their Scene script.",
+      "Keep factual statements, interpretations, hypotheses, legends and editorial reconstruction distinguishable in wording."
+    ],
+    required_outputs: ["story_spec", "script"]
+  },
+  T030: {
+    instruction_id: "TTS_TIMING_V1",
+    task_id: "T030",
+    purpose: "Convert the approved script into measured narration timing, Scene/Beat timing and subtitle timing.",
+    rules: [
+      "Estimated narration duration is planning metadata only.",
+      "Actual provider character alignment is authoritative for production timing.",
+      "The TTS project timeline starts at 0 seconds and sections may not overlap.",
+      "Scene and Beat timing must be derived from exact approved script segments.",
+      "Subtitle cues must be derived from the same measured alignment.",
+      "Agent 3 must receive measured scene_timing_spec rather than estimated timing."
+    ],
+    required_outputs: ["tts_manifest", "scene_timing_spec", "subtitle_timing"]
+  }
+};
+
+export function getAgent2TaskInstruction(taskId: "T010" | "T020" | "T030"): Agent2TaskInstruction {
+  return structuredClone(AGENT2_TASK_INSTRUCTIONS[taskId]);
+}
