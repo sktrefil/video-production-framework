@@ -14,6 +14,7 @@ import {
   validatePromptBundle,
   validateSceneVisualDocument,
   validateStateImageDocument,
+  validateStateSceneBindings,
   type Agent3T060Input,
   type Agent3TaskExecutionResult,
   type PromptBundleDocument,
@@ -223,6 +224,7 @@ export class Agent3VisualProductionWorkerService {
   ): Agent3TaskExecutionResult {
     const production = new ProductionSpecRepository(status.projectDbPath, { readonly: true });
     const agent3 = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
+    let collectedWarnings: Array<{ code: string; message: string }> = [];
     try {
       const scenes = production.getSceneTiming(projectId);
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
@@ -242,12 +244,16 @@ export class Agent3VisualProductionWorkerService {
           ])
         )
       });
-      if (!validation.valid) {
+      const binding = validateStateSceneBindings(input, visual.value);
+      const errors = [...validation.errors, ...binding.errors];
+      if (errors.length > 0) {
         throw new Agent3VisualProductionError(
           "AGENT3_INPUT_INVALID",
-          validationMessage(validation)
+          validationMessage({ errors })
         );
       }
+      collectedWarnings = [...validation.warnings, ...binding.warnings]
+        .map(issue => ({ code: issue.code, message: issue.message }));
     } finally {
       agent3.close();
       production.close();
@@ -271,7 +277,7 @@ export class Agent3VisualProductionWorkerService {
           revision: saved.revision,
           sha256: saved.sha256
         }],
-        warnings: []
+        warnings: collectedWarnings
       };
     } finally {
       writable.close();
