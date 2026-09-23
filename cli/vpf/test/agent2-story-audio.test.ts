@@ -145,6 +145,19 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
     assert.equal(workflow.next_task?.task_id, "T040");
     assert.equal(workflow.next_task?.assigned_agent, "AGENT3_VISUAL_PRODUCTION");
 
+    await manager.dispatch("agent2_sample", "T040");
+    const mutableProduction = new ProductionSpecRepository(created.projectDbPath);
+    try {
+      const currentTiming = mutableProduction.getSceneTiming("agent2_sample");
+      assert.ok(currentTiming);
+      mutableProduction.saveSceneTiming("agent2_sample", currentTiming!, new Date().toISOString());
+    } finally {
+      mutableProduction.close();
+    }
+    const staleWorkflow = await manager.status("agent2_sample");
+    assert.equal(staleWorkflow.tasks.find(task => task.task_id === "T040")?.status, "REVISION_REQUIRED");
+    assert.equal(staleWorkflow.tasks.find(task => task.task_id === "T050")?.status, "BLOCKED");
+
     const production = new ProductionSpecRepository(created.projectDbPath, { readonly: true });
     const agent2 = new Agent2StoryAudioRepository(created.projectDbPath, { readonly: true });
     try {
