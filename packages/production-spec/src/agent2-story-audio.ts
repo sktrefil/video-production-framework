@@ -1,5 +1,5 @@
 import type { ValidationResult, ValidationIssue } from "./project-validator.js";
-import type { StoryRole } from "./enums.js";
+import { STORY_ROLES, type StoryRole } from "./enums.js";
 
 export const FACT_CLASSIFICATIONS = [
   "VERIFIED_FACT",
@@ -203,20 +203,25 @@ export function validateResearchBundle(input: unknown, expectedProjectId?: strin
   const bundle = input as Partial<Agent2ResearchBundle>;
   const research = bundle.research_spec;
   const facts = bundle.fact_check_spec;
-  if (!research || research.schema_version !== "1.0") errors.push({ code: "RESEARCH_SPEC_REQUIRED", path: "research_spec", message: "research_spec schema 1.0 is required." });
-  if (!facts || facts.schema_version !== "1.0") errors.push({ code: "FACT_CHECK_SPEC_REQUIRED", path: "fact_check_spec", message: "fact_check_spec schema 1.0 is required." });
-  if (!research || !facts) return validation(errors, warnings);
+  if (typeof research !== "object" || research === null || Array.isArray(research) || research.schema_version !== "1.0") {
+    errors.push({ code: "RESEARCH_SPEC_REQUIRED", path: "research_spec", message: "research_spec schema 1.0 is required." });
+  }
+  if (typeof facts !== "object" || facts === null || Array.isArray(facts) || facts.schema_version !== "1.0") {
+    errors.push({ code: "FACT_CHECK_SPEC_REQUIRED", path: "fact_check_spec", message: "fact_check_spec schema 1.0 is required." });
+  }
+  if (!research || !facts || typeof research !== "object" || typeof facts !== "object") return validation(errors, warnings);
 
   if (research.project_id !== facts.project_id) errors.push({ code: "PROJECT_ID_MISMATCH", path: "fact_check_spec.project_id", message: "Research and fact-check project IDs must match." });
   if (expectedProjectId && research.project_id !== expectedProjectId) errors.push({ code: "PROJECT_ID_MISMATCH", path: "research_spec.project_id", message: "Research bundle project_id must match the canonical project." });
   requiredString(research.topic, "research_spec.topic", errors);
   requiredString(research.central_question, "research_spec.central_question", errors);
-  if (!Array.isArray(research.sources) || research.sources.length === 0) {
+  const sources = Array.isArray(research.sources) ? research.sources : [];
+  if (sources.length === 0) {
     errors.push({ code: "RESEARCH_SOURCE_REQUIRED", path: "research_spec.sources", message: "At least one research source is required." });
   }
 
   const sourceIds = new Set<string>();
-  for (const [index, source] of (research.sources ?? []).entries()) {
+  for (const [index, source] of sources.entries()) {
     const id = requiredString(source.source_id, `research_spec.sources[${index}].source_id`, errors);
     requiredString(source.title, `research_spec.sources[${index}].title`, errors);
     requiredString(source.source_type, `research_spec.sources[${index}].source_type`, errors);
@@ -229,11 +234,12 @@ export function validateResearchBundle(input: unknown, expectedProjectId?: strin
     }
   }
 
-  if (!Array.isArray(facts.facts) || facts.facts.length === 0) {
+  const factItems = Array.isArray(facts.facts) ? facts.facts : [];
+  if (factItems.length === 0) {
     errors.push({ code: "FACT_CHECK_REQUIRED", path: "fact_check_spec.facts", message: "At least one fact-check item is required." });
   }
   const factIds = new Set<string>();
-  for (const [index, fact] of (facts.facts ?? []).entries()) {
+  for (const [index, fact] of factItems.entries()) {
     const id = requiredString(fact.fact_id, `fact_check_spec.facts[${index}].fact_id`, errors);
     requiredString(fact.statement_ko, `fact_check_spec.facts[${index}].statement_ko`, errors);
     if (id) {
@@ -269,9 +275,13 @@ export function validateStoryBundle(
   const bundle = input as Partial<Agent2StoryBundle>;
   const story = bundle.story_spec;
   const script = bundle.script;
-  if (!story || story.schema_version !== "1.0") errors.push({ code: "STORY_SPEC_REQUIRED", path: "story_spec", message: "story_spec schema 1.0 is required." });
-  if (!script || script.schema_version !== "1.0") errors.push({ code: "SCRIPT_SPEC_REQUIRED", path: "script", message: "script schema 1.0 is required." });
-  if (!story || !script) return validation(errors, warnings);
+  if (typeof story !== "object" || story === null || Array.isArray(story) || story.schema_version !== "1.0") {
+    errors.push({ code: "STORY_SPEC_REQUIRED", path: "story_spec", message: "story_spec schema 1.0 is required." });
+  }
+  if (typeof script !== "object" || script === null || Array.isArray(script) || script.schema_version !== "1.0") {
+    errors.push({ code: "SCRIPT_SPEC_REQUIRED", path: "script", message: "script schema 1.0 is required." });
+  }
+  if (!story || !script || typeof story !== "object" || typeof script !== "object") return validation(errors, warnings);
   if (story.project_id !== script.project_id) errors.push({ code: "PROJECT_ID_MISMATCH", path: "script.project_id", message: "Story and script project IDs must match." });
   if (expectedProjectId && story.project_id !== expectedProjectId) errors.push({ code: "PROJECT_ID_MISMATCH", path: "story_spec.project_id", message: "Story bundle project_id must match the canonical project." });
   requiredString(story.central_question, "story_spec.central_question", errors);
@@ -279,23 +289,27 @@ export function validateStoryBundle(
   if (!Number.isFinite(script.estimated_duration_sec) || script.estimated_duration_sec <= 0) {
     errors.push({ code: "INVALID_ESTIMATED_DURATION", path: "script.estimated_duration_sec", message: "Estimated narration duration must be positive." });
   }
-  if (!Array.isArray(story.sections) || story.sections.length === 0) errors.push({ code: "STORY_SECTION_REQUIRED", path: "story_spec.sections", message: "Story requires at least one section." });
-  if (!Array.isArray(story.scenes) || story.scenes.length === 0) errors.push({ code: "SCENE_DRAFT_REQUIRED", path: "story_spec.scenes", message: "Story requires at least one scene draft." });
+  const sections = Array.isArray(story.sections) ? story.sections : [];
+  const scenes = Array.isArray(story.scenes) ? story.scenes : [];
+  if (sections.length === 0) errors.push({ code: "STORY_SECTION_REQUIRED", path: "story_spec.sections", message: "Story requires at least one section." });
+  if (scenes.length === 0) errors.push({ code: "SCENE_DRAFT_REQUIRED", path: "story_spec.scenes", message: "Story requires at least one scene draft." });
 
   const knownFacts = new Set((facts?.facts ?? []).map(fact => fact.fact_id));
   const usedFacts = new Set<string>();
-  for (const [index, section] of (story.sections ?? []).entries()) {
+  for (const [index, section] of sections.entries()) {
     requiredString(section.section_id, `story_spec.sections[${index}].section_id`, errors);
     requiredString(section.purpose_ko, `story_spec.sections[${index}].purpose_ko`, errors);
-    for (const ref of section.fact_refs ?? []) {
+    if (!STORY_ROLES.includes(section.role)) errors.push({ code: "INVALID_STORY_ROLE", path: `story_spec.sections[${index}].role`, message: "Unsupported Story Role." });
+    for (const ref of Array.isArray(section.fact_refs) ? section.fact_refs : []) {
       usedFacts.add(ref);
       if (!knownFacts.has(ref)) errors.push({ code: "UNKNOWN_FACT_REF", path: `story_spec.sections[${index}].fact_refs`, message: `Unknown fact reference ${ref}.` });
     }
   }
-  for (const [index, scene] of (story.scenes ?? []).entries()) {
+  for (const [index, scene] of scenes.entries()) {
     requiredString(scene.scene_id, `story_spec.scenes[${index}].scene_id`, errors);
     requiredString(scene.narrative_purpose_ko, `story_spec.scenes[${index}].narrative_purpose_ko`, errors);
     requiredString(scene.script_ko, `story_spec.scenes[${index}].script_ko`, errors);
+    if (!STORY_ROLES.includes(scene.story_role)) errors.push({ code: "INVALID_STORY_ROLE", path: `story_spec.scenes[${index}].story_role`, message: "Unsupported Story Role." });
     if (!Array.isArray(scene.beats) || scene.beats.length === 0) {
       errors.push({ code: "BEAT_REQUIRED", path: `story_spec.scenes[${index}].beats`, message: "Each scene needs at least one narrative beat." });
     } else {
@@ -309,17 +323,17 @@ export function validateStoryBundle(
         errors.push({ code: "BEAT_SCRIPT_COVERAGE_MISMATCH", path: `story_spec.scenes[${index}].beats`, message: "Beat script segments must cover the complete Scene script in order." });
       }
     }
-    for (const ref of scene.fact_refs ?? []) {
+    for (const ref of Array.isArray(scene.fact_refs) ? scene.fact_refs : []) {
       usedFacts.add(ref);
       if (!knownFacts.has(ref)) errors.push({ code: "UNKNOWN_FACT_REF", path: `story_spec.scenes[${index}].fact_refs`, message: `Unknown fact reference ${ref}.` });
     }
   }
-  for (const ref of script.source_fact_refs ?? []) {
+  for (const ref of Array.isArray(script.source_fact_refs) ? script.source_fact_refs : []) {
     if (!knownFacts.has(ref)) errors.push({ code: "UNKNOWN_FACT_REF", path: "script.source_fact_refs", message: `Unknown fact reference ${ref}.` });
   }
   if (knownFacts.size > 0 && usedFacts.size === 0) warnings.push({ code: "STORY_FACT_LINK_WEAK", message: "Story scenes do not reference any fact-check items." });
 
-  const joined = (story.scenes ?? []).map(scene => scene.script_ko.trim()).join("");
+  const joined = scenes.map(scene => scene.script_ko.trim()).join("");
   const scriptNormalized = script.body_ko.replace(/\s+/gu, "");
   const scenesNormalized = joined.replace(/\s+/gu, "");
   if (scriptNormalized && scenesNormalized && scriptNormalized !== scenesNormalized) {
@@ -337,12 +351,13 @@ export function validateTtsCompletionInput(input: unknown, expectedProjectId?: s
   requiredString(value.provider, "provider", errors);
   requiredString(value.voice_id, "voice_id", errors);
   requiredString(value.model_id, "model_id", errors);
-  if (!Array.isArray(value.sections) || value.sections.length === 0) errors.push({ code: "TTS_SECTION_REQUIRED", path: "sections", message: "At least one completed TTS section is required." });
+  const ttsSections = Array.isArray(value.sections) ? value.sections : [];
+  if (ttsSections.length === 0) errors.push({ code: "TTS_SECTION_REQUIRED", path: "sections", message: "At least one completed TTS section is required." });
   let previousEnd = 0;
-  if ((value.sections?.[0]?.timeline_start_sec ?? 0) !== 0) {
+  if ((ttsSections[0]?.timeline_start_sec ?? 0) !== 0) {
     errors.push({ code: "TTS_TIMELINE_MUST_START_AT_ZERO", path: "sections[0].timeline_start_sec", message: "Project narration TTS timeline must start at 0 seconds." });
   }
-  for (const [index, section] of (value.sections ?? []).entries()) {
+  for (const [index, section] of ttsSections.entries()) {
     const path = `sections[${index}]`;
     requiredString(section.section_id, `${path}.section_id`, errors);
     requiredString(section.text, `${path}.text`, errors);
