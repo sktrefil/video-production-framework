@@ -445,37 +445,122 @@ export class Agent1ProductionManagerService {
   async generationReady(projectId: string): Promise<ProductionGateEvaluation> {
     const status = await this.projects.getStatus(projectId);
     const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    const agent3 = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
     try {
       const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
       const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
+      const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
+      const prompts = agent3.getActive<PromptBundleDocument>(projectId, "prompt_bundle_spec");
+      const bible = pinnedVisualBible(status);
+
       return this.evaluate(projectId, "GENERATION_READY_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const clips = repo.getClipProduction(projectId);
         const errors: ValidationIssue[] = [];
+
+        const storyInput = {
+          project,
+          scenes,
+          tts: tts?.value ?? null,
+          subtitles: subtitles?.value ?? null
+        };
+        const visualInput = {
+          project,
+          scenes,
+          visual: visual?.value ?? null,
+          visual_bible: bible
+        };
+        const stateInput = {
+          project,
+          scenes,
+          visual: visual?.value ?? null,
+          states: states?.value ?? null
+        };
+        const clipInput = {
+          project,
+          scenes,
+          visual: visual?.value ?? null,
+          states: states?.value ?? null,
+          clips,
+          prompts: prompts?.value ?? null
+        };
+
         const required: Array<[ProductionGateId, unknown]> = [
           ["PROJECT_INIT_GATE", project],
-          ["STORY_AUDIO_GATE", { project, scenes, tts: tts?.value ?? null, subtitles: subtitles?.value ?? null }],
-          ["CLIP_PLAN_GATE", { scenes, clips }]
+          ["STORY_AUDIO_GATE", storyInput],
+          ["VISUAL_PLAN_GATE", visualInput],
+          ["STATE_IMAGE_GATE", stateInput],
+          ["CLIP_PLAN_GATE", clipInput]
         ];
+
         for (const [gate, input] of required) {
           const prior = repo.getLatestGate(projectId, gate);
           if (prior?.status !== "PASS" || !repo.isLatestGateCurrent(projectId, gate, input)) {
-            errors.push(missing("GATE_REQUIRED_OR_STALE", `${gate} must have a current PASS before generation.`, gate));
+            errors.push(missing("GATE_REQUIRED_OR_STALE", gate + " must have a current PASS before generation.", gate));
           }
         }
+
         const clipValidation = clips === null
           ? result([missing("CLIP_PRODUCTION_SPEC_MISSING", "Clip Production Spec is required.")])
           : validateGenerationReady(clips, { ...(scenes === null ? {} : { sceneTimings: scenes.scenes }) });
-        if (scenes !== null && scenes.project_id !== projectId) clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Scene Timing project_id mismatch.", "project_id"));
-        if (clips !== null && clips.project_id !== projectId) clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
+
+        const bindingValidation = clips === null || states === null
+          ? result([missing("CLIP_STATE_INPUT_MISSING", "Clip Production and State Image Specs are required.")])
+          : validateClipStateBindings(clips, states.value);
+
+        const promptValidation = prompts === null || clips === null || states === null
+          ? result([missing("PROMPT_BUNDLE_MISSING", "Prompt Bundle is required before generation.")])
+          : merge(
+              validatePromptBundle(prompts.value, {
+                projectId,
+                stateImageIds: states.value.state_images.map(item => item.state_image_id),
+                clipIds: clips.clips.map(item => item.clip_id)
+              }),
+              validatePromptBindings(prompts.value, states.value, clips)
+            );
+
+        if (scenes !== null && scenes.project_id !== projectId) {
+          clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Scene Timing project_id mismatch.", "project_id"));
+        }
+        if (clips !== null && clips.project_id !== projectId) {
+          clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
+        }
         clipValidation.valid = clipValidation.errors.length === 0;
         clipValidation.ready_for_generation = clipValidation.valid;
-        const combined = merge(result(errors), project === null ? result([missing("PROJECT_SPEC_MISSING", "Project Spec is required.")]) : validateProjectSpec(project), scenes === null ? result([missing("SCENE_TIMING_SPEC_MISSING", "Scene Timing Spec is required.")]) : validateSceneTimingDocument(scenes), clipValidation);
+
+        const combined = merge(
+          result(errors),
+          project === null
+            ? result([missing("PROJECT_SPEC_MISSING", "Project Spec is required.")])
+            : validateProjectSpec(project),
+          scenes === null
+            ? result([missing("SCENE_TIMING_SPEC_MISSING", "Scene Timing Spec is required.")])
+            : validateSceneTimingDocument(scenes),
+          clipValidation,
+          bindingValidation,
+          promptValidation
+        );
         combined.ready_for_generation = combined.valid;
-        return { input: { project, scenes, clips, tts: tts?.value ?? null, subtitles: subtitles?.value ?? null }, validation: combined };
+
+        return {
+          input: {
+            project,
+            scenes,
+            clips,
+            tts: tts?.value ?? null,
+            subtitles: subtitles?.value ?? null,
+            visual: visual?.value ?? null,
+            states: states?.value ?? null,
+            prompts: prompts?.value ?? null,
+            visual_bible: bible
+          },
+          validation: combined
+        };
       });
     } finally {
+      agent3.close();
       agent2.close();
     }
   }
