@@ -263,6 +263,16 @@ test("Agent2 automatic T010 fails closed when OPENAI_API_KEY is missing", async 
       (await workflow.status("agent2_no_key")).tasks.find(task => task.task_id === "T010")?.status,
       "REVISION_REQUIRED"
     );
+
+    await assert.rejects(
+      runtime.runNext("agent2_no_key"),
+      (error: unknown) =>
+        error instanceof Agent2RuntimeAdapterError &&
+        error.code === "AGENT2_RUNTIME_SECRET_MISSING"
+    );
+    const retried = (await workflow.status("agent2_no_key")).tasks.find(task => task.task_id === "T010");
+    assert.equal(retried?.status, "REVISION_REQUIRED");
+    assert.equal(retried?.attempt, 2);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
