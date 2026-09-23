@@ -3,7 +3,11 @@ import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import {
   validateClipProductionSpecs,
   validateGenerationReady,
+  validateClipStateBindings,
+  validatePromptBundle,
   validateProjectSpec,
+  validateSceneVisualDocument,
+  validateStateImageDocument,
   validateResearchBundle,
   validateStoryBundle,
   validateSceneTimingDocument,
@@ -14,6 +18,10 @@ import {
   type Agent2SubtitleTimingSpec,
   type Agent2TtsManifest,
   type ClipProductionDocument,
+  type PromptBundleDocument,
+  type SceneVisualDocument,
+  type StateImageDocument,
+  type VisualBibleRef,
   type ProductionGateEvaluation,
   type ProductionGateId,
   type SceneTimingDocument,
@@ -22,6 +30,7 @@ import {
 } from "@vpf/production-spec";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
+import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 
 export class ProductionSpecCliError extends Error {
   constructor(public readonly code: "PRODUCTION_SPEC_INVALID" | "PRODUCTION_SPEC_NOT_FOUND", message: string) {
@@ -52,6 +61,62 @@ async function readJson(filename: string): Promise<unknown> {
   } catch (error) {
     throw new ProductionSpecCliError("PRODUCTION_SPEC_INVALID", `Could not read JSON spec ${filename}: ${error instanceof Error ? error.message : String(error)}`);
   }
+}
+
+function pinnedVisualBible(status: Awaited<ReturnType<ProjectBootstrapService["getStatus"]>>): VisualBibleRef | null {
+  const pin = status.resourcePins.find(item => item.resourceType === "CHANNEL_VISUAL_BIBLE");
+  return pin === undefined ? null : {
+    resource_id: pin.resourceId,
+    version: pin.version,
+    content_hash: pin.contentHash
+  };
+}
+
+function validatePromptBindings(
+  prompts: PromptBundleDocument,
+  states: StateImageDocument,
+  clips: ClipProductionDocument
+): ValidationResult {
+  const errors: ValidationIssue[] = [];
+  const stateById = new Map(states.state_images.map(item => [item.state_image_id, item]));
+  const clipById = new Map(clips.clips.map(item => [item.clip_id, item]));
+
+  for (const [index, prompt] of prompts.image_prompts.entries()) {
+    const state = stateById.get(prompt.state_image_id);
+    if (state === undefined) {
+      errors.push(missing("UNKNOWN_PROMPT_STATE", "Image prompt references an unknown State Image.", `image_prompts[${index}].state_image_id`));
+    } else if (prompt.scene_id !== state.scene_id) {
+      errors.push(missing("PROMPT_STATE_SCENE_MISMATCH", "Image prompt scene_id must match its State Image.", `image_prompts[${index}].scene_id`));
+    }
+  }
+
+  for (const [index, prompt] of prompts.video_prompts.entries()) {
+    const clip = clipById.get(prompt.clip_id);
+    const base = `video_prompts[${index}]`;
+    if (clip === undefined) {
+      errors.push(missing("UNKNOWN_PROMPT_CLIP", "Video prompt references an unknown Clip.", `${base}.clip_id`));
+      continue;
+    }
+    if (
+      prompt.scene_id !== clip.scene_id ||
+      prompt.entry_state_image_id !== clip.state_images.entry ||
+      prompt.mid_state_image_id !== clip.state_images.mid ||
+      prompt.target_state_image_id !== clip.state_images.target
+    ) {
+      errors.push(missing("PROMPT_CLIP_STATE_MISMATCH", "Video prompt state references must exactly match Clip Production Spec.", base));
+    }
+    for (const [field, actual] of [
+      ["editorial_duration_sec", clip.editorial_duration_sec],
+      ["narrative_deadline_sec", clip.narrative_deadline_sec],
+      ["target_state_deadline_sec", clip.target_state_deadline_sec],
+      ["safe_trim_start_sec", clip.safe_trim_start_sec]
+    ] as const) {
+      if (Math.abs(prompt[field] - actual) > 0.000001) {
+        errors.push(missing("PROMPT_CLIP_TIMING_MISMATCH", "Video prompt timing must exactly match Clip Production Spec.", `${base}.${field}`));
+      }
+    }
+  }
+  return result(errors);
 }
 
 export class Agent1ProductionManagerService {
