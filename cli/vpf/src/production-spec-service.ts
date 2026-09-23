@@ -278,6 +278,105 @@ export class Agent1ProductionManagerService {
     }
   }
 
+  async validateVisualPlan(projectId: string): Promise<ProductionGateEvaluation> {
+    const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    const agent3 = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
+    try {
+      const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
+      const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
+      const bible = pinnedVisualBible(status);
+      return this.evaluate(projectId, "VISUAL_PLAN_GATE", repo => {
+        const project = repo.getProjectSpec(projectId);
+        const scenes = repo.getSceneTiming(projectId);
+        const storyGate = repo.getLatestGate(projectId, "STORY_AUDIO_GATE");
+        const storyInput = {
+          project,
+          scenes,
+          tts: tts?.value ?? null,
+          subtitles: subtitles?.value ?? null
+        };
+        const dependency = storyGate?.status === "PASS" &&
+          repo.isLatestGateCurrent(projectId, "STORY_AUDIO_GATE", storyInput)
+          ? result([])
+          : result([missing("STORY_AUDIO_GATE_REQUIRED", "A current STORY_AUDIO_GATE PASS is required before VISUAL_PLAN_GATE.")]);
+
+        const validation = visual === null || scenes === null || bible === null
+          ? result([missing("VISUAL_PLAN_INPUT_MISSING", "Scene Timing, Scene Visual Spec and pinned Visual Bible are required.")])
+          : validateSceneVisualDocument(visual.value, {
+              projectId,
+              sceneIds: scenes.scenes.map(scene => scene.scene_id),
+              storyRoles: new Map(scenes.scenes.map(scene => [scene.scene_id, scene.story_role])),
+              visualBible: bible
+            });
+
+        return {
+          input: {
+            project,
+            scenes,
+            visual: visual?.value ?? null,
+            visual_bible: bible
+          },
+          validation: merge(dependency, validation)
+        };
+      });
+    } finally {
+      agent3.close();
+      agent2.close();
+    }
+  }
+
+  async validateStateImages(projectId: string): Promise<ProductionGateEvaluation> {
+    const status = await this.projects.getStatus(projectId);
+    const agent3 = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
+    try {
+      const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
+      const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
+      const bible = pinnedVisualBible(status);
+      return this.evaluate(projectId, "STATE_IMAGE_GATE", repo => {
+        const project = repo.getProjectSpec(projectId);
+        const scenes = repo.getSceneTiming(projectId);
+        const visualGate = repo.getLatestGate(projectId, "VISUAL_PLAN_GATE");
+        const visualInput = {
+          project,
+          scenes,
+          visual: visual?.value ?? null,
+          visual_bible: bible
+        };
+        const dependency = visualGate?.status === "PASS" &&
+          repo.isLatestGateCurrent(projectId, "VISUAL_PLAN_GATE", visualInput)
+          ? result([])
+          : result([missing("VISUAL_PLAN_GATE_REQUIRED", "A current VISUAL_PLAN_GATE PASS is required before STATE_IMAGE_GATE.")]);
+
+        const validation = states === null || scenes === null
+          ? result([missing("STATE_IMAGE_INPUT_MISSING", "Scene Timing and State Image Spec are required.")])
+          : validateStateImageDocument(states.value, {
+              projectId,
+              sceneIds: scenes.scenes.map(scene => scene.scene_id),
+              beatIdsByScene: new Map(
+                scenes.scenes.map(scene => [
+                  scene.scene_id,
+                  scene.beats.map(beat => beat.beat_id)
+                ])
+              )
+            });
+
+        return {
+          input: {
+            project,
+            scenes,
+            visual: visual?.value ?? null,
+            states: states?.value ?? null
+          },
+          validation: merge(dependency, validation)
+        };
+      });
+    } finally {
+      agent3.close();
+    }
+  }
+
   async validateClips(projectId: string): Promise<ProductionGateEvaluation> {
     const status = await this.projects.getStatus(projectId);
     const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
