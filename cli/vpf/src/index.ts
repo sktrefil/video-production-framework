@@ -18,6 +18,7 @@ import {EditorMediaImportError, importEditorMedia} from "./editor-media-import.j
 import { Agent1ProductionManagerService, ProductionSpecCliError } from "./production-spec-service.js";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent1WorkflowOrchestratorService, WorkflowOrchestratorError } from "./workflow-orchestrator-service.js";
+import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -51,6 +52,9 @@ Agent 1 workflow operations:
   vpf workflow gate <project_id> <task_id> --status <pass|fail> [--reason "..."]
   vpf workflow complete <project_id> <task_id>
   vpf workflow revise <project_id> <task_id>
+
+Agent 2 story/audio operations:
+  vpf agent2 execute <project_id> <T010|T020|T030> --file <json>
 
 WF-07 story operations:
   vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
@@ -236,6 +240,21 @@ export async function runCli(
     const wf08 = new Wf08CliService(service);
     const production = new Agent1ProductionManagerService(service);
     const workflow = new Agent1WorkflowOrchestratorService(service);
+    const agent2 = new Agent2StoryAudioWorkerService(service);
+
+    if (args[0] === "agent2" && args[1] === "execute") {
+      const projectId = args[2];
+      const taskId = args[3];
+      const file = requireOption(args, "--file", io, "agent2 execute requires --file <json>.");
+      if (projectId === undefined || file === null || (taskId !== "T010" && taskId !== "T020" && taskId !== "T030")) {
+        if (projectId === undefined || (taskId !== "T010" && taskId !== "T020" && taskId !== "T030")) {
+          io.error("[CLI_USAGE] agent2 execute requires <project_id> <T010|T020|T030>.");
+        }
+        return 2;
+      }
+      printJson(io, await agent2.execute(projectId, taskId, file));
+      return 0;
+    }
 
     if (args[0] === "workflow" && args[1] === "status") {
       const projectId = args[2];
@@ -526,6 +545,7 @@ export async function runCli(
       error instanceof Wf08CliError ||
       error instanceof ProductionSpecCliError ||
       error instanceof WorkflowOrchestratorError ||
+      error instanceof Agent2StoryAudioError ||
       error instanceof EditorAssembleError ||
       error instanceof EditorMediaImportError
     ) {
