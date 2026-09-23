@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
+import { FileSystemResourceRegistry, type ProviderProfilePayload, type ResourcePin } from "@vpf/resource-registry";
 import {
   getAgent2TaskInstruction,
   type Agent2FactCheckSpec,
@@ -340,9 +341,19 @@ class OpenAiAgent2Runtime {
   private readonly timeoutMs: number;
   private readonly retries: number;
 
-  constructor(private readonly environment: NodeJS.ProcessEnv = process.env) {
+  constructor(
+    profile: { model: string },
+    private readonly environment: NodeJS.ProcessEnv = process.env
+  ) {
     this.apiKey = (environment.OPENAI_API_KEY ?? "").trim();
-    this.model = (environment.VPF_AGENT2_OPENAI_MODEL ?? "gpt-5.6").trim();
+    const configuredOverride = (environment.VPF_AGENT2_OPENAI_MODEL ?? "").trim();
+    if (configuredOverride && configuredOverride !== profile.model) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_RESPONSE_INVALID",
+        `VPF_AGENT2_OPENAI_MODEL=${configuredOverride} does not match pinned provider model ${profile.model}.`
+      );
+    }
+    this.model = profile.model.trim();
     this.baseUrl = (environment.OPENAI_API_BASE_URL ?? "https://api.openai.com/v1").replace(/\/+$/u, "");
     this.timeoutMs = Number(environment.VPF_AGENT2_OPENAI_TIMEOUT_MS ?? 180000);
     this.retries = Number(environment.VPF_AGENT2_OPENAI_RETRIES ?? 2);
@@ -754,6 +765,37 @@ class Agent2ElevenLabsBridge {
   }
 }
 
+async function resolvePinnedOpenAiProfile(
+  pins: ResourcePin[]
+): Promise<{ model: string; pin: ResourcePin }> {
+  const pin = pins.find(item =>
+    item.resourceType === "PROVIDER_PROFILE" &&
+    item.resourceId === "OPENAI_AGENT2_STORY_V1"
+  );
+  if (!pin) {
+    throw new Agent2RuntimeAdapterError(
+      "AGENT2_RUNTIME_PREREQUISITE",
+      "Pinned OpenAI Agent2 provider profile is missing. New Agent2 runtime projects require HISTORY_MYSTERY_V1@1.6.0 or an explicit equivalent pin."
+    );
+  }
+  const registry = new FileSystemResourceRegistry(
+    path.join(DEFAULT_REPOSITORY_ROOT, "resources")
+  );
+  const snapshot = await registry.resolvePinned<ProviderProfilePayload>(pin);
+  if (
+    snapshot.payload.provider !== "OPENAI" ||
+    snapshot.payload.executionMode !== "AUTOMATED" ||
+    typeof snapshot.payload.model !== "string" ||
+    !snapshot.payload.model.trim()
+  ) {
+    throw new Agent2RuntimeAdapterError(
+      "AGENT2_RUNTIME_PREREQUISITE",
+      "Pinned OpenAI Agent2 provider profile is not an AUTOMATED OPENAI model profile."
+    );
+  }
+  return { model: snapshot.payload.model.trim(), pin };
+}
+
 export class Agent2RuntimeAdapterService {
   private readonly manager: Agent1WorkflowOrchestratorService;
   private readonly worker: Agent2StoryAudioWorkerService;
@@ -837,14 +879,16 @@ export class Agent2RuntimeAdapterService {
       const spec = production.getProjectSpec(projectId);
       if (spec === null) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "Project Spec is required.");
       if (taskId === "T010") {
-        const openai = new OpenAiAgent2Runtime(this.environment);
+        const openAiProfile = await resolvePinnedOpenAiProfile(status.resourcePins);
+        const openai = new OpenAiAgent2Runtime(openAiProfile, this.environment);
         const runId = `${projectId}:T010:A${attempt}:OPENAI`;
         const input = {
           projectId,
           topic: status.project.title,
           format: spec.format,
           targetDurationSec: spec.target_duration_sec,
-          language: spec.language
+          language: spec.language,
+          provider_profile: openAiProfile.pin
         };
         const repo = new Agent2RuntimeRepository(status.projectDbPath);
         repo.start({
@@ -884,7 +928,8 @@ export class Agent2RuntimeAdapterService {
         const research = artifacts.getActive<Agent2ResearchSpec>(projectId, "research_spec");
         const facts = artifacts.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
         if (!research || !facts) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "T020 requires T010 research/fact artifacts.");
-        const openai = new OpenAiAgent2Runtime(this.environment);
+        const openAiProfile = await resolvePinnedOpenAiProfile(status.resourcePins);
+        const openai = new OpenAiAgent2Runtime(openAiProfile, this.environment);
         const runId = `${projectId}:T020:A${attempt}:OPENAI`;
         const input = {
           projectId,
@@ -892,7 +937,8 @@ export class Agent2RuntimeAdapterService {
           targetDurationSec: spec.target_duration_sec,
           language: spec.language,
           research: research.value,
-          facts: facts.value
+          facts: facts.value,
+          provider_profile: openAiProfile.pin
         };
         const repo = new Agent2RuntimeRepository(status.projectDbPath);
         repo.start({
