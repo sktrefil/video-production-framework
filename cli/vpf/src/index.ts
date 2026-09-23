@@ -17,6 +17,7 @@ import {EditorAssembleError, assembleEditorProject} from "./editor-assemble.js";
 import {EditorMediaImportError, importEditorMedia} from "./editor-media-import.js";
 import { Agent1ProductionManagerService, ProductionSpecCliError } from "./production-spec-service.js";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
+import { Agent1WorkflowOrchestratorService, WorkflowOrchestratorError } from "./workflow-orchestrator-service.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -42,6 +43,14 @@ Production Spec operations:
   vpf production validate-story <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
+
+Agent 1 workflow operations:
+  vpf workflow status <project_id>
+  vpf workflow next <project_id>
+  vpf workflow dispatch <project_id> [task_id] [--agent <agent_id>]
+  vpf workflow gate <project_id> <task_id> --status <pass|fail> [--reason "..."]
+  vpf workflow complete <project_id> <task_id>
+  vpf workflow revise <project_id> <task_id>
 
 WF-07 story operations:
   vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
@@ -226,6 +235,70 @@ export async function runCli(
     const wf07 = new Wf07CliService(service);
     const wf08 = new Wf08CliService(service);
     const production = new Agent1ProductionManagerService(service);
+    const workflow = new Agent1WorkflowOrchestratorService(service);
+
+    if (args[0] === "workflow" && args[1] === "status") {
+      const projectId = args[2];
+      if (projectId === undefined) { io.error("[CLI_USAGE] workflow status requires <project_id>."); return 2; }
+      printJson(io, await workflow.status(projectId));
+      return 0;
+    }
+
+    if (args[0] === "workflow" && args[1] === "next") {
+      const projectId = args[2];
+      if (projectId === undefined) { io.error("[CLI_USAGE] workflow next requires <project_id>."); return 2; }
+      printJson(io, { project_id: projectId, next_task: await workflow.next(projectId) });
+      return 0;
+    }
+
+    if (args[0] === "workflow" && args[1] === "dispatch") {
+      const projectId = args[2];
+      if (projectId === undefined) { io.error("[CLI_USAGE] workflow dispatch requires <project_id>."); return 2; }
+      const agent = readOption(args, "--agent");
+      printJson(io, await workflow.dispatch(projectId, args[3]?.startsWith("--") ? undefined : args[3], agent as any));
+      return 0;
+    }
+
+    if (args[0] === "workflow" && args[1] === "gate") {
+      const projectId = args[2];
+      const taskId = args[3];
+      const gateStatus = readOption(args, "--status")?.toLowerCase();
+      if (projectId === undefined || taskId === undefined || (gateStatus !== "pass" && gateStatus !== "fail")) {
+        io.error("[CLI_USAGE] workflow gate requires <project_id> <task_id> --status <pass|fail>.");
+        return 2;
+      }
+      const reason = readOption(args, "--reason");
+      printJson(io, await workflow.recordGate(
+        projectId,
+        taskId,
+        gateStatus === "pass",
+        gateStatus === "fail" ? [{ code: "MANUAL_GATE_FAIL", message: reason ?? "Agent 1 gate rejected the task output." }] : []
+      ));
+      return gateStatus === "pass" ? 0 : 1;
+    }
+
+    if (args[0] === "workflow" && args[1] === "complete") {
+      const projectId = args[2];
+      const taskId = args[3];
+      if (projectId === undefined || taskId === undefined) {
+        io.error("[CLI_USAGE] workflow complete requires <project_id> <task_id>.");
+        return 2;
+      }
+      printJson(io, await workflow.complete(projectId, taskId));
+      return 0;
+    }
+
+    if (args[0] === "workflow" && args[1] === "revise") {
+      const projectId = args[2];
+      const taskId = args[3];
+      if (projectId === undefined || taskId === undefined) {
+        io.error("[CLI_USAGE] workflow revise requires <project_id> <task_id>.");
+        return 2;
+      }
+      await workflow.requestRevision(projectId, taskId);
+      printJson(io, { project_id: projectId, task_id: taskId, status: "REVISION_REQUIRED" });
+      return 0;
+    }
 
     if (args[0] === "production" && (args[1] === "apply-story" || args[1] === "apply-clips")) {
       const projectId = args[2];
@@ -452,6 +525,7 @@ export async function runCli(
       error instanceof Wf07CliError ||
       error instanceof Wf08CliError ||
       error instanceof ProductionSpecCliError ||
+      error instanceof WorkflowOrchestratorError ||
       error instanceof EditorAssembleError ||
       error instanceof EditorMediaImportError
     ) {
