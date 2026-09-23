@@ -22,6 +22,7 @@ import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrat
 import { ElevenLabsProcessRuntimeExecutor } from "@vpf/provider-orchestrator/elevenlabs-runtime";
 import {
   sha256CanonicalJson,
+  type RuntimeExpectedOutput,
   type RuntimeJob,
   type RuntimeResult
 } from "@vpf/runtime-contracts";
@@ -634,7 +635,7 @@ class Agent2ElevenLabsBridge {
       },
       plan
     };
-    const expectedOutputs = narrationMode === "SEGMENTED"
+    const expectedOutputs: RuntimeExpectedOutput[] = narrationMode === "SEGMENTED"
       ? sections.flatMap(section => {
           const suffix = String(section.index).padStart(3, "0");
           return [
