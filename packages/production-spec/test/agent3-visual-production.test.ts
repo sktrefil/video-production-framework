@@ -225,3 +225,20 @@ test("Agent3 warns on three repeated shot patterns and blocks four", () => {
   assert.ok(checked.warnings.some(issue => issue.code === "REPEATED_SHOT_SIZE"));
   assert.ok(checked.errors.some(issue => issue.code === "SHOT_SIZE_RHYTHM_REPETITION"));
 });
+
+
+test("Agent3 cannot promote a hypothesis into EVIDENCE visual mode", () => {
+  const hypothesisVisual = structuredClone(visual);
+  hypothesisVisual.scenes[0]!.fact_refs = ["FACT_HYP"];
+  hypothesisVisual.scenes[0]!.factuality_mode = "EVIDENCE";
+  const checked = validateSceneVisualDocument(hypothesisVisual, {
+    projectId: "p1",
+    sceneIds: ["SCENE_01"],
+    storyRoles: new Map([["SCENE_01", "HOOK"]]),
+    factRefsByScene: new Map([["SCENE_01", ["FACT_HYP"]]]),
+    factClassifications: new Map([["FACT_HYP", "HYPOTHESIS"]]),
+    visualBible: visual.visual_bible
+  });
+  assert.equal(checked.valid, false);
+  assert.ok(checked.errors.some(issue => issue.code === "VISUAL_FACTUALITY_CLASSIFICATION_MISMATCH"));
+});
