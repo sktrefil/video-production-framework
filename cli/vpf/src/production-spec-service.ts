@@ -336,8 +336,11 @@ export class Agent1ProductionManagerService {
 
   async validateStateImages(projectId: string): Promise<ProductionGateEvaluation> {
     const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
     const agent3 = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
     try {
+      const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+      const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
       const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
       const bible = pinnedVisualBible(status);
@@ -348,6 +351,8 @@ export class Agent1ProductionManagerService {
         const visualInput = {
           project,
           scenes,
+          story: story?.value ?? null,
+          facts: facts?.value ?? null,
           visual: visual?.value ?? null,
           visual_bible: bible
         };
@@ -384,6 +389,7 @@ export class Agent1ProductionManagerService {
       });
     } finally {
       agent3.close();
+      agent2.close();
     }
   }
 
@@ -459,6 +465,8 @@ export class Agent1ProductionManagerService {
     try {
       const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
       const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+      const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
       const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
       const prompts = agent3.getActive<PromptBundleDocument>(projectId, "prompt_bundle_spec");
@@ -479,6 +487,8 @@ export class Agent1ProductionManagerService {
         const visualInput = {
           project,
           scenes,
+          story: story?.value ?? null,
+          facts: facts?.value ?? null,
           visual: visual?.value ?? null,
           visual_bible: bible
         };
@@ -561,6 +571,8 @@ export class Agent1ProductionManagerService {
             clips,
             tts: tts?.value ?? null,
             subtitles: subtitles?.value ?? null,
+            story: story?.value ?? null,
+            facts: facts?.value ?? null,
             visual: visual?.value ?? null,
             states: states?.value ?? null,
             prompts: prompts?.value ?? null,
