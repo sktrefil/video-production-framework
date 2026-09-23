@@ -51,7 +51,7 @@ export interface ProductionTaskDefinition {
 
 export interface ProductionWorkflowDefinition {
   workflow_id: "VPF_PRODUCTION_V1";
-  version: "1.0";
+  version: string;
   applies_to: readonly ["SHORTS", "LONGFORM"];
   tasks: ProductionTaskDefinition[];
 }
@@ -129,7 +129,7 @@ const task = (
 
 export const STANDARD_PRODUCTION_WORKFLOW: ProductionWorkflowDefinition = {
   workflow_id: "VPF_PRODUCTION_V1",
-  version: "1.0",
+  version: "1.1",
   applies_to: ["SHORTS", "LONGFORM"],
   tasks: [
     task("T010", 10, "Research / Fact Check", "Research the topic and establish verified facts before story writing.", "RESEARCH_FACT_CHECK", "AGENT2_STORY_AUDIO", [], ["project_spec", "project_topic"], ["research_spec", "fact_check_spec"], ["RESEARCH_POLICY_V1", "FACT_CHECK_POLICY_V1"], "RESEARCH_GATE", false),
