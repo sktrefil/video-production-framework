@@ -36,6 +36,7 @@ export interface ProductionTaskDefinition {
   name: string;
   description: string;
   task_type: string;
+  instruction_id: string;
   assigned_agent: WorkflowAgentId;
   depends_on: string[];
   required_inputs: string[];
@@ -84,6 +85,7 @@ export interface TaskDispatchPackage {
   task_id: string;
   assigned_agent: WorkflowAgentId;
   task_type: string;
+  instruction_id: string;
   attempt: number;
   required_inputs: string[];
   required_outputs: string[];
@@ -112,6 +114,7 @@ const task = (
   name,
   description,
   task_type,
+  instruction_id: `${task_type}_V1`,
   assigned_agent,
   depends_on,
   required_inputs,
