@@ -20,6 +20,7 @@ import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { getAgent2TaskInstruction } from "@vpf/production-spec";
 import { Agent1WorkflowOrchestratorService, WorkflowOrchestratorError } from "./workflow-orchestrator-service.js";
 import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
+import { Agent2RuntimeAdapterService, Agent2RuntimeAdapterError } from "./agent2-runtime-adapter-service.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -57,6 +58,9 @@ Agent 1 workflow operations:
 Agent 2 story/audio operations:
   vpf agent2 instruction <T010|T020|T030>
   vpf agent2 execute <project_id> <T010|T020|T030> --file <json>
+  vpf agent2 run <project_id>
+  vpf agent2 run-all <project_id>
+  vpf agent2 runtime-status <project_id>
 
 WF-07 story operations:
   vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
@@ -243,6 +247,7 @@ export async function runCli(
     const production = new Agent1ProductionManagerService(service);
     const workflow = new Agent1WorkflowOrchestratorService(service);
     const agent2 = new Agent2StoryAudioWorkerService(service);
+    const agent2Runtime = new Agent2RuntimeAdapterService(service);
 
     if (args[0] === "agent2" && args[1] === "instruction") {
       const taskId = args[2];
@@ -265,6 +270,36 @@ export async function runCli(
         return 2;
       }
       printJson(io, await agent2.execute(projectId, taskId, file));
+      return 0;
+    }
+
+    if (args[0] === "agent2" && args[1] === "run") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] agent2 run requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await agent2Runtime.runNext(projectId));
+      return 0;
+    }
+
+    if (args[0] === "agent2" && args[1] === "run-all") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] agent2 run-all requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await agent2Runtime.runAll(projectId));
+      return 0;
+    }
+
+    if (args[0] === "agent2" && args[1] === "runtime-status") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] agent2 runtime-status requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await agent2Runtime.runtimeStatus(projectId));
       return 0;
     }
 
@@ -558,6 +593,7 @@ export async function runCli(
       error instanceof ProductionSpecCliError ||
       error instanceof WorkflowOrchestratorError ||
       error instanceof Agent2StoryAudioError ||
+      error instanceof Agent2RuntimeAdapterError ||
       error instanceof EditorAssembleError ||
       error instanceof EditorMediaImportError
     ) {
