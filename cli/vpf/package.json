@@ -21,7 +21,8 @@
     "@vpf/story": "0.1.0",
     "@vpf/visual-identity": "0.1.0",
     "@vpf/workspace": "0.1.0",
-    "@vpf/tts-generation": "0.1.0"
+    "@vpf/tts-generation": "0.1.0",
+    "@vpf/production-spec": "0.1.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

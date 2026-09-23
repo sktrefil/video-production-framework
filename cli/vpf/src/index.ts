@@ -15,6 +15,8 @@ import { Wf07CliError, Wf07CliService } from "./wf07.js";
 import { Wf08CliError, Wf08CliService } from "./wf08.js";
 import {EditorAssembleError, assembleEditorProject} from "./editor-assemble.js";
 import {EditorMediaImportError, importEditorMedia} from "./editor-media-import.js";
+import { Agent1ProductionManagerService, ProductionSpecCliError } from "./production-spec-service.js";
+import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 
 export interface CliIo {
   out(message: string): void;
@@ -24,7 +26,7 @@ export interface CliIo {
 const USAGE = `VPF Unified CLI
 
 Commands:
-  vpf project create <project_id> --title "..." --format <longform|shortform>
+  vpf project create <project_id> --title "..." --format <longform|shortform> [--target-duration-sec <seconds>] [--language <code>]
   vpf project status <project_id>
   vpf project doctor <project_id>
   vpf doctor <project_id>
@@ -32,6 +34,14 @@ Commands:
   vpf pilot preflight <project_id> [--min-free-gb <number>]
   vpf editor assemble <project_id> [--header "..."]
   vpf editor media import <project_id>
+
+Production Spec operations:
+  vpf production apply-story <project_id> --file <scene-timing-spec.json>
+  vpf production apply-clips <project_id> --file <clip-production-spec.json>
+  vpf production validate-project <project_id>
+  vpf production validate-story <project_id>
+  vpf production validate-clips <project_id>
+  vpf production generation-ready <project_id>
 
 WF-07 story operations:
   vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
@@ -125,7 +135,19 @@ export async function runCli(
         io.error("[CLI_USAGE] project create requires <project_id>, --title and --format.");
         return 2;
       }
-      const created = await service.createProject({ projectId, title, format });
+      const targetDurationInput = readOption(args, "--target-duration-sec");
+      const targetDurationSec = targetDurationInput === undefined ? undefined : Number(targetDurationInput);
+      if (targetDurationSec !== undefined && (!Number.isFinite(targetDurationSec) || targetDurationSec <= 0)) {
+        io.error("[CLI_USAGE] --target-duration-sec must be a positive number.");
+        return 2;
+      }
+      const created = await service.createProject({
+        projectId,
+        title,
+        format,
+        ...(targetDurationSec === undefined ? {} : { targetDurationSec }),
+        ...(readOption(args, "--language") === undefined ? {} : { language: readOption(args, "--language")! })
+      });
       printJson(io, {
         status: "CREATED",
         projectId: created.record.project.projectId,
@@ -136,7 +158,8 @@ export async function runCli(
         projectJson: created.projectJsonPath,
         migration: created.migrations.latestMigrationId,
         resourcePins: created.record.resourcePins.length,
-        legacyAllowed: created.record.legacyAllowed
+        legacyAllowed: created.record.legacyAllowed,
+        productionSpec: created.projectSpec
       });
       return 0;
     }
@@ -202,6 +225,49 @@ export async function runCli(
 
     const wf07 = new Wf07CliService(service);
     const wf08 = new Wf08CliService(service);
+    const production = new Agent1ProductionManagerService(service);
+
+    if (args[0] === "production" && (args[1] === "apply-story" || args[1] === "apply-clips")) {
+      const projectId = args[2];
+      const file = requireOption(args, "--file", io, `production ${args[1]} requires --file <project-file>.`);
+      if (projectId === undefined || file === null) {
+        if (projectId === undefined) io.error(`[CLI_USAGE] production ${args[1]} requires <project_id>.`);
+        return 2;
+      }
+      const applied = args[1] === "apply-story"
+        ? await production.applyStory(projectId, file)
+        : await production.applyClips(projectId, file);
+      printJson(io, { project_id: projectId, operation: args[1], ...applied });
+      return applied.stored ? 0 : 1;
+    }
+
+    if (args[0] === "production" && ["validate-project", "validate-story", "validate-clips", "generation-ready"].includes(args[1] ?? "")) {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error(`[CLI_USAGE] production ${args[1]} requires <project_id>.`);
+        return 2;
+      }
+      const evaluated = args[1] === "validate-project" ? await production.validateProject(projectId)
+        : args[1] === "validate-story" ? await production.validateStory(projectId)
+        : args[1] === "validate-clips" ? await production.validateClips(projectId)
+        : await production.generationReady(projectId);
+      if (args[1] === "generation-ready") {
+        const status = await service.getStatus(projectId);
+        const repository = new ProductionSpecRepository(status.projectDbPath, { readonly: true });
+        try {
+          const clips = repository.getClipProduction(projectId)?.clips ?? [];
+          printJson(io, {
+            ...evaluated,
+            clips: {
+              total: clips.length,
+              ready: evaluated.ready_for_generation ? clips.length : 0,
+              blocked: evaluated.ready_for_generation ? 0 : clips.length
+            }
+          });
+        } finally { repository.close(); }
+      } else printJson(io, evaluated);
+      return evaluated.status === "PASS" ? 0 : 1;
+    }
 
     if (args[0] === "visual" && args[1] === "resources" && args[2] === "sync") {
       const projectId = args[3];
@@ -384,8 +450,10 @@ export async function runCli(
       error instanceof LegacyGuardError ||
       error instanceof StoryValidationError ||
       error instanceof Wf07CliError ||
-      error instanceof Wf08CliError
-      || error instanceof EditorAssembleError || error instanceof EditorMediaImportError
+      error instanceof Wf08CliError ||
+      error instanceof ProductionSpecCliError ||
+      error instanceof EditorAssembleError ||
+      error instanceof EditorMediaImportError
     ) {
       io.error(`[${error instanceof EditorAssembleError || error instanceof EditorMediaImportError ? "EDITOR" : error.code}] ${error.message}`);
       return 1;

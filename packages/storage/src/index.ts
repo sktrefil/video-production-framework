@@ -14,6 +14,7 @@ import type {
   StoryRepository
 } from "@vpf/story";
 import type { OutboxRecord, WorkflowEvent } from "@vpf/workflow";
+export * from "./production-spec.js";
 
 export const FOUNDATION_MIGRATION_SQL = `
 PRAGMA foreign_keys = ON;

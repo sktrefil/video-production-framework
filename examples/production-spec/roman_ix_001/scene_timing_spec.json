@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "project_id": "roman_ix_001",
+  "scenes": [
+    {
+      "scene_id": "SCENE_01",
+      "script_ko": "로마 제국의 한 군단이 정말 흔적도 없이 사라졌을까요?",
+      "script_en": "",
+      "story_role": "HOOK",
+      "narrative_purpose_ko": "제9군단 미스터리를 제기한다.",
+      "narrative_purpose_en": "Introduce the mystery of Legio IX Hispana.",
+      "estimated_duration_sec": 5.0,
+      "tts": {
+        "start_sec": 0.0,
+        "end_sec": 5.0,
+        "duration_sec": 5.0
+      },
+      "beats": [
+        {
+          "beat_id": "BEAT_01",
+          "purpose_ko": "군단의 실종 미스터리 제기",
+          "purpose_en": "Introduce the disappearance mystery.",
+          "start_sec": 0.0,
+          "end_sec": 5.0
+        }
+      ]
+    }
+  ]
+}

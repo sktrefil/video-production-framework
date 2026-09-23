@@ -30,6 +30,7 @@ import {
   validateProjectId,
   type WorkspaceResolverOptions
 } from "@vpf/workspace";
+import { createProjectSpec, type ProjectSpec } from "@vpf/production-spec";
 
 export const UNIFIED_PIPELINE = "VPF_UNIFIED_V1" as const;
 export const UNIFIED_FRAMEWORK_VERSION = "0.1.0";
@@ -119,6 +120,7 @@ export interface CreatedProject {
   projectJsonPath: string;
   record: StoredProjectRecord;
   migrations: MigrationStatus;
+  projectSpec: ProjectSpec;
 }
 
 export interface ProjectStatus {
@@ -706,6 +708,8 @@ export class ProjectBootstrapService {
     projectId: string;
     title: string;
     format: string;
+    targetDurationSec?: number;
+    language?: string;
   }): Promise<CreatedProject> {
     const projectId = validateProjectId(input.projectId);
     const title = assertTitle(input.title);
@@ -761,8 +765,19 @@ export class ProjectBootstrapService {
       };
 
       const repository = new SqliteProjectRecordRepository(projectDbPath);
+      const projectSpec = createProjectSpec({
+        project_id: projectId,
+        format: format === "SHORTFORM" ? "SHORTS" : "LONGFORM",
+        target_duration_sec: input.targetDurationSec ?? (format === "SHORTFORM" ? 60 : 600),
+        ...(input.language === undefined ? {} : { language: input.language })
+      });
       try {
         repository.insertInitial(record);
+        const encodedSpec = JSON.stringify(projectSpec);
+        repository.db.prepare(`INSERT INTO production_project_specs
+          (project_id, revision, lifecycle_status, schema_version, spec_json, spec_sha256, created_at)
+          VALUES (?, 1, 'ACTIVE', ?, ?, ?, ?)`
+        ).run(projectId, projectSpec.schema_version, encodedSpec, sha256(encodedSpec).slice("sha256:".length), now);
       } finally {
         repository.close();
       }
@@ -802,7 +817,8 @@ export class ProjectBootstrapService {
         projectDbPath: path.join(workspace.projectRoot, "project.db"),
         projectJsonPath: path.join(workspace.projectRoot, "project.json"),
         record,
-        migrations
+        migrations,
+        projectSpec
       };
     } catch (error) {
       await rm(stagingRoot, { recursive: true, force: true });

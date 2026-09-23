@@ -29,6 +29,7 @@ import {
 import { createStandardReferenceAwareImageRuntimeJobService } from "@vpf/scene-assets/standard-reference-aware-image-runtime";
 import { SqliteSceneAssetRepository } from "@vpf/storage/scene-assets";
 import { SqliteRuntimeExecutionRepository } from "@vpf/storage/runtime-execution";
+import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import type { RuntimeSecretRequirement } from "@vpf/runtime-contracts";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -48,6 +49,7 @@ export class Wf09bCliError extends Error {
       | "WF09B_ADAPTER_REQUIRED"
       | "WF09B_SECRET_REQUIRED"
       | "WF09B_ASSET_STATE"
+      | "WF09B_GENERATION_GATE"
       | "WF09B_QC_AMBIGUOUS",
     message: string
   ) {
@@ -273,6 +275,28 @@ export class Wf09bCliService {
   private readonly registry = new FileSystemResourceRegistry(canonicalResourcesRoot);
   constructor(private readonly projects: ProjectBootstrapService) {}
 
+  private assertGenerationGate(status: ProjectStatus): void {
+    const repo = new ProductionSpecRepository(status.projectDbPath, { readonly: true });
+    try {
+      const hasProductionSpecTable = repo.db.prepare(
+        "SELECT 1 present FROM sqlite_master WHERE type = 'table' AND name = 'production_project_specs'"
+      ).get() !== undefined;
+      if (!hasProductionSpecTable) return;
+      const project = repo.getProjectSpec(status.project.projectId);
+      if (project === null) return; // Explicitly migrated legacy project: retain legacy execution policy.
+      const scenes = repo.getSceneTiming(status.project.projectId);
+      const clips = repo.getClipProduction(status.project.projectId);
+      const gate = repo.getLatestGate(status.project.projectId, "GENERATION_READY_GATE");
+      const input = { project, scenes, clips };
+      if (gate?.status !== "PASS" || gate.ready_for_generation !== true || !repo.isLatestGateCurrent(status.project.projectId, "GENERATION_READY_GATE", input)) {
+        throw new Wf09bCliError(
+          "WF09B_GENERATION_GATE",
+          "Image generation is blocked until Agent1 records a current GENERATION_READY_GATE PASS."
+        );
+      }
+    } finally { repo.close(); }
+  }
+
   private async resolveProviderProfile(status: ProjectStatus): Promise<ResolvedImageProviderProfile> {
     const pin = requireImageProviderPin(status);
     const resource = await this.registry.resolve<Record<string, unknown>>({ resourceType: "PROVIDER_PROFILE", resourceId: pin.resourceId, version: pin.version });
@@ -328,6 +352,7 @@ export class Wf09bCliService {
 
   async preflight(projectId: string) {
     const status = await this.projects.getStatus(projectId);
+    this.assertGenerationGate(status);
     const profile = await this.resolveProviderProfile(status);
     const secretRequirements = this.assertRequiredSecrets(profile);
     const adapterModule = process.env.VPF_IMAGE_ADAPTER_MODULE?.trim() ?? "";
@@ -352,6 +377,7 @@ export class Wf09bCliService {
 
   async execute(projectId: string, selection: "ALL" | string[]) {
     const status = await this.projects.getStatus(projectId);
+    this.assertGenerationGate(status);
     const profile = await this.resolveProviderProfile(status);
     const secretRequirements = this.assertRequiredSecrets(profile);
     const adapter = await importAdapter(process.env.VPF_IMAGE_ADAPTER_MODULE?.trim() ?? "");
@@ -427,6 +453,7 @@ export class Wf09bCliService {
 
   async retryFailed(projectId: string, selection: "ALL" | string[]) {
     const status = await this.projects.getStatus(projectId);
+    this.assertGenerationGate(status);
     const profile = await this.resolveProviderProfile(status);
     const secretRequirements = this.assertRequiredSecrets(profile);
     const adapter = await importAdapter(process.env.VPF_IMAGE_ADAPTER_MODULE?.trim() ?? "");

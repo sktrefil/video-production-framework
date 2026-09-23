@@ -17,7 +17,8 @@
     "./tts-generation": "./dist/tts-generation.js",
     "./tts-runtime": "./dist/tts-runtime.js",
     "./runtime-execution": "./dist/runtime-execution.js",
-    "./audio-import": "./dist/audio-import.js"
+    "./audio-import": "./dist/audio-import.js",
+    "./production-spec": "./dist/production-spec.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
@@ -38,7 +39,8 @@
     "@vpf/tts-generation": "0.1.0",
     "@vpf/provider-orchestrator": "0.1.0",
     "@vpf/runtime-contracts": "0.1.0",
-    "@vpf/legacy-guard": "0.1.0"
+    "@vpf/legacy-guard": "0.1.0",
+    "@vpf/production-spec": "0.1.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13"

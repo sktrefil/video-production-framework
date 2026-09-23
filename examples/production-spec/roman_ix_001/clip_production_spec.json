@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "project_id": "roman_ix_001",
+  "clips": [
+    {
+      "scene_id": "SCENE_01",
+      "clip_id": "CLIP_01A",
+      "editorial_duration_sec": 5.0,
+      "generation_duration_sec": 10.0,
+      "mandatory_core_points": [
+        {
+          "id": "CP01",
+          "description_ko": "로마 군단의 존재가 명확히 보여야 한다.",
+          "description_en": "The Roman legion must be clearly visible.",
+          "window_start_sec": 0.4,
+          "window_end_sec": 1.8
+        },
+        {
+          "id": "CP02",
+          "description_ko": "군단 실종의 불길한 단서가 보여야 한다.",
+          "description_en": "An ominous clue to the legion's disappearance must be visible.",
+          "window_start_sec": 1.8,
+          "window_end_sec": 3.6
+        }
+      ],
+      "narrative_deadline_sec": 4.0,
+      "target_state_deadline_sec": 4.3,
+      "start_handle_sec": 0.4,
+      "end_hold_sec": 0.7,
+      "safe_trim_start_sec": 5.0,
+      "camera": {
+        "purpose": "DISCOVER",
+        "movement": "LATERAL_TRACK_WITH_SUBTLE_PUSH",
+        "shot_size_start": "WIDE",
+        "shot_size_end": "MEDIUM_WIDE",
+        "movement_curve": "HOLD_MOVE_SETTLE"
+      },
+      "state_images": {
+        "entry": "IMG_01_01",
+        "mid": null,
+        "target": "IMG_01_02"
+      },
+      "transition_in": "HARD_CUT",
+      "transition_out": "MATCH_CUT",
+      "ready_for_generation": false
+    }
+  ]
+}
