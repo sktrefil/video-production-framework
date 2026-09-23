@@ -19,7 +19,8 @@
     "./runtime-execution": "./dist/runtime-execution.js",
     "./audio-import": "./dist/audio-import.js",
     "./production-spec": "./dist/production-spec.js",
-    "./workflow-orchestrator": "./dist/workflow-orchestrator.js"
+    "./workflow-orchestrator": "./dist/workflow-orchestrator.js",
+    "./agent2-story-audio": "./dist/agent2-story-audio.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
