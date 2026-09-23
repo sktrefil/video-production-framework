@@ -4,7 +4,15 @@ import {
   validateClipProductionSpecs,
   validateGenerationReady,
   validateProjectSpec,
+  validateResearchBundle,
+  validateStoryBundle,
   validateSceneTimingDocument,
+  type Agent2FactCheckSpec,
+  type Agent2ResearchSpec,
+  type Agent2ScriptSpec,
+  type Agent2StorySpec,
+  type Agent2SubtitleTimingSpec,
+  type Agent2TtsManifest,
   type ClipProductionDocument,
   type ProductionGateEvaluation,
   type ProductionGateId,
@@ -13,6 +21,7 @@ import {
   type ValidationResult
 } from "@vpf/production-spec";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
+import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 
 export class ProductionSpecCliError extends Error {
   constructor(public readonly code: "PRODUCTION_SPEC_INVALID" | "PRODUCTION_SPEC_NOT_FOUND", message: string) {
@@ -81,6 +90,56 @@ export class Agent1ProductionManagerService {
     } finally { repo.close(); }
   }
 
+  async validateResearch(projectId: string): Promise<ProductionGateEvaluation> {
+    const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    try {
+      const research = agent2.getActive<Agent2ResearchSpec>(projectId, "research_spec");
+      const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
+      return this.evaluate(projectId, "RESEARCH_GATE", repo => {
+        const project = repo.getProjectSpec(projectId);
+        const projectGate = repo.getLatestGate(projectId, "PROJECT_INIT_GATE");
+        const dependency = project !== null && projectGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "PROJECT_INIT_GATE", project)
+          ? result([])
+          : result([missing("PROJECT_INIT_GATE_REQUIRED", "A current PROJECT_INIT_GATE PASS is required before RESEARCH_GATE.")]);
+        const artifacts = research === null || facts === null
+          ? result([missing("RESEARCH_ARTIFACTS_MISSING", "research_spec and fact_check_spec are required.")])
+          : validateResearchBundle({ research_spec: research.value, fact_check_spec: facts.value }, projectId);
+        return { input: { project, research: research?.value ?? null, facts: facts?.value ?? null }, validation: merge(dependency, artifacts) };
+      });
+    } finally {
+      agent2.close();
+    }
+  }
+
+  async validateScript(projectId: string): Promise<ProductionGateEvaluation> {
+    const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    try {
+      const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
+      const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+      const script = agent2.getActive<Agent2ScriptSpec>(projectId, "script");
+      return this.evaluate(projectId, "SCRIPT_GATE", repo => {
+        const prior = repo.getLatestGate(projectId, "RESEARCH_GATE");
+        const research = agent2.getActive<Agent2ResearchSpec>(projectId, "research_spec");
+        const dependencyInput = {
+          project: repo.getProjectSpec(projectId),
+          research: research?.value ?? null,
+          facts: facts?.value ?? null
+        };
+        const dependency = prior?.status === "PASS" && repo.isLatestGateCurrent(projectId, "RESEARCH_GATE", dependencyInput)
+          ? result([])
+          : result([missing("RESEARCH_GATE_REQUIRED", "A current RESEARCH_GATE PASS is required before SCRIPT_GATE.")]);
+        const artifacts = story === null || script === null
+          ? result([missing("STORY_ARTIFACTS_MISSING", "story_spec and script are required.")])
+          : validateStoryBundle({ story_spec: story.value, script: script.value }, facts?.value ?? null, projectId);
+        return { input: { facts: facts?.value ?? null, story: story?.value ?? null, script: script?.value ?? null }, validation: merge(dependency, artifacts) };
+      });
+    } finally {
+      agent2.close();
+    }
+  }
+
   async validateProject(projectId: string): Promise<ProductionGateEvaluation> {
     return this.evaluate(projectId, "PROJECT_INIT_GATE", repo => {
       const spec = repo.getProjectSpec(projectId);
@@ -91,19 +150,66 @@ export class Agent1ProductionManagerService {
   }
 
   async validateStory(projectId: string): Promise<ProductionGateEvaluation> {
-    return this.evaluate(projectId, "STORY_AUDIO_GATE", repo => {
-      const project = repo.getProjectSpec(projectId);
-      const scenes = repo.getSceneTiming(projectId);
-      const projectGate = repo.getLatestGate(projectId, "PROJECT_INIT_GATE");
-      const dependency = project !== null && projectGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "PROJECT_INIT_GATE", project)
-        ? result([])
-        : result([missing("PROJECT_INIT_GATE_REQUIRED", "A current PROJECT_INIT_GATE PASS is required before STORY_AUDIO_GATE.")]);
-      const validation = scenes === null
-        ? result([missing("SCENE_TIMING_SPEC_MISSING", "Scene Timing Spec is required.")])
-        : validateSceneTimingDocument(scenes);
-      if (scenes !== null && scenes.project_id !== projectId) validation.errors.push(missing("PROJECT_ID_MISMATCH", "Scene Timing project_id mismatch.", "project_id"));
-      return { input: { project, scenes }, validation: merge(dependency, validation) };
-    });
+    const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    try {
+      const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
+      const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      return this.evaluate(projectId, "STORY_AUDIO_GATE", repo => {
+        const project = repo.getProjectSpec(projectId);
+        const scenes = repo.getSceneTiming(projectId);
+        const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+        const script = agent2.getActive<Agent2ScriptSpec>(projectId, "script");
+        const scriptGate = repo.getLatestGate(projectId, "SCRIPT_GATE");
+        const dependencyInput = {
+          facts: agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec")?.value ?? null,
+          story: story?.value ?? null,
+          script: script?.value ?? null
+        };
+        const dependency = scriptGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "SCRIPT_GATE", dependencyInput)
+          ? result([])
+          : result([missing("SCRIPT_GATE_REQUIRED", "A current SCRIPT_GATE PASS is required before STORY_AUDIO_GATE.")]);
+        const validation = scenes === null
+          ? result([missing("SCENE_TIMING_SPEC_MISSING", "Scene Timing Spec is required.")])
+          : validateSceneTimingDocument(scenes);
+        if (scenes !== null && scenes.project_id !== projectId) validation.errors.push(missing("PROJECT_ID_MISMATCH", "Scene Timing project_id mismatch.", "project_id"));
+
+        const audioErrors: ValidationIssue[] = [];
+        if (tts === null) audioErrors.push(missing("TTS_MANIFEST_MISSING", "Measured TTS manifest is required."));
+        if (subtitles === null) audioErrors.push(missing("SUBTITLE_TIMING_MISSING", "Subtitle timing is required."));
+        if (tts !== null) {
+          if (tts.value.project_id !== projectId) audioErrors.push(missing("PROJECT_ID_MISMATCH", "TTS manifest project_id mismatch.", "tts_manifest.project_id"));
+          if (!Number.isFinite(tts.value.total_duration_sec) || tts.value.total_duration_sec <= 0) audioErrors.push(missing("INVALID_TTS_DURATION", "TTS total duration must be positive.", "tts_manifest.total_duration_sec"));
+          if (scenes !== null && scenes.scenes.length > 0) {
+            const finalSceneEnd = scenes.scenes.at(-1)?.tts?.end_sec ?? 0;
+            if (Math.abs(finalSceneEnd - tts.value.total_duration_sec) > 0.01) {
+              audioErrors.push(missing("TTS_SCENE_DURATION_MISMATCH", "Scene timing must cover the complete measured TTS duration.", "scene_timing_spec"));
+            }
+          }
+        }
+        if (subtitles !== null) {
+          if (subtitles.value.project_id !== projectId) audioErrors.push(missing("PROJECT_ID_MISMATCH", "Subtitle timing project_id mismatch.", "subtitle_timing.project_id"));
+          let previousEnd = 0;
+          for (const [index, cue] of subtitles.value.cues.entries()) {
+            if (!Number.isFinite(cue.start_sec) || !Number.isFinite(cue.end_sec) || cue.start_sec < previousEnd - 0.001 || cue.end_sec <= cue.start_sec) {
+              audioErrors.push(missing("INVALID_SUBTITLE_TIMING", "Subtitle cues must be ordered, non-overlapping and positive.", `subtitle_timing.cues[${index}]`));
+              break;
+            }
+            if (tts !== null && cue.end_sec > tts.value.total_duration_sec + 0.001) {
+              audioErrors.push(missing("SUBTITLE_OUTSIDE_TTS", "Subtitle cue exceeds measured TTS duration.", `subtitle_timing.cues[${index}]`));
+              break;
+            }
+            previousEnd = cue.end_sec;
+          }
+        }
+        return {
+          input: { project, scenes, tts: tts?.value ?? null, subtitles: subtitles?.value ?? null },
+          validation: merge(dependency, validation, result(audioErrors))
+        };
+      });
+    } finally {
+      agent2.close();
+    }
   }
 
   async validateClips(projectId: string): Promise<ProductionGateEvaluation> {
