@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "OPENAI_AGENT3_VISUAL_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "OPENAI",
+    "model": "gpt-5.6",
+    "executionMode": "AUTOMATED",
+    "jobTypes": ["OTHER"],
+    "capabilities": {
+      "endpoint": "/v1/responses",
+      "webSearch": false,
+      "structuredOutputs": true,
+      "tasks": ["VISUAL_SCENE_PLAN", "STATE_IMAGE_PLAN", "CLIP_CAMERA_PLAN"]
+    },
+    "retryPolicy": {
+      "maxAttempts": 3,
+      "retryableCategories": ["HTTP_429", "HTTP_5XX", "TIMEOUT"]
+    },
+    "result": {
+      "mediaType": "DOCUMENT",
+      "requiredArtifacts": ["scene_visual_spec", "state_image_spec", "clip_production_spec"]
+    },
+    "runtimeSecretNames": ["OPENAI_API_KEY"]
+  }
+}
