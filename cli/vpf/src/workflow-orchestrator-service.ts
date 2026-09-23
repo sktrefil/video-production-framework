@@ -381,6 +381,8 @@ export class Agent1WorkflowOrchestratorService {
       const clips = repo.getClipProduction(projectId);
       const tts = agent2.getActive(projectId, "tts_manifest")?.value ?? null;
       const subtitles = agent2.getActive(projectId, "subtitle_timing")?.value ?? null;
+      const story = agent2.getActive(projectId, "story_spec")?.value ?? null;
+      const facts = agent2.getActive(projectId, "fact_check_spec")?.value ?? null;
       const visual = agent3.getActive(projectId, "scene_visual_spec")?.value ?? null;
       const states = agent3.getActive(projectId, "state_image_spec")?.value ?? null;
       const prompts = agent3.getActive(projectId, "prompt_bundle_spec")?.value ?? null;
@@ -396,6 +398,8 @@ export class Agent1WorkflowOrchestratorService {
         clips,
         tts,
         subtitles,
+        story,
+        facts,
         visual,
         states,
         prompts,
