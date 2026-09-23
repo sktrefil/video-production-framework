@@ -15,6 +15,8 @@ import {
   validateSceneVisualDocument,
   validateStateImageDocument,
   validateStateSceneBindings,
+  type Agent2FactCheckSpec,
+  type Agent2StorySpec,
   type Agent3T060Input,
   type Agent3TaskExecutionResult,
   type PromptBundleDocument,
@@ -22,6 +24,7 @@ import {
   type StateImageDocument,
   type VisualBibleRef
 } from "@vpf/production-spec";
+import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
@@ -166,18 +169,23 @@ export class Agent3VisualProductionWorkerService {
     input: unknown
   ): Agent3TaskExecutionResult {
     const production = new ProductionSpecRepository(status.projectDbPath, { readonly: true });
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
     try {
       const scenes = production.getSceneTiming(projectId);
-      if (scenes === null) {
+      const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+      const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
+      if (scenes === null || story === null || facts === null) {
         throw new Agent3VisualProductionError(
           "AGENT3_PREREQUISITE_MISSING",
-          "T040 requires active scene_timing_spec."
+          "T040 requires active scene_timing_spec, story_spec and fact_check_spec."
         );
       }
       const validation = validateSceneVisualDocument(input, {
         projectId,
         sceneIds: scenes.scenes.map(scene => scene.scene_id),
         storyRoles: new Map(scenes.scenes.map(scene => [scene.scene_id, scene.story_role])),
+        factRefsByScene: new Map(story.value.scenes.map(scene => [scene.scene_id, scene.fact_refs])),
+        factClassifications: new Map(facts.value.facts.map(fact => [fact.fact_id, fact.classification])),
         visualBible: visualBibleRef(status)
       });
       if (!validation.valid) {
@@ -213,6 +221,7 @@ export class Agent3VisualProductionWorkerService {
         repo.close();
       }
     } finally {
+      agent2.close();
       production.close();
     }
   }
