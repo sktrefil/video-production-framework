@@ -62,6 +62,7 @@ export class Agent1WorkflowOrchestratorService {
     next_task: ProjectTaskInstance | null;
   }> {
     const dbPath = (await this.projects.getStatus(projectId)).projectDbPath;
+    await this.ensureProjectGate(projectId, dbPath);
     const repo = new WorkflowOrchestratorRepository(dbPath);
     try {
       await this.refresh(projectId, repo);
@@ -90,6 +91,7 @@ export class Agent1WorkflowOrchestratorService {
 
   async dispatch(projectId: string, taskId?: string, requestedAgent?: WorkflowAgentId): Promise<TaskDispatchPackage> {
     const status = await this.projects.getStatus(projectId);
+    await this.ensureProjectGate(projectId, status.projectDbPath);
     const repo = new WorkflowOrchestratorRepository(status.projectDbPath);
     try {
       await this.refresh(projectId, repo);
@@ -346,6 +348,19 @@ export class Agent1WorkflowOrchestratorService {
     const latest = repo.getLatestGate(projectId, definition.completion_gate);
     if (latest?.status === "PASS" && repo.isLatestGateCurrent(projectId, definition.completion_gate, gateInput(task))) return latest;
     throw new WorkflowOrchestratorError("TASK_GATE_REQUIRED", `A current ${definition.completion_gate} PASS is required for ${task.task_id}.`);
+  }
+
+  private async ensureProjectGate(projectId: string, dbPath: string): Promise<void> {
+    const repo = new ProductionSpecRepository(dbPath);
+    try {
+      const project = repo.getProjectSpec(projectId);
+      if (project === null) return;
+      const gate = repo.getLatestGate(projectId, "PROJECT_INIT_GATE");
+      if (gate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "PROJECT_INIT_GATE", project)) return;
+    } finally {
+      repo.close();
+    }
+    await this.production.validateProject(projectId);
   }
 
   private async generationGateCurrent(projectId: string, dbPath: string): Promise<boolean> {
