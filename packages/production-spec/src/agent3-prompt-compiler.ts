@@ -113,6 +113,9 @@ export function compileAgent3Prompts(input: {
       "Use " + entry.state_image_id + " as the entry state" +
         (mid ? ", pass through " + mid.state_image_id : "") +
         ", and reach " + target.state_image_id + " by " + clip.target_state_deadline_sec.toFixed(2) + " sec.",
+      "Entry state intent: " + (entry.visual_goal_en || entry.visual_goal_ko) + ".",
+      ...(mid ? ["Intermediate state intent: " + (mid.visual_goal_en || mid.visual_goal_ko) + "."] : []),
+      "Target state intent: " + (target.visual_goal_en || target.visual_goal_ko) + ".",
       "Editorial duration is " + clip.editorial_duration_sec.toFixed(2) +
         " sec. Complete all mandatory narrative action by " + clip.narrative_deadline_sec.toFixed(2) +
         " sec. After " + clip.safe_trim_start_sec.toFixed(2) +
@@ -132,6 +135,9 @@ export function compileAgent3Prompts(input: {
       entry.state_image_id + "에서 시작" +
         (mid ? ", " + mid.state_image_id + "를 거쳐" : "") +
         " " + clip.target_state_deadline_sec.toFixed(2) + "초까지 " + target.state_image_id + " 상태에 도달.",
+      "시작 상태 의도: " + entry.visual_goal_ko + ".",
+      ...(mid ? ["중간 상태 의도: " + mid.visual_goal_ko + "."] : []),
+      "목표 상태 의도: " + target.visual_goal_ko + ".",
       "편집 사용 구간 " + clip.editorial_duration_sec.toFixed(2) +
         "초, 핵심 서사 완료 시점 " + clip.narrative_deadline_sec.toFixed(2) +
         "초, " + clip.safe_trim_start_sec.toFixed(2) +
