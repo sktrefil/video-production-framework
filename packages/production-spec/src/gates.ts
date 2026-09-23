@@ -20,6 +20,8 @@ export interface ProductionGateEvaluation {
 
 export interface Agent1ProductionManagerPort {
   validateProject(projectId: string): Promise<ProductionGateEvaluation>;
+  validateResearch(projectId: string): Promise<ProductionGateEvaluation>;
+  validateScript(projectId: string): Promise<ProductionGateEvaluation>;
   validateStory(projectId: string): Promise<ProductionGateEvaluation>;
   validateClips(projectId: string): Promise<ProductionGateEvaluation>;
   generationReady(projectId: string): Promise<ProductionGateEvaluation>;
