@@ -603,17 +603,19 @@ class Agent2ElevenLabsBridge {
       droppedVoiceSettings: ["similarity_boost", "speed", "use_speaker_boost"],
       preserveProviderCadence: true,
       narrationMode,
-      sections: narrationMode === "SEGMENTED"
-        ? sections.map(section => ({
-            id: section.id,
-            index: section.index,
-            sceneIds: [section.id.replace(/^tts-/u, "")],
-            text: section.text,
-            textCharacterCount: section.text.length,
-            audioRelativePath: section.audioRelativePath,
-            characterAlignmentRelativePath: section.characterAlignmentRelativePath
-          }))
-        : undefined,
+      ...(narrationMode === "SEGMENTED"
+        ? {
+            sections: sections.map(section => ({
+              id: section.id,
+              index: section.index,
+              sceneIds: [section.id.replace(/^tts-/u, "")],
+              text: section.text,
+              textCharacterCount: section.text.length,
+              audioRelativePath: section.audioRelativePath,
+              characterAlignmentRelativePath: section.characterAlignmentRelativePath
+            }))
+          }
+        : {}),
       chunks,
       outputPaths: {
         narration: "03_tts/narration.mp3",
