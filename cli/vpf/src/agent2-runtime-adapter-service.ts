@@ -812,12 +812,18 @@ export class Agent2RuntimeAdapterService {
   }
 
   async runNext(projectId: string): Promise<RuntimeStepResult | { project_id: string; handoff_task: string | null; status: "HANDOFF" }> {
-    const next = await this.manager.next(projectId);
-    if (next === null || next.assigned_agent !== "AGENT2_STORY_AUDIO") {
-      return { project_id: projectId, handoff_task: next?.task_id ?? null, status: "HANDOFF" };
-    }
-    if (!["T010", "T020", "T030"].includes(next.task_id)) {
-      throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_TASK_UNAVAILABLE", `Unsupported Agent2 task ${next.task_id}.`);
+    const workflowState = await this.manager.status(projectId);
+    const next = workflowState.tasks.find(task =>
+      task.assigned_agent === "AGENT2_STORY_AUDIO" &&
+      (task.status === "READY" || task.status === "REVISION_REQUIRED") &&
+      ["T010", "T020", "T030"].includes(task.task_id)
+    ) ?? null;
+    if (next === null) {
+      return {
+        project_id: projectId,
+        handoff_task: workflowState.next_task?.task_id ?? null,
+        status: "HANDOFF"
+      };
     }
     const taskId = next.task_id as Agent2RuntimeTaskId;
     const dispatch = await this.manager.dispatch(projectId, taskId, "AGENT2_STORY_AUDIO");
@@ -845,8 +851,13 @@ export class Agent2RuntimeAdapterService {
   }> {
     const steps: RuntimeStepResult[] = [];
     for (let index = 0; index < 3; index += 1) {
-      const next = await this.manager.next(projectId);
-      if (next === null || next.assigned_agent !== "AGENT2_STORY_AUDIO") break;
+      const state = await this.manager.status(projectId);
+      const hasAgent2Work = state.tasks.some(task =>
+        task.assigned_agent === "AGENT2_STORY_AUDIO" &&
+        (task.status === "READY" || task.status === "REVISION_REQUIRED") &&
+        ["T010", "T020", "T030"].includes(task.task_id)
+      );
+      if (!hasAgent2Work) break;
       const result = await this.runNext(projectId);
       if ("status" in result) break;
       steps.push(result);
