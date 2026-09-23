@@ -127,6 +127,7 @@ export class Agent1WorkflowOrchestratorService {
         task_id: task.task_id,
         assigned_agent: task.assigned_agent,
         task_type: task.task_type,
+        instruction_id: definition.instruction_id,
         attempt,
         required_inputs: [...definition.required_inputs],
         required_outputs: [...definition.required_outputs],
