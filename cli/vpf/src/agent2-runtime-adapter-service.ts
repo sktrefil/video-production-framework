@@ -254,6 +254,19 @@ function extractOutputText(response: OpenAiResponseEnvelope): string {
   return texts.join("").trim();
 }
 
+function canonicalWebUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    url.hash = "";
+    if (url.pathname.length > 1 && url.pathname.endsWith("/")) {
+      url.pathname = url.pathname.slice(0, -1);
+    }
+    return url.toString();
+  } catch {
+    return value.trim();
+  }
+}
+
 function collectWebSourceUrls(response: OpenAiResponseEnvelope): Set<string> {
   const urls = new Set<string>();
   const visit = (value: unknown, inSourceContext = false): void => {
@@ -265,7 +278,7 @@ function collectWebSourceUrls(response: OpenAiResponseEnvelope): Set<string> {
     const record = value as Record<string, unknown>;
     const type = typeof record.type === "string" ? record.type : "";
     const sourceContext = inSourceContext || type === "url_citation" || type === "web_search_call";
-    if (sourceContext && typeof record.url === "string" && /^https?:\/\//iu.test(record.url)) urls.add(record.url);
+    if (sourceContext && typeof record.url === "string" && /^https?:\/\//iu.test(record.url)) urls.add(canonicalWebUrl(record.url));
     if (Array.isArray(record.sources)) visit(record.sources, true);
     if (Array.isArray(record.annotations)) visit(record.annotations, true);
     if (record.action !== undefined) visit(record.action, true);
@@ -424,7 +437,7 @@ class OpenAiAgent2Runtime {
     const observed = collectWebSourceUrls(response);
     for (const source of bundle.research_spec.sources) {
       if (!source.url) continue;
-      if (!observed.has(source.url)) {
+      if (!observed.has(canonicalWebUrl(source.url))) {
         throw new Agent2RuntimeAdapterError(
           "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
           `Research output referenced a URL not observed in OpenAI web search evidence: ${source.url}`
