@@ -54,7 +54,7 @@ test("MIG-04 preserves accepted HISTORY_MYSTERY_V1@1.0.0 bytes and upgrades sele
     "ruleRegistry" in (newProfile.payload as Record<string, unknown>),
     true
   );
-  assert.equal(DEFAULT_CHANNEL_PROFILE_VERSION, "1.5.0");
+  assert.equal(DEFAULT_CHANNEL_PROFILE_VERSION, "1.7.0");
 });
 
 test("new projects pin the new channel profile version instead of mutating v1.0.0", async () => {
@@ -77,6 +77,6 @@ test("new projects pin the new channel profile version instead of mutating v1.0.
   );
 
   assert.equal(channelPin?.resourceId, "HISTORY_MYSTERY_V1");
-  assert.equal(channelPin?.version, "1.5.0");
+  assert.equal(channelPin?.version, "1.7.0");
   assert.ok(channelPin?.contentHash.startsWith("sha256:"));
 });
