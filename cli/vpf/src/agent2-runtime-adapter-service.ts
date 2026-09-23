@@ -901,10 +901,10 @@ export class Agent2RuntimeAdapterService {
 
   private async assertRuntimeProjectCurrent(projectId: string): Promise<void> {
     const status = await this.projects.getStatus(projectId);
-    if (!status.migrations.current || !status.migrations.appliedMigrationIds.includes("0019")) {
+    if (!status.migrations.appliedMigrationIds.includes("0019")) {
       throw new Agent2RuntimeAdapterError(
         "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-        `Project ${projectId} is on DB migrations ${status.migrations.appliedCount}/${status.migrations.availableCount}. Agent2 Runtime Adapter requires migration 0019. Do not auto-upgrade production projects; migrate explicitly or create a new project on the current framework.`
+        `Project ${projectId} does not include migration 0019. Agent2 Runtime Adapter requires migration 0019; later Agent3-only migrations are not required for Agent2 execution.`
       );
     }
     const openAiPin = status.resourcePins.find(pin =>
