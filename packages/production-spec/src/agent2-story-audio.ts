@@ -55,6 +55,13 @@ export interface Agent2StorySection {
   fact_refs: string[];
 }
 
+export interface Agent2BeatDraft {
+  beat_id: string;
+  purpose_ko: string;
+  purpose_en?: string;
+  script_ko: string;
+}
+
 export interface Agent2SceneDraft {
   scene_id: string;
   story_role: StoryRole;
@@ -63,8 +70,7 @@ export interface Agent2SceneDraft {
   script_ko: string;
   script_en?: string;
   fact_refs: string[];
-  beat_purposes_ko: string[];
-  beat_purposes_en?: string[];
+  beats: Agent2BeatDraft[];
 }
 
 export interface Agent2StorySpec {
@@ -282,8 +288,18 @@ export function validateStoryBundle(
     requiredString(scene.scene_id, `story_spec.scenes[${index}].scene_id`, errors);
     requiredString(scene.narrative_purpose_ko, `story_spec.scenes[${index}].narrative_purpose_ko`, errors);
     requiredString(scene.script_ko, `story_spec.scenes[${index}].script_ko`, errors);
-    if (!Array.isArray(scene.beat_purposes_ko) || scene.beat_purposes_ko.length === 0) {
-      errors.push({ code: "BEAT_REQUIRED", path: `story_spec.scenes[${index}].beat_purposes_ko`, message: "Each scene needs at least one narrative beat." });
+    if (!Array.isArray(scene.beats) || scene.beats.length === 0) {
+      errors.push({ code: "BEAT_REQUIRED", path: `story_spec.scenes[${index}].beats`, message: "Each scene needs at least one narrative beat." });
+    } else {
+      for (const [beatIndex, beat] of scene.beats.entries()) {
+        requiredString(beat.beat_id, `story_spec.scenes[${index}].beats[${beatIndex}].beat_id`, errors);
+        requiredString(beat.purpose_ko, `story_spec.scenes[${index}].beats[${beatIndex}].purpose_ko`, errors);
+        requiredString(beat.script_ko, `story_spec.scenes[${index}].beats[${beatIndex}].script_ko`, errors);
+      }
+      const beatText = scene.beats.map(beat => beat.script_ko).join("").replace(/\s+/gu, "");
+      if (beatText !== scene.script_ko.replace(/\s+/gu, "")) {
+        errors.push({ code: "BEAT_SCRIPT_COVERAGE_MISMATCH", path: `story_spec.scenes[${index}].beats`, message: "Beat script segments must cover the complete Scene script in order." });
+      }
     }
     for (const ref of scene.fact_refs ?? []) {
       usedFacts.add(ref);
