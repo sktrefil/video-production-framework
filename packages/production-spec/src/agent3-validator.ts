@@ -194,6 +194,7 @@ export function validateStateImageDocument(
     projectId?: string;
     sceneIds?: readonly string[];
     beatIdsByScene?: ReadonlyMap<string, readonly string[]>;
+    sceneDurationsSec?: ReadonlyMap<string, number>;
   } = {}
 ): ValidationResult {
   const errors: ValidationIssue[] = [];
@@ -268,6 +269,19 @@ export function validateStateImageDocument(
     }
     if (stats.entry !== 1) errors.push({ code: "ENTRY_STATE_COUNT_INVALID", path: "state_images", message: "Scene " + id + " must have exactly one ENTRY state." });
     if (stats.target !== 1) errors.push({ code: "TARGET_STATE_COUNT_INVALID", path: "state_images", message: "Scene " + id + " must have exactly one TARGET state." });
+    const duration = context.sceneDurationsSec?.get(id);
+    if (duration !== undefined && Number.isFinite(duration) && duration > 0) {
+      const minimumStateCount = Math.ceil(duration / 10) + 1;
+      if (stats.orders.size < minimumStateCount) {
+        errors.push({
+          code: "STATE_IMAGE_SPLIT_CAPACITY_INSUFFICIENT",
+          path: "state_images",
+          message: "Scene " + id + " with " + duration +
+            " sec measured TTS requires at least " + minimumStateCount +
+            " sequential states so every Clip can remain at or below 10 sec."
+        });
+      }
+    }
   }
   return output(errors, warnings);
 }
