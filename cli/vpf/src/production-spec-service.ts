@@ -213,54 +213,76 @@ export class Agent1ProductionManagerService {
   }
 
   async validateClips(projectId: string): Promise<ProductionGateEvaluation> {
-    return this.evaluate(projectId, "CLIP_PLAN_GATE", repo => {
-      const scenes = repo.getSceneTiming(projectId);
-      const clips = repo.getClipProduction(projectId);
-      const storyGate = repo.getLatestGate(projectId, "STORY_AUDIO_GATE");
-      const dependencyInput = { project: repo.getProjectSpec(projectId), scenes };
-      const dependency = scenes !== null && storyGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "STORY_AUDIO_GATE", dependencyInput)
-        ? result([])
-        : result([missing("STORY_AUDIO_GATE_REQUIRED", "A current STORY_AUDIO_GATE PASS is required before CLIP_PLAN_GATE.")]);
-      const validation = clips === null
-        ? result([missing("CLIP_PRODUCTION_SPEC_MISSING", "Clip Production Spec is required.")])
-        : validateClipProductionSpecs(clips, { ...(scenes === null ? {} : { sceneTimings: scenes.scenes }) });
-      if (clips !== null && clips.project_id !== projectId) {
-        validation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
-        validation.valid = false;
-        validation.ready_for_generation = false;
-      }
-      return { input: { scenes, clips }, validation: merge(dependency, validation) };
-    });
+    const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    try {
+      const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
+      const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      return this.evaluate(projectId, "CLIP_PLAN_GATE", repo => {
+        const project = repo.getProjectSpec(projectId);
+        const scenes = repo.getSceneTiming(projectId);
+        const clips = repo.getClipProduction(projectId);
+        const storyGate = repo.getLatestGate(projectId, "STORY_AUDIO_GATE");
+        const dependencyInput = {
+          project,
+          scenes,
+          tts: tts?.value ?? null,
+          subtitles: subtitles?.value ?? null
+        };
+        const dependency = scenes !== null && storyGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "STORY_AUDIO_GATE", dependencyInput)
+          ? result([])
+          : result([missing("STORY_AUDIO_GATE_REQUIRED", "A current STORY_AUDIO_GATE PASS is required before CLIP_PLAN_GATE.")]);
+        const validation = clips === null
+          ? result([missing("CLIP_PRODUCTION_SPEC_MISSING", "Clip Production Spec is required.")])
+          : validateClipProductionSpecs(clips, { ...(scenes === null ? {} : { sceneTimings: scenes.scenes }) });
+        if (clips !== null && clips.project_id !== projectId) {
+          validation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
+          validation.valid = false;
+          validation.ready_for_generation = false;
+        }
+        return { input: { scenes, clips }, validation: merge(dependency, validation) };
+      });
+    } finally {
+      agent2.close();
+    }
   }
 
   async generationReady(projectId: string): Promise<ProductionGateEvaluation> {
-    return this.evaluate(projectId, "GENERATION_READY_GATE", repo => {
-      const project = repo.getProjectSpec(projectId);
-      const scenes = repo.getSceneTiming(projectId);
-      const clips = repo.getClipProduction(projectId);
-      const errors: ValidationIssue[] = [];
-      const required: Array<[ProductionGateId, unknown]> = [
-        ["PROJECT_INIT_GATE", project],
-        ["STORY_AUDIO_GATE", { project, scenes }],
-        ["CLIP_PLAN_GATE", { scenes, clips }]
-      ];
-      for (const [gate, input] of required) {
-        const prior = repo.getLatestGate(projectId, gate);
-        if (prior?.status !== "PASS" || !repo.isLatestGateCurrent(projectId, gate, input)) {
-          errors.push(missing("GATE_REQUIRED_OR_STALE", `${gate} must have a current PASS before generation.`, gate));
+    const status = await this.projects.getStatus(projectId);
+    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    try {
+      const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
+      const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      return this.evaluate(projectId, "GENERATION_READY_GATE", repo => {
+        const project = repo.getProjectSpec(projectId);
+        const scenes = repo.getSceneTiming(projectId);
+        const clips = repo.getClipProduction(projectId);
+        const errors: ValidationIssue[] = [];
+        const required: Array<[ProductionGateId, unknown]> = [
+          ["PROJECT_INIT_GATE", project],
+          ["STORY_AUDIO_GATE", { project, scenes, tts: tts?.value ?? null, subtitles: subtitles?.value ?? null }],
+          ["CLIP_PLAN_GATE", { scenes, clips }]
+        ];
+        for (const [gate, input] of required) {
+          const prior = repo.getLatestGate(projectId, gate);
+          if (prior?.status !== "PASS" || !repo.isLatestGateCurrent(projectId, gate, input)) {
+            errors.push(missing("GATE_REQUIRED_OR_STALE", `${gate} must have a current PASS before generation.`, gate));
+          }
         }
-      }
-      const clipValidation = clips === null
-        ? result([missing("CLIP_PRODUCTION_SPEC_MISSING", "Clip Production Spec is required.")])
-        : validateGenerationReady(clips, { ...(scenes === null ? {} : { sceneTimings: scenes.scenes }) });
-      if (scenes !== null && scenes.project_id !== projectId) clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Scene Timing project_id mismatch.", "project_id"));
-      if (clips !== null && clips.project_id !== projectId) clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
-      clipValidation.valid = clipValidation.errors.length === 0;
-      clipValidation.ready_for_generation = clipValidation.valid;
-      const combined = merge(result(errors), project === null ? result([missing("PROJECT_SPEC_MISSING", "Project Spec is required.")]) : validateProjectSpec(project), scenes === null ? result([missing("SCENE_TIMING_SPEC_MISSING", "Scene Timing Spec is required.")]) : validateSceneTimingDocument(scenes), clipValidation);
-      combined.ready_for_generation = combined.valid;
-      return { input: { project, scenes, clips }, validation: combined };
-    });
+        const clipValidation = clips === null
+          ? result([missing("CLIP_PRODUCTION_SPEC_MISSING", "Clip Production Spec is required.")])
+          : validateGenerationReady(clips, { ...(scenes === null ? {} : { sceneTimings: scenes.scenes }) });
+        if (scenes !== null && scenes.project_id !== projectId) clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Scene Timing project_id mismatch.", "project_id"));
+        if (clips !== null && clips.project_id !== projectId) clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
+        clipValidation.valid = clipValidation.errors.length === 0;
+        clipValidation.ready_for_generation = clipValidation.valid;
+        const combined = merge(result(errors), project === null ? result([missing("PROJECT_SPEC_MISSING", "Project Spec is required.")]) : validateProjectSpec(project), scenes === null ? result([missing("SCENE_TIMING_SPEC_MISSING", "Scene Timing Spec is required.")]) : validateSceneTimingDocument(scenes), clipValidation);
+        combined.ready_for_generation = combined.valid;
+        return { input: { project, scenes, clips, tts: tts?.value ?? null, subtitles: subtitles?.value ?? null }, validation: combined };
+      });
+    } finally {
+      agent2.close();
+    }
   }
 
   private async evaluate(
