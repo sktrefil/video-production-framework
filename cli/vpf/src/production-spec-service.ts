@@ -286,6 +286,8 @@ export class Agent1ProductionManagerService {
     try {
       const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
       const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+      const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
       const bible = pinnedVisualBible(status);
       return this.evaluate(projectId, "VISUAL_PLAN_GATE", repo => {
@@ -303,12 +305,14 @@ export class Agent1ProductionManagerService {
           ? result([])
           : result([missing("STORY_AUDIO_GATE_REQUIRED", "A current STORY_AUDIO_GATE PASS is required before VISUAL_PLAN_GATE.")]);
 
-        const validation = visual === null || scenes === null || bible === null
-          ? result([missing("VISUAL_PLAN_INPUT_MISSING", "Scene Timing, Scene Visual Spec and pinned Visual Bible are required.")])
+        const validation = visual === null || scenes === null || bible === null || story === null || facts === null
+          ? result([missing("VISUAL_PLAN_INPUT_MISSING", "Scene Timing, Story, Fact Check, Scene Visual Spec and pinned Visual Bible are required.")])
           : validateSceneVisualDocument(visual.value, {
               projectId,
               sceneIds: scenes.scenes.map(scene => scene.scene_id),
               storyRoles: new Map(scenes.scenes.map(scene => [scene.scene_id, scene.story_role])),
+              factRefsByScene: new Map((story?.value.scenes ?? []).map(scene => [scene.scene_id, scene.fact_refs])),
+              factClassifications: new Map((facts?.value.facts ?? []).map(fact => [fact.fact_id, fact.classification])),
               visualBible: bible
             });
 
@@ -316,6 +320,8 @@ export class Agent1ProductionManagerService {
           input: {
             project,
             scenes,
+            story: story?.value ?? null,
+            facts: facts?.value ?? null,
             visual: visual?.value ?? null,
             visual_bible: bible
           },
