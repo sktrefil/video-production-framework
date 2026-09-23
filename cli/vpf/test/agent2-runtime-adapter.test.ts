@@ -193,7 +193,7 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
     const runtime = new Agent2RuntimeAdapterService(bootstrap, {
       ...process.env,
       OPENAI_API_KEY: "test-openai-key",
-      VPF_AGENT2_OPENAI_MODEL: "gpt-test",
+      VPF_AGENT2_OPENAI_MODEL: "gpt-5.6",
       OPENAI_API_BASE_URL: `${server.baseUrl}/v1`,
       VPF_AGENT2_OPENAI_RETRIES: "0",
       ELEVENLABS_API_KEY: "test-elevenlabs-key",
