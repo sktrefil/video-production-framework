@@ -1,4 +1,5 @@
 import type { StoryRole } from "./enums.js";
+import type { Agent2FactClassification } from "./agent2-story-audio.js";
 import type { ValidationIssue, ValidationResult } from "./project-validator.js";
 import {
   STATE_IMAGE_ROLES,
@@ -36,12 +37,34 @@ function strings(value: unknown, path: string, errors: ValidationIssue[], allowE
   return value as string[];
 }
 
+
+function permittedFactualityModes(
+  refs: readonly string[],
+  classifications: ReadonlyMap<string, Agent2FactClassification> | undefined
+): readonly VisualFactualityMode[] {
+  const classes = refs
+    .map(ref => classifications?.get(ref))
+    .filter((value): value is Agent2FactClassification => value !== undefined);
+  if (classes.includes("LEGEND")) return ["LEGEND_RECONSTRUCTION"];
+  if (classes.includes("HYPOTHESIS")) return ["HYPOTHESIS_RECONSTRUCTION"];
+  if (classes.includes("EDITORIAL_RECONSTRUCTION")) return ["EDITORIAL_FANTASY_RECONSTRUCTION"];
+  if (classes.includes("LIKELY_INTERPRETATION")) {
+    return ["HISTORICAL_RECONSTRUCTION", "HYPOTHESIS_RECONSTRUCTION"];
+  }
+  if (classes.length > 0 && classes.every(value => value === "VERIFIED_FACT")) {
+    return ["EVIDENCE", "HISTORICAL_RECONSTRUCTION"];
+  }
+  return ["UNKNOWN", "HISTORICAL_RECONSTRUCTION", "EDITORIAL_FANTASY_RECONSTRUCTION"];
+}
+
 export function validateSceneVisualDocument(
   input: unknown,
   context: {
     projectId?: string;
     sceneIds?: readonly string[];
     storyRoles?: ReadonlyMap<string, StoryRole>;
+    factRefsByScene?: ReadonlyMap<string, readonly string[]>;
+    factClassifications?: ReadonlyMap<string, Agent2FactClassification>;
     visualBible?: VisualBibleRef;
   } = {}
 ): ValidationResult {
@@ -92,6 +115,38 @@ export function validateSceneVisualDocument(
     }
     if (!VISUAL_FACTUALITY_MODES.includes(raw.factuality_mode as VisualFactualityMode)) {
       errors.push({ code: "INVALID_FACTUALITY_MODE", path: base + ".factuality_mode", message: "Unsupported visual factuality_mode." });
+    }
+
+    const factRefs = strings(raw.fact_refs, base + ".fact_refs", errors, true);
+    if (nonempty(raw.scene_id)) {
+      const expectedRefs = [...(context.factRefsByScene?.get(raw.scene_id) ?? [])].sort();
+      const actualRefs = [...factRefs].sort();
+      if (JSON.stringify(actualRefs) !== JSON.stringify(expectedRefs)) {
+        errors.push({
+          code: "VISUAL_FACT_REF_MISMATCH",
+          path: base + ".fact_refs",
+          message: "Scene Visual fact_refs must exactly match the approved Story Scene fact_refs."
+        });
+      }
+      for (const ref of factRefs) {
+        if (context.factClassifications !== undefined && !context.factClassifications.has(ref)) {
+          errors.push({
+            code: "UNKNOWN_VISUAL_FACT_REF",
+            path: base + ".fact_refs",
+            message: "Scene Visual references unknown fact " + ref + "."
+          });
+        }
+      }
+      if (VISUAL_FACTUALITY_MODES.includes(raw.factuality_mode as VisualFactualityMode)) {
+        const allowed = permittedFactualityModes(factRefs, context.factClassifications);
+        if (!allowed.includes(raw.factuality_mode as VisualFactualityMode)) {
+          errors.push({
+            code: "VISUAL_FACTUALITY_CLASSIFICATION_MISMATCH",
+            path: base + ".factuality_mode",
+            message: "Visual factuality_mode is incompatible with the approved fact classifications."
+          });
+        }
+      }
     }
     for (const key of ["narrative_purpose_ko","visual_intent_ko","environment_ko","subject_ko","action_ko","uncertainty_handling_ko"] as const) {
       required(raw[key], base + "." + key, errors);
