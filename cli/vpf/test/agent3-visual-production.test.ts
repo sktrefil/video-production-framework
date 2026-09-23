@@ -300,6 +300,26 @@ test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () =>
       visualRepo.close();
       production.close();
     }
+
+    const mutableVisual = new Agent3VisualProductionRepository(created.projectDbPath);
+    try {
+      const currentStates = mutableVisual.getActive<any>("agent3_sample", "state_image_spec");
+      assert.ok(currentStates);
+      mutableVisual.save(
+        "agent3_sample",
+        "state_image_spec",
+        currentStates!.value,
+        "T050",
+        new Date().toISOString()
+      );
+    } finally {
+      mutableVisual.close();
+    }
+
+    const stale = await manager.status("agent3_sample");
+    assert.equal(stale.tasks.find(task => task.task_id === "T050")?.status, "REVISION_REQUIRED");
+    assert.equal(stale.tasks.find(task => task.task_id === "T060")?.status, "BLOCKED");
+    assert.equal(stale.tasks.find(task => task.task_id === "T070")?.status, "BLOCKED");
   } finally {
     await rm(root, { recursive: true, force: true });
   }
