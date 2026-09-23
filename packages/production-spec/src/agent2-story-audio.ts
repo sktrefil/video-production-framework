@@ -284,6 +284,14 @@ export function validateStoryBundle(
 
   const knownFacts = new Set((facts?.facts ?? []).map(fact => fact.fact_id));
   const usedFacts = new Set<string>();
+  for (const [index, section] of (story.sections ?? []).entries()) {
+    requiredString(section.section_id, `story_spec.sections[${index}].section_id`, errors);
+    requiredString(section.purpose_ko, `story_spec.sections[${index}].purpose_ko`, errors);
+    for (const ref of section.fact_refs ?? []) {
+      usedFacts.add(ref);
+      if (!knownFacts.has(ref)) errors.push({ code: "UNKNOWN_FACT_REF", path: `story_spec.sections[${index}].fact_refs`, message: `Unknown fact reference ${ref}.` });
+    }
+  }
   for (const [index, scene] of (story.scenes ?? []).entries()) {
     requiredString(scene.scene_id, `story_spec.scenes[${index}].scene_id`, errors);
     requiredString(scene.narrative_purpose_ko, `story_spec.scenes[${index}].narrative_purpose_ko`, errors);
@@ -331,6 +339,9 @@ export function validateTtsCompletionInput(input: unknown, expectedProjectId?: s
   requiredString(value.model_id, "model_id", errors);
   if (!Array.isArray(value.sections) || value.sections.length === 0) errors.push({ code: "TTS_SECTION_REQUIRED", path: "sections", message: "At least one completed TTS section is required." });
   let previousEnd = 0;
+  if ((value.sections?.[0]?.timeline_start_sec ?? 0) !== 0) {
+    errors.push({ code: "TTS_TIMELINE_MUST_START_AT_ZERO", path: "sections[0].timeline_start_sec", message: "Project narration TTS timeline must start at 0 seconds." });
+  }
   for (const [index, section] of (value.sections ?? []).entries()) {
     const path = `sections[${index}]`;
     requiredString(section.section_id, `${path}.section_id`, errors);
