@@ -380,6 +380,7 @@ class OpenAiAgent2Runtime {
       store: false,
       reasoning: { effort: "medium" },
       tools: [{ type: "web_search", search_context_size: "high" }],
+      include: ["web_search_call.action.sources"],
       input: [
         {
           role: "developer",
