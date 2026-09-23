@@ -10,6 +10,7 @@ import {
 } from "@vpf/production-spec";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
+import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
 import { Agent1ProductionManagerService } from "./production-spec-service.js";
 
@@ -347,6 +348,8 @@ export class Agent1WorkflowOrchestratorService {
     if (definition.completion_gate === "RESEARCH_GATE") return this.production.validateResearch(projectId);
     if (definition.completion_gate === "SCRIPT_GATE") return this.production.validateScript(projectId);
     if (definition.completion_gate === "STORY_AUDIO_GATE") return this.production.validateStory(projectId);
+    if (definition.completion_gate === "VISUAL_PLAN_GATE") return this.production.validateVisualPlan(projectId);
+    if (definition.completion_gate === "STATE_IMAGE_GATE") return this.production.validateStateImages(projectId);
     if (definition.completion_gate === "CLIP_PLAN_GATE") return this.production.validateClips(projectId);
 
     const latest = repo.getLatestGate(projectId, definition.completion_gate);
@@ -368,18 +371,40 @@ export class Agent1WorkflowOrchestratorService {
   }
 
   private async generationGateCurrent(projectId: string, dbPath: string): Promise<boolean> {
+    const status = await this.projects.getStatus(projectId);
     const repo = new ProductionSpecRepository(dbPath);
     const agent2 = new Agent2StoryAudioRepository(dbPath, { readonly: true });
+    const agent3 = new Agent3VisualProductionRepository(dbPath, { readonly: true });
     try {
       const project = repo.getProjectSpec(projectId);
       const scenes = repo.getSceneTiming(projectId);
       const clips = repo.getClipProduction(projectId);
       const tts = agent2.getActive(projectId, "tts_manifest")?.value ?? null;
       const subtitles = agent2.getActive(projectId, "subtitle_timing")?.value ?? null;
-      const input = { project, scenes, clips, tts, subtitles };
+      const visual = agent3.getActive(projectId, "scene_visual_spec")?.value ?? null;
+      const states = agent3.getActive(projectId, "state_image_spec")?.value ?? null;
+      const prompts = agent3.getActive(projectId, "prompt_bundle_spec")?.value ?? null;
+      const pin = status.resourcePins.find(item => item.resourceType === "CHANNEL_VISUAL_BIBLE");
+      const visual_bible = pin === undefined ? null : {
+        resource_id: pin.resourceId,
+        version: pin.version,
+        content_hash: pin.contentHash
+      };
+      const input = {
+        project,
+        scenes,
+        clips,
+        tts,
+        subtitles,
+        visual,
+        states,
+        prompts,
+        visual_bible
+      };
       const gate = repo.getLatestGate(projectId, "GENERATION_READY_GATE");
       return gate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "GENERATION_READY_GATE", input);
     } finally {
+      agent3.close();
       agent2.close();
       repo.close();
     }
