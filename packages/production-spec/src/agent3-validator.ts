@@ -265,3 +265,83 @@ export function validatePromptBundle(
   if (context.clipIds !== undefined && clipIds.size !== context.clipIds.length) errors.push({ code: "VIDEO_PROMPT_COVERAGE_MISMATCH", path: "video_prompts", message: "Video prompts must cover current Clips exactly once." });
   return output(errors, warnings);
 }
+
+
+export function validateClipStateBindings(
+  clipsInput: unknown,
+  statesInput: unknown
+): ValidationResult {
+  const errors: ValidationIssue[] = [];
+  const warnings: ValidationIssue[] = [];
+  if (!record(clipsInput) || !Array.isArray(clipsInput.clips) || !record(statesInput) || !Array.isArray(statesInput.state_images)) {
+    return output([{ code: "CLIP_STATE_BINDING_INPUT_INVALID", path: "clips", message: "Clip and State Image documents are required." }]);
+  }
+
+  const states = new Map<string, {
+    scene_id: string;
+    role: string;
+    sequence_order: number;
+  }>();
+  for (const raw of statesInput.state_images) {
+    if (!record(raw) || !nonempty(raw.state_image_id) || !nonempty(raw.scene_id)) continue;
+    states.set(raw.state_image_id, {
+      scene_id: raw.scene_id,
+      role: String(raw.role ?? ""),
+      sequence_order: Number(raw.sequence_order)
+    });
+  }
+
+  const previousTargetByScene = new Map<string, string>();
+  let repeatedMovement = "";
+  let movementRun = 0;
+  let repeatedTransition = "";
+  let transitionRun = 0;
+
+  for (const [index, raw] of clipsInput.clips.entries()) {
+    const base = "clips[" + index + "]";
+    if (!record(raw) || !nonempty(raw.scene_id) || !nonempty(raw.clip_id)) continue;
+    const stateImages = record(raw.state_images) ? raw.state_images : {};
+    const entryId = nonempty(stateImages.entry) ? stateImages.entry : "";
+    const targetId = nonempty(stateImages.target) ? stateImages.target : "";
+    const midId = stateImages.mid === null ? null : nonempty(stateImages.mid) ? stateImages.mid : null;
+    const entry = states.get(entryId);
+    const target = states.get(targetId);
+    const mid = midId === null ? null : states.get(midId);
+
+    for (const [label, state] of [["entry", entry], ["target", target], ["mid", mid]] as const) {
+      if (label === "mid" && midId === null) continue;
+      if (state === undefined || state === null) {
+        errors.push({ code: "UNKNOWN_CLIP_STATE_IMAGE", path: base + ".state_images." + label, message: "Clip references an unknown State Image." });
+      } else if (state.scene_id !== raw.scene_id) {
+        errors.push({ code: "CLIP_STATE_SCENE_MISMATCH", path: base + ".state_images." + label, message: "Clip State Images must belong to the same Scene." });
+      }
+    }
+
+    if (entry && target && entry.sequence_order >= target.sequence_order) {
+      errors.push({ code: "CLIP_STATE_ORDER_INVALID", path: base + ".state_images", message: "Clip entry state must precede target state." });
+    }
+    if (entry && mid && target && !(entry.sequence_order < mid.sequence_order && mid.sequence_order < target.sequence_order)) {
+      errors.push({ code: "CLIP_MID_STATE_ORDER_INVALID", path: base + ".state_images.mid", message: "MID state must fall between entry and target states." });
+    }
+
+    const previousTarget = previousTargetByScene.get(raw.scene_id);
+    if (previousTarget !== undefined && previousTarget !== entryId) {
+      errors.push({ code: "WITHIN_SCENE_STATE_HANDOFF_MISMATCH", path: base + ".state_images.entry", message: "Adjacent Clips in one Scene must hand off previous target to next entry." });
+    }
+    if (targetId) previousTargetByScene.set(raw.scene_id, targetId);
+
+    const camera = record(raw.camera) ? raw.camera : {};
+    const movement = nonempty(camera.movement) ? camera.movement : "";
+    if (movement && movement === repeatedMovement) movementRun += 1;
+    else { repeatedMovement = movement; movementRun = movement ? 1 : 0; }
+    if (movementRun === 3) warnings.push({ code: "REPEATED_CAMERA_MOVEMENT", path: base + ".camera.movement", message: "Three adjacent Clips repeat the same camera movement." });
+    if (movementRun >= 4) errors.push({ code: "CAMERA_RHYTHM_REPETITION", path: base + ".camera.movement", message: "Four or more adjacent Clips may not repeat the same camera movement." });
+
+    const transition = nonempty(raw.transition_out) ? raw.transition_out : "";
+    if (transition && transition === repeatedTransition) transitionRun += 1;
+    else { repeatedTransition = transition; transitionRun = transition ? 1 : 0; }
+    if (transitionRun === 3) warnings.push({ code: "REPEATED_TRANSITION", path: base + ".transition_out", message: "Three adjacent Clips repeat the same transition." });
+    if (transitionRun >= 4) errors.push({ code: "TRANSITION_RHYTHM_REPETITION", path: base + ".transition_out", message: "Four or more adjacent Clips may not repeat the same transition." });
+  }
+  return output(errors, warnings);
+}
