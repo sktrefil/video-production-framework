@@ -342,6 +342,8 @@ export class Agent1WorkflowOrchestratorService {
     task: ProjectTaskInstance,
     repo: ProductionSpecRepository
   ): Promise<ProductionGateEvaluation> {
+    if (definition.completion_gate === "RESEARCH_GATE") return this.production.validateResearch(projectId);
+    if (definition.completion_gate === "SCRIPT_GATE") return this.production.validateScript(projectId);
     if (definition.completion_gate === "STORY_AUDIO_GATE") return this.production.validateStory(projectId);
     if (definition.completion_gate === "CLIP_PLAN_GATE") return this.production.validateClips(projectId);
 
