@@ -17,6 +17,7 @@ import {EditorAssembleError, assembleEditorProject} from "./editor-assemble.js";
 import {EditorMediaImportError, importEditorMedia} from "./editor-media-import.js";
 import { Agent1ProductionManagerService, ProductionSpecCliError } from "./production-spec-service.js";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
+import { getAgent2TaskInstruction } from "@vpf/production-spec";
 import { Agent1WorkflowOrchestratorService, WorkflowOrchestratorError } from "./workflow-orchestrator-service.js";
 import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
 
@@ -54,6 +55,7 @@ Agent 1 workflow operations:
   vpf workflow revise <project_id> <task_id>
 
 Agent 2 story/audio operations:
+  vpf agent2 instruction <T010|T020|T030>
   vpf agent2 execute <project_id> <T010|T020|T030> --file <json>
 
 WF-07 story operations:
@@ -241,6 +243,16 @@ export async function runCli(
     const production = new Agent1ProductionManagerService(service);
     const workflow = new Agent1WorkflowOrchestratorService(service);
     const agent2 = new Agent2StoryAudioWorkerService(service);
+
+    if (args[0] === "agent2" && args[1] === "instruction") {
+      const taskId = args[2];
+      if (taskId !== "T010" && taskId !== "T020" && taskId !== "T030") {
+        io.error("[CLI_USAGE] agent2 instruction requires <T010|T020|T030>.");
+        return 2;
+      }
+      printJson(io, getAgent2TaskInstruction(taskId));
+      return 0;
+    }
 
     if (args[0] === "agent2" && args[1] === "execute") {
       const projectId = args[2];
