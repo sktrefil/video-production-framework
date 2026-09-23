@@ -251,6 +251,11 @@ export class Agent3VisualProductionWorkerService {
             scene.scene_id,
             scene.beats.map(beat => beat.beat_id)
           ])
+        ),
+        sceneDurationsSec: new Map(
+          scenes.scenes
+            .filter(scene => scene.tts !== null)
+            .map(scene => [scene.scene_id, scene.tts!.duration_sec])
         )
       });
       const binding = validateStateSceneBindings(input, visual.value);
