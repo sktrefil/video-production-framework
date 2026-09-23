@@ -242,3 +242,17 @@ test("Agent3 cannot promote a hypothesis into EVIDENCE visual mode", () => {
   assert.equal(checked.valid, false);
   assert.ok(checked.errors.some(issue => issue.code === "VISUAL_FACTUALITY_CLASSIFICATION_MISMATCH"));
 });
+
+
+test("Agent3 requires enough sequential states to split scenes longer than 10 seconds", () => {
+  const checked = validateStateImageDocument(states, {
+    projectId: "p1",
+    sceneIds: ["SCENE_01"],
+    beatIdsByScene: new Map([["SCENE_01", ["BEAT_01"]]]),
+    sceneDurationsSec: new Map([["SCENE_01", 21]])
+  });
+  assert.equal(checked.valid, false);
+  assert.ok(checked.errors.some(issue =>
+    issue.code === "STATE_IMAGE_SPLIT_CAPACITY_INSUFFICIENT"
+  ));
+});
