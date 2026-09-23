@@ -21,7 +21,8 @@
     "./production-spec": "./dist/production-spec.js",
     "./workflow-orchestrator": "./dist/workflow-orchestrator.js",
     "./agent2-story-audio": "./dist/agent2-story-audio.js",
-    "./agent2-runtime": "./dist/agent2-runtime.js"
+    "./agent2-runtime": "./dist/agent2-runtime.js",
+    "./agent3-visual-production": "./dist/agent3-visual-production.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
