@@ -6,6 +6,7 @@ import {
   validatePromptBundle,
   validateSceneVisualDocument,
   validateStateImageDocument,
+  validateStateSceneBindings,
   type ClipProductionDocument,
   type SceneVisualDocument,
   type StateImageDocument
@@ -159,6 +160,9 @@ test("Agent3 visual, state and clip-state contracts validate", () => {
   });
   assert.equal(stateResult.valid, true);
 
+  const stateBinding = validateStateSceneBindings(states, visual);
+  assert.equal(stateBinding.valid, true);
+
   const binding = validateClipStateBindings(clips, states);
   assert.equal(binding.valid, true);
 });
@@ -198,4 +202,25 @@ test("Agent3 state validation rejects missing TARGET state", () => {
   });
   assert.equal(checked.valid, false);
   assert.ok(checked.errors.some(issue => issue.code === "TARGET_STATE_COUNT_INVALID"));
+});
+
+
+test("Agent3 rejects a TARGET state that breaks the Scene exit handoff anchor", () => {
+  const invalid = structuredClone(states);
+  invalid.state_images[1]!.handoff_anchor = "different anchor";
+  const checked = validateStateSceneBindings(invalid, visual);
+  assert.equal(checked.valid, false);
+  assert.ok(checked.errors.some(issue => issue.code === "TARGET_HANDOFF_ANCHOR_MISMATCH"));
+});
+
+test("Agent3 warns on three repeated shot patterns and blocks four", () => {
+  const repeated = structuredClone(clips);
+  repeated.clips = Array.from({ length: 4 }, (_, index) => ({
+    ...structuredClone(clips.clips[0]!),
+    clip_id: "CLIP_" + String(index + 1).padStart(2, "0")
+  }));
+  const checked = validateClipStateBindings(repeated, states);
+  assert.equal(checked.valid, false);
+  assert.ok(checked.warnings.some(issue => issue.code === "REPEATED_SHOT_SIZE"));
+  assert.ok(checked.errors.some(issue => issue.code === "SHOT_SIZE_RHYTHM_REPETITION"));
 });
