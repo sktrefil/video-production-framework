@@ -30,7 +30,12 @@ import {
   validateProjectId,
   type WorkspaceResolverOptions
 } from "@vpf/workspace";
-import { createProjectSpec, type ProjectSpec } from "@vpf/production-spec";
+import {
+  createProjectSpec,
+  createProjectTaskInstances,
+  getStandardProductionWorkflow,
+  type ProjectSpec
+} from "@vpf/production-spec";
 
 export const UNIFIED_PIPELINE = "VPF_UNIFIED_V1" as const;
 export const UNIFIED_FRAMEWORK_VERSION = "0.1.0";
@@ -778,6 +783,48 @@ export class ProjectBootstrapService {
           (project_id, revision, lifecycle_status, schema_version, spec_json, spec_sha256, created_at)
           VALUES (?, 1, 'ACTIVE', ?, ?, ?, ?)`
         ).run(projectId, projectSpec.schema_version, encodedSpec, sha256(encodedSpec).slice("sha256:".length), now);
+
+        const workflow = getStandardProductionWorkflow();
+        const encodedWorkflow = JSON.stringify(workflow);
+        repository.db.prepare(`INSERT INTO production_workflow_instances
+          (project_id, workflow_id, workflow_version, workflow_sha256, workflow_json, profile, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`
+        ).run(
+          projectId,
+          workflow.workflow_id,
+          workflow.version,
+          sha256(encodedWorkflow),
+          encodedWorkflow,
+          projectSpec.format,
+          now
+        );
+
+        const insertTask = repository.db.prepare(`INSERT INTO production_task_instances
+          (project_id, task_id, task_instance_id, task_order, assigned_agent, task_type, status,
+           attempt, manual_approval_required, input_refs_json, output_refs_json, last_gate_id,
+           last_gate_status, created_at, started_at, completed_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+        for (const task of createProjectTaskInstances(projectId, workflow, now)) {
+          insertTask.run(
+            task.project_id,
+            task.task_id,
+            task.task_instance_id,
+            task.task_order,
+            task.assigned_agent,
+            task.task_type,
+            task.status,
+            task.attempt,
+            task.manual_approval_required ? 1 : 0,
+            JSON.stringify(task.input_revision_refs),
+            JSON.stringify(task.output_revision_refs),
+            task.last_gate_id,
+            task.last_gate_status,
+            task.created_at,
+            task.started_at,
+            task.completed_at,
+            task.updated_at
+          );
+        }
       } finally {
         repository.close();
       }
