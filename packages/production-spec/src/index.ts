@@ -7,3 +7,5 @@ export * from "./scene-timing-validator.js";
 export * from "./clip-production-validator.js";
 export * from "./generation-ready-validator.js";
 export * from "./gates.js";
+
+export * from "./workflow-orchestrator.js";
