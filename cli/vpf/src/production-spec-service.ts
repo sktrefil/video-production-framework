@@ -379,36 +379,66 @@ export class Agent1ProductionManagerService {
 
   async validateClips(projectId: string): Promise<ProductionGateEvaluation> {
     const status = await this.projects.getStatus(projectId);
-    const agent2 = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    const agent3 = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
     try {
-      const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
-      const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
+      const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
+      const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
+      const prompts = agent3.getActive<PromptBundleDocument>(projectId, "prompt_bundle_spec");
       return this.evaluate(projectId, "CLIP_PLAN_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const clips = repo.getClipProduction(projectId);
-        const storyGate = repo.getLatestGate(projectId, "STORY_AUDIO_GATE");
-        const dependencyInput = {
+        const stateGate = repo.getLatestGate(projectId, "STATE_IMAGE_GATE");
+        const stateInput = {
           project,
           scenes,
-          tts: tts?.value ?? null,
-          subtitles: subtitles?.value ?? null
+          visual: visual?.value ?? null,
+          states: states?.value ?? null
         };
-        const dependency = scenes !== null && storyGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "STORY_AUDIO_GATE", dependencyInput)
+        const dependency = stateGate?.status === "PASS" &&
+          repo.isLatestGateCurrent(projectId, "STATE_IMAGE_GATE", stateInput)
           ? result([])
-          : result([missing("STORY_AUDIO_GATE_REQUIRED", "A current STORY_AUDIO_GATE PASS is required before CLIP_PLAN_GATE.")]);
-        const validation = clips === null
+          : result([missing("STATE_IMAGE_GATE_REQUIRED", "A current STATE_IMAGE_GATE PASS is required before CLIP_PLAN_GATE.")]);
+
+        const clipValidation = clips === null
           ? result([missing("CLIP_PRODUCTION_SPEC_MISSING", "Clip Production Spec is required.")])
           : validateClipProductionSpecs(clips, { ...(scenes === null ? {} : { sceneTimings: scenes.scenes }) });
+
+        const bindingValidation = clips === null || states === null
+          ? result([missing("CLIP_STATE_INPUT_MISSING", "Clip Production and State Image Specs are required.")])
+          : validateClipStateBindings(clips, states.value);
+
+        const promptValidation = prompts === null || clips === null || states === null
+          ? result([missing("PROMPT_BUNDLE_MISSING", "Prompt Bundle is required for CLIP_PLAN_GATE.")])
+          : merge(
+              validatePromptBundle(prompts.value, {
+                projectId,
+                stateImageIds: states.value.state_images.map(item => item.state_image_id),
+                clipIds: clips.clips.map(item => item.clip_id)
+              }),
+              validatePromptBindings(prompts.value, states.value, clips)
+            );
+
         if (clips !== null && clips.project_id !== projectId) {
-          validation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
-          validation.valid = false;
-          validation.ready_for_generation = false;
+          clipValidation.errors.push(missing("PROJECT_ID_MISMATCH", "Clip Production project_id mismatch.", "project_id"));
+          clipValidation.valid = false;
+          clipValidation.ready_for_generation = false;
         }
-        return { input: { scenes, clips }, validation: merge(dependency, validation) };
+
+        return {
+          input: {
+            project,
+            scenes,
+            visual: visual?.value ?? null,
+            states: states?.value ?? null,
+            clips,
+            prompts: prompts?.value ?? null
+          },
+          validation: merge(dependency, clipValidation, bindingValidation, promptValidation)
+        };
       });
     } finally {
-      agent2.close();
+      agent3.close();
     }
   }
 
