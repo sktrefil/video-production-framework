@@ -89,6 +89,25 @@ function subtitleChunks(text: string, maxChars: number): string[] {
     const words = phrase.split(/\s+/u).filter(Boolean);
     let current = "";
     for (const word of words) {
+      if (compactText(word).length > maxChars) {
+        if (current) {
+          chunks.push(current);
+          current = "";
+        }
+        const characters = Array.from(word);
+        let segment = "";
+        for (const char of characters) {
+          const candidate = segment + char;
+          if (segment && compactText(candidate).length > maxChars) {
+            chunks.push(segment);
+            segment = char;
+          } else {
+            segment = candidate;
+          }
+        }
+        if (segment) chunks.push(segment);
+        continue;
+      }
       const candidate = current ? `${current} ${word}` : word;
       if (current && compactText(candidate).length > maxChars) {
         chunks.push(current);
