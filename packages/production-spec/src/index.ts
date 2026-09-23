@@ -9,3 +9,4 @@ export * from "./generation-ready-validator.js";
 export * from "./gates.js";
 
 export * from "./workflow-orchestrator.js";
+export * from "./agent2-story-audio.js";
