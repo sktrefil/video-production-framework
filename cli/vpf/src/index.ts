@@ -17,9 +17,10 @@ import {EditorAssembleError, assembleEditorProject} from "./editor-assemble.js";
 import {EditorMediaImportError, importEditorMedia} from "./editor-media-import.js";
 import { Agent1ProductionManagerService, ProductionSpecCliError } from "./production-spec-service.js";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
-import { getAgent2TaskInstruction } from "@vpf/production-spec";
+import { getAgent2TaskInstruction, getAgent3TaskInstruction } from "@vpf/production-spec";
 import { Agent1WorkflowOrchestratorService, WorkflowOrchestratorError } from "./workflow-orchestrator-service.js";
 import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
+import { Agent3VisualProductionWorkerService, Agent3VisualProductionError } from "./agent3-visual-production-service.js";
 import { Agent2RuntimeAdapterService, Agent2RuntimeAdapterError } from "./agent2-runtime-adapter-service.js";
 
 export interface CliIo {
@@ -44,6 +45,8 @@ Production Spec operations:
   vpf production apply-clips <project_id> --file <clip-production-spec.json>
   vpf production validate-project <project_id>
   vpf production validate-story <project_id>
+  vpf production validate-visual <project_id>
+  vpf production validate-states <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
 
@@ -61,6 +64,10 @@ Agent 2 story/audio operations:
   vpf agent2 run <project_id>
   vpf agent2 run-all <project_id>
   vpf agent2 runtime-status <project_id>
+
+Agent 3 visual/production operations:
+  vpf agent3 instruction <T040|T050|T060>
+  vpf agent3 execute <project_id> <T040|T050|T060> --file <json>
 
 WF-07 story operations:
   vpf script create <project_id> --file <project-file> [--kind <DRAFT|FINAL>]
@@ -248,6 +255,7 @@ export async function runCli(
     const workflow = new Agent1WorkflowOrchestratorService(service);
     const agent2 = new Agent2StoryAudioWorkerService(service);
     const agent2Runtime = new Agent2RuntimeAdapterService(service);
+    const agent3 = new Agent3VisualProductionWorkerService(service);
 
     if (args[0] === "agent2" && args[1] === "instruction") {
       const taskId = args[2];
@@ -300,6 +308,30 @@ export async function runCli(
         return 2;
       }
       printJson(io, await agent2Runtime.runtimeStatus(projectId));
+      return 0;
+    }
+
+    if (args[0] === "agent3" && args[1] === "instruction") {
+      const taskId = args[2];
+      if (taskId !== "T040" && taskId !== "T050" && taskId !== "T060") {
+        io.error("[CLI_USAGE] agent3 instruction requires <T040|T050|T060>.");
+        return 2;
+      }
+      printJson(io, getAgent3TaskInstruction(taskId));
+      return 0;
+    }
+
+    if (args[0] === "agent3" && args[1] === "execute") {
+      const projectId = args[2];
+      const taskId = args[3];
+      const file = requireOption(args, "--file", io, "agent3 execute requires --file <json>.");
+      if (projectId === undefined || file === null || (taskId !== "T040" && taskId !== "T050" && taskId !== "T060")) {
+        if (projectId === undefined || (taskId !== "T040" && taskId !== "T050" && taskId !== "T060")) {
+          io.error("[CLI_USAGE] agent3 execute requires <project_id> <T040|T050|T060>.");
+        }
+        return 2;
+      }
+      printJson(io, await agent3.execute(projectId, taskId, file));
       return 0;
     }
 
@@ -380,7 +412,7 @@ export async function runCli(
       return applied.stored ? 0 : 1;
     }
 
-    if (args[0] === "production" && ["validate-project", "validate-story", "validate-clips", "generation-ready"].includes(args[1] ?? "")) {
+    if (args[0] === "production" && ["validate-project", "validate-story", "validate-visual", "validate-states", "validate-clips", "generation-ready"].includes(args[1] ?? "")) {
       const projectId = args[2];
       if (projectId === undefined) {
         io.error(`[CLI_USAGE] production ${args[1]} requires <project_id>.`);
@@ -388,6 +420,8 @@ export async function runCli(
       }
       const evaluated = args[1] === "validate-project" ? await production.validateProject(projectId)
         : args[1] === "validate-story" ? await production.validateStory(projectId)
+        : args[1] === "validate-visual" ? await production.validateVisualPlan(projectId)
+        : args[1] === "validate-states" ? await production.validateStateImages(projectId)
         : args[1] === "validate-clips" ? await production.validateClips(projectId)
         : await production.generationReady(projectId);
       if (args[1] === "generation-ready") {
@@ -594,6 +628,7 @@ export async function runCli(
       error instanceof WorkflowOrchestratorError ||
       error instanceof Agent2StoryAudioError ||
       error instanceof Agent2RuntimeAdapterError ||
+      error instanceof Agent3VisualProductionError ||
       error instanceof EditorAssembleError ||
       error instanceof EditorMediaImportError
     ) {
