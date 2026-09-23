@@ -168,16 +168,56 @@ export class WorkflowOrchestratorRepository {
       "tts_manifest",
       "subtitle_timing"
     ]);
-    if (!agent2Types.has(artifactType)) return null;
-    const row = this.db.prepare(`SELECT revision, artifact_sha256
-      FROM agent2_story_audio_artifacts
-      WHERE project_id = ? AND artifact_type = ? AND lifecycle_status = 'ACTIVE'
-      ORDER BY revision DESC LIMIT 1`)
-      .get(projectId, artifactType) as { revision: number; artifact_sha256: string } | undefined;
-    return row === undefined ? null : {
-      artifact_type: artifactType,
-      revision: Number(row.revision),
-      sha256: String(row.artifact_sha256)
-    };
+    if (agent2Types.has(artifactType)) {
+      const row = this.db.prepare(`SELECT revision, artifact_sha256
+        FROM agent2_story_audio_artifacts
+        WHERE project_id = ? AND artifact_type = ? AND lifecycle_status = 'ACTIVE'
+        ORDER BY revision DESC LIMIT 1`)
+        .get(projectId, artifactType) as { revision: number; artifact_sha256: string } | undefined;
+      return row === undefined ? null : {
+        artifact_type: artifactType,
+        revision: Number(row.revision),
+        sha256: String(row.artifact_sha256)
+      };
+    }
+
+    const agent3Types = new Set([
+      "scene_visual_spec",
+      "state_image_spec",
+      "prompt_bundle_spec"
+    ]);
+    if (agent3Types.has(artifactType)) {
+      const row = this.db.prepare(`SELECT revision, artifact_sha256
+        FROM agent3_visual_artifacts
+        WHERE project_id = ? AND artifact_type = ? AND lifecycle_status = 'ACTIVE'
+        ORDER BY revision DESC LIMIT 1`)
+        .get(projectId, artifactType) as { revision: number; artifact_sha256: string } | undefined;
+      return row === undefined ? null : {
+        artifact_type: artifactType,
+        revision: Number(row.revision),
+        sha256: String(row.artifact_sha256)
+      };
+    }
+
+    if (artifactType === "visual_bible") {
+      const row = this.db.prepare(`SELECT resource_pins_json FROM projects
+        WHERE project_id = ? AND lifecycle_status = 'ACTIVE' ORDER BY revision DESC LIMIT 1`)
+        .get(projectId) as { resource_pins_json: string } | undefined;
+      if (row === undefined) return null;
+      const pins = JSON.parse(row.resource_pins_json) as Array<{
+        resourceType: string;
+        resourceId: string;
+        version: string;
+        contentHash: string;
+      }>;
+      const pin = pins.find(item => item.resourceType === "CHANNEL_VISUAL_BIBLE");
+      return pin === undefined ? null : {
+        artifact_type: artifactType,
+        revision: 1,
+        sha256: pin.contentHash
+      };
+    }
+
+    return null;
   }
 }
