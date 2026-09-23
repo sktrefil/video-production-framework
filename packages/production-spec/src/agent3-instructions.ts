@@ -14,6 +14,8 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T040" | "T050" | "T060", Agent3Ta
     rules: [
       "Inherit the pinned Channel Visual Bible; do not invent a replacement show style.",
       "Fantasy reconstruction is allowed only when factuality mode and editorial role are explicit.",
+      "Scene Visual fact_refs must exactly match the approved Story Scene fact_refs.",
+      "VERIFIED_FACT may use EVIDENCE or HISTORICAL_RECONSTRUCTION; HYPOTHESIS, LEGEND and EDITORIAL_RECONSTRUCTION must keep their corresponding reconstruction modes.",
       "Do not turn record disappearance into literal magical disappearance.",
       "Each Scene has one continuity contract and one next-cut handoff contract.",
       "Generated readable historical text, unsupported inscriptions, maps, labels, heraldry and fabricated evidence are forbidden."
