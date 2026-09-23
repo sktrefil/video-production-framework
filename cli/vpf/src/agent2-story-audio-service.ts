@@ -337,6 +337,10 @@ export class Agent2StoryAudioWorkerService {
   constructor(private readonly projects: ProjectBootstrapService) {}
 
   async execute(projectId: string, taskId: Agent2TaskId, filename: string): Promise<Agent2TaskExecutionResult> {
+    return this.executePayload(projectId, taskId, await readJson(filename));
+  }
+
+  async executePayload(projectId: string, taskId: Agent2TaskId, input: unknown): Promise<Agent2TaskExecutionResult> {
     const status = await this.projects.getStatus(projectId);
     const workflow = new WorkflowOrchestratorRepository(status.projectDbPath, { readonly: true });
     try {
@@ -351,7 +355,6 @@ export class Agent2StoryAudioWorkerService {
       workflow.close();
     }
 
-    const input = await readJson(filename);
     if (taskId === "T010") return this.executeResearch(status.projectDbPath, projectId, input);
     if (taskId === "T020") return this.executeStory(status.projectDbPath, projectId, input);
     return this.executeTiming(status.projectDbPath, projectId, input);
