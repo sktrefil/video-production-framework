@@ -117,6 +117,7 @@ export function validateSceneVisualDocument(
     required(handoff.entry_anchor, base + ".handoff.entry_anchor", errors);
     required(handoff.exit_anchor, base + ".handoff.exit_anchor", errors);
     const preserve = strings(handoff.preserve_elements, base + ".handoff.preserve_elements", errors);
+    if (preserve.length > 0 && preserve.length < 2) errors.push({ code: "HANDOFF_UNDERSPECIFIED", path: base + ".handoff.preserve_elements", message: "Preserve at least two primary handoff elements." });
     if (preserve.length > 4) errors.push({ code: "HANDOFF_OVERLOAD", path: base + ".handoff.preserve_elements", message: "Preserve at most four primary handoff elements." });
     required(handoff.next_cut_intent, base + ".handoff.next_cut_intent", errors);
   }
@@ -216,6 +217,47 @@ export function validateStateImageDocument(
   return output(errors, warnings);
 }
 
+
+export function validateStateSceneBindings(
+  statesInput: unknown,
+  visualInput: unknown
+): ValidationResult {
+  const errors: ValidationIssue[] = [];
+  const warnings: ValidationIssue[] = [];
+  if (!record(statesInput) || !Array.isArray(statesInput.state_images) || !record(visualInput) || !Array.isArray(visualInput.scenes)) {
+    return output([{ code: "STATE_SCENE_BINDING_INPUT_INVALID", path: "state_images", message: "State Image and Scene Visual documents are required." }]);
+  }
+
+  const scenes = new Map<string, {
+    entry_anchor: string;
+    exit_anchor: string;
+  }>();
+  for (const raw of visualInput.scenes) {
+    if (!record(raw) || !nonempty(raw.scene_id) || !record(raw.handoff)) continue;
+    scenes.set(raw.scene_id, {
+      entry_anchor: nonempty(raw.handoff.entry_anchor) ? raw.handoff.entry_anchor : "",
+      exit_anchor: nonempty(raw.handoff.exit_anchor) ? raw.handoff.exit_anchor : ""
+    });
+  }
+
+  for (const [index, raw] of statesInput.state_images.entries()) {
+    const base = "state_images[" + index + "]";
+    if (!record(raw) || !nonempty(raw.scene_id)) continue;
+    const scene = scenes.get(raw.scene_id);
+    if (scene === undefined) {
+      errors.push({ code: "STATE_SCENE_VISUAL_MISSING", path: base + ".scene_id", message: "State Image references a Scene with no Scene Visual plan." });
+      continue;
+    }
+    if (raw.role === "ENTRY" && raw.handoff_anchor !== scene.entry_anchor) {
+      errors.push({ code: "ENTRY_HANDOFF_ANCHOR_MISMATCH", path: base + ".handoff_anchor", message: "ENTRY State handoff_anchor must match Scene entry_anchor." });
+    }
+    if (raw.role === "TARGET" && raw.handoff_anchor !== scene.exit_anchor) {
+      errors.push({ code: "TARGET_HANDOFF_ANCHOR_MISMATCH", path: base + ".handoff_anchor", message: "TARGET State handoff_anchor must match Scene exit_anchor." });
+    }
+  }
+  return output(errors, warnings);
+}
+
 export function validatePromptBundle(
   input: unknown,
   context: { projectId?: string; stateImageIds?: readonly string[]; clipIds?: readonly string[] } = {}
@@ -296,6 +338,8 @@ export function validateClipStateBindings(
   let movementRun = 0;
   let repeatedTransition = "";
   let transitionRun = 0;
+  let repeatedShotSignature = "";
+  let shotRun = 0;
 
   for (const [index, raw] of clipsInput.clips.entries()) {
     const base = "clips[" + index + "]";
@@ -331,6 +375,14 @@ export function validateClipStateBindings(
     if (targetId) previousTargetByScene.set(raw.scene_id, targetId);
 
     const camera = record(raw.camera) ? raw.camera : {};
+    const shotStart = nonempty(camera.shot_size_start) ? camera.shot_size_start : "";
+    const shotEnd = nonempty(camera.shot_size_end) ? camera.shot_size_end : "";
+    const shotSignature = shotStart && shotEnd ? shotStart + ">" + shotEnd : "";
+    if (shotSignature && shotSignature === repeatedShotSignature) shotRun += 1;
+    else { repeatedShotSignature = shotSignature; shotRun = shotSignature ? 1 : 0; }
+    if (shotRun === 3) warnings.push({ code: "REPEATED_SHOT_SIZE", path: base + ".camera.shot_size_start", message: "Three adjacent Clips repeat the same shot-size pattern." });
+    if (shotRun >= 4) errors.push({ code: "SHOT_SIZE_RHYTHM_REPETITION", path: base + ".camera.shot_size_start", message: "Four or more adjacent Clips may not repeat the same shot-size pattern." });
+
     const movement = nonempty(camera.movement) ? camera.movement : "";
     if (movement && movement === repeatedMovement) movementRun += 1;
     else { repeatedMovement = movement; movementRun = movement ? 1 : 0; }
