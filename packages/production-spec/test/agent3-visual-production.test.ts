@@ -24,6 +24,7 @@ const visual: SceneVisualDocument = {
     scene_id: "SCENE_01",
     story_role: "HOOK",
     factuality_mode: "HISTORICAL_RECONSTRUCTION",
+    fact_refs: [],
     narrative_purpose_ko: "기록이 끊기는 미스터리를 제기한다.",
     narrative_purpose_en: "",
     visual_intent_ko: "실종 자체가 아니라 마지막으로 확인되는 기록의 분위기를 보여준다.",
