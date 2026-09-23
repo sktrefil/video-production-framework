@@ -172,10 +172,7 @@ function normalizedClipInput(
     clips: value.clip_production_spec.clips.map(clip => ({
       ...clip,
       generation_duration_sec: null,
-      safe_trim_start_sec: Math.max(
-        clip.editorial_duration_sec,
-        clip.safe_trim_start_sec
-      )
+      safe_trim_start_sec: clip.editorial_duration_sec
     }))
   };
   return {
@@ -272,8 +269,7 @@ class OpenAiAgent3Runtime {
         ...instruction.rules,
         "Return one Scene Visual plan for every Scene Timing scene, in the same order.",
         "Copy each Story Scene fact_refs exactly. Never invent or remove a fact reference.",
-        "Map factuality conservatively: VERIFIED_FACT may be EVIDENCE or HISTORICAL_RECONSTRUCTION; HYPOTHESIS must be HYPOTHESIS_RECONSTRUCTION; LEGEND must be LEGEND_RECONSTRUCTION; EDITORIAL_RECONSTRUCTION must be EDITORIAL_FANTASY_RECONSTRUCTION.",
-        "LIKELY_INTERPRETATION may be HISTORICAL_RECONSTRUCTION or HYPOTHESIS_RECONSTRUCTION.",
+        "Map factuality conservatively. For mixed fact_refs use the least-certain applicable class in this priority: any LEGEND => LEGEND_RECONSTRUCTION; else any HYPOTHESIS => HYPOTHESIS_RECONSTRUCTION; else any EDITORIAL_RECONSTRUCTION => EDITORIAL_FANTASY_RECONSTRUCTION; else any LIKELY_INTERPRETATION => HISTORICAL_RECONSTRUCTION or HYPOTHESIS_RECONSTRUCTION; otherwise VERIFIED_FACT may be EVIDENCE or HISTORICAL_RECONSTRUCTION.",
         "Visual Bible is the show-level authority. Do not replace it with a new style.",
         "Fantasy visual language may express atmosphere and reconstruction, but must not convert uncertainty into factual evidence.",
         "Handoff preserve_elements must contain two to four concrete continuity elements.",
@@ -376,7 +372,7 @@ class OpenAiAgent3Runtime {
         "Set safe_trim_start_sec equal to editorial_duration_sec.",
         "All mandatory core-point windows are clip-local seconds, non-overlapping, after start_handle_sec, and finish no later than narrative_deadline_sec.",
         "Core-point cap: duration <=3 sec: 1; >3 and <=5 sec: at most 2; >5 and <=10 sec: at most 3.",
-        "narrative_deadline_sec must be before target_state_deadline_sec or equal to it, and target_state_deadline_sec must be before editorial end.",
+        "narrative_deadline_sec must be before target_state_deadline_sec or equal to it, and target_state_deadline_sec must be before editorial end. Normally place narrative completion around 80–90 percent of editorial duration unless the beat requires an earlier completion.",
         "end_hold_sec must fit entirely after target_state_deadline_sec.",
         "Camera purpose must explain narrative intent. Avoid four adjacent Clips with the same movement, same shot-size pattern, or same transition.",
         "Use varied transitions such as HARD_CUT, MATCH_CUT, MOTION_MATCH, GRAPHIC_MATCH, FOREGROUND_WIPE, ENVIRONMENT_OCCLUSION, LIGHT_TRANSITION, STATIC_BREAK.",
