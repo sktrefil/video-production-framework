@@ -42,6 +42,7 @@ export class Agent3VisualProductionError extends Error {
       | "AGENT3_INPUT_INVALID"
       | "AGENT3_PREREQUISITE_MISSING"
       | "AGENT3_VISUAL_BIBLE_MISSING"
+      | "AGENT3_PROJECT_UPGRADE_REQUIRED"
       | "AGENT3_PROMPT_COMPILATION_FAILED",
     message: string
   ) {
@@ -124,6 +125,12 @@ export class Agent3VisualProductionWorkerService {
     input: unknown
   ): Promise<Agent3TaskExecutionResult> {
     const status = await this.projects.getStatus(projectId);
+    if (!status.migrations.appliedMigrationIds.includes("0020")) {
+      throw new Agent3VisualProductionError(
+        "AGENT3_PROJECT_UPGRADE_REQUIRED",
+        "Agent3 Visual Production requires migration 0020. Upgrade the project schema explicitly or create a new project on the current framework."
+      );
+    }
     const workflow = new WorkflowOrchestratorRepository(status.projectDbPath, { readonly: true });
     try {
       const task = workflow.getTask(projectId, taskId);
