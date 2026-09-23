@@ -240,6 +240,9 @@ export class Agent1WorkflowOrchestratorService {
         completedAt: at,
         updatedAt: at
       });
+      if (taskId === "T060") {
+        await this.production.generationReady(projectId);
+      }
       await this.refresh(projectId, workflowRepo);
       return workflowRepo.getTask(projectId, taskId)!;
     } finally {
