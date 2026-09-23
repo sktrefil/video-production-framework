@@ -214,6 +214,7 @@ export class Agent2RuntimeAdapterError extends Error {
       | "AGENT2_RUNTIME_SOURCE_UNVERIFIED"
       | "AGENT2_RUNTIME_TASK_UNAVAILABLE"
       | "AGENT2_RUNTIME_PREREQUISITE"
+      | "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED"
       | "AGENT2_TTS_RUNTIME_FAILED",
     message: string
   ) {
@@ -826,6 +827,7 @@ export class Agent2RuntimeAdapterService {
   }
 
   async runNext(projectId: string): Promise<RuntimeStepResult | { project_id: string; handoff_task: string | null; status: "HANDOFF" }> {
+    await this.assertRuntimeProjectCurrent(projectId);
     const workflowState = await this.manager.status(projectId);
     const next = workflowState.tasks.find(task =>
       task.assigned_agent === "AGENT2_STORY_AUDIO" &&
@@ -863,6 +865,7 @@ export class Agent2RuntimeAdapterService {
     handoff_task: string | null;
     handoff_agent: string | null;
   }> {
+    await this.assertRuntimeProjectCurrent(projectId);
     const steps: RuntimeStepResult[] = [];
     for (let index = 0; index < 3; index += 1) {
       const state = await this.manager.status(projectId);
@@ -886,12 +889,33 @@ export class Agent2RuntimeAdapterService {
   }
 
   async runtimeStatus(projectId: string) {
+    await this.assertRuntimeProjectCurrent(projectId);
     const status = await this.projects.getStatus(projectId);
     const repo = new Agent2RuntimeRepository(status.projectDbPath, { readonly: true });
     try {
       return { project_id: projectId, runs: repo.list(projectId) };
     } finally {
       repo.close();
+    }
+  }
+
+  private async assertRuntimeProjectCurrent(projectId: string): Promise<void> {
+    const status = await this.projects.getStatus(projectId);
+    if (!status.migrations.current || status.migrations.latestMigrationId !== "0019") {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+        `Project ${projectId} is on DB migrations ${status.migrations.appliedCount}/${status.migrations.availableCount}. Agent2 Runtime Adapter requires migration 0019. Do not auto-upgrade production projects; migrate explicitly or create a new project on the current framework.`
+      );
+    }
+    const openAiPin = status.resourcePins.find(pin =>
+      pin.resourceType === "PROVIDER_PROFILE" &&
+      pin.resourceId === "OPENAI_AGENT2_STORY_V1"
+    );
+    if (!openAiPin) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+        `Project ${projectId} does not pin OPENAI_AGENT2_STORY_V1. Agent2 Runtime Adapter requires an explicit resource-profile upgrade or a new project using HISTORY_MYSTERY_V1@1.6.0.`
+      );
     }
   }
 
