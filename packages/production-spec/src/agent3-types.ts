@@ -133,3 +133,16 @@ export interface Agent3T060Input {
   project_id: string;
   clip_production_spec: ClipProductionDocument;
 }
+
+
+export interface Agent3TaskExecutionResult {
+  project_id: string;
+  task_id: "T040" | "T050" | "T060";
+  assigned_agent: "AGENT3_VISUAL_PRODUCTION";
+  stored_artifacts: Array<{
+    artifact_type: string;
+    revision: number;
+    sha256: string;
+  }>;
+  warnings: Array<{ code: string; message: string }>;
+}
