@@ -43,6 +43,7 @@ export interface SceneVisualPlan {
   scene_id: string;
   story_role: StoryRole;
   factuality_mode: VisualFactualityMode;
+  fact_refs: string[];
   narrative_purpose_ko: string;
   narrative_purpose_en: string;
   visual_intent_ko: string;
