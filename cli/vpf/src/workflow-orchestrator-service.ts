@@ -9,6 +9,7 @@ import {
   type WorkflowAgentId
 } from "@vpf/production-spec";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
+import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
 import { Agent1ProductionManagerService } from "./production-spec-service.js";
 
@@ -367,14 +368,18 @@ export class Agent1WorkflowOrchestratorService {
 
   private async generationGateCurrent(projectId: string, dbPath: string): Promise<boolean> {
     const repo = new ProductionSpecRepository(dbPath);
+    const agent2 = new Agent2StoryAudioRepository(dbPath, { readonly: true });
     try {
       const project = repo.getProjectSpec(projectId);
       const scenes = repo.getSceneTiming(projectId);
       const clips = repo.getClipProduction(projectId);
-      const input = { project, scenes, clips };
+      const tts = agent2.getActive(projectId, "tts_manifest")?.value ?? null;
+      const subtitles = agent2.getActive(projectId, "subtitle_timing")?.value ?? null;
+      const input = { project, scenes, clips, tts, subtitles };
       const gate = repo.getLatestGate(projectId, "GENERATION_READY_GATE");
       return gate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "GENERATION_READY_GATE", input);
     } finally {
+      agent2.close();
       repo.close();
     }
   }
