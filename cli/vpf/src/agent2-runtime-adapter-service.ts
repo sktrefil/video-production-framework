@@ -55,7 +55,7 @@ const RESEARCH_SCHEMA = {
       additionalProperties: false,
       required: ["schema_version", "project_id", "topic", "central_question", "sources", "research_notes"],
       properties: {
-        schema_version: { const: "1.0" },
+        schema_version: { type: "string", enum: ["1.0"] },
         project_id: { type: "string" },
         topic: { type: "string" },
         central_question: { type: "string" },
@@ -86,7 +86,7 @@ const RESEARCH_SCHEMA = {
       additionalProperties: false,
       required: ["schema_version", "project_id", "facts"],
       properties: {
-        schema_version: { const: "1.0" },
+        schema_version: { type: "string", enum: ["1.0"] },
         project_id: { type: "string" },
         facts: {
           type: "array",
@@ -125,7 +125,7 @@ const STORY_SCHEMA = {
       additionalProperties: false,
       required: ["schema_version", "project_id", "central_question", "sections", "scenes"],
       properties: {
-        schema_version: { const: "1.0" },
+        schema_version: { type: "string", enum: ["1.0"] },
         project_id: { type: "string" },
         central_question: { type: "string" },
         sections: {
@@ -190,7 +190,7 @@ const STORY_SCHEMA = {
         "estimated_duration_sec", "source_fact_refs"
       ],
       properties: {
-        schema_version: { const: "1.0" },
+        schema_version: { type: "string", enum: ["1.0"] },
         project_id: { type: "string" },
         language: { type: "string" },
         body_ko: { type: "string" },
