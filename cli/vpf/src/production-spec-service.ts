@@ -8,6 +8,7 @@ import {
   validateProjectSpec,
   validateSceneVisualDocument,
   validateStateImageDocument,
+  validateStateSceneBindings,
   validateResearchBundle,
   validateStoryBundle,
   validateSceneTimingDocument,
@@ -361,6 +362,9 @@ export class Agent1ProductionManagerService {
                 ])
               )
             });
+        const binding = states === null || visual === null
+          ? result([missing("STATE_SCENE_BINDING_INPUT_MISSING", "State Image and Scene Visual Specs are required.")])
+          : validateStateSceneBindings(states.value, visual.value);
 
         return {
           input: {
@@ -369,7 +373,7 @@ export class Agent1ProductionManagerService {
             visual: visual?.value ?? null,
             states: states?.value ?? null
           },
-          validation: merge(dependency, validation)
+          validation: merge(dependency, validation, binding)
         };
       });
     } finally {
