@@ -15,6 +15,17 @@ const strings = {
   items: { type: "string" }
 } as const;
 
+const TRANSITIONS = [
+  "HARD_CUT",
+  "MATCH_CUT",
+  "MOTION_MATCH",
+  "GRAPHIC_MATCH",
+  "FOREGROUND_WIPE",
+  "ENVIRONMENT_OCCLUSION",
+  "LIGHT_TRANSITION",
+  "STATIC_BREAK"
+] as const;
+
 export const AGENT3_SCENE_VISUAL_SCHEMA = {
   type: "object",
   additionalProperties: false,
@@ -293,8 +304,8 @@ export const AGENT3_CLIP_CAMERA_SCHEMA = {
                   target: { type: "string" }
                 }
               },
-              transition_in: { type: "string" },
-              transition_out: { type: "string" }
+              transition_in: { type: "string", enum: TRANSITIONS },
+              transition_out: { type: "string", enum: TRANSITIONS }
             }
           }
         }
