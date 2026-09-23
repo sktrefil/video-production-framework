@@ -26,7 +26,7 @@ test("Agent1 workflow instantiates T010-T100, enforces assignment and revision s
     const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
     const initial = await workflow.status("workflow_sample");
     assert.equal(initial.workflow_id, "VPF_PRODUCTION_V1");
-    assert.equal(initial.workflow_version, "1.1");
+    assert.equal(initial.workflow_version, "1.2");
     assert.equal(initial.tasks.length, 10);
     assert.deepEqual(initial.ready_tasks, ["T010"]);
     assert.equal(initial.next_task?.assigned_agent, "AGENT2_STORY_AUDIO");
