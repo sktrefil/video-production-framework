@@ -72,7 +72,12 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
     PROJECT_STYLE_UNMATERIALIZED_VERSION
   );
   assert.ok(created.record.project.versions.resourceHashes?.formatProfile?.startsWith("sha256:"));
-  assert.ok(created.record.resourcePins.length >= 8);
+  assert.ok(created.record.resourcePins.length >= 9);
+  assert.ok(created.record.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "OPENAI_AGENT2_STORY_V1" &&
+    pin.version === "1.0.0"
+  ));
 
   const db = new Database(created.projectDbPath, { readonly: true });
   try {
