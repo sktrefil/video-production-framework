@@ -149,14 +149,35 @@ export class WorkflowOrchestratorRepository {
       clip_production_spec: "production_clip_specs"
     };
     const table = tables[artifactType];
-    if (table === undefined) return null;
-    const row = this.db.prepare(`SELECT revision, spec_sha256 FROM ${table}
-      WHERE project_id = ? AND lifecycle_status = 'ACTIVE' ORDER BY revision DESC LIMIT 1`)
-      .get(projectId) as { revision: number; spec_sha256: string } | undefined;
+    if (table !== undefined) {
+      const row = this.db.prepare(`SELECT revision, spec_sha256 FROM ${table}
+        WHERE project_id = ? AND lifecycle_status = 'ACTIVE' ORDER BY revision DESC LIMIT 1`)
+        .get(projectId) as { revision: number; spec_sha256: string } | undefined;
+      return row === undefined ? null : {
+        artifact_type: artifactType,
+        revision: Number(row.revision),
+        sha256: String(row.spec_sha256)
+      };
+    }
+
+    const agent2Types = new Set([
+      "research_spec",
+      "fact_check_spec",
+      "story_spec",
+      "script",
+      "tts_manifest",
+      "subtitle_timing"
+    ]);
+    if (!agent2Types.has(artifactType)) return null;
+    const row = this.db.prepare(`SELECT revision, artifact_sha256
+      FROM agent2_story_audio_artifacts
+      WHERE project_id = ? AND artifact_type = ? AND lifecycle_status = 'ACTIVE'
+      ORDER BY revision DESC LIMIT 1`)
+      .get(projectId, artifactType) as { revision: number; artifact_sha256: string } | undefined;
     return row === undefined ? null : {
       artifact_type: artifactType,
       revision: Number(row.revision),
-      sha256: String(row.spec_sha256)
+      sha256: String(row.artifact_sha256)
     };
   }
 }
