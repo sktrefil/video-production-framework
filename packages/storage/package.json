@@ -18,7 +18,8 @@
     "./tts-runtime": "./dist/tts-runtime.js",
     "./runtime-execution": "./dist/runtime-execution.js",
     "./audio-import": "./dist/audio-import.js",
-    "./production-spec": "./dist/production-spec.js"
+    "./production-spec": "./dist/production-spec.js",
+    "./workflow-orchestrator": "./dist/workflow-orchestrator.js"
   },
   "types": "./dist/index.d.ts",
   "dependencies": {
