@@ -133,7 +133,7 @@ export class Agent1ProductionManagerService {
         const artifacts = story === null || script === null
           ? result([missing("STORY_ARTIFACTS_MISSING", "story_spec and script are required.")])
           : validateStoryBundle({ story_spec: story.value, script: script.value }, facts?.value ?? null, projectId);
-        return { input: { facts: facts?.value ?? null, story: story?.value ?? null, script: script?.value ?? null }, validation: merge(dependency, artifacts) };
+        return { input: { project: repo.getProjectSpec(projectId), facts: facts?.value ?? null, story: story?.value ?? null, script: script?.value ?? null }, validation: merge(dependency, artifacts) };
       });
     } finally {
       agent2.close();
@@ -162,6 +162,7 @@ export class Agent1ProductionManagerService {
         const script = agent2.getActive<Agent2ScriptSpec>(projectId, "script");
         const scriptGate = repo.getLatestGate(projectId, "SCRIPT_GATE");
         const dependencyInput = {
+          project,
           facts: agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec")?.value ?? null,
           story: story?.value ?? null,
           script: script?.value ?? null
