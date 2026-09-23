@@ -292,11 +292,11 @@ function normalizeResearchBundle(bundle: Agent2ResearchBundle): Agent2ResearchBu
       ...bundle.research_spec,
       sources: bundle.research_spec.sources.map(source => ({
         ...source,
-        ...(source.url.trim() ? { url: source.url.trim() } : { url: "" }),
-        ...(source.citation.trim() ? { citation: source.citation.trim() } : { citation: "" }),
-        ...(source.publisher.trim() ? { publisher: source.publisher.trim() } : { publisher: "" }),
-        ...(source.published_at.trim() ? { published_at: source.published_at.trim() } : { published_at: "" }),
-        ...(source.notes.trim() ? { notes: source.notes.trim() } : { notes: "" })
+        ...((source.url ?? "").trim() ? { url: (source.url ?? "").trim() } : { url: "" }),
+        ...((source.citation ?? "").trim() ? { citation: (source.citation ?? "").trim() } : { citation: "" }),
+        ...((source.publisher ?? "").trim() ? { publisher: (source.publisher ?? "").trim() } : { publisher: "" }),
+        ...((source.published_at ?? "").trim() ? { published_at: (source.published_at ?? "").trim() } : { published_at: "" }),
+        ...((source.notes ?? "").trim() ? { notes: (source.notes ?? "").trim() } : { notes: "" })
       }))
     },
     fact_check_spec: {
