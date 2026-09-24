@@ -869,6 +869,7 @@ export class Agent2RuntimeAdapterService {
   private readonly manager: Agent1WorkflowOrchestratorService;
   private readonly worker: Agent2StoryAudioWorkerService;
   private readonly codexManager: CodexManagerRuntimeService;
+  private readonly codexRunner: CodexProcessRunner;
 
   constructor(
     private readonly projects: ProjectBootstrapService,
@@ -877,6 +878,7 @@ export class Agent2RuntimeAdapterService {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent2StoryAudioWorkerService(projects);
     this.codexManager = new CodexManagerRuntimeService(projects, environment);
+    this.codexRunner = new CodexProcessRunner(environment);
   }
 
   async runNext(projectId: string): Promise<RuntimeStepResult | { project_id: string; handoff_task: string | null; status: "HANDOFF" }> {
@@ -1048,7 +1050,7 @@ export class Agent2RuntimeAdapterService {
       if (taskId === "T010") {
         if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
           const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
-          const codex = new CodexProcessRunner(this.environment);
+          const codex = this.codexRunner;
           const directive = await this.codexManager.latestDirective(projectId, "T010");
           const input = {
             project_id: projectId,
@@ -1198,7 +1200,7 @@ export class Agent2RuntimeAdapterService {
 
         if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
           const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
-          const codex = new CodexProcessRunner(this.environment);
+          const codex = this.codexRunner;
           const directive = await this.codexManager.latestDirective(projectId, "T020");
           const input = {
             project_id: projectId,
