@@ -277,8 +277,10 @@ export class Agent1WorkflowOrchestratorService {
     if (workflow === null) return;
     const at = nowIso();
 
-    for (const task of repo.listTasks(projectId)) {
-      if (!["COMPLETE", "RUNNING"].includes(task.status)) continue;
+    for (const snapshot of repo.listTasks(projectId)) {
+      const task = repo.getTask(projectId, snapshot.task_id);
+      if (task === null || !["COMPLETE", "RUNNING"].includes(task.status)) continue;
+
       const staleInput = task.input_revision_refs.some(
         ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
       );
@@ -287,6 +289,7 @@ export class Agent1WorkflowOrchestratorService {
         task.output_revision_refs.some(
           ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
         );
+
       if (staleInput || staleOutput) {
         repo.updateTask({
           projectId,
