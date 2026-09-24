@@ -805,6 +805,35 @@ class Agent2ElevenLabsBridge {
   }
 }
 
+async function resolvePinnedCodexStoryProfile(
+  pins: ResourcePin[]
+): Promise<ResourcePin> {
+  const pin = pins.find(item =>
+    item.resourceType === "PROVIDER_PROFILE" &&
+    item.resourceId === "CODEX_STORY_AUDIO_V1"
+  );
+  if (!pin) {
+    throw new Agent2RuntimeAdapterError(
+      "AGENT2_RUNTIME_PREREQUISITE",
+      "Pinned CODEX_STORY_AUDIO_V1 profile is missing."
+    );
+  }
+  const registry = new FileSystemResourceRegistry(
+    path.join(DEFAULT_REPOSITORY_ROOT, "resources")
+  );
+  const snapshot = await registry.resolvePinned<ProviderProfilePayload>(pin);
+  if (
+    snapshot.payload.provider !== "CODEX_SESSION" ||
+    snapshot.payload.executionMode !== "AUTOMATED"
+  ) {
+    throw new Agent2RuntimeAdapterError(
+      "AGENT2_RUNTIME_PREREQUISITE",
+      "CODEX_STORY_AUDIO_V1 must be an AUTOMATED CODEX_SESSION profile."
+    );
+  }
+  return pin;
+}
+
 async function resolvePinnedOpenAiProfile(
   pins: ResourcePin[]
 ): Promise<{ model: string; pin: ResourcePin }> {
@@ -969,20 +998,38 @@ export class Agent2RuntimeAdapterService {
 
   private async assertRuntimeProjectCurrent(projectId: string): Promise<void> {
     const status = await this.projects.getStatus(projectId);
+    const mode = agent2AiRuntimeMode(this.environment);
+    if (mode === "CODEX_SESSION") {
+      if (!status.migrations.appliedMigrationIds.includes("0022")) {
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+          "Codex Agent2 runtime requires migration 0022."
+        );
+      }
+      if (!status.resourcePins.some(pin =>
+        pin.resourceType === "PROVIDER_PROFILE" &&
+        pin.resourceId === "CODEX_STORY_AUDIO_V1"
+      )) {
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+          "Project does not pin CODEX_STORY_AUDIO_V1. Use HISTORY_MYSTERY_V1@1.8.0 or explicitly upgrade resources."
+        );
+      }
+      return;
+    }
     if (!status.migrations.appliedMigrationIds.includes("0019")) {
       throw new Agent2RuntimeAdapterError(
         "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-        `Project ${projectId} does not include migration 0019. Agent2 Runtime Adapter requires migration 0019; later Agent3-only migrations are not required for Agent2 execution.`
+        "OpenAI API Agent2 runtime requires migration 0019."
       );
     }
-    const openAiPin = status.resourcePins.find(pin =>
+    if (!status.resourcePins.some(pin =>
       pin.resourceType === "PROVIDER_PROFILE" &&
       pin.resourceId === "OPENAI_AGENT2_STORY_V1"
-    );
-    if (!openAiPin) {
+    )) {
       throw new Agent2RuntimeAdapterError(
         "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-        `Project ${projectId} does not pin OPENAI_AGENT2_STORY_V1. Agent2 Runtime Adapter requires an explicit resource-profile upgrade or a new project using HISTORY_MYSTERY_V1@1.6.0.`
+        "OPENAI_API mode requires pinned OPENAI_AGENT2_STORY_V1."
       );
     }
   }
