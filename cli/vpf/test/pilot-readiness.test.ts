@@ -47,6 +47,9 @@ test("environment preflight resolves canonical providers without exposing secret
   assert.ok(result.providers.some(provider => provider.provider === "ELEVENLABS"));
   assert.ok(result.providers.some(provider => provider.provider === "CHATGPT_BROWSER"));
   assert.ok(result.providers.some(provider => provider.provider === "GOOGLE_FLOW"));
+  assert.ok(result.providers.some(provider => provider.provider === "CODEX_SESSION"));
+  assert.equal(result.providers.some(provider => provider.resourceId === "OPENAI_AGENT2_STORY_V1"), false);
+  assert.equal(result.providers.some(provider => provider.resourceId === "OPENAI_AGENT3_VISUAL_V1"), false);
   assert.ok(result.providers.every(provider => provider.missingSecretNames.length === 0));
   const serialized = JSON.stringify(result);
   assert.doesNotMatch(serialized, /secret-elevenlabs-test-value/u);
