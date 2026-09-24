@@ -480,8 +480,13 @@ export async function runCli(
         io.error("[CLI_USAGE] production run requires <project_id>.");
         return 2;
       }
-      const preflight = await codexRuntime.preflight();
-      if (!preflight.ready) {
+      const runtimeMode = (process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION")
+        .trim()
+        .toUpperCase();
+      const preflight = runtimeMode === "CODEX_SESSION"
+        ? await codexRuntime.preflight()
+        : null;
+      if (preflight !== null && !preflight.ready) {
         printJson(io, {
           project_id: projectId,
           status: "BLOCKED",
@@ -496,7 +501,7 @@ export async function runCli(
       printJson(io, {
         project_id: projectId,
         status: "RUN_COMPLETE",
-        runtime_mode: process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION",
+        runtime_mode: runtimeMode,
         codex_preflight: preflight,
         agent2: agent2Result,
         agent3: agent3Result,
