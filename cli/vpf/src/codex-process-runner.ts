@@ -11,6 +11,7 @@ import {
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
+import { assertNoSecretValues } from "@vpf/runtime-contracts";
 import {
   getCodexRoleProfile,
   type CodexRoleId
@@ -370,6 +371,9 @@ export class CodexProcessRunner {
         "Codex CLI does not satisfy the VPF runtime preflight."
       );
     }
+
+    assertNoSecretValues(request.input);
+    assertNoSecretValues(request.instructions);
 
     const runId = [
       request.projectId,
