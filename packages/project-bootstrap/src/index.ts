@@ -166,6 +166,8 @@ export interface DoctorDiagnostic {
     | "PROJECT_SNAPSHOT"
     | "RESOURCE_PINS"
     | "PROJECT_DIRECTORIES"
+    | "PRODUCTION_SPEC"
+    | "PRODUCTION_WORKFLOW"
     | "LEGACY_DISABLED"
     | "UNIFIED_PIPELINE"
     | "OLD_REPOSITORY_DEPENDENCY";
@@ -1185,6 +1187,56 @@ export class ProjectBootstrapService {
       pass("LEGACY_DISABLED", "legacyAllowed=false is enforced by the project DB.");
     } else {
       fail("LEGACY_DISABLED", "Legacy execution is enabled.");
+    }
+
+    try {
+      const db = new Database(status.projectDbPath, {
+        readonly: true,
+        fileMustExist: true
+      });
+      try {
+        const spec = db.prepare(`
+          SELECT COUNT(*) AS count
+          FROM production_project_specs
+          WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+        `).get(projectId) as { count: number };
+        if (spec.count === 1) {
+          pass("PRODUCTION_SPEC", "Exactly one active Production Spec is present.");
+        } else {
+          fail(
+            "PRODUCTION_SPEC",
+            `Expected one active Production Spec but found ${spec.count}.`
+          );
+        }
+
+        const workflow = db.prepare(`
+          SELECT COUNT(*) AS count
+          FROM production_workflow_instances
+          WHERE project_id = ?
+        `).get(projectId) as { count: number };
+        const tasks = db.prepare(`
+          SELECT COUNT(*) AS count
+          FROM production_task_instances
+          WHERE project_id = ?
+        `).get(projectId) as { count: number };
+        if (workflow.count === 1 && tasks.count === 10) {
+          pass(
+            "PRODUCTION_WORKFLOW",
+            "Production Workflow instance and all 10 standard task instances are present."
+          );
+        } else {
+          fail(
+            "PRODUCTION_WORKFLOW",
+            `Expected 1 workflow + 10 tasks but found ${workflow.count} workflow + ${tasks.count} tasks.`
+          );
+        }
+      } finally {
+        db.close();
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      fail("PRODUCTION_SPEC", "Production Spec could not be verified: " + message);
+      fail("PRODUCTION_WORKFLOW", "Production Workflow could not be verified: " + message);
     }
 
     let directoriesValid = true;
