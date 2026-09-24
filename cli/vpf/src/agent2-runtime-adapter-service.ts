@@ -621,7 +621,7 @@ class Agent2ElevenLabsBridge {
     const chunks = sections.map(section => ({
       index: section.index,
       text: section.text,
-      textCharacterCount: section.text.length,
+      textCharacterCount: Array.from(section.text).length,
       outputRelativePath: section.audioRelativePath,
       ...(narrationMode === "SEGMENTED" ? { sectionId: section.id, sectionIndex: section.index } : {})
     }));
@@ -652,7 +652,7 @@ class Agent2ElevenLabsBridge {
               index: section.index,
               sceneIds: [section.id.replace(/^tts-/u, "")],
               text: section.text,
-              textCharacterCount: section.text.length,
+              textCharacterCount: Array.from(section.text).length,
               audioRelativePath: section.audioRelativePath,
               characterAlignmentRelativePath: section.characterAlignmentRelativePath
             }))
