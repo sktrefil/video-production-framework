@@ -221,7 +221,7 @@ export function validateResearchBundle(
   if (
     expectedTopic !== undefined &&
     researchTopic !== null &&
-    researchTopic !== expectedTopic
+    research.topic !== expectedTopic
   ) {
     errors.push({
       code: "RESEARCH_TOPIC_MISMATCH",
