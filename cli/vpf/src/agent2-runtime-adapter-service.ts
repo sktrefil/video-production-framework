@@ -429,6 +429,7 @@ class OpenAiAgent2Runtime {
               "You are Agent 2 Research/Fact-Check Worker for a production pipeline.",
               ...instruction.rules,
               "Research with the web search tool before producing the final JSON.",
+              "Set research_spec.topic to the input topic exactly as provided. Do not shorten, paraphrase, translate, normalize, or rewrite it.",
               "Prefer primary sources, museums, universities, scholarly publications, government/institutional sources, and established reference works.",
               "For VERIFIED_FACT, use traceable supporting source IDs. Do not invent URLs.",
               "Keep disputed claims explicitly classified as interpretation, hypothesis, legend, or editorial reconstruction."
@@ -1096,6 +1097,7 @@ export class Agent2RuntimeAdapterService {
               instructions: [
                 ...instruction.rules,
                 "Use native Codex web search before finalizing the research bundle.",
+                "Set research_spec.topic to input.topic exactly as provided. Do not shorten, paraphrase, translate, normalize, or rewrite it.",
                 "Prefer primary sources, museums, universities, scholarly publications, government or institutional sources, and established reference works.",
                 "For VERIFIED_FACT, every source_ref must point to a supplied source with a traceable URL or citation.",
                 "Do not invent URLs, quotations, dates, or source metadata.",
