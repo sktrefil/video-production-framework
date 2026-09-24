@@ -284,6 +284,7 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
     const created = await bootstrap.createProject({
       projectId: "codex_multi",
       title: "로마 제9군단",
+      topic: "로마 제9군단의 마지막 기록과 이후 행방",
       format: "shortform",
       targetDurationSec: 6,
       language: "ko"
@@ -433,6 +434,7 @@ test("Codex 1 produces an advisory revision directive without changing workflow 
     const created = await bootstrap.createProject({
       projectId: "codex_manager",
       title: "Codex Manager",
+      topic: "Codex Manager integration fixture",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
