@@ -65,8 +65,8 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
   assert.equal(created.record.pipeline, "VPF_UNIFIED_V1");
   assert.equal(created.record.legacyAllowed, false);
   assert.equal(created.migrations.current, true);
-  assert.equal(created.migrations.latestMigrationId, "0022");
-  assert.equal(created.record.project.versions.dataModelVersion, "0022");
+  assert.equal(created.migrations.latestMigrationId, "0023");
+  assert.equal(created.record.project.versions.dataModelVersion, "0023");
   assert.equal(
     created.record.project.versions.projectStyleVersion,
     PROJECT_STYLE_UNMATERIALIZED_VERSION
@@ -267,7 +267,7 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
   const db = new Database(created.projectDbPath);
   try {
     db.prepare(
-      "DELETE FROM schema_migrations WHERE migration_id IN ('0019','0020','0021','0022')"
+      "DELETE FROM schema_migrations WHERE migration_id IN ('0019','0020','0021','0022','0023')"
     ).run();
     db.prepare(
       "DELETE FROM production_task_instances WHERE project_id=?"
@@ -299,7 +299,7 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
   const upgraded = await service.upgradeRuntime("runtime_upgrade_fixture");
   assert.equal(upgraded.migrationBefore.current, false);
   assert.equal(upgraded.migrationAfter.current, true);
-  assert.equal(upgraded.migrationAfter.latestMigrationId, "0022");
+  assert.equal(upgraded.migrationAfter.latestMigrationId, "0023");
   assert.equal(upgraded.previousChannelProfileVersion, "1.5.0");
   assert.equal(upgraded.currentChannelProfileVersion, "1.8.0");
   assert.equal(upgraded.preservedProjectRevision, 1);
@@ -313,7 +313,7 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
   const after = await service.getStatus("runtime_upgrade_fixture");
   assert.equal(after.migrations.current, true);
   assert.equal(after.project.revision, 1);
-  assert.equal(after.project.versions.dataModelVersion, "0022");
+  assert.equal(after.project.versions.dataModelVersion, "0023");
   assert.equal(
     after.resourcePins.find(pin => pin.resourceType === "CHANNEL_PROFILE")?.version,
     "1.8.0"
