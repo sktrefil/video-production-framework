@@ -106,7 +106,9 @@ export class ElevenLabsProcessRuntimeExecutor implements RuntimeExecutor {
     );
     const env: NodeJS.ProcessEnv = {
       ...this.environment,
-      VPF_PROJECT_ROOT: workspace.projectRoot
+      VPF_PROJECT_ROOT: workspace.projectRoot,
+      PYTHONUTF8: "1",
+      PYTHONIOENCODING: "utf-8"
     };
 
     const result = await runJsonProcess({
