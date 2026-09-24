@@ -58,6 +58,15 @@ export class CodexManagerRuntimeService {
         "Codex Manager requires migration 0022."
       );
     }
+    if (!status.resourcePins.some(pin =>
+      pin.resourceType === "PROVIDER_PROFILE" &&
+      pin.resourceId === "CODEX_MANAGER_V1"
+    )) {
+      throw new CodexRuntimeError(
+        "CODEX_CAPABILITY_MISSING",
+        "Project does not pin CODEX_MANAGER_V1."
+      );
+    }
     const result = await this.runner.execute<CodexManagerReviewResult>({
       projectId: input.projectId,
       projectRoot: status.projectRoot,
