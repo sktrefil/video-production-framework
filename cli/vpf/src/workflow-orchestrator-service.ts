@@ -11,6 +11,7 @@ import {
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
+import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
 import { Agent1ProductionManagerService } from "./production-spec-service.js";
 
@@ -23,7 +24,8 @@ export class WorkflowOrchestratorError extends Error {
       | "TASK_NOT_RUNNING"
       | "TASK_AGENT_MISMATCH"
       | "TASK_GATE_REQUIRED"
-      | "TASK_RETRY_EXHAUSTED",
+      | "TASK_RETRY_EXHAUSTED"
+      | "TASK_MANAGER_VERDICT_STALE",
     message: string
   ) {
     super(message);
@@ -67,7 +69,7 @@ export class Agent1WorkflowOrchestratorService {
     await this.ensureProjectGate(projectId, dbPath);
     const repo = new WorkflowOrchestratorRepository(dbPath);
     try {
-      await this.refresh(projectId, repo);
+      await this.refresh(projectId, repo, dbPath);
       const workflow = repo.getWorkflow(projectId);
       if (workflow === null) throw new WorkflowOrchestratorError("WORKFLOW_NOT_FOUND", `Workflow not found for ${projectId}.`);
       const tasks = repo.listTasks(projectId);
@@ -96,7 +98,7 @@ export class Agent1WorkflowOrchestratorService {
     await this.ensureProjectGate(projectId, status.projectDbPath);
     const repo = new WorkflowOrchestratorRepository(status.projectDbPath);
     try {
-      await this.refresh(projectId, repo);
+      await this.refresh(projectId, repo, dbPath);
       const workflow = repo.getWorkflow(projectId);
       if (workflow === null) throw new WorkflowOrchestratorError("WORKFLOW_NOT_FOUND", `Workflow not found for ${projectId}.`);
       const task = taskId === undefined
@@ -248,11 +250,62 @@ export class Agent1WorkflowOrchestratorService {
       if (taskId === "T060") {
         await this.production.generationReady(projectId);
       }
-      await this.refresh(projectId, workflowRepo);
+      await this.refresh(projectId, workflowRepo, status.projectDbPath);
       return workflowRepo.getTask(projectId, taskId)!;
     } finally {
       productionRepo.close();
       workflowRepo.close();
+    }
+  }
+
+  async applyManagerVerdict(
+    projectId: string,
+    taskId: string,
+    attempt: number,
+    verdict: "RETRY" | "BLOCK" | "ESCALATE"
+  ): Promise<ProjectTaskInstance> {
+    const status = await this.projects.getStatus(projectId);
+    const repo = new WorkflowOrchestratorRepository(status.projectDbPath);
+    try {
+      const workflow = repo.getWorkflow(projectId);
+      const task = repo.getTask(projectId, taskId);
+      if (workflow === null) {
+        throw new WorkflowOrchestratorError(
+          "WORKFLOW_NOT_FOUND",
+          `Workflow not found for ${projectId}.`
+        );
+      }
+      if (task === null) {
+        throw new WorkflowOrchestratorError(
+          "TASK_NOT_FOUND",
+          `Task not found: ${taskId}.`
+        );
+      }
+      if (task.attempt !== attempt) {
+        throw new WorkflowOrchestratorError(
+          "TASK_MANAGER_VERDICT_STALE",
+          `Codex Manager verdict attempt ${attempt} does not match current ${taskId} attempt ${task.attempt}.`
+        );
+      }
+
+      const at = nowIso();
+      repo.updateTask({
+        projectId,
+        taskId,
+        status: verdict === "RETRY" ? "REVISION_REQUIRED" : "BLOCKED",
+        completedAt: null,
+        updatedAt: at
+      });
+      this.blockDescendants(
+        projectId,
+        taskId,
+        workflow.definition.tasks,
+        repo,
+        at
+      );
+      return repo.getTask(projectId, taskId)!;
+    } finally {
+      repo.close();
     }
   }
 
@@ -272,7 +325,11 @@ export class Agent1WorkflowOrchestratorService {
     }
   }
 
-  private async refresh(projectId: string, repo: WorkflowOrchestratorRepository): Promise<void> {
+  private async refresh(
+    projectId: string,
+    repo: WorkflowOrchestratorRepository,
+    dbPath: string
+  ): Promise<void> {
     const workflow = repo.getWorkflow(projectId);
     if (workflow === null) return;
     const at = nowIso();
@@ -336,6 +393,20 @@ export class Agent1WorkflowOrchestratorService {
       if (!["BLOCKED", "PENDING"].includes(task.status)) continue;
       const definition = findTaskDefinition(workflow.definition, task.task_id);
       if (definition === null) continue;
+
+      const managerHold = this.managerHoldForTask(
+        dbPath,
+        projectId,
+        task
+      );
+      if (managerHold === "ESCALATE") continue;
+      if (
+        managerHold === "BLOCK" &&
+        !this.requiredInputsChanged(projectId, task, definition, repo)
+      ) {
+        continue;
+      }
+
       const dependenciesComplete = definition.depends_on.every(
         id => repo.getTask(projectId, id)?.status === "COMPLETE"
       );
@@ -351,6 +422,44 @@ export class Agent1WorkflowOrchestratorService {
         updatedAt: at
       });
     }
+  }
+
+  private managerHoldForTask(
+    dbPath: string,
+    projectId: string,
+    task: ProjectTaskInstance
+  ): "BLOCK" | "ESCALATE" | null {
+    let codex: CodexRuntimeRepository | null = null;
+    try {
+      codex = new CodexRuntimeRepository(dbPath, { readonly: true });
+      const review = codex.latestManagerReview(projectId, task.task_id);
+      if (review === null || review.attempt !== task.attempt) return null;
+      return review.verdict === "BLOCK" || review.verdict === "ESCALATE"
+        ? review.verdict
+        : null;
+    } catch {
+      return null;
+    } finally {
+      codex?.close();
+    }
+  }
+
+  private requiredInputsChanged(
+    projectId: string,
+    task: ProjectTaskInstance,
+    definition: ProductionTaskDefinition,
+    repo: WorkflowOrchestratorRepository
+  ): boolean {
+    const previous = new Map(
+      task.input_revision_refs.map(ref => [ref.artifact_type, ref] as const)
+    );
+    return definition.required_inputs.some(artifactType => {
+      const before = previous.get(artifactType) ?? null;
+      const current = repo.resolveArtifactRef(projectId, artifactType);
+      if (before === null && current === null) return false;
+      if (before === null || current === null) return true;
+      return !sameRef(before, current);
+    });
   }
 
   private blockDescendants(
