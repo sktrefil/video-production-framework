@@ -19,7 +19,7 @@ function sha256(raw: string): string {
   return createHash("sha256").update(raw, "utf8").digest("hex");
 }
 
-test("MIG-04 preserves accepted HISTORY_MYSTERY_V1@1.0.0 bytes and upgrades selection explicitly", async () => {
+test("MIG-04 preserves accepted HISTORY_MYSTERY_V1@1.0.0 content across checkout line endings", async () => {
   const v100Path = path.join(
     resourcesDir,
     "channel-profiles",
@@ -28,8 +28,8 @@ test("MIG-04 preserves accepted HISTORY_MYSTERY_V1@1.0.0 bytes and upgrades sele
   );
   const raw = await readFile(v100Path, "utf8");
   assert.equal(
-    sha256(raw),
-    "a7fd3d046bc673b88b3b1740c1b6509f6c3de981acb72cb1dcb6a41882939fcc"
+    sha256(raw.replace(/\r\n/gu, "\n")),
+    "3bc8ac5ccba7fbe75e391125b3778aa67e52e03af1f12558bf20d9e519e235da"
   );
 
   const registry = new FileSystemResourceRegistry(resourcesDir);
