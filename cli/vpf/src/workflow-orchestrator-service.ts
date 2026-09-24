@@ -69,7 +69,7 @@ export class Agent1WorkflowOrchestratorService {
     await this.ensureProjectGate(projectId, dbPath);
     const repo = new WorkflowOrchestratorRepository(dbPath);
     try {
-      await this.refresh(projectId, repo, status.projectDbPath);
+      await this.refresh(projectId, repo, dbPath);
       const workflow = repo.getWorkflow(projectId);
       if (workflow === null) throw new WorkflowOrchestratorError("WORKFLOW_NOT_FOUND", `Workflow not found for ${projectId}.`);
       const tasks = repo.listTasks(projectId);
@@ -98,7 +98,7 @@ export class Agent1WorkflowOrchestratorService {
     await this.ensureProjectGate(projectId, status.projectDbPath);
     const repo = new WorkflowOrchestratorRepository(status.projectDbPath);
     try {
-      await this.refresh(projectId, repo, dbPath);
+      await this.refresh(projectId, repo, status.projectDbPath);
       const workflow = repo.getWorkflow(projectId);
       if (workflow === null) throw new WorkflowOrchestratorError("WORKFLOW_NOT_FOUND", `Workflow not found for ${projectId}.`);
       const task = taskId === undefined
