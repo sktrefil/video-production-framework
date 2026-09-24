@@ -20,6 +20,7 @@ test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () =>
     const created = await bootstrap.createProject({
       projectId: "agent3_sample",
       title: "Roman IX Agent3 Sample",
+      topic: "로마 제9군단",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
