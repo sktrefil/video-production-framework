@@ -70,7 +70,8 @@ export class Agent3RuntimeAdapterError extends Error {
       | "AGENT3_RUNTIME_PREREQUISITE"
       | "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED"
       | "AGENT3_RUNTIME_RETRY_EXHAUSTED"
-      | "AGENT3_RUNTIME_CORE_REJECTED",
+      | "AGENT3_RUNTIME_CORE_REJECTED"
+      | "AGENT3_MANAGER_QC_REJECTED",
     message: string
   ) {
     super(message);
@@ -684,6 +685,38 @@ export class Agent3RuntimeAdapterService {
         taskId,
         dispatch.attempt
       );
+
+      if (agent3AiRuntimeMode(this.environment) === "CODEX_SESSION") {
+        const gate = await this.manager.evaluateCompletionGate(projectId, taskId);
+        if (gate.status !== "PASS") {
+          throw new Agent3RuntimeAdapterError(
+            "AGENT3_RUNTIME_CORE_REJECTED",
+            `${gate.gate} rejected ${taskId} before Codex1 success QC.`
+          );
+        }
+        const review = await this.codexManager.reviewSuccess({
+          projectId,
+          taskId,
+          attempt: dispatch.attempt,
+          workerRole: "CODEX_3_VISUAL_PRODUCTION",
+          gateStatus: "PASS",
+          gateId: gate.gate,
+          warnings: runtime.worker.warnings
+        });
+        if (review.verdict !== "APPROVE") {
+          await this.manager.applyManagerVerdict(
+            projectId,
+            taskId,
+            dispatch.attempt,
+            review.verdict
+          );
+          throw new Agent3RuntimeAdapterError(
+            "AGENT3_MANAGER_QC_REJECTED",
+            `Codex1 success QC returned ${review.verdict} for ${taskId}: ${review.root_cause}`
+          );
+        }
+      }
+
       const completed = await this.manager.complete(projectId, taskId);
       return {
         task_id: taskId,
@@ -693,6 +726,12 @@ export class Agent3RuntimeAdapterService {
         gate_status: completed.last_gate_status ?? "PASS"
       };
     } catch (error) {
+      if (
+        error instanceof Agent3RuntimeAdapterError &&
+        error.code === "AGENT3_MANAGER_QC_REJECTED"
+      ) {
+        throw error;
+      }
       let managerVerdictApplied = false;
       if (
         agent3AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
