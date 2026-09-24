@@ -848,10 +848,13 @@ export class Agent3RuntimeAdapterService {
     taskId: Agent3RuntimeTaskId,
     attempt: number
   ): Promise<{
-    provider: "OPENAI";
+    provider: string;
     model: string;
     worker: Agent3TaskExecutionResult;
   }> {
+    if (agent3AiRuntimeMode(this.environment) === "CODEX_SESSION") {
+      return this.executeCodexDispatched(projectId, taskId, attempt);
+    }
     const status = await this.projects.getStatus(projectId);
     const provider = await resolvePinnedAgent3Profile(status.resourcePins);
     const openai = new OpenAiAgent3Runtime(
@@ -1021,6 +1024,295 @@ export class Agent3RuntimeAdapterService {
       agent3.close();
       agent2.close();
       production.close();
+    }
+  }
+
+  private async executeCodexDispatched(
+    projectId: string,
+    taskId: Agent3RuntimeTaskId,
+    attempt: number
+  ): Promise<{
+    provider: "CODEX_SESSION";
+    model: string;
+    worker: Agent3TaskExecutionResult;
+  }> {
+    const status = await this.projects.getStatus(projectId);
+    const codexPin = await resolvePinnedCodexVisualProfile(status.resourcePins);
+    const codex = new CodexProcessRunner(this.environment);
+    const production = new ProductionSpecRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+    const agent2 = new Agent2StoryAudioRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+    const agent3 = new Agent3VisualProductionRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+
+    try {
+      const projectSpec = production.getProjectSpec(projectId);
+      const sceneTiming = production.getSceneTiming(projectId);
+      if (projectSpec === null || sceneTiming === null) {
+        throw new Agent3RuntimeAdapterError(
+          "AGENT3_RUNTIME_PREREQUISITE",
+          "Project Spec and measured Scene Timing are required."
+        );
+      }
+      const managerDirective =
+        await this.codexManager.latestDirective(projectId, taskId);
+
+      if (taskId === "T040") {
+        const story = agent2.getActive<Agent2StorySpec>(
+          projectId,
+          "story_spec"
+        );
+        const facts = agent2.getActive<Agent2FactCheckSpec>(
+          projectId,
+          "fact_check_spec"
+        );
+        if (story === null || facts === null) {
+          throw new Agent3RuntimeAdapterError(
+            "AGENT3_RUNTIME_PREREQUISITE",
+            "T040 requires active story_spec and fact_check_spec."
+          );
+        }
+        const bible = await resolvePinnedVisualBible(status.resourcePins);
+        const input = {
+          project_id: projectId,
+          project_spec: projectSpec,
+          scene_timing_spec: sceneTiming,
+          story_spec: story.value,
+          fact_check_spec: facts.value,
+          visual_bible_pin: bible.pin,
+          visual_bible_payload: bible.payload,
+          provider_profile: codexPin,
+          manager_revision_instruction: managerDirective
+        };
+        return this.executeCodexRun(
+          status.projectDbPath,
+          projectId,
+          taskId,
+          attempt,
+          codex,
+          input,
+          AGENT3_SCENE_VISUAL_SCHEMA,
+          [
+            ...getAgent3TaskInstruction("T040").rules,
+            "Return one Scene Visual plan for every current Scene, in order.",
+            "Copy Story Scene fact_refs exactly; never add or remove fact references.",
+            "Use the least-certain factuality mode required by the referenced fact classifications.",
+            "Visual Bible is the show-level authority; do not invent a replacement visual style.",
+            "Do not turn missing records or uncertainty into literal magical disappearance.",
+            "If manager_revision_instruction is present, repair that exact failure while preserving approved story, facts, timing, and Visual Bible."
+          ],
+          async output => {
+            const value = normalizedSceneVisual(
+              output as SceneVisualDocument,
+              projectId,
+              bible.pin
+            );
+            const worker = await this.worker.executePayload(
+              projectId,
+              "T040",
+              value
+            );
+            return { value, worker };
+          }
+        );
+      }
+
+      const visual = agent3.getActive<SceneVisualDocument>(
+        projectId,
+        "scene_visual_spec"
+      );
+      if (visual === null) {
+        throw new Agent3RuntimeAdapterError(
+          "AGENT3_RUNTIME_PREREQUISITE",
+          taskId + " requires active scene_visual_spec."
+        );
+      }
+
+      if (taskId === "T050") {
+        const input = {
+          project_id: projectId,
+          project_spec: projectSpec,
+          scene_timing_spec: sceneTiming,
+          scene_visual_spec: visual.value,
+          provider_profile: codexPin,
+          manager_revision_instruction: managerDirective
+        };
+        return this.executeCodexRun(
+          status.projectDbPath,
+          projectId,
+          taskId,
+          attempt,
+          codex,
+          input,
+          AGENT3_STATE_IMAGE_SCHEMA,
+          [
+            ...getAgent3TaskInstruction("T050").rules,
+            "Create an ordered state ladder for every Scene with exactly one ENTRY and one TARGET; MID is optional.",
+            "ENTRY handoff_anchor must exactly match Scene handoff.entry_anchor and TARGET must exactly match Scene handoff.exit_anchor.",
+            "Use only current Beat IDs or null.",
+            "A Scene longer than 10 seconds measured TTS must have enough sequential states to support multiple Clips of at most 10 seconds.",
+            "If manager_revision_instruction is present, repair that exact failure without changing approved Scene Visual meaning."
+          ],
+          async output => {
+            const value = normalizedStateImages(
+              output as StateImageDocument,
+              projectId
+            );
+            const worker = await this.worker.executePayload(
+              projectId,
+              "T050",
+              value
+            );
+            return { value, worker };
+          }
+        );
+      }
+
+      const states = agent3.getActive<StateImageDocument>(
+        projectId,
+        "state_image_spec"
+      );
+      if (states === null) {
+        throw new Agent3RuntimeAdapterError(
+          "AGENT3_RUNTIME_PREREQUISITE",
+          "T060 requires active state_image_spec."
+        );
+      }
+      const input = {
+        project_id: projectId,
+        project_spec: projectSpec,
+        scene_timing_spec: sceneTiming,
+        scene_visual_spec: visual.value,
+        state_image_spec: states.value,
+        provider_profile: codexPin,
+        manager_revision_instruction: managerDirective
+      };
+      return this.executeCodexRun(
+        status.projectDbPath,
+        projectId,
+        taskId,
+        attempt,
+        codex,
+        input,
+        AGENT3_CLIP_CAMERA_SCHEMA,
+        [
+          ...getAgent3TaskInstruction("T060").rules,
+          "Use measured scene_timing_spec TTS duration, never estimated duration.",
+          "For each Scene, Clip editorial durations must sum to measured TTS duration within 0.01 sec.",
+          "No Clip may exceed 10 seconds.",
+          "Adjacent Clips in one Scene must chain previous target state to next entry state.",
+          "Use generation_duration_sec=null and safe_trim_start_sec=editorial_duration_sec.",
+          "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
+          "Avoid four adjacent Clips with the same camera movement, shot-size pattern, or transition.",
+          "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",
+          "If manager_revision_instruction is present, repair that exact failure while preserving measured timing and approved visual states."
+        ],
+        async output => {
+          const value = normalizedClipInput(
+            output as Agent3T060Input,
+            projectId
+          );
+          const worker = await this.worker.executePayload(
+            projectId,
+            "T060",
+            value
+          );
+          return { value, worker };
+        }
+      );
+    } finally {
+      agent3.close();
+      agent2.close();
+      production.close();
+    }
+  }
+
+  private async executeCodexRun<T>(
+    dbPath: string,
+    projectId: string,
+    taskId: Agent3RuntimeTaskId,
+    attempt: number,
+    codex: CodexProcessRunner,
+    input: unknown,
+    outputSchema: unknown,
+    instructions: string[],
+    materialize: (output: unknown) => Promise<{
+      value: T;
+      worker: Agent3TaskExecutionResult;
+    }>
+  ): Promise<{
+    provider: "CODEX_SESSION";
+    model: string;
+    worker: Agent3TaskExecutionResult;
+  }> {
+    const status = await this.projects.getStatus(projectId);
+    const runId = projectId + ":" + taskId + ":A" + attempt + ":CODEX";
+    const repo = new Agent3RuntimeRepository(dbPath);
+    repo.start({
+      run_id: runId,
+      project_id: projectId,
+      task_id: taskId,
+      provider: "CODEX_SESSION",
+      model_id: codex.modelId,
+      provider_response_id: null,
+      input_sha256: sha256Text(JSON.stringify(input)),
+      started_at: new Date().toISOString()
+    });
+    try {
+      const generated = await codex.execute<unknown>({
+        projectId,
+        projectRoot: status.projectRoot,
+        dbPath,
+        roleId: "CODEX_3_VISUAL_PRODUCTION",
+        taskId,
+        attempt,
+        instructions,
+        input,
+        outputSchema,
+        webSearchMode: "disabled"
+      });
+      const completed = await materialize(generated.output);
+      repo.complete({
+        runId,
+        providerResponseId: generated.runId,
+        outputSha256: generated.outputSha256,
+        completedAt: new Date().toISOString()
+      });
+      return {
+        provider: "CODEX_SESSION",
+        model: generated.model,
+        worker: completed.worker
+      };
+    } catch (error) {
+      repo.fail({
+        runId,
+        errorCode:
+          error instanceof Agent3RuntimeAdapterError
+            ? error.code
+            : error instanceof Agent3VisualProductionError
+              ? error.code
+              : error instanceof CodexRuntimeError
+                ? error.code
+                : "AGENT3_RUNTIME_CORE_REJECTED",
+        errorDetail: errorDetail(error),
+        completedAt: new Date().toISOString()
+      });
+      if (error instanceof Agent3VisualProductionError) {
+        throw new Agent3RuntimeAdapterError(
+          "AGENT3_RUNTIME_CORE_REJECTED",
+          error.code + ": " + error.message
+        );
+      }
+      throw error;
+    } finally {
+      repo.close();
     }
   }
 
