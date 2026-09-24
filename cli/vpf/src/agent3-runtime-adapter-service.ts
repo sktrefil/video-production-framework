@@ -1077,7 +1077,7 @@ export class Agent3RuntimeAdapterService {
         );
       }
       const managerDirective =
-        await this.codexManager.latestDirective(projectId, taskId);
+        await this.codexManager.latestDirective(projectId, taskId, attempt);
 
       if (taskId === "T040") {
         const story = agent2.getActive<Agent2StorySpec>(
