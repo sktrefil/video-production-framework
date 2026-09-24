@@ -433,8 +433,10 @@ export class Agent1WorkflowOrchestratorService {
       return review.verdict === "BLOCK" || review.verdict === "ESCALATE"
         ? review.verdict
         : null;
-    } catch {
-      return null;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("no such table: codex_manager_reviews")) return null;
+      throw error;
     } finally {
       codex?.close();
     }
