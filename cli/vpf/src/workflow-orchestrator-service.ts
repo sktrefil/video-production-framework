@@ -276,44 +276,80 @@ export class Agent1WorkflowOrchestratorService {
     const workflow = repo.getWorkflow(projectId);
     if (workflow === null) return;
     const at = nowIso();
+    const definitions = workflow.definition.tasks;
+    const tasks = repo.listTasks(projectId);
 
-    for (const snapshot of repo.listTasks(projectId)) {
-      const task = repo.getTask(projectId, snapshot.task_id);
-      if (task === null || !["COMPLETE", "RUNNING"].includes(task.status)) continue;
-
-      const staleInput = task.input_revision_refs.some(
-        ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
-      );
-      const staleOutput =
-        task.status === "COMPLETE" &&
-        task.output_revision_refs.some(
-          ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
-        );
-
-      if (staleInput || staleOutput) {
-        repo.updateTask({
-          projectId,
-          taskId: task.task_id,
-          status: "REVISION_REQUIRED",
-          completedAt: null,
-          updatedAt: at
-        });
-        this.blockDescendants(projectId, task.task_id, workflow.definition.tasks, repo, at);
+    const producerByArtifact = new Map<string, string>();
+    for (const definition of definitions) {
+      for (const output of definition.required_outputs) {
+        producerByArtifact.set(output, definition.task_id);
       }
     }
 
-    const tasks = repo.listTasks(projectId);
+    const directRevision = new Set<string>();
     for (const task of tasks) {
+      if (!["COMPLETE", "RUNNING"].includes(task.status)) continue;
+
+      const staleInputRefs = task.input_revision_refs.filter(
+        ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
+      );
+      const staleOutput = task.status === "COMPLETE" && task.output_revision_refs.some(
+        ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
+      );
+
+      const staleExternalInput = staleInputRefs.some(
+        ref => !producerByArtifact.has(ref.artifact_type)
+      );
+
+      if (
+        staleOutput ||
+        (task.status === "RUNNING" && staleInputRefs.length > 0) ||
+        (task.status === "COMPLETE" && staleExternalInput)
+      ) {
+        directRevision.add(task.task_id);
+      }
+    }
+
+    for (const taskId of directRevision) {
+      repo.updateTask({
+        projectId,
+        taskId,
+        status: "REVISION_REQUIRED",
+        completedAt: null,
+        updatedAt: at
+      });
+    }
+
+    for (const taskId of directRevision) {
+      this.blockDescendants(
+        projectId,
+        taskId,
+        definitions,
+        repo,
+        at,
+        directRevision
+      );
+    }
+
+    const refreshed = repo.listTasks(projectId);
+    for (const task of refreshed) {
       if (!["BLOCKED", "PENDING"].includes(task.status)) continue;
       const definition = findTaskDefinition(workflow.definition, task.task_id);
       if (definition === null) continue;
-      const dependenciesComplete = definition.depends_on.every(id => repo.getTask(projectId, id)?.status === "COMPLETE");
+      const dependenciesComplete = definition.depends_on.every(
+        id => repo.getTask(projectId, id)?.status === "COMPLETE"
+      );
       if (!dependenciesComplete) continue;
       if (task.task_id === "T070") {
         const status = await this.projects.getStatus(projectId);
         if (!(await this.generationGateCurrent(projectId, status.projectDbPath))) continue;
       }
-      repo.updateTask({ projectId, taskId: task.task_id, status: "READY", updatedAt: at });
+      repo.updateTask({
+        projectId,
+        taskId: task.task_id,
+        status: "READY",
+        updatedAt: at
+      });
     }
   }
 
@@ -322,7 +358,8 @@ export class Agent1WorkflowOrchestratorService {
     taskId: string,
     definitions: ProductionTaskDefinition[],
     repo: WorkflowOrchestratorRepository,
-    at: string
+    at: string,
+    preserveStatuses: ReadonlySet<string> = new Set()
   ): void {
     const queue = [taskId];
     const visited = new Set<string>();
@@ -332,7 +369,11 @@ export class Agent1WorkflowOrchestratorService {
         if (visited.has(definition.task_id)) continue;
         visited.add(definition.task_id);
         const dependent = repo.getTask(projectId, definition.task_id);
-        if (dependent && dependent.status !== "CANCELLED") {
+        if (
+          dependent &&
+          dependent.status !== "CANCELLED" &&
+          !preserveStatuses.has(definition.task_id)
+        ) {
           repo.updateTask({
             projectId,
             taskId: definition.task_id,
