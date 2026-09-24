@@ -138,6 +138,22 @@ export interface ProjectStatus {
   migrations: MigrationStatus;
 }
 
+export interface ProjectRuntimeUpgradeResult {
+  projectId: string;
+  projectRoot: string;
+  projectDbPath: string;
+  projectJsonPath: string;
+  migrationBefore: MigrationStatus;
+  migrationAfter: MigrationStatus;
+  previousChannelProfileVersion: string | null;
+  currentChannelProfileVersion: string;
+  previousResourcePins: ResourcePin[];
+  currentResourcePins: ResourcePin[];
+  addedProviderProfiles: string[];
+  preservedProjectRevision: number;
+  preservedWorkflowState: true;
+}
+
 export type DoctorCheckStatus = "PASS" | "FAIL";
 
 export interface DoctorDiagnostic {
@@ -871,6 +887,119 @@ export class ProjectBootstrapService {
       await rm(stagingRoot, { recursive: true, force: true });
       throw error;
     }
+  }
+
+  async upgradeRuntime(
+    projectIdInput: string
+  ): Promise<ProjectRuntimeUpgradeResult> {
+    const projectId = validateProjectId(projectIdInput);
+    const before = await this.getStatus(projectId);
+    const projectJsonPath = path.join(before.projectRoot, "project.json");
+    const migrationBefore = structuredClone(before.migrations);
+
+    const migrations = await this.migrationRunner.applyAll(before.projectDbPath);
+    if (!migrations.current) {
+      throw new ProjectBootstrapError(
+        "PROJECT_DB_INVALID",
+        "Runtime upgrade could not bring the project database to the current migration set."
+      );
+    }
+
+    const resolved = await this.resourceResolver.resolve(
+      before.project.format,
+      migrations.latestMigrationId
+    );
+    const now = this.clock.nowIso();
+
+    const repository = new SqliteProjectRecordRepository(before.projectDbPath);
+    try {
+      repository.db.exec("BEGIN IMMEDIATE");
+      try {
+        const result = repository.db.prepare(`
+          UPDATE projects
+          SET versions_json = ?, resource_pins_json = ?, updated_at = ?
+          WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+        `).run(
+          JSON.stringify(resolved.versions),
+          JSON.stringify(resolved.resourcePins),
+          now,
+          projectId
+        );
+        if (result.changes !== 1) {
+          throw new ProjectBootstrapError(
+            "PROJECT_DB_INVALID",
+            "Runtime upgrade expected exactly one ACTIVE project record."
+          );
+        }
+        repository.db.exec("COMMIT");
+      } catch (error) {
+        try {
+          repository.db.exec("ROLLBACK");
+        } catch {
+          // Preserve the original upgrade error.
+        }
+        throw error;
+      }
+    } finally {
+      repository.close();
+    }
+
+    const after = await this.getStatus(projectId);
+    const snapshot: ProjectExchangeSnapshot = {
+      schemaVersion: 1,
+      projectId: after.project.projectId,
+      title: after.project.title,
+      format: after.project.format,
+      revision: after.project.revision,
+      lifecycleStatus: "ACTIVE",
+      pipeline: after.pipeline,
+      legacyAllowed: after.legacyAllowed,
+      versions: after.project.versions,
+      resourcePins: after.resourcePins
+    };
+    await writeJsonAtomic(projectJsonPath, snapshot);
+
+    const previousChannel = before.resourcePins.find(pin =>
+      pin.resourceType === "CHANNEL_PROFILE"
+    ) ?? null;
+    const currentChannel = after.resourcePins.find(pin =>
+      pin.resourceType === "CHANNEL_PROFILE"
+    );
+    if (currentChannel === undefined) {
+      throw new ProjectBootstrapError(
+        "RESOURCE_SELECTION_INVALID",
+        "Runtime upgrade did not produce a Channel Profile pin."
+      );
+    }
+
+    const previousProviderIds = new Set(
+      before.resourcePins
+        .filter(pin => pin.resourceType === "PROVIDER_PROFILE")
+        .map(pin => pin.resourceId)
+    );
+    const addedProviderProfiles = after.resourcePins
+      .filter(pin =>
+        pin.resourceType === "PROVIDER_PROFILE" &&
+        !previousProviderIds.has(pin.resourceId)
+      )
+      .map(pin => pin.resourceId)
+      .sort();
+
+    return {
+      projectId,
+      projectRoot: after.projectRoot,
+      projectDbPath: after.projectDbPath,
+      projectJsonPath,
+      migrationBefore,
+      migrationAfter: after.migrations,
+      previousChannelProfileVersion: previousChannel?.version ?? null,
+      currentChannelProfileVersion: currentChannel.version,
+      previousResourcePins: before.resourcePins,
+      currentResourcePins: after.resourcePins,
+      addedProviderProfiles,
+      preservedProjectRevision: after.project.revision,
+      preservedWorkflowState: true
+    };
   }
 
   async getStatus(projectIdInput: string): Promise<ProjectStatus> {
