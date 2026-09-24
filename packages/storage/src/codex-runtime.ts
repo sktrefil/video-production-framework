@@ -30,7 +30,8 @@ export interface CodexManagerReview {
   project_id: string;
   task_id: string;
   attempt: number;
-  verdict: "RETRY" | "BLOCK" | "ESCALATE";
+  review_kind: "FAILURE" | "SUCCESS";
+  verdict: "APPROVE" | "RETRY" | "BLOCK" | "ESCALATE";
   root_cause: string;
   revision_instruction: string;
   preserve: string[];
@@ -129,14 +130,15 @@ export class CodexRuntimeRepository {
 
   saveManagerReview(review: CodexManagerReview): void {
     this.db.prepare(`INSERT INTO codex_manager_reviews
-      (review_id, project_id, task_id, attempt, verdict, root_cause,
+      (review_id, project_id, task_id, attempt, review_kind, verdict, root_cause,
        revision_instruction, preserve_json, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       review.review_id,
       review.project_id,
       review.task_id,
       review.attempt,
+      review.review_kind,
       review.verdict,
       review.root_cause,
       review.revision_instruction,
@@ -155,6 +157,7 @@ export class CodexRuntimeRepository {
       project_id: String(row.project_id),
       task_id: String(row.task_id),
       attempt: Number(row.attempt),
+      review_kind: row.review_kind as CodexManagerReview["review_kind"],
       verdict: row.verdict as CodexManagerReview["verdict"],
       root_cause: String(row.root_cause),
       revision_instruction: String(row.revision_instruction),
@@ -177,6 +180,7 @@ export class CodexRuntimeRepository {
       project_id: String(row.project_id),
       task_id: String(row.task_id),
       attempt: Number(row.attempt),
+      review_kind: row.review_kind as CodexManagerReview["review_kind"],
       verdict: row.verdict as CodexManagerReview["verdict"],
       root_cause: String(row.root_cause),
       revision_instruction: String(row.revision_instruction),
