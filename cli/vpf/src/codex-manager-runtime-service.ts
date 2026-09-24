@@ -63,7 +63,7 @@ export class CodexManagerRuntimeService {
       projectRoot: status.projectRoot,
       dbPath: status.projectDbPath,
       roleId: "CODEX_1_MANAGER",
-      taskId: "MANAGER_REVIEW",
+      taskId: "MANAGER_REVIEW:" + input.taskId,
       attempt: input.attempt,
       instructions: [
         "Act as the Agent 1 QC and revision director.",
