@@ -87,6 +87,7 @@ interface ProcessResult {
   exitCode: number;
   stdout: string;
   stderr: string;
+  timedOut: boolean;
 }
 
 const sha256 = (value: string): string =>
@@ -157,6 +158,7 @@ export class CodexProcessRunner {
   private readonly command: string;
   private readonly commandPrefixArgs: string[];
   private readonly timeoutMs: number;
+  private readonly t010TimeoutMs: number;
   private cachedPreflight: CodexPreflightResult | null = null;
 
   constructor(
@@ -194,10 +196,15 @@ export class CodexProcessRunner {
     this.timeoutMs = Number(
       environment.VPF_CODEX_TIMEOUT_MS ?? 300000
     );
+    this.t010TimeoutMs = Number(
+      environment.VPF_CODEX_T010_TIMEOUT_MS ?? 900000
+    );
     if (
       !this.command ||
       !Number.isFinite(this.timeoutMs) ||
-      this.timeoutMs <= 0
+      this.timeoutMs <= 0 ||
+      !Number.isFinite(this.t010TimeoutMs) ||
+      this.t010TimeoutMs <= 0
     ) {
       throw new CodexRuntimeError(
         "CODEX_CAPABILITY_MISSING",
@@ -451,10 +458,20 @@ export class CodexProcessRunner {
     let outputRaw = "";
     let trace = "";
     try {
-      processResult = await this.capture(args, this.timeoutMs, tempRoot);
+      const executionTimeoutMs =
+        request.taskId === "T010" ? this.t010TimeoutMs : this.timeoutMs;
+      processResult = await this.capture(args, executionTimeoutMs, tempRoot);
       trace = processResult.stdout;
       await writeFile(tracePath, trace, "utf8");
       await writeFile(stderrPath, processResult.stderr, "utf8");
+
+      if (processResult.timedOut) {
+        throw new CodexRuntimeError(
+          "CODEX_EXEC_TIMEOUT",
+          "Codex process exceeded " + executionTimeoutMs +
+          " ms for task " + request.taskId + "."
+        );
+      }
 
       if (processResult.exitCode !== 0) {
         throw new CodexRuntimeError(
@@ -618,17 +635,11 @@ export class CodexProcessRunner {
         if (settled) return;
         settled = true;
         clearTimeout(timer);
-        if (timedOut) {
-          reject(new CodexRuntimeError(
-            "CODEX_EXEC_TIMEOUT",
-            "Codex process exceeded " + timeoutMs + " ms."
-          ));
-          return;
-        }
         resolve({
           exitCode: code ?? 1,
           stdout,
-          stderr
+          stderr,
+          timedOut
         });
       });
     });
