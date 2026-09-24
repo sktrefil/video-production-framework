@@ -151,7 +151,9 @@ function collectTraceEvidence(trace: string): {
 
 export class CodexProcessRunner {
   private readonly command: string;
+  private readonly commandPrefixArgs: string[];
   private readonly timeoutMs: number;
+  private cachedPreflight: CodexPreflightResult | null = null;
 
   constructor(
     private readonly environment: NodeJS.ProcessEnv = process.env
@@ -160,6 +162,24 @@ export class CodexProcessRunner {
       environment.VPF_CODEX_COMMAND ??
       (process.platform === "win32" ? "codex.cmd" : "codex")
     ).trim();
+    const prefixRaw = (environment.VPF_CODEX_COMMAND_ARGS_JSON ?? "").trim();
+    if (prefixRaw) {
+      try {
+        const parsed = JSON.parse(prefixRaw) as unknown;
+        if (!Array.isArray(parsed) || parsed.some(item => typeof item !== "string")) {
+          throw new Error("must be a JSON string array");
+        }
+        this.commandPrefixArgs = parsed;
+      } catch (error) {
+        throw new CodexRuntimeError(
+          "CODEX_CAPABILITY_MISSING",
+          "VPF_CODEX_COMMAND_ARGS_JSON " +
+            (error instanceof Error ? error.message : String(error))
+        );
+      }
+    } else {
+      this.commandPrefixArgs = [];
+    }
     this.timeoutMs = Number(
       environment.VPF_CODEX_TIMEOUT_MS ?? 300000
     );
@@ -267,13 +287,15 @@ export class CodexProcessRunner {
       });
     }
 
-    return {
+    const result = {
       ready: checks.every(check => check.status === "PASS"),
       command: this.command,
       cli_version: cliVersion,
       auth_status: authStatus,
       checks
     };
+    this.cachedPreflight = result;
+    return result;
   }
 
   async execute<TOutput>(
@@ -298,7 +320,7 @@ export class CodexProcessRunner {
       );
     }
 
-    const preflight = await this.preflight();
+    const preflight = this.cachedPreflight ?? await this.preflight();
     const login = preflight.checks.find(check =>
       check.code === "CODEX_LOGIN_VALID"
     );
@@ -524,7 +546,7 @@ export class CodexProcessRunner {
       let stderr = "";
       let settled = false;
       let timedOut = false;
-      const child = spawn(this.command, args, {
+      const child = spawn(this.command, [...this.commandPrefixArgs, ...args], {
         cwd,
         env: this.storedLoginEnvironment(),
         windowsHide: true,
