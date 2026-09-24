@@ -19,6 +19,7 @@ test("Agent1 workflow instantiates T010-T100, enforces assignment and revision s
     await bootstrap.createProject({
       projectId: "workflow_sample",
       title: "Workflow Sample",
+      topic: "Workflow Sample Research Topic",
       format: "shortform",
       targetDurationSec: 60
     });
@@ -39,6 +40,10 @@ test("Agent1 workflow instantiates T010-T100, enforces assignment and revision s
     const dispatch = await workflow.dispatch("workflow_sample", "T010", "AGENT2_STORY_AUDIO");
     assert.equal(dispatch.task_id, "T010");
     assert.equal(dispatch.attempt, 1);
+    assert.deepEqual(
+      dispatch.input_revision_refs.map(ref => ref.artifact_type).sort(),
+      ["project_spec", "project_topic"]
+    );
     assert.equal((await workflow.status("workflow_sample")).tasks.find(task => task.task_id === "T010")?.status, "RUNNING");
 
     const failed = await workflow.recordGate("workflow_sample", "T010", false, [
