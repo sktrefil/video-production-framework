@@ -187,7 +187,7 @@ export class Agent1WorkflowOrchestratorService {
         taskId,
         outputRefs,
         lastGateId: definition.completion_gate,
-        lastGateStatus: evaluation.status,
+        lastGateStatus: pass ? "PASS" : "FAIL",
         updatedAt: at
       });
       productionRepo.saveGateEvaluation(evaluation, gateInput(updated));
