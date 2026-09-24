@@ -1122,10 +1122,10 @@ export class Agent2RuntimeAdapterService {
     const status = await this.projects.getStatus(projectId);
     const mode = agent2AiRuntimeMode(this.environment);
     if (mode === "CODEX_SESSION") {
-      if (!status.migrations.appliedMigrationIds.includes("0022")) {
+      if (!status.migrations.appliedMigrationIds.includes("0023")) {
         throw new Agent2RuntimeAdapterError(
           "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-          "Codex Agent2 runtime requires migration 0022."
+          "Codex Agent2 runtime requires migration 0023."
         );
       }
       if (!status.resourcePins.some(pin =>
