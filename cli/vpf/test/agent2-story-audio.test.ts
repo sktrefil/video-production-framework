@@ -156,6 +156,7 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
       mutableProduction.close();
     }
     const staleWorkflow = await manager.status("agent2_sample");
+    assert.equal(staleWorkflow.tasks.find(task => task.task_id === "T030")?.status, "REVISION_REQUIRED");
     assert.equal(staleWorkflow.tasks.find(task => task.task_id === "T040")?.status, "REVISION_REQUIRED");
     assert.equal(staleWorkflow.tasks.find(task => task.task_id === "T050")?.status, "BLOCKED");
 
