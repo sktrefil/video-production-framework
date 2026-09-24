@@ -134,7 +134,7 @@ export class CodexManagerRuntimeService {
     );
     try {
       const review = repo.latestManagerReview(projectId, taskId);
-      if (review === null) return null;
+      if (review === null || review.verdict !== "RETRY") return null;
       return [
         "Codex 1 revision directive:",
         review.revision_instruction,
