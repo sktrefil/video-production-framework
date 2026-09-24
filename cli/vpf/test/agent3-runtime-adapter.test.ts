@@ -373,6 +373,7 @@ test("Agent3 runtime automatically runs T040-T060 and hands off T070", async () 
 
     const runtime = new Agent3RuntimeAdapterService(bootstrap, {
       ...process.env,
+      VPF_AI_RUNTIME_MODE: "OPENAI_API",
       OPENAI_API_KEY: "test-agent3-key",
       VPF_AGENT3_OPENAI_MODEL: "gpt-5.6",
       OPENAI_API_BASE_URL: server.baseUrl + "/v1",
@@ -503,6 +504,7 @@ test("Agent3 run-all retries Core rejection with revision feedback", async () =>
 
     const runtime = new Agent3RuntimeAdapterService(bootstrap, {
       ...process.env,
+      VPF_AI_RUNTIME_MODE: "OPENAI_API",
       OPENAI_API_KEY: "test-agent3-key",
       VPF_AGENT3_OPENAI_MODEL: "gpt-5.6",
       OPENAI_API_BASE_URL: server.baseUrl + "/v1",
@@ -550,6 +552,7 @@ test("Agent3 automatic runtime fails closed when OPENAI_API_KEY is missing", asy
 
     const runtime = new Agent3RuntimeAdapterService(bootstrap, {
       ...process.env,
+      VPF_AI_RUNTIME_MODE: "OPENAI_API",
       OPENAI_API_KEY: ""
     });
     await assert.rejects(
