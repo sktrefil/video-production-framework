@@ -113,19 +113,22 @@ function collectTraceEvidence(trace: string): {
     } catch {
       continue;
     }
-    const visit = (input: unknown): void => {
+    const visit = (input: unknown, webContext = false): void => {
       if (Array.isArray(input)) {
-        input.forEach(visit);
+        input.forEach(item => visit(item, webContext));
         return;
       }
       if (typeof input !== "object" || input === null) return;
       const object = input as Record<string, unknown>;
       const type = typeof object.type === "string" ? object.type : "";
-      if (type === "web_search" || type === "web_search_call") {
+      const nextWebContext =
+        webContext || type === "web_search" || type === "web_search_call";
+      if (!webContext && nextWebContext) {
         webSearchCount += 1;
       }
       for (const nested of Object.values(object)) {
         if (
+          nextWebContext &&
           typeof nested === "string" &&
           /^https?:\/\//iu.test(nested)
         ) {
@@ -134,10 +137,10 @@ function collectTraceEvidence(trace: string): {
             url.hash = "";
             urls.add(url.toString());
           } catch {
-            // Ignore malformed URLs surfaced in trace metadata.
+            // Ignore malformed URLs surfaced in web-search metadata.
           }
         } else {
-          visit(nested);
+          visit(nested, nextWebContext);
         }
       }
     };
@@ -302,7 +305,13 @@ export class CodexProcessRunner {
     request: CodexExecutionRequest
   ): Promise<CodexExecutionResult<TOutput>> {
     const role = getCodexRoleProfile(request.roleId);
-    if (!role.allowedTasks.includes(request.taskId)) {
+    const roleTaskAllowed =
+      role.allowedTasks.includes(request.taskId) ||
+      (
+        request.roleId === "CODEX_1_MANAGER" &&
+        request.taskId.startsWith("MANAGER_REVIEW:")
+      );
+    if (!roleTaskAllowed) {
       throw new CodexRuntimeError(
         "CODEX_ROLE_TASK_FORBIDDEN",
         request.roleId + " may not execute task " + request.taskId + "."
