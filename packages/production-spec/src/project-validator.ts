@@ -36,6 +36,16 @@ export function validateProjectSpec(input: unknown): ValidationResult {
   if (!isNonEmptyString(input.project_id) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(input.project_id)) {
     issue("INVALID_PROJECT_ID", "project_id", "project_id must contain only letters, digits, underscores, or hyphens and start with a letter or digit.");
   }
+  if (
+    input.topic !== undefined &&
+    (!isNonEmptyString(input.topic) || input.topic.length > 500)
+  ) {
+    issue(
+      "INVALID_PROJECT_TOPIC",
+      "topic",
+      "topic must be a non-empty string up to 500 characters when provided."
+    );
+  }
   if (!PRODUCTION_FORMATS.includes(input.format as typeof PRODUCTION_FORMATS[number])) {
     issue("INVALID_FORMAT", "format", "Production Spec format must be SHORTS or LONGFORM.");
   }
