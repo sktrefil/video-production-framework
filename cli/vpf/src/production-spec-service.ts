@@ -162,7 +162,7 @@ export class Agent1ProductionManagerService {
     try {
       const research = agent2.getActive<Agent2ResearchSpec>(projectId, "research_spec");
       const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
-      return this.evaluate(projectId, "RESEARCH_GATE", repo => {
+      return await this.evaluate(projectId, "RESEARCH_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const projectGate = repo.getLatestGate(projectId, "PROJECT_INIT_GATE");
         const dependency = project !== null && projectGate?.status === "PASS" && repo.isLatestGateCurrent(projectId, "PROJECT_INIT_GATE", project)
@@ -195,7 +195,7 @@ export class Agent1ProductionManagerService {
       const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
       const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
       const script = agent2.getActive<Agent2ScriptSpec>(projectId, "script");
-      return this.evaluate(projectId, "SCRIPT_GATE", repo => {
+      return await this.evaluate(projectId, "SCRIPT_GATE", repo => {
         const prior = repo.getLatestGate(projectId, "RESEARCH_GATE");
         const research = agent2.getActive<Agent2ResearchSpec>(projectId, "research_spec");
         const dependencyInput = {
@@ -217,7 +217,7 @@ export class Agent1ProductionManagerService {
   }
 
   async validateProject(projectId: string): Promise<ProductionGateEvaluation> {
-    return this.evaluate(projectId, "PROJECT_INIT_GATE", repo => {
+    return await this.evaluate(projectId, "PROJECT_INIT_GATE", repo => {
       const spec = repo.getProjectSpec(projectId);
       return { input: spec, validation: spec === null
         ? result([missing("PROJECT_SPEC_MISSING", "New unified projects require a Project Spec.")])
@@ -231,7 +231,7 @@ export class Agent1ProductionManagerService {
     try {
       const tts = agent2.getActive<Agent2TtsManifest>(projectId, "tts_manifest");
       const subtitles = agent2.getActive<Agent2SubtitleTimingSpec>(projectId, "subtitle_timing");
-      return this.evaluate(projectId, "STORY_AUDIO_GATE", repo => {
+      return await this.evaluate(projectId, "STORY_AUDIO_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
@@ -300,7 +300,7 @@ export class Agent1ProductionManagerService {
       const facts = agent2.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
       const bible = pinnedVisualBible(status);
-      return this.evaluate(projectId, "VISUAL_PLAN_GATE", repo => {
+      return await this.evaluate(projectId, "VISUAL_PLAN_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const storyGate = repo.getLatestGate(projectId, "STORY_AUDIO_GATE");
@@ -354,7 +354,7 @@ export class Agent1ProductionManagerService {
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
       const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
       const bible = pinnedVisualBible(status);
-      return this.evaluate(projectId, "STATE_IMAGE_GATE", repo => {
+      return await this.evaluate(projectId, "STATE_IMAGE_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const visualGate = repo.getLatestGate(projectId, "VISUAL_PLAN_GATE");
@@ -415,7 +415,7 @@ export class Agent1ProductionManagerService {
       const visual = agent3.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
       const states = agent3.getActive<StateImageDocument>(projectId, "state_image_spec");
       const prompts = agent3.getActive<PromptBundleDocument>(projectId, "prompt_bundle_spec");
-      return this.evaluate(projectId, "CLIP_PLAN_GATE", repo => {
+      return await this.evaluate(projectId, "CLIP_PLAN_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const clips = repo.getClipProduction(projectId);
@@ -487,7 +487,7 @@ export class Agent1ProductionManagerService {
       const prompts = agent3.getActive<PromptBundleDocument>(projectId, "prompt_bundle_spec");
       const bible = pinnedVisualBible(status);
 
-      return this.evaluate(projectId, "GENERATION_READY_GATE", repo => {
+      return await this.evaluate(projectId, "GENERATION_READY_GATE", repo => {
         const project = repo.getProjectSpec(projectId);
         const scenes = repo.getSceneTiming(projectId);
         const clips = repo.getClipProduction(projectId);
