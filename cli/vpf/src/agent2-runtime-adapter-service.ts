@@ -1137,7 +1137,7 @@ export class Agent2RuntimeAdapterService {
         if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
           const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
           const codex = this.codexRunner;
-          const directive = await this.codexManager.latestDirective(projectId, "T010");
+          const directive = await this.codexManager.latestDirective(projectId, "T010", attempt);
           const input = {
             project_id: projectId,
             topic,
@@ -1280,7 +1280,7 @@ export class Agent2RuntimeAdapterService {
         if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
           const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
           const codex = this.codexRunner;
-          const directive = await this.codexManager.latestDirective(projectId, "T020");
+          const directive = await this.codexManager.latestDirective(projectId, "T020", attempt);
           const input = {
             project_id: projectId,
             format: spec.format,
