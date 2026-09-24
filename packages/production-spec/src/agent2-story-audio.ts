@@ -194,7 +194,11 @@ function requiredString(value: unknown, path: string, errors: ValidationIssue[])
   return value.trim();
 }
 
-export function validateResearchBundle(input: unknown, expectedProjectId?: string): ValidationResult {
+export function validateResearchBundle(
+  input: unknown,
+  expectedProjectId?: string,
+  expectedTopic?: string
+): ValidationResult {
   const errors: ValidationIssue[] = [];
   const warnings: ValidationIssue[] = [];
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
@@ -213,7 +217,18 @@ export function validateResearchBundle(input: unknown, expectedProjectId?: strin
 
   if (research.project_id !== facts.project_id) errors.push({ code: "PROJECT_ID_MISMATCH", path: "fact_check_spec.project_id", message: "Research and fact-check project IDs must match." });
   if (expectedProjectId && research.project_id !== expectedProjectId) errors.push({ code: "PROJECT_ID_MISMATCH", path: "research_spec.project_id", message: "Research bundle project_id must match the canonical project." });
-  requiredString(research.topic, "research_spec.topic", errors);
+  const researchTopic = requiredString(research.topic, "research_spec.topic", errors);
+  if (
+    expectedTopic !== undefined &&
+    researchTopic !== null &&
+    researchTopic !== expectedTopic
+  ) {
+    errors.push({
+      code: "RESEARCH_TOPIC_MISMATCH",
+      path: "research_spec.topic",
+      message: "Research topic must exactly match the active Project Spec topic."
+    });
+  }
   requiredString(research.central_question, "research_spec.central_question", errors);
   const sources = Array.isArray(research.sources) ? research.sources : [];
   if (sources.length === 0) {
