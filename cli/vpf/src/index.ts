@@ -358,7 +358,8 @@ export async function runCli(
         printJson(io, {
           project_id: projectId,
           runtime_mode: process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION",
-          runs: repository.list(projectId)
+          runs: repository.list(projectId),
+          manager_reviews: repository.listManagerReviews(projectId)
         });
       } finally {
         repository.close();
