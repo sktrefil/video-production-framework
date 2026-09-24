@@ -105,3 +105,54 @@ test("Agent2 TTS completion requires exact provider character alignment", () => 
   }, "p1");
   assert.equal(valid.valid, true);
 });
+
+
+test("Agent2 research topic must exactly match the active Project Spec topic", () => {
+  const bundle = {
+    research_spec: {
+      schema_version: "1.0",
+      project_id: "p1",
+      topic: "네안데르탈인은 왜 사라졌는가",
+      central_question: "왜 사라졌는가?",
+      sources: [{
+        source_id: "SRC1",
+        title: "Source",
+        source_type: "JOURNAL",
+        citation: "Citation"
+      }],
+      research_notes: []
+    },
+    fact_check_spec: {
+      schema_version: "1.0",
+      project_id: "p1",
+      facts: [{
+        fact_id: "F1",
+        statement_ko: "검증 사실",
+        classification: "VERIFIED_FACT",
+        confidence: "HIGH",
+        source_refs: ["SRC1"]
+      }]
+    }
+  };
+
+  const mismatch = validateResearchBundle(
+    bundle,
+    "p1",
+    "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가"
+  );
+  assert.equal(mismatch.valid, false);
+  assert.ok(mismatch.errors.some(issue => issue.code === "RESEARCH_TOPIC_MISMATCH"));
+
+  const exact = validateResearchBundle(
+    {
+      ...bundle,
+      research_spec: {
+        ...bundle.research_spec,
+        topic: "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가"
+      }
+    },
+    "p1",
+    "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가"
+  );
+  assert.equal(exact.valid, true);
+});
