@@ -839,6 +839,7 @@ async function resolvePinnedOpenAiProfile(
 export class Agent2RuntimeAdapterService {
   private readonly manager: Agent1WorkflowOrchestratorService;
   private readonly worker: Agent2StoryAudioWorkerService;
+  private readonly codexManager: CodexManagerRuntimeService;
 
   constructor(
     private readonly projects: ProjectBootstrapService,
@@ -846,6 +847,7 @@ export class Agent2RuntimeAdapterService {
   ) {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent2StoryAudioWorkerService(projects);
+    this.codexManager = new CodexManagerRuntimeService(projects, environment);
   }
 
   async runNext(projectId: string): Promise<RuntimeStepResult | { project_id: string; handoff_task: string | null; status: "HANDOFF" }> {
@@ -876,6 +878,29 @@ export class Agent2RuntimeAdapterService {
         gate_status: completed.last_gate_status ?? "PASS"
       };
     } catch (error) {
+      if (
+        agent2AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
+        taskId !== "T030" &&
+        !codexFatal(error)
+      ) {
+        try {
+          await this.codexManager.reviewFailure({
+            projectId,
+            taskId,
+            attempt: dispatch.attempt,
+            workerRole: "CODEX_2_STORY_AUDIO",
+            errorCode:
+              error instanceof Agent2RuntimeAdapterError
+                ? error.code
+                : error instanceof CodexRuntimeError
+                  ? error.code
+                  : "AGENT2_RUNTIME_FAILURE",
+            errorDetail: error instanceof Error ? error.message : String(error)
+          });
+        } catch {
+          // Manager review is advisory. Deterministic workflow state remains authoritative.
+        }
+      }
       await this.manager.requestRevision(projectId, taskId);
       throw error;
     }
@@ -889,17 +914,38 @@ export class Agent2RuntimeAdapterService {
   }> {
     await this.assertRuntimeProjectCurrent(projectId);
     const steps: RuntimeStepResult[] = [];
-    for (let index = 0; index < 3; index += 1) {
+    let guard = 0;
+    while (guard < 12) {
+      guard += 1;
       const state = await this.manager.status(projectId);
-      const hasAgent2Work = state.tasks.some(task =>
+      const next = state.tasks.find(task =>
         task.assigned_agent === "AGENT2_STORY_AUDIO" &&
         (task.status === "READY" || task.status === "REVISION_REQUIRED") &&
         ["T010", "T020", "T030"].includes(task.task_id)
-      );
-      if (!hasAgent2Work) break;
-      const result = await this.runNext(projectId);
-      if ("status" in result) break;
-      steps.push(result);
+      ) ?? null;
+      if (next === null) break;
+      try {
+        const result = await this.runNext(projectId);
+        if ("status" in result) break;
+        steps.push(result);
+      } catch (error) {
+        const after = await this.manager.status(projectId);
+        const task = after.tasks.find(item => item.task_id === next.task_id);
+        const retryable =
+          task?.status === "REVISION_REQUIRED" &&
+          (task.attempt ?? 0) < 3 &&
+          !codexFatal(error) &&
+          !(
+            error instanceof Agent2RuntimeAdapterError &&
+            [
+              "AGENT2_RUNTIME_SECRET_MISSING",
+              "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+              "AGENT2_RUNTIME_PREREQUISITE"
+            ].includes(error.code)
+          );
+        if (retryable) continue;
+        throw error;
+      }
     }
     const handoff = await this.manager.next(projectId);
     return {
