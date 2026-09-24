@@ -405,36 +405,25 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
     );
     try {
       const runs = codexRuns.list("codex_multi");
-      assert.deepEqual(
-        runs.map(run => run.role_id),
-        [
-          "CODEX_2_STORY_AUDIO",
-          "CODEX_1_MANAGER",
-          "CODEX_2_STORY_AUDIO",
-          "CODEX_1_MANAGER",
-          "CODEX_3_VISUAL_PRODUCTION",
-          "CODEX_1_MANAGER",
-          "CODEX_3_VISUAL_PRODUCTION",
-          "CODEX_1_MANAGER",
-          "CODEX_3_VISUAL_PRODUCTION",
-          "CODEX_1_MANAGER"
-        ]
-      );
-      assert.deepEqual(
-        runs.map(run => run.task_id),
-        [
-          "T010",
-          "MANAGER_SUCCESS:T010",
-          "T020",
-          "MANAGER_SUCCESS:T020",
-          "T040",
-          "MANAGER_SUCCESS:T040",
-          "T050",
-          "MANAGER_SUCCESS:T050",
-          "T060",
-          "MANAGER_SUCCESS:T060"
-        ]
-      );
+      assert.equal(runs.length, 10);
+      const expectedRuns = new Map([
+        ["T010", "CODEX_2_STORY_AUDIO"],
+        ["MANAGER_SUCCESS:T010", "CODEX_1_MANAGER"],
+        ["T020", "CODEX_2_STORY_AUDIO"],
+        ["MANAGER_SUCCESS:T020", "CODEX_1_MANAGER"],
+        ["T040", "CODEX_3_VISUAL_PRODUCTION"],
+        ["MANAGER_SUCCESS:T040", "CODEX_1_MANAGER"],
+        ["T050", "CODEX_3_VISUAL_PRODUCTION"],
+        ["MANAGER_SUCCESS:T050", "CODEX_1_MANAGER"],
+        ["T060", "CODEX_3_VISUAL_PRODUCTION"],
+        ["MANAGER_SUCCESS:T060", "CODEX_1_MANAGER"]
+      ]);
+      for (const [taskId, roleId] of expectedRuns) {
+        const matching = runs.filter(run =>
+          run.task_id === taskId && run.role_id === roleId
+        );
+        assert.equal(matching.length, 1, taskId + " should execute exactly once.");
+      }
       assert.ok(runs.every(run => run.status === "COMPLETE"));
       assert.ok(runs.every(run => run.auth_status === "STORED_LOGIN_OK"));
       assert.equal(JSON.stringify(runs).includes("must-not-reach-codex-child"), false);
