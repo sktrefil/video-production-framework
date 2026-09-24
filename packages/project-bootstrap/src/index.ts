@@ -152,6 +152,8 @@ export interface ProjectRuntimeUpgradeResult {
   addedProviderProfiles: string[];
   preservedProjectRevision: number;
   preservedWorkflowState: true;
+  projectSpecBackfilled: boolean;
+  workflowBackfilled: boolean;
 }
 
 export type DoctorCheckStatus = "PASS" | "FAIL";
@@ -912,6 +914,8 @@ export class ProjectBootstrapService {
     const now = this.clock.nowIso();
 
     const repository = new SqliteProjectRecordRepository(before.projectDbPath);
+    let projectSpecBackfilled = false;
+    let workflowBackfilled = false;
     try {
       repository.db.exec("BEGIN IMMEDIATE");
       try {
@@ -931,6 +935,87 @@ export class ProjectBootstrapService {
             "Runtime upgrade expected exactly one ACTIVE project record."
           );
         }
+
+        const existingSpec = repository.db.prepare(`
+          SELECT project_id
+          FROM production_project_specs
+          WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+          ORDER BY revision DESC
+          LIMIT 1
+        `).get(projectId) as { project_id: string } | undefined;
+
+        if (existingSpec === undefined) {
+          const projectSpec = createProjectSpec({
+            project_id: projectId,
+            format: before.project.format === "SHORTFORM" ? "SHORTS" : "LONGFORM",
+            target_duration_sec: before.project.format === "SHORTFORM" ? 60 : 600
+          });
+          const encodedSpec = JSON.stringify(projectSpec);
+          repository.db.prepare(`INSERT INTO production_project_specs
+            (project_id, revision, lifecycle_status, schema_version, spec_json, spec_sha256, created_at)
+            VALUES (?, 1, 'ACTIVE', ?, ?, ?, ?)`
+          ).run(
+            projectId,
+            projectSpec.schema_version,
+            encodedSpec,
+            sha256(encodedSpec).slice("sha256:".length),
+            now
+          );
+          projectSpecBackfilled = true;
+        }
+
+        const existingWorkflow = repository.db.prepare(`
+          SELECT project_id
+          FROM production_workflow_instances
+          WHERE project_id = ?
+        `).get(projectId) as { project_id: string } | undefined;
+
+        if (existingWorkflow === undefined) {
+          const workflow = getStandardProductionWorkflow();
+          const encodedWorkflow = JSON.stringify(workflow);
+          repository.db.prepare(`INSERT INTO production_workflow_instances
+            (project_id, workflow_id, workflow_version, workflow_sha256, workflow_json, profile, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`
+          ).run(
+            projectId,
+            workflow.workflow_id,
+            workflow.version,
+            sha256(encodedWorkflow),
+            encodedWorkflow,
+            before.project.format === "SHORTFORM" ? "SHORTS" : "LONGFORM",
+            now
+          );
+
+          const insertTask = repository.db.prepare(`INSERT INTO production_task_instances
+            (project_id, task_id, task_instance_id, task_order, assigned_agent, task_type, status,
+             attempt, manual_approval_required, input_refs_json, output_refs_json, last_gate_id,
+             last_gate_status, created_at, started_at, completed_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+
+          for (const task of createProjectTaskInstances(projectId, workflow, now)) {
+            insertTask.run(
+              task.project_id,
+              task.task_id,
+              task.task_instance_id,
+              task.task_order,
+              task.assigned_agent,
+              task.task_type,
+              task.status,
+              task.attempt,
+              task.manual_approval_required ? 1 : 0,
+              JSON.stringify(task.input_revision_refs),
+              JSON.stringify(task.output_revision_refs),
+              task.last_gate_id,
+              task.last_gate_status,
+              task.created_at,
+              task.started_at,
+              task.completed_at,
+              task.updated_at
+            );
+          }
+          workflowBackfilled = true;
+        }
+
         repository.db.exec("COMMIT");
       } catch (error) {
         try {
@@ -998,7 +1083,9 @@ export class ProjectBootstrapService {
       currentResourcePins: after.resourcePins,
       addedProviderProfiles,
       preservedProjectRevision: after.project.revision,
-      preservedWorkflowState: true
+      preservedWorkflowState: true,
+      projectSpecBackfilled,
+      workflowBackfilled
     };
   }
 
