@@ -279,9 +279,22 @@ export class Agent1WorkflowOrchestratorService {
 
     for (const task of repo.listTasks(projectId)) {
       if (!["COMPLETE", "RUNNING"].includes(task.status)) continue;
-      const stale = task.input_revision_refs.some(ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type)));
-      if (stale) {
-        repo.updateTask({ projectId, taskId: task.task_id, status: "REVISION_REQUIRED", completedAt: null, updatedAt: at });
+      const staleInput = task.input_revision_refs.some(
+        ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
+      );
+      const staleOutput =
+        task.status === "COMPLETE" &&
+        task.output_revision_refs.some(
+          ref => !sameRef(ref, repo.resolveArtifactRef(projectId, ref.artifact_type))
+        );
+      if (staleInput || staleOutput) {
+        repo.updateTask({
+          projectId,
+          taskId: task.task_id,
+          status: "REVISION_REQUIRED",
+          completedAt: null,
+          updatedAt: at
+        });
         this.blockDescendants(projectId, task.task_id, workflow.definition.tasks, repo, at);
       }
     }
