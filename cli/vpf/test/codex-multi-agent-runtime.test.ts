@@ -11,7 +11,7 @@ import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service
 import { Agent2RuntimeAdapterService } from "../src/agent2-runtime-adapter-service.js";
 import { Agent3RuntimeAdapterService } from "../src/agent3-runtime-adapter-service.js";
 import { CodexManagerRuntimeService } from "../src/codex-manager-runtime-service.js";
-import { CodexProcessRunner } from "../src/codex-process-runner.js";
+import { CodexProcessRunner, CodexRuntimeError } from "../src/codex-process-runner.js";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
@@ -488,4 +488,51 @@ test("Codex 1 produces an advisory revision directive without changing workflow 
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+
+test("Codex role contracts block cross-agent tasks and unauthorized web search", async () => {
+  const runner = new CodexProcessRunner({
+    ...process.env,
+    VPF_CODEX_COMMAND: process.execPath,
+    VPF_CODEX_COMMAND_ARGS_JSON: JSON.stringify([fakeCodex])
+  });
+  const base = {
+    projectId: "role_guard",
+    projectRoot: "/tmp/unused",
+    dbPath: "/tmp/unused.db",
+    attempt: 1,
+    instructions: ["test"],
+    input: {},
+    outputSchema: {
+      type: "object",
+      additionalProperties: false,
+      required: [],
+      properties: {}
+    }
+  };
+
+  await assert.rejects(
+    runner.execute({
+      ...base,
+      roleId: "CODEX_2_STORY_AUDIO",
+      taskId: "T040",
+      webSearchMode: "disabled"
+    }),
+    (error: unknown) =>
+      error instanceof CodexRuntimeError &&
+      error.code === "CODEX_ROLE_TASK_FORBIDDEN"
+  );
+
+  await assert.rejects(
+    runner.execute({
+      ...base,
+      roleId: "CODEX_3_VISUAL_PRODUCTION",
+      taskId: "T040",
+      webSearchMode: "live"
+    }),
+    (error: unknown) =>
+      error instanceof CodexRuntimeError &&
+      error.code === "CODEX_ROLE_TASK_FORBIDDEN"
+  );
 });
