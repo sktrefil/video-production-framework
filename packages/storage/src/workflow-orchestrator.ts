@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import Database from "better-sqlite3";
 import type {
   ArtifactRevisionRef,
@@ -148,6 +149,24 @@ export class WorkflowOrchestratorRepository {
       scene_timing_spec: "production_scene_timing_specs",
       clip_production_spec: "production_clip_specs"
     };
+    if (artifactType === "project_topic") {
+      const row = this.db.prepare(`
+        SELECT revision, spec_json
+        FROM production_project_specs
+        WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+        ORDER BY revision DESC
+        LIMIT 1
+      `).get(projectId) as { revision: number; spec_json: string } | undefined;
+      if (row === undefined) return null;
+      const spec = JSON.parse(row.spec_json) as { topic?: unknown };
+      if (typeof spec.topic !== "string" || spec.topic.trim().length === 0) return null;
+      return {
+        artifact_type: artifactType,
+        revision: Number(row.revision),
+        sha256: createHash("sha256").update(spec.topic.trim(), "utf8").digest("hex")
+      };
+    }
+
     const table = tables[artifactType];
     if (table !== undefined) {
       const row = this.db.prepare(`SELECT revision, spec_sha256 FROM ${table}
