@@ -47,17 +47,54 @@ function sourceHost(value: string | undefined): string | null {
   }
 }
 
-function independentSourceIdentity(source: Agent2ResearchSource): string | null {
+function normalizedSourceTitle(value: string): string {
+  return value
+    .normalize("NFKC")
+    .trim()
+    .toLocaleLowerCase("en-US")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function sourceIndependenceTokens(source: Agent2ResearchSource): string[] {
+  const tokens: string[] = [];
   const publisher = normalizedPublisher(source.publisher);
-  if (publisher) return "publisher:" + publisher;
   const host = sourceHost(source.url);
-  return host === null ? null : "host:" + host;
+  const title = normalizedSourceTitle(source.title);
+  if (publisher) tokens.push("publisher:" + publisher);
+  if (host) tokens.push("host:" + host);
+  if (title) tokens.push("title:" + title);
+  return tokens;
+}
+
+function independentSourceCount(sources: Agent2ResearchSource[]): number {
+  const groups: Array<Set<string>> = [];
+  for (const source of sources) {
+    const tokens = new Set(sourceIndependenceTokens(source));
+    if (tokens.size === 0) continue;
+    const matching: number[] = [];
+    for (let index = 0; index < groups.length; index += 1) {
+      if ([...tokens].some(token => groups[index]!.has(token))) matching.push(index);
+    }
+    if (matching.length === 0) {
+      groups.push(tokens);
+      continue;
+    }
+    const target = groups[matching[0]!]!;
+    for (const token of tokens) target.add(token);
+    for (let index = matching.length - 1; index >= 1; index -= 1) {
+      const mergeIndex = matching[index]!;
+      for (const token of groups[mergeIndex]!) target.add(token);
+      groups.splice(mergeIndex, 1);
+    }
+  }
+  return groups.length;
 }
 
 function isHighAuthoritySource(source: Agent2ResearchSource): boolean {
-  return HIGH_AUTHORITY_SOURCE_TYPES.includes(
-    normalizedSourceType(source.source_type) as typeof HIGH_AUTHORITY_SOURCE_TYPES[number]
-  );
+  return normalizedPublisher(source.publisher).length > 0 &&
+    HIGH_AUTHORITY_SOURCE_TYPES.includes(
+      normalizedSourceType(source.source_type) as typeof HIGH_AUTHORITY_SOURCE_TYPES[number]
+    );
 }
 
 export interface Agent2ResearchSource {
@@ -347,11 +384,7 @@ export function validateResearchBundle(
     const referencedSources = uniqueRefs
       .map(ref => sourceById.get(ref))
       .filter((source): source is Agent2ResearchSource => source !== undefined);
-    const independentSources = new Set(
-      referencedSources
-        .map(independentSourceIdentity)
-        .filter((identity): identity is string => identity !== null)
-    );
+    const independentSources = independentSourceCount(referencedSources);
 
     if (fact.classification === "VERIFIED_FACT") {
       if (uniqueRefs.length === 0) {
@@ -361,7 +394,7 @@ export function validateResearchBundle(
           message: "VERIFIED_FACT requires supporting source references."
         });
       }
-      if (uniqueRefs.length < 2 || independentSources.size < 2) {
+      if (uniqueRefs.length < 2 || independentSources < 2) {
         errors.push({
           code: "VERIFIED_FACT_INDEPENDENT_SOURCES_REQUIRED",
           path: `fact_check_spec.facts[${index}].source_refs`,
@@ -380,7 +413,7 @@ export function validateResearchBundle(
     }
 
     if (fact.confidence === "HIGH") {
-      if (uniqueRefs.length < 2 || independentSources.size < 2) {
+      if (uniqueRefs.length < 2 || independentSources < 2) {
         errors.push({
           code: "HIGH_CONFIDENCE_INDEPENDENT_SOURCES_REQUIRED",
           path: `fact_check_spec.facts[${index}].source_refs`,
