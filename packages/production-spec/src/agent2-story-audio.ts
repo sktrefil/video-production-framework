@@ -24,20 +24,22 @@ export const HIGH_AUTHORITY_SOURCE_TYPES = [
   "ARCHIVE"
 ] as const;
 
-function normalizedSourceType(value: string): string {
-  return value.trim().toUpperCase().replace(/[\s-]+/gu, "_");
+function normalizedSourceType(value: unknown): string {
+  return typeof value === "string"
+    ? value.trim().toUpperCase().replace(/[\s-]+/gu, "_")
+    : "";
 }
 
-function normalizedPublisher(value: string | undefined): string {
-  return (value ?? "")
+function normalizedPublisher(value: unknown): string {
+  return (typeof value === "string" ? value : "")
     .normalize("NFKC")
     .trim()
     .toLocaleLowerCase("en-US")
     .replace(/[^\p{L}\p{N}]+/gu, "");
 }
 
-function sourceHost(value: string | undefined): string | null {
-  if (!value?.trim()) return null;
+function sourceHost(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
   try {
     const url = new URL(value);
     if (!["http:", "https:"].includes(url.protocol)) return null;
@@ -47,7 +49,8 @@ function sourceHost(value: string | undefined): string | null {
   }
 }
 
-function normalizedSourceTitle(value: string): string {
+function normalizedSourceTitle(value: unknown): string {
+  if (typeof value !== "string") return "";
   return value
     .normalize("NFKC")
     .trim()
@@ -587,6 +590,7 @@ export const AGENT2_TASK_INSTRUCTIONS: Record<"T010" | "T020" | "T030", Agent2Ta
       "Distinguish VERIFIED_FACT, LIKELY_INTERPRETATION, HYPOTHESIS, LEGEND and EDITORIAL_RECONSTRUCTION.",
       "Preserve uncertainty instead of upgrading a disputed claim into a fact.",
       "HIGH confidence requires at least two independent sources and at least one primary, scholarly, university, museum, government, archive, official-institution, or research-institute source.",
+      "Use explicit source_type values such as PRIMARY_SOURCE, PEER_REVIEWED_JOURNAL, ACADEMIC_PAPER, SCHOLARLY_PUBLICATION, UNIVERSITY, MUSEUM, GOVERNMENT, GOVERNMENT_INSTITUTION, RESEARCH_INSTITUTE, OFFICIAL_INSTITUTION, or ARCHIVE when the source actually qualifies.",
       "Every source used for VERIFIED_FACT must include a traceable HTTP(S) URL and enough publisher metadata for Agent 1 to audit independence."
     ],
     required_outputs: ["research_spec", "fact_check_spec"]
