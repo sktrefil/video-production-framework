@@ -51,13 +51,22 @@ function researchBundle(
       central_question: "제9군단의 마지막 운명은 무엇이었는가?",
       sources: [{
         source_id: "SRC_001",
-        title: "Roman Ninth Legion reference",
-        source_type: "WEB",
+        title: "Roman Ninth Legion research reference",
+        source_type: "RESEARCH_INSTITUTE",
         url: "https://example.org/roman-ix",
-        citation: "Roman Ninth Legion reference",
+        citation: "Roman Ninth Legion research reference",
         publisher: "Example Institute",
         published_at: "2026-01-01",
         notes: "integration fixture"
+      }, {
+        source_id: "SRC_002",
+        title: "Roman Ninth Legion university reference",
+        source_type: "UNIVERSITY",
+        url: "https://example.edu/roman-ix",
+        citation: "Roman Ninth Legion university reference",
+        publisher: "Example University",
+        published_at: "2026-01-02",
+        notes: "independent integration fixture"
       }],
       research_notes: ["검증된 기록과 이후의 불확실성을 구분한다."]
     },
@@ -70,7 +79,7 @@ function researchBundle(
         statement_en: "A last traceable record of the Ninth Legion exists.",
         classification: "VERIFIED_FACT",
         confidence: "HIGH",
-        source_refs: ["SRC_001"],
+        source_refs: ["SRC_001", "SRC_002"],
         visualisation_note: "마지막 기록 이후의 불확실성은 재구성으로만 표현한다.",
         uncertainty_note: ""
       }]
