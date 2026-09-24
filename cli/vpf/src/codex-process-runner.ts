@@ -585,7 +585,7 @@ export class CodexProcessRunner {
       let settled = false;
       let timedOut = false;
       const child = spawn(this.command, [...this.commandPrefixArgs, ...args], {
-        cwd,
+        ...(cwd === undefined ? {} : { cwd }),
         env: this.storedLoginEnvironment(),
         windowsHide: true,
         shell: false
