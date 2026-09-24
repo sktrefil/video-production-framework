@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "CODEX_STORY_AUDIO_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "CODEX_SESSION",
+    "executionMode": "AUTOMATED",
+    "jobTypes": [
+      "OTHER"
+    ],
+    "capabilities": {
+      "interface": "codex exec",
+      "role": "CODEX_2_STORY_AUDIO",
+      "structuredOutputs": true,
+      "webSearch": true,
+      "sandbox": "read-only",
+      "tasks": [
+        "RESEARCH_FACT_CHECK",
+        "STORY_SCRIPT"
+      ]
+    },
+    "retryPolicy": {
+      "maxAttempts": 3
+    },
+    "result": {
+      "mediaType": "DOCUMENT",
+      "requiredArtifacts": [
+        "research_spec",
+        "fact_check_spec",
+        "story_spec",
+        "script"
+      ]
+    },
+    "runtimeSecretNames": []
+  }
+}
