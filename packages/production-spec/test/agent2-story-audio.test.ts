@@ -303,3 +303,45 @@ test("Agent2 HIGH confidence requires at least one authority-class source", () =
   assert.equal(result.valid, false);
   assert.ok(result.errors.some(issue => issue.code === "HIGH_CONFIDENCE_AUTHORITY_SOURCE_REQUIRED"));
 });
+
+
+test("Agent2 research rejects same-host sources even when publisher labels differ", () => {
+  const result = validateResearchBundle({
+    research_spec: {
+      schema_version: "1.0",
+      project_id: "p1",
+      topic: "topic",
+      central_question: "question",
+      sources: [{
+        source_id: "SRC1",
+        title: "Host article one",
+        source_type: "RESEARCH_INSTITUTE",
+        url: "https://evidence.example.org/article-one",
+        citation: "Article one",
+        publisher: "Institute Division A"
+      }, {
+        source_id: "SRC2",
+        title: "Host article two",
+        source_type: "UNIVERSITY",
+        url: "https://evidence.example.org/article-two",
+        citation: "Article two",
+        publisher: "Institute Division B"
+      }],
+      research_notes: []
+    },
+    fact_check_spec: {
+      schema_version: "1.0",
+      project_id: "p1",
+      facts: [{
+        fact_id: "F1",
+        statement_ko: "검증 사실",
+        classification: "VERIFIED_FACT",
+        confidence: "HIGH",
+        source_refs: ["SRC1", "SRC2"]
+      }]
+    }
+  }, "p1");
+
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some(issue => issue.code === "VERIFIED_FACT_INDEPENDENT_SOURCES_REQUIRED"));
+});
