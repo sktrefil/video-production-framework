@@ -101,6 +101,15 @@ function truncate(value: string, max = 2000): string {
   return value.length <= max ? value : value.slice(value.length - max);
 }
 
+async function copyIfPresent(source: string, target: string): Promise<void> {
+  try {
+    await copyFile(source, target);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw error;
+  }
+}
+
 function collectTraceEvidence(trace: string): {
   webSearchCount: number;
   observedUrls: string[];
@@ -439,6 +448,16 @@ export class CodexProcessRunner {
       "Return the final structured JSON matching output.schema.json."
     );
 
+    const auditDirectory = path.join(
+      request.projectRoot,
+      "logs",
+      "codex",
+      role.slug,
+      safeSegment(request.taskId),
+      "attempt_" + String(request.attempt).padStart(2, "0")
+    );
+    await mkdir(auditDirectory, { recursive: true });
+
     const repo = new CodexRuntimeRepository(request.dbPath);
     repo.start({
       run_id: runId,
@@ -512,15 +531,6 @@ export class CodexProcessRunner {
         completedAt: new Date().toISOString()
       });
 
-      const auditDirectory = path.join(
-        request.projectRoot,
-        "logs",
-        "codex",
-        role.slug,
-        safeSegment(request.taskId),
-        "attempt_" + String(request.attempt).padStart(2, "0")
-      );
-      await mkdir(auditDirectory, { recursive: true });
       for (const [source, target] of [
         [requestPath, "request.json"],
         [instructionsPath, "instructions.md"],
@@ -529,7 +539,7 @@ export class CodexProcessRunner {
         [tracePath, "trace.jsonl"],
         [stderrPath, "stderr.log"]
       ] as const) {
-        await copyFile(source, path.join(auditDirectory, target));
+        await copyIfPresent(source, path.join(auditDirectory, target));
       }
 
       return {
@@ -546,6 +556,26 @@ export class CodexProcessRunner {
         auditDirectory
       };
     } catch (error) {
+      try {
+        await writeFile(
+          path.join(auditDirectory, "runtime-error.txt"),
+          (error instanceof Error ? error.name + ": " + error.message : String(error)) + "\n",
+          "utf8"
+        );
+        for (const [source, target] of [
+          [requestPath, "request.json"],
+          [instructionsPath, "instructions.md"],
+          [schemaPath, "output.schema.json"],
+          [outputPath, "output.json"],
+          [tracePath, "trace.jsonl"],
+          [stderrPath, "stderr.log"]
+        ] as const) {
+          await copyIfPresent(source, path.join(auditDirectory, target));
+        }
+      } catch {
+        // Preserve the original runtime error even if audit persistence fails.
+      }
+
       if (error instanceof CodexRuntimeError) {
         repo.fail({
           runId,
