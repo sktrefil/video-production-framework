@@ -44,8 +44,17 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
         sources: [{
           source_id: "SRC_001",
           title: "Reference Source",
-          source_type: "BOOK",
-          citation: "Reference Source, p.1"
+          source_type: "RESEARCH_INSTITUTE",
+          url: "https://research.example.org/roman-ix",
+          citation: "Reference Source",
+          publisher: "Example Research Institute"
+        }, {
+          source_id: "SRC_002",
+          title: "Independent Reference Source",
+          source_type: "UNIVERSITY",
+          url: "https://university.example.edu/roman-ix",
+          citation: "Independent Reference Source",
+          publisher: "Example University"
         }],
         research_notes: ["테스트 조사"]
       },
@@ -57,7 +66,7 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
           statement_ko: "로마 군단에 대한 기록이 존재한다.",
           classification: "VERIFIED_FACT",
           confidence: "HIGH",
-          source_refs: ["SRC_001"]
+          source_refs: ["SRC_001", "SRC_002"]
         }]
       }
     });
