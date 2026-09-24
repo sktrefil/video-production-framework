@@ -257,7 +257,10 @@ function codexFatal(error: unknown): boolean {
   return error instanceof CodexRuntimeError && [
     "CODEX_CLI_MISSING",
     "CODEX_LOGIN_REQUIRED",
-    "CODEX_CAPABILITY_MISSING"
+    "CODEX_CAPABILITY_MISSING",
+    "CODEX_EXEC_TIMEOUT",
+    "CODEX_EXEC_FAILED",
+    "CODEX_OUTPUT_MISSING"
   ].includes(error.code);
 }
 
