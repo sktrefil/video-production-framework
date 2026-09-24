@@ -19,6 +19,7 @@ async function readinessFixture(overrides: NodeJS.ProcessEnv = {}) {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     VPF_WORKSPACE_ROOT: workspaceRoot,
+    VPF_AI_RUNTIME_MODE: "CODEX_SESSION",
     ELEVENLABS_API_KEY: "secret-elevenlabs-test-value",
     IMAGE_PROVIDER_API_KEY: "secret-image-test-value",
     VPF_IMAGE_ADAPTER_MODULE: adapterPath,
