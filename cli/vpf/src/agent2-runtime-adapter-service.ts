@@ -1051,13 +1051,21 @@ export class Agent2RuntimeAdapterService {
       const spec = production.getProjectSpec(projectId);
       if (spec === null) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "Project Spec is required.");
       if (taskId === "T010") {
+        const topic = (spec.topic ?? "").trim();
+        if (!topic) {
+          throw new Agent2RuntimeAdapterError(
+            "AGENT2_RUNTIME_PREREQUISITE",
+            "T010 requires an explicit ProjectSpec.topic. Set it with: vpf project set-topic " +
+              projectId + " --topic \"...\""
+          );
+        }
         if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
           const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
           const codex = this.codexRunner;
           const directive = await this.codexManager.latestDirective(projectId, "T010");
           const input = {
             project_id: projectId,
-            topic: status.project.title,
+            topic,
             format: spec.format,
             target_duration_sec: spec.target_duration_sec,
             language: spec.language,
@@ -1151,7 +1159,7 @@ export class Agent2RuntimeAdapterService {
         const runId = `${projectId}:T010:A${attempt}:OPENAI`;
         const input = {
           projectId,
-          topic: status.project.title,
+          topic,
           format: spec.format,
           targetDurationSec: spec.target_duration_sec,
           language: spec.language,
