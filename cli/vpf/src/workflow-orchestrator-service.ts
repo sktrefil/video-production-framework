@@ -24,8 +24,7 @@ export class WorkflowOrchestratorError extends Error {
       | "TASK_NOT_RUNNING"
       | "TASK_AGENT_MISMATCH"
       | "TASK_GATE_REQUIRED"
-      | "TASK_RETRY_EXHAUSTED"
-      | "TASK_MANAGER_VERDICT_STALE",
+      | "TASK_RETRY_EXHAUSTED",
     message: string
   ) {
     super(message);
@@ -282,10 +281,7 @@ export class Agent1WorkflowOrchestratorService {
         );
       }
       if (task.attempt !== attempt) {
-        throw new WorkflowOrchestratorError(
-          "TASK_MANAGER_VERDICT_STALE",
-          `Codex Manager verdict attempt ${attempt} does not match current ${taskId} attempt ${task.attempt}.`
-        );
+        return task;
       }
 
       const at = nowIso();
