@@ -59,8 +59,17 @@ async function prepareAgent2(
       sources: [{
         source_id: "SRC_001",
         title: "Reference",
-        source_type: "BOOK",
-        citation: "Reference p.1"
+        source_type: "RESEARCH_INSTITUTE",
+        url: "https://research.example.org/roman-ix",
+        citation: "Reference",
+        publisher: "Example Research Institute"
+      }, {
+        source_id: "SRC_002",
+        title: "Independent Reference",
+        source_type: "UNIVERSITY",
+        url: "https://university.example.edu/roman-ix",
+        citation: "Independent Reference",
+        publisher: "Example University"
       }],
       research_notes: ["검증된 기록과 가설을 구분한다."]
     },
@@ -73,7 +82,7 @@ async function prepareAgent2(
         statement_en: "A last traceable record of the Ninth Legion exists.",
         classification: "VERIFIED_FACT",
         confidence: "HIGH",
-        source_refs: ["SRC_001"],
+        source_refs: ["SRC_001", "SRC_002"],
         visualisation_note: "마지막 기록 이후의 불확실성을 시각화한다.",
         uncertainty_note: ""
       }]
