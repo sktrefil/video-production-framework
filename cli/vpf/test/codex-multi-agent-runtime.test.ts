@@ -779,3 +779,104 @@ test("stale Codex1 verdict cannot overwrite a newer task attempt", async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test("Codex1 success QC verdicts control deterministic-pass T010 completion", async () => {
+  const cases = [
+    { verdict: "APPROVE" as const, expected: "COMPLETE" as const, rejects: false },
+    { verdict: "RETRY" as const, expected: "REVISION_REQUIRED" as const, rejects: true },
+    { verdict: "BLOCK" as const, expected: "BLOCKED" as const, rejects: true },
+    { verdict: "ESCALATE" as const, expected: "BLOCKED" as const, rejects: true }
+  ];
+
+  for (const item of cases) {
+    const root = await mkdtemp(path.join(
+      tmpdir(),
+      "vpf-codex-success-qc-" + item.verdict.toLowerCase() + "-"
+    ));
+    const fixtures = path.join(root, "fixtures");
+    await import("node:fs/promises").then(fs => fs.mkdir(fixtures, { recursive: true }));
+
+    try {
+      const projectId = "codex_success_" + item.verdict.toLowerCase();
+      const topic = "로마 제9군단의 마지막 기록과 이후 행방";
+      const bootstrap = new ProjectBootstrapService({
+        repositoryRoot,
+        workspaceRoot: path.join(root, "workspace")
+      });
+      const created = await bootstrap.createProject({
+        projectId,
+        title: "Codex success QC " + item.verdict,
+        topic,
+        format: "shortform",
+        targetDurationSec: 5,
+        language: "ko"
+      });
+
+      await writeJson(fixtures, "T010", researchBundle(projectId, topic));
+      await writeJson(fixtures, "MANAGER_SUCCESS_T010", {
+        schema_version: "1.0",
+        verdict: item.verdict,
+        root_cause:
+          item.verdict === "APPROVE"
+            ? "The deterministic-pass research is semantically coherent."
+            : "The deterministic-pass research still needs manager-level correction.",
+        revision_instruction:
+          item.verdict === "APPROVE"
+            ? ""
+            : item.verdict === "RETRY"
+              ? "Tighten the research explanation while preserving all validated facts and sources."
+              : item.verdict === "BLOCK"
+                ? "Do not continue until the upstream evidence package changes."
+                : "Require a human editorial decision before continuing.",
+        preserve: ["project topic", "validated source refs", "fact IDs"]
+      });
+
+      const env = runtimeEnv(fixtures);
+      const runtime = new Agent2RuntimeAdapterService(bootstrap, env);
+
+      if (item.rejects) {
+        await assert.rejects(
+          runtime.runNext(projectId),
+          (error: unknown) =>
+            error instanceof Agent2RuntimeAdapterError &&
+            error.code === "AGENT2_MANAGER_QC_REJECTED"
+        );
+      } else {
+        const result = await runtime.runNext(projectId);
+        assert.equal("task_id" in result ? result.task_id : null, "T010");
+      }
+
+      const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
+      const state = await workflow.status(projectId);
+      assert.equal(
+        state.tasks.find(task => task.task_id === "T010")?.status,
+        item.expected
+      );
+      assert.equal(
+        state.tasks.find(task => task.task_id === "T020")?.status,
+        item.verdict === "APPROVE" ? "READY" : "BLOCKED"
+      );
+
+      const codex = new CodexRuntimeRepository(created.projectDbPath, { readonly: true });
+      try {
+        const reviews = codex.listManagerReviews(projectId);
+        assert.equal(reviews.length, 1);
+        assert.equal(reviews[0]?.review_kind, "SUCCESS");
+        assert.equal(reviews[0]?.verdict, item.verdict);
+      } finally {
+        codex.close();
+      }
+
+      const manager = new CodexManagerRuntimeService(bootstrap, env);
+      const directive = await manager.latestDirective(projectId, "T010", 2);
+      if (item.verdict === "RETRY") {
+        assert.match(directive ?? "", /Tighten the research explanation/u);
+      } else {
+        assert.equal(directive, null);
+      }
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+});
