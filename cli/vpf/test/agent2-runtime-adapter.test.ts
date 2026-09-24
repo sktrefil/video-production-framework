@@ -44,6 +44,7 @@ function alignment(text: string) {
 test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to Agent3", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-agent2-runtime-"));
   const sourceUrl = "https://example.org/roman-ix";
+  const sourceUrl2 = "https://example.edu/roman-ix";
   const scriptText = "로마군단은사라졌다.";
   let openAiCalls = 0;
   let ttsCalls = 0;
@@ -65,12 +66,21 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
             sources: [{
               source_id: "SRC_001",
               title: "Roman IX Source",
-              source_type: "WEB",
+              source_type: "RESEARCH_INSTITUTE",
               url: sourceUrl,
               citation: "Roman IX Source",
               publisher: "Example Institute",
               published_at: "2026-01-01",
               notes: "테스트 출처"
+            }, {
+              source_id: "SRC_002",
+              title: "Roman IX University Source",
+              source_type: "UNIVERSITY",
+              url: sourceUrl2,
+              citation: "Roman IX University Source",
+              publisher: "Example University",
+              published_at: "2026-01-02",
+              notes: "독립 교차검증 출처"
             }],
             research_notes: ["검증 가능한 기록을 중심으로 구성한다."]
           },
@@ -83,7 +93,7 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
               statement_en: "",
               classification: "VERIFIED_FACT",
               confidence: "HIGH",
-              source_refs: ["SRC_001"],
+              source_refs: ["SRC_001", "SRC_002"],
               visualisation_note: "기록을 시각적으로 재구성할 수 있다.",
               uncertainty_note: ""
             }]
@@ -97,7 +107,7 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
               type: "web_search_call",
               action: {
                 type: "search",
-                sources: [{ type: "url", url: sourceUrl }]
+                sources: [{ type: "url", url: sourceUrl }, { type: "url", url: sourceUrl2 }]
               }
             },
             {
