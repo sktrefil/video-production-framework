@@ -29,7 +29,7 @@ import {
 import { Agent1WorkflowOrchestratorService } from "./workflow-orchestrator-service.js";
 import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
 import { CodexManagerRuntimeService } from "./codex-manager-runtime-service.js";
-import { Agent2StoryAudioWorkerService } from "./agent2-story-audio-service.js";
+import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
 
 const DEFAULT_REPOSITORY_ROOT = path.resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
@@ -990,9 +990,11 @@ export class Agent2RuntimeAdapterService {
             errorCode:
               error instanceof Agent2RuntimeAdapterError
                 ? error.code
-                : error instanceof CodexRuntimeError
+                : error instanceof Agent2StoryAudioError
                   ? error.code
-                  : "AGENT2_RUNTIME_FAILURE",
+                  : error instanceof CodexRuntimeError
+                    ? error.code
+                    : "AGENT2_RUNTIME_FAILURE",
             errorDetail: error instanceof Error ? error.message : String(error)
           });
           await this.manager.applyManagerVerdict(
