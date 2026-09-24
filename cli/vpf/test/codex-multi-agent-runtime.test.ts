@@ -479,6 +479,14 @@ test("Codex 1 produces an advisory revision directive without changing workflow 
 
     const directive = await manager.latestDirective("codex_manager", "T040");
     assert.match(directive ?? "", /change factuality mode/u);
+    assert.match(
+      await manager.latestDirective("codex_manager", "T040", 2) ?? "",
+      /change factuality mode/u
+    );
+    assert.equal(
+      await manager.latestDirective("codex_manager", "T040", 3),
+      null
+    );
 
     const after = await new Agent1WorkflowOrchestratorService(bootstrap)
       .status("codex_manager");
@@ -678,5 +686,58 @@ test("Codex1 verdicts drive Agent2 workflow state", async () => {
     } finally {
       await rm(root, { recursive: true, force: true });
     }
+  }
+});
+
+
+test("stale Codex1 verdict cannot overwrite a newer task attempt", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-codex-stale-verdict-"));
+  try {
+    const bootstrap = new ProjectBootstrapService({
+      repositoryRoot,
+      workspaceRoot: path.join(root, "workspace")
+    });
+    await bootstrap.createProject({
+      projectId: "codex_stale_verdict",
+      title: "Codex stale verdict",
+      topic: "stale verdict fixture",
+      format: "shortform",
+      targetDurationSec: 5,
+      language: "ko"
+    });
+
+    const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
+    await workflow.dispatch("codex_stale_verdict", "T010");
+    await workflow.requestRevision("codex_stale_verdict", "T010");
+    await workflow.dispatch("codex_stale_verdict", "T010");
+
+    const before = await workflow.status("codex_stale_verdict");
+    assert.equal(
+      before.tasks.find(task => task.task_id === "T010")?.attempt,
+      2
+    );
+    assert.equal(
+      before.tasks.find(task => task.task_id === "T010")?.status,
+      "RUNNING"
+    );
+
+    await workflow.applyManagerVerdict(
+      "codex_stale_verdict",
+      "T010",
+      1,
+      "BLOCK"
+    );
+
+    const after = await workflow.status("codex_stale_verdict");
+    assert.equal(
+      after.tasks.find(task => task.task_id === "T010")?.attempt,
+      2
+    );
+    assert.equal(
+      after.tasks.find(task => task.task_id === "T010")?.status,
+      "RUNNING"
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
