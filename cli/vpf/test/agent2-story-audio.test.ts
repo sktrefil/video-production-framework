@@ -242,3 +242,70 @@ test("Agent2 rejects research whose topic differs from the active Project Spec b
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test("RESEARCH_GATE rejects persisted research whose topic differs from the active Project Spec", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-agent2-topic-gate-"));
+  try {
+    const bootstrap = new ProjectBootstrapService({ repositoryRoot, workspaceRoot: root });
+    const created = await bootstrap.createProject({
+      projectId: "agent2_topic_gate",
+      title: "Topic Gate",
+      topic: "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가",
+      format: "longform",
+      targetDurationSec: 600,
+      language: "ko"
+    });
+    const manager = new Agent1WorkflowOrchestratorService(bootstrap);
+    await manager.dispatch("agent2_topic_gate", "T010");
+
+    const artifacts = new Agent2StoryAudioRepository(created.projectDbPath);
+    try {
+      const at = new Date().toISOString();
+      artifacts.save("agent2_topic_gate", "research_spec", {
+        schema_version: "1.0",
+        project_id: "agent2_topic_gate",
+        topic: "네안데르탈인은 왜 사라졌는가",
+        central_question: "왜 사라졌는가?",
+        sources: [{
+          source_id: "SRC_001",
+          title: "Reference",
+          source_type: "JOURNAL",
+          citation: "Reference"
+        }],
+        research_notes: []
+      }, "T010", at);
+      artifacts.save("agent2_topic_gate", "fact_check_spec", {
+        schema_version: "1.0",
+        project_id: "agent2_topic_gate",
+        facts: [{
+          fact_id: "FACT_001",
+          statement_ko: "테스트 사실",
+          classification: "VERIFIED_FACT",
+          confidence: "HIGH",
+          source_refs: ["SRC_001"]
+        }]
+      }, "T010", at);
+    } finally {
+      artifacts.close();
+    }
+
+    await assert.rejects(
+      manager.complete("agent2_topic_gate", "T010"),
+      (error: unknown) =>
+        error instanceof Error &&
+        error.message.includes("RESEARCH_GATE")
+    );
+
+    const production = new ProductionSpecRepository(created.projectDbPath, { readonly: true });
+    try {
+      const gate = production.getLatestGate("agent2_topic_gate", "RESEARCH_GATE");
+      assert.equal(gate?.status, "FAIL");
+      assert.ok(gate?.errors.some(issue => issue.code === "RESEARCH_TOPIC_MISMATCH"));
+    } finally {
+      production.close();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
