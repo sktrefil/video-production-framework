@@ -245,3 +245,103 @@ test("absolute external workspace roots create projects outside the repository d
     path.join(externalWorkspace, "projects", "external_fixture")
   );
 });
+
+
+test("upgrade-runtime preserves workflow state while applying migrations and Codex resource pins", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-runtime-upgrade-"));
+  const workspaceRoot = path.join(root, "workspace");
+  const oldService = new ProjectBootstrapService({
+    repositoryRoot,
+    resourcesDir,
+    migrationsDir,
+    workspaceRoot,
+    clock,
+    channelProfileVersion: "1.5.0"
+  });
+  const created = await oldService.createProject({
+    projectId: "runtime_upgrade_fixture",
+    title: "Runtime Upgrade Fixture",
+    format: "longform"
+  });
+
+  const db = new Database(created.projectDbPath);
+  try {
+    db.prepare(
+      "DELETE FROM schema_migrations WHERE migration_id IN ('0019','0020','0021','0022')"
+    ).run();
+    db.prepare(
+      "UPDATE production_task_instances SET status='REVISION_REQUIRED', attempt=2 WHERE project_id=? AND task_id='T010'"
+    ).run("runtime_upgrade_fixture");
+  } finally {
+    db.close();
+  }
+
+  const service = new ProjectBootstrapService({
+    repositoryRoot,
+    resourcesDir,
+    migrationsDir,
+    workspaceRoot,
+    clock
+  });
+  const before = await service.getStatus("runtime_upgrade_fixture");
+  assert.equal(before.migrations.current, false);
+  assert.equal(
+    before.resourcePins.find(pin => pin.resourceType === "CHANNEL_PROFILE")?.version,
+    "1.5.0"
+  );
+
+  const upgraded = await service.upgradeRuntime("runtime_upgrade_fixture");
+  assert.equal(upgraded.migrationBefore.current, false);
+  assert.equal(upgraded.migrationAfter.current, true);
+  assert.equal(upgraded.migrationAfter.latestMigrationId, "0022");
+  assert.equal(upgraded.previousChannelProfileVersion, "1.5.0");
+  assert.equal(upgraded.currentChannelProfileVersion, "1.8.0");
+  assert.equal(upgraded.preservedProjectRevision, 1);
+  assert.equal(upgraded.preservedWorkflowState, true);
+  assert.ok(upgraded.addedProviderProfiles.includes("CODEX_MANAGER_V1"));
+  assert.ok(upgraded.addedProviderProfiles.includes("CODEX_STORY_AUDIO_V1"));
+  assert.ok(upgraded.addedProviderProfiles.includes("CODEX_VISUAL_PRODUCTION_V1"));
+
+  const after = await service.getStatus("runtime_upgrade_fixture");
+  assert.equal(after.migrations.current, true);
+  assert.equal(after.project.revision, 1);
+  assert.equal(after.project.versions.dataModelVersion, "0022");
+  assert.equal(
+    after.resourcePins.find(pin => pin.resourceType === "CHANNEL_PROFILE")?.version,
+    "1.8.0"
+  );
+  assert.ok(after.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "CODEX_MANAGER_V1"
+  ));
+  assert.ok(after.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "CODEX_STORY_AUDIO_V1"
+  ));
+  assert.ok(after.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "CODEX_VISUAL_PRODUCTION_V1"
+  ));
+
+  const verifyDb = new Database(created.projectDbPath, { readonly: true });
+  try {
+    const task = verifyDb.prepare(
+      "SELECT status, attempt FROM production_task_instances WHERE project_id=? AND task_id='T010'"
+    ).get("runtime_upgrade_fixture") as { status: string; attempt: number };
+    assert.deepEqual(task, { status: "REVISION_REQUIRED", attempt: 2 });
+  } finally {
+    verifyDb.close();
+  }
+
+  const snapshot = JSON.parse(
+    await readFile(created.projectJsonPath, "utf8")
+  ) as { revision: number; resourcePins: Array<{resourceId: string; version: string}> };
+  assert.equal(snapshot.revision, 1);
+  assert.ok(snapshot.resourcePins.some(pin =>
+    pin.resourceId === "HISTORY_MYSTERY_V1" &&
+    pin.version === "1.8.0"
+  ));
+
+  const doctor = await service.doctor("runtime_upgrade_fixture");
+  assert.equal(doctor.healthy, true);
+});
