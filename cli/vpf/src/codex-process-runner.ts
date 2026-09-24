@@ -161,18 +161,16 @@ export class CodexProcessRunner {
   constructor(
     private readonly environment: NodeJS.ProcessEnv = process.env
   ) {
-    this.command = (
-      environment.VPF_CODEX_COMMAND ??
-      (process.platform === "win32" ? "codex.cmd" : "codex")
-    ).trim();
+    const explicitCommand = (environment.VPF_CODEX_COMMAND ?? "").trim();
     const prefixRaw = (environment.VPF_CODEX_COMMAND_ARGS_JSON ?? "").trim();
+    let configuredPrefix: string[] = [];
     if (prefixRaw) {
       try {
         const parsed = JSON.parse(prefixRaw) as unknown;
         if (!Array.isArray(parsed) || parsed.some(item => typeof item !== "string")) {
           throw new Error("must be a JSON string array");
         }
-        this.commandPrefixArgs = parsed;
+        configuredPrefix = parsed;
       } catch (error) {
         throw new CodexRuntimeError(
           "CODEX_CAPABILITY_MISSING",
@@ -180,8 +178,17 @@ export class CodexProcessRunner {
             (error instanceof Error ? error.message : String(error))
         );
       }
+    }
+
+    if (explicitCommand) {
+      this.command = explicitCommand;
+      this.commandPrefixArgs = configuredPrefix;
+    } else if (process.platform === "win32") {
+      this.command = (environment.ComSpec ?? "cmd.exe").trim();
+      this.commandPrefixArgs = ["/d", "/s", "/c", "codex.cmd", ...configuredPrefix];
     } else {
-      this.commandPrefixArgs = [];
+      this.command = "codex";
+      this.commandPrefixArgs = configuredPrefix;
     }
     this.timeoutMs = Number(
       environment.VPF_CODEX_TIMEOUT_MS ?? 300000
@@ -234,11 +241,14 @@ export class CodexProcessRunner {
 
     try {
       const login = await this.capture(["login", "status"], 20000);
-      authStatus = truncate((login.stdout || login.stderr).trim(), 500);
+      const loginOk = login.exitCode === 0;
+      authStatus = loginOk ? "STORED_LOGIN_OK" : "STORED_LOGIN_FAILED";
       checks.push({
         code: "CODEX_LOGIN_VALID",
-        status: login.exitCode === 0 ? "PASS" : "FAIL",
-        message: authStatus || "codex login status returned no text."
+        status: loginOk ? "PASS" : "FAIL",
+        message: loginOk
+          ? "Codex stored login is valid."
+          : "Codex stored login is not available."
       });
     } catch (error) {
       checks.push({
