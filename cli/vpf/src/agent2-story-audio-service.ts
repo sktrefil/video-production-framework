@@ -361,11 +361,27 @@ export class Agent2StoryAudioWorkerService {
   }
 
   private executeResearch(dbPath: string, projectId: string, input: unknown): Agent2TaskExecutionResult {
-    const result = validateResearchBundle(input, projectId);
-    if (!result.valid) throw new Agent2StoryAudioError("AGENT2_INPUT_INVALID", validationMessage(result));
-    const bundle = structuredClone(input as Agent2ResearchBundle);
+    const production = new ProductionSpecRepository(dbPath, { readonly: true });
     const repo = new Agent2StoryAudioRepository(dbPath);
     try {
+      const project = production.getProjectSpec(projectId);
+      const expectedTopic = project?.topic?.trim() ?? "";
+      if (!expectedTopic) {
+        throw new Agent2StoryAudioError(
+          "AGENT2_PREREQUISITE_MISSING",
+          "T010 requires an explicit active Project Spec topic."
+        );
+      }
+
+      const result = validateResearchBundle(input, projectId, expectedTopic);
+      if (!result.valid) {
+        throw new Agent2StoryAudioError(
+          "AGENT2_INPUT_INVALID",
+          validationMessage(result)
+        );
+      }
+
+      const bundle = structuredClone(input as Agent2ResearchBundle);
       const at = new Date().toISOString();
       const research = repo.save(projectId, "research_spec", bundle.research_spec, "T010", at);
       const facts = repo.save(projectId, "fact_check_spec", bundle.fact_check_spec, "T010", at);
@@ -381,6 +397,7 @@ export class Agent2StoryAudioWorkerService {
       };
     } finally {
       repo.close();
+      production.close();
     }
   }
 
