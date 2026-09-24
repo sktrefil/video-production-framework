@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "CODEX_MANAGER_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "CODEX_SESSION",
+    "executionMode": "AUTOMATED",
+    "jobTypes": [
+      "OTHER"
+    ],
+    "capabilities": {
+      "interface": "codex exec",
+      "role": "CODEX_1_MANAGER",
+      "structuredOutputs": true,
+      "webSearch": false,
+      "sandbox": "read-only",
+      "tasks": [
+        "MANAGER_QC_REVIEW",
+        "REVISION_DIRECTIVE"
+      ]
+    },
+    "retryPolicy": {
+      "maxAttempts": 3
+    },
+    "result": {
+      "mediaType": "DOCUMENT",
+      "requiredArtifacts": [
+        "manager_review"
+      ]
+    },
+    "runtimeSecretNames": []
+  }
+}
