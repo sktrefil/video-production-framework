@@ -234,10 +234,25 @@ export class CodexManagerRuntimeService {
       ...result.output,
       schema_version: "1.0" as const
     };
+    if (!review.root_cause.trim()) {
+      throw new CodexRuntimeError(
+        "CODEX_OUTPUT_INVALID",
+        "Codex1 success review must include a non-empty root_cause/quality assessment."
+      );
+    }
     if (review.verdict === "APPROVE" && review.revision_instruction.trim()) {
       throw new CodexRuntimeError(
         "CODEX_OUTPUT_INVALID",
         "Codex1 APPROVE success review must not include a revision instruction."
+      );
+    }
+    if (
+      review.verdict !== "APPROVE" &&
+      !review.revision_instruction.trim()
+    ) {
+      throw new CodexRuntimeError(
+        "CODEX_OUTPUT_INVALID",
+        "Codex1 non-APPROVE success review requires a concrete revision instruction."
       );
     }
 
