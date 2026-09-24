@@ -27,6 +27,8 @@ import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import {
   Agent1WorkflowOrchestratorService
 } from "./workflow-orchestrator-service.js";
+import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
+import { CodexManagerRuntimeService } from "./codex-manager-runtime-service.js";
 import {
   Agent3VisualProductionError,
   Agent3VisualProductionWorkerService
@@ -52,7 +54,7 @@ interface OpenAiResponseEnvelope {
 
 interface RuntimeStepResult {
   task_id: Agent3RuntimeTaskId;
-  runtime_provider: "OPENAI";
+  runtime_provider: string;
   runtime_model: string;
   worker: Agent3TaskExecutionResult;
   gate_status: string;
@@ -78,6 +80,26 @@ export class Agent3RuntimeAdapterError extends Error {
 
 const sha256Text = (value: string): string =>
   createHash("sha256").update(value, "utf8").digest("hex");
+
+type Agent3AiRuntimeMode = "CODEX_SESSION" | "OPENAI_API";
+
+function agent3AiRuntimeMode(environment: NodeJS.ProcessEnv): Agent3AiRuntimeMode {
+  const value = (environment.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION").trim().toUpperCase();
+  if (value === "CODEX_SESSION" || value === "OPENAI_API") return value;
+  throw new Agent3RuntimeAdapterError(
+    "AGENT3_RUNTIME_RESPONSE_INVALID",
+    "VPF_AI_RUNTIME_MODE must be CODEX_SESSION or OPENAI_API."
+  );
+}
+
+function codexFatal(error: unknown): boolean {
+  return error instanceof CodexRuntimeError && [
+    "CODEX_CLI_MISSING",
+    "CODEX_LOGIN_REQUIRED",
+    "CODEX_CAPABILITY_MISSING"
+  ].includes(error.code);
+}
+
 
 function extractOutputText(response: OpenAiResponseEnvelope): string {
   const texts: string[] = [];
