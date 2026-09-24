@@ -34,7 +34,8 @@ export interface CliIo {
 const USAGE = `VPF Unified CLI
 
 Commands:
-  vpf project create <project_id> --title "..." --format <longform|shortform> [--target-duration-sec <seconds>] [--language <code>]
+  vpf project create <project_id> --title "..." --format <longform|shortform> [--topic "..."] [--target-duration-sec <seconds>] [--language <code>]
+  vpf project set-topic <project_id> --topic "..."
   vpf project status <project_id>
   vpf project upgrade-runtime <project_id>
   vpf project doctor <project_id>
@@ -184,7 +185,8 @@ export async function runCli(
         title,
         format,
         ...(targetDurationSec === undefined ? {} : { targetDurationSec }),
-        ...(readOption(args, "--language") === undefined ? {} : { language: readOption(args, "--language")! })
+        ...(readOption(args, "--language") === undefined ? {} : { language: readOption(args, "--language")! }),
+        ...(readOption(args, "--topic") === undefined ? {} : { topic: readOption(args, "--topic")! })
       });
       printJson(io, {
         status: "CREATED",
@@ -198,6 +200,23 @@ export async function runCli(
         resourcePins: created.record.resourcePins.length,
         legacyAllowed: created.record.legacyAllowed,
         productionSpec: created.projectSpec
+      });
+      return 0;
+    }
+
+    if (args[0] === "project" && args[1] === "set-topic") {
+      const projectId = args[2];
+      const topic = readOption(args, "--topic");
+      if (projectId === undefined || topic === undefined) {
+        io.error("[CLI_USAGE] project set-topic requires <project_id> and --topic \"...\".");
+        return 2;
+      }
+      const updated = await service.setProjectTopic(projectId, topic);
+      printJson(io, {
+        status: "TOPIC_UPDATED",
+        projectId: updated.projectId,
+        topic: updated.topic,
+        projectSpecRevision: updated.projectSpecRevision
       });
       return 0;
     }
