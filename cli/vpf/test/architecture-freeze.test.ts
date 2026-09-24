@@ -38,7 +38,7 @@ test("architecture freeze: LONGFORM format profile and bootstrap pin the canonic
   assert.equal(profile.payload.editorDefaults.primaryAudioTrack,"A1");
   assert.equal(profile.payload.delivery.audioCodec,"aac");
   assert.equal(profile.payload.delivery.pixelFormat,"yuv420p");
-  assert.match(bootstrap,/DEFAULT_CHANNEL_PROFILE_VERSION = "1\\.8\\.0"/);
+  assert.match(bootstrap,/DEFAULT_CHANNEL_PROFILE_VERSION = "1\.8\.0"/);
 });
 
 test("architecture freeze: LONGFORM visual authoring is Agent3-reviewed and browser transport is non-creative",()=>{
