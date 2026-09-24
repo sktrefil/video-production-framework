@@ -48,6 +48,25 @@ const FACT_CLASSES = [
   "EDITORIAL_RECONSTRUCTION"
 ];
 
+const RESEARCH_SOURCE_TYPES = [
+  "PRIMARY_SOURCE",
+  "PEER_REVIEWED_JOURNAL",
+  "ACADEMIC_PAPER",
+  "SCHOLARLY_PUBLICATION",
+  "UNIVERSITY",
+  "MUSEUM",
+  "GOVERNMENT",
+  "GOVERNMENT_INSTITUTION",
+  "RESEARCH_INSTITUTE",
+  "OFFICIAL_INSTITUTION",
+  "ARCHIVE",
+  "BOOK",
+  "REFERENCE_WORK",
+  "NEWS",
+  "WEB",
+  "OTHER"
+];
+
 const RESEARCH_SCHEMA = {
   type: "object",
   additionalProperties: false,
@@ -72,7 +91,7 @@ const RESEARCH_SCHEMA = {
             properties: {
               source_id: { type: "string" },
               title: { type: "string" },
-              source_type: { type: "string" },
+              source_type: { type: "string", enum: RESEARCH_SOURCE_TYPES },
               url: { type: "string" },
               citation: { type: "string" },
               publisher: { type: "string" },
