@@ -143,6 +143,20 @@ test("Agent2 research topic must exactly match the active Project Spec topic", (
   assert.equal(mismatch.valid, false);
   assert.ok(mismatch.errors.some(issue => issue.code === "RESEARCH_TOPIC_MISMATCH"));
 
+  const whitespaceMismatch = validateResearchBundle(
+    {
+      ...bundle,
+      research_spec: {
+        ...bundle.research_spec,
+        topic: "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가 "
+      }
+    },
+    "p1",
+    "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가"
+  );
+  assert.equal(whitespaceMismatch.valid, false);
+  assert.ok(whitespaceMismatch.errors.some(issue => issue.code === "RESEARCH_TOPIC_MISMATCH"));
+
   const exact = validateResearchBundle(
     {
       ...bundle,
