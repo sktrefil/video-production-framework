@@ -185,6 +185,7 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
     const created = await bootstrap.createProject({
       projectId: "agent2_runtime",
       title: "로마 제9군단",
+      topic: "로마 제9군단의 마지막 기록과 이후 행방",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
