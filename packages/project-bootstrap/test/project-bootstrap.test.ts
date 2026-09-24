@@ -361,3 +361,38 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
   const doctor = await service.doctor("runtime_upgrade_fixture");
   assert.equal(doctor.healthy, true);
 });
+
+
+test("setProjectTopic stores an explicit research topic as a new active Project Spec revision", async () => {
+  const { service } = await makeService();
+  const created = await service.createProject({
+    projectId: "topic_fixture",
+    title: "Pilot Display Name",
+    format: "longform"
+  });
+
+  const updated = await service.setProjectTopic(
+    "topic_fixture",
+    "로마 제9군단의 마지막 기록과 이후 행방"
+  );
+  assert.equal(updated.projectSpecRevision, 2);
+  assert.equal(updated.topic, "로마 제9군단의 마지막 기록과 이후 행방");
+
+  const db = new Database(created.projectDbPath, { readonly: true });
+  try {
+    const rows = db.prepare(
+      "SELECT revision, lifecycle_status, spec_json FROM production_project_specs WHERE project_id=? ORDER BY revision"
+    ).all("topic_fixture") as Array<{
+      revision: number;
+      lifecycle_status: string;
+      spec_json: string;
+    }>;
+    assert.equal(rows.length, 2);
+    assert.equal(rows[0]?.lifecycle_status, "SUPERSEDED");
+    assert.equal(rows[1]?.lifecycle_status, "ACTIVE");
+    const active = JSON.parse(rows[1]!.spec_json) as { topic?: string };
+    assert.equal(active.topic, "로마 제9군단의 마지막 기록과 이후 행방");
+  } finally {
+    db.close();
+  }
+});
