@@ -65,14 +65,14 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
   assert.equal(created.record.pipeline, "VPF_UNIFIED_V1");
   assert.equal(created.record.legacyAllowed, false);
   assert.equal(created.migrations.current, true);
-  assert.equal(created.migrations.latestMigrationId, "0021");
-  assert.equal(created.record.project.versions.dataModelVersion, "0021");
+  assert.equal(created.migrations.latestMigrationId, "0022");
+  assert.equal(created.record.project.versions.dataModelVersion, "0022");
   assert.equal(
     created.record.project.versions.projectStyleVersion,
     PROJECT_STYLE_UNMATERIALIZED_VERSION
   );
   assert.ok(created.record.project.versions.resourceHashes?.formatProfile?.startsWith("sha256:"));
-  assert.ok(created.record.resourcePins.length >= 9);
+  assert.ok(created.record.resourcePins.length >= 12);
   assert.ok(created.record.resourcePins.some(pin =>
     pin.resourceType === "PROVIDER_PROFILE" &&
     pin.resourceId === "OPENAI_AGENT2_STORY_V1" &&
@@ -81,6 +81,21 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
   assert.ok(created.record.resourcePins.some(pin =>
     pin.resourceType === "PROVIDER_PROFILE" &&
     pin.resourceId === "OPENAI_AGENT3_VISUAL_V1" &&
+    pin.version === "1.0.0"
+  ));
+  assert.ok(created.record.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "CODEX_MANAGER_V1" &&
+    pin.version === "1.0.0"
+  ));
+  assert.ok(created.record.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "CODEX_STORY_AUDIO_V1" &&
+    pin.version === "1.0.0"
+  ));
+  assert.ok(created.record.resourcePins.some(pin =>
+    pin.resourceType === "PROVIDER_PROFILE" &&
+    pin.resourceId === "CODEX_VISUAL_PRODUCTION_V1" &&
     pin.version === "1.0.0"
   ));
 
@@ -92,7 +107,7 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
     assert.equal(projectCount.count, 1);
     assert.equal(styleCount.count, 0);
     const productionSpecCount = db.prepare("SELECT COUNT(*) AS count FROM production_project_specs").get() as {count: number};
-    assert.equal(migrationCount.count, 21);
+    assert.equal(migrationCount.count, 22);
     assert.equal(productionSpecCount.count, 1);
     const workflowCount = db.prepare("SELECT COUNT(*) AS count FROM production_workflow_instances").get() as {count: number};
     const taskCount = db.prepare("SELECT COUNT(*) AS count FROM production_task_instances").get() as {count: number};
