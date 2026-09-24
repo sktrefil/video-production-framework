@@ -346,8 +346,8 @@ export async function runCli(
         return 2;
       }
       const status = await service.getStatus(projectId);
-      if (!status.migrations.appliedMigrationIds.includes("0022")) {
-        io.error("[CODEX_CAPABILITY_MISSING] Project does not include migration 0022.");
+      if (!status.migrations.appliedMigrationIds.includes("0023")) {
+        io.error("[CODEX_CAPABILITY_MISSING] Project does not include migration 0023.");
         return 1;
       }
       const repository = new CodexRuntimeRepository(
