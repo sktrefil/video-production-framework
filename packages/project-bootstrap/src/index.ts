@@ -67,6 +67,7 @@ export type ProjectBootstrapErrorCode =
   | "DUPLICATE_PROJECT"
   | "INVALID_FORMAT"
   | "INVALID_TITLE"
+  | "INVALID_TOPIC"
   | "PROJECT_NOT_FOUND"
   | "PROJECT_DB_INVALID"
   | "MIGRATION_SET_INVALID"
@@ -230,6 +231,21 @@ function assertTitle(value: string): string {
     );
   }
   return title;
+}
+
+function assertTopic(value: string): string {
+  const topic = value.trim();
+  if (
+    topic.length === 0 ||
+    topic.length > 500 ||
+    /[\u0000-\u001f\u007f]/u.test(topic)
+  ) {
+    throw new ProjectBootstrapError(
+      "INVALID_TOPIC",
+      "Project topic must be 1-500 printable characters."
+    );
+  }
+  return topic;
 }
 
 export function normalizeProjectFormat(value: string): ProjectFormat {
@@ -735,6 +751,7 @@ export class ProjectBootstrapService {
     format: string;
     targetDurationSec?: number;
     language?: string;
+    topic?: string;
   }): Promise<CreatedProject> {
     const projectId = validateProjectId(input.projectId);
     const title = assertTitle(input.title);
@@ -794,7 +811,8 @@ export class ProjectBootstrapService {
         project_id: projectId,
         format: format === "SHORTFORM" ? "SHORTS" : "LONGFORM",
         target_duration_sec: input.targetDurationSec ?? (format === "SHORTFORM" ? 60 : 600),
-        ...(input.language === undefined ? {} : { language: input.language })
+        ...(input.language === undefined ? {} : { language: input.language }),
+        ...(input.topic === undefined ? {} : { topic: assertTopic(input.topic) })
       });
       try {
         repository.insertInitial(record);
@@ -890,6 +908,84 @@ export class ProjectBootstrapService {
     } catch (error) {
       await rm(stagingRoot, { recursive: true, force: true });
       throw error;
+    }
+  }
+
+  async setProjectTopic(
+    projectIdInput: string,
+    topicInput: string
+  ): Promise<{ projectId: string; topic: string; projectSpecRevision: number }> {
+    const projectId = validateProjectId(projectIdInput);
+    const topic = assertTopic(topicInput);
+    const status = await this.getStatus(projectId);
+    const repository = new SqliteProjectRecordRepository(status.projectDbPath);
+    try {
+      repository.db.exec("BEGIN IMMEDIATE");
+      try {
+        const row = repository.db.prepare(`
+          SELECT revision, spec_json
+          FROM production_project_specs
+          WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+          ORDER BY revision DESC
+          LIMIT 1
+        `).get(projectId) as { revision: number; spec_json: string } | undefined;
+        if (row === undefined) {
+          throw new ProjectBootstrapError(
+            "PROJECT_DB_INVALID",
+            "Active Production Spec is required before setting project topic."
+          );
+        }
+
+        const current = JSON.parse(row.spec_json) as ProjectSpec;
+        const updated: ProjectSpec = {
+          ...current,
+          topic
+        };
+        const encoded = JSON.stringify(updated);
+        const nextRevision = Number(row.revision) + 1;
+        const now = this.clock.nowIso();
+
+        repository.db.prepare(`
+          UPDATE production_project_specs
+          SET lifecycle_status = 'SUPERSEDED'
+          WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+        `).run(projectId);
+
+        repository.db.prepare(`
+          INSERT INTO production_project_specs
+          (project_id, revision, lifecycle_status, schema_version, spec_json, spec_sha256, created_at)
+          VALUES (?, ?, 'ACTIVE', ?, ?, ?, ?)
+        `).run(
+          projectId,
+          nextRevision,
+          updated.schema_version,
+          encoded,
+          sha256(encoded).slice("sha256:".length),
+          now
+        );
+
+        repository.db.prepare(`
+          UPDATE projects
+          SET updated_at = ?
+          WHERE project_id = ? AND lifecycle_status = 'ACTIVE'
+        `).run(now, projectId);
+
+        repository.db.exec("COMMIT");
+        return {
+          projectId,
+          topic,
+          projectSpecRevision: nextRevision
+        };
+      } catch (error) {
+        try {
+          repository.db.exec("ROLLBACK");
+        } catch {
+          // Preserve the original topic update error.
+        }
+        throw error;
+      }
+    } finally {
+      repository.close();
     }
   }
 
