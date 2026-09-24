@@ -170,7 +170,17 @@ export class Agent1ProductionManagerService {
           : result([missing("PROJECT_INIT_GATE_REQUIRED", "A current PROJECT_INIT_GATE PASS is required before RESEARCH_GATE.")]);
         const artifacts = research === null || facts === null
           ? result([missing("RESEARCH_ARTIFACTS_MISSING", "research_spec and fact_check_spec are required.")])
-          : validateResearchBundle({ research_spec: research.value, fact_check_spec: facts.value }, projectId);
+          : project?.topic?.trim()
+            ? validateResearchBundle(
+                { research_spec: research.value, fact_check_spec: facts.value },
+                projectId,
+                project.topic.trim()
+              )
+            : result([missing(
+                "PROJECT_TOPIC_REQUIRED",
+                "An explicit active Project Spec topic is required before RESEARCH_GATE.",
+                "project.topic"
+              )]);
         return { input: { project, research: research?.value ?? null, facts: facts?.value ?? null }, validation: merge(dependency, artifacts) };
       });
     } finally {
