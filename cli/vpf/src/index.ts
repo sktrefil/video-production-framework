@@ -231,7 +231,9 @@ export async function runCli(
         },
         addedProviderProfiles: upgraded.addedProviderProfiles,
         preservedProjectRevision: upgraded.preservedProjectRevision,
-        preservedWorkflowState: upgraded.preservedWorkflowState
+        preservedWorkflowState: upgraded.preservedWorkflowState,
+        projectSpecBackfilled: upgraded.projectSpecBackfilled,
+        workflowBackfilled: upgraded.workflowBackfilled
       });
       return 0;
     }
