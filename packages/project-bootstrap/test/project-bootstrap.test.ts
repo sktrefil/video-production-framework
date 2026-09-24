@@ -107,7 +107,7 @@ test("creates a SHORTFORM unified project with one migrated project.db and pinne
     assert.equal(projectCount.count, 1);
     assert.equal(styleCount.count, 0);
     const productionSpecCount = db.prepare("SELECT COUNT(*) AS count FROM production_project_specs").get() as {count: number};
-    assert.equal(migrationCount.count, 22);
+    assert.equal(migrationCount.count, 23);
     assert.equal(productionSpecCount.count, 1);
     const workflowCount = db.prepare("SELECT COUNT(*) AS count FROM production_workflow_instances").get() as {count: number};
     const taskCount = db.prepare("SELECT COUNT(*) AS count FROM production_task_instances").get() as {count: number};
