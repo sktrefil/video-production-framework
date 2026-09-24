@@ -261,11 +261,26 @@ export class CodexProcessRunner {
     try {
       const help = await this.capture(["exec", "--help"], 15000);
       const text = help.stdout + "\n" + help.stderr;
-      const execOk = help.exitCode === 0;
+      const requiredExecFlags = [
+        "--json",
+        "--ephemeral",
+        "--skip-git-repo-check",
+        "--sandbox",
+        "--cd",
+        "--config",
+        "--output-schema",
+        "--output-last-message"
+      ];
+      const missingExecFlags = requiredExecFlags.filter(flag => !text.includes(flag));
+      const execOk = help.exitCode === 0 && missingExecFlags.length === 0;
       checks.push({
         code: "CODEX_EXEC_AVAILABLE",
         status: execOk ? "PASS" : "FAIL",
-        message: execOk ? "codex exec is available." : truncate(text)
+        message: execOk
+          ? "codex exec exposes all VPF-required automation flags."
+          : missingExecFlags.length > 0
+            ? "codex exec is missing required flags: " + missingExecFlags.join(", ")
+            : truncate(text)
       });
       checks.push({
         code: "CODEX_OUTPUT_SCHEMA_AVAILABLE",
