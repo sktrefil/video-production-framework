@@ -1046,6 +1046,101 @@ export class Agent2RuntimeAdapterService {
       const spec = production.getProjectSpec(projectId);
       if (spec === null) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "Project Spec is required.");
       if (taskId === "T010") {
+        if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
+          const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
+          const codex = new CodexProcessRunner(this.environment);
+          const directive = await this.codexManager.latestDirective(projectId, "T010");
+          const input = {
+            project_id: projectId,
+            topic: status.project.title,
+            format: spec.format,
+            target_duration_sec: spec.target_duration_sec,
+            language: spec.language,
+            provider_profile: codexPin,
+            manager_revision_instruction: directive
+          };
+          const runId = `${projectId}:T010:A${attempt}:CODEX`;
+          const repo = new Agent2RuntimeRepository(status.projectDbPath);
+          repo.start({
+            run_id: runId,
+            project_id: projectId,
+            task_id: "T010",
+            provider: "CODEX_SESSION",
+            model_id: codex.modelId,
+            provider_response_id: null,
+            input_sha256: sha256Text(JSON.stringify(input)),
+            started_at: new Date().toISOString()
+          });
+          try {
+            const instruction = getAgent2TaskInstruction("T010");
+            const generated = await codex.execute<Agent2ResearchBundle>({
+              projectId,
+              projectRoot: status.projectRoot,
+              dbPath: status.projectDbPath,
+              roleId: "CODEX_2_STORY_AUDIO",
+              taskId: "T010",
+              attempt,
+              instructions: [
+                ...instruction.rules,
+                "Use native Codex web search before finalizing the research bundle.",
+                "Prefer primary sources, museums, universities, scholarly publications, government or institutional sources, and established reference works.",
+                "For VERIFIED_FACT, every source_ref must point to a supplied source with a traceable URL or citation.",
+                "Do not invent URLs, quotations, dates, or source metadata.",
+                "Keep disputed claims explicitly classified as interpretation, hypothesis, legend, or editorial reconstruction.",
+                "If manager_revision_instruction is present, repair that failure while preserving validated upstream constraints."
+              ],
+              input,
+              outputSchema: RESEARCH_SCHEMA,
+              webSearchMode: "live"
+            });
+            if (generated.webSearchCount <= 0) {
+              throw new Agent2RuntimeAdapterError(
+                "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+                "Codex T010 completed without a recorded native web_search event."
+              );
+            }
+            const bundle = normalizeResearchBundle(generated.output);
+            if (generated.observedUrls.length > 0) {
+              const observed = new Set(generated.observedUrls.map(canonicalWebUrl));
+              for (const source of bundle.research_spec.sources) {
+                if (source.url && !observed.has(canonicalWebUrl(source.url))) {
+                  throw new Agent2RuntimeAdapterError(
+                    "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+                    `Codex research referenced a URL not observed in web-search trace: ${source.url}`
+                  );
+                }
+              }
+            }
+            const worker = await this.worker.executePayload(projectId, "T010", bundle);
+            repo.complete({
+              runId,
+              providerResponseId: generated.runId,
+              outputSha256: generated.outputSha256,
+              completedAt: new Date().toISOString()
+            });
+            return {
+              provider: "CODEX_SESSION",
+              model: generated.model,
+              worker
+            };
+          } catch (error) {
+            repo.fail({
+              runId,
+              errorCode:
+                error instanceof Agent2RuntimeAdapterError
+                  ? error.code
+                  : error instanceof CodexRuntimeError
+                    ? error.code
+                    : "AGENT2_RUNTIME_HTTP",
+              errorDetail: error instanceof Error ? error.message : String(error),
+              completedAt: new Date().toISOString()
+            });
+            throw error;
+          } finally {
+            repo.close();
+          }
+        }
+
         const openAiProfile = await resolvePinnedOpenAiProfile(status.resourcePins);
         const openai = new OpenAiAgent2Runtime(openAiProfile, this.environment);
         const runId = `${projectId}:T010:A${attempt}:OPENAI`;
@@ -1094,7 +1189,93 @@ export class Agent2RuntimeAdapterService {
       if (taskId === "T020") {
         const research = artifacts.getActive<Agent2ResearchSpec>(projectId, "research_spec");
         const facts = artifacts.getActive<Agent2FactCheckSpec>(projectId, "fact_check_spec");
-        if (!research || !facts) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "T020 requires T010 research/fact artifacts.");
+        if (!research || !facts) {
+          throw new Agent2RuntimeAdapterError(
+            "AGENT2_RUNTIME_PREREQUISITE",
+            "T020 requires T010 research/fact artifacts."
+          );
+        }
+
+        if (agent2AiRuntimeMode(this.environment) === "CODEX_SESSION") {
+          const codexPin = await resolvePinnedCodexStoryProfile(status.resourcePins);
+          const codex = new CodexProcessRunner(this.environment);
+          const directive = await this.codexManager.latestDirective(projectId, "T020");
+          const input = {
+            project_id: projectId,
+            format: spec.format,
+            target_duration_sec: spec.target_duration_sec,
+            language: spec.language,
+            research_spec: research.value,
+            fact_check_spec: facts.value,
+            provider_profile: codexPin,
+            manager_revision_instruction: directive
+          };
+          const runId = `${projectId}:T020:A${attempt}:CODEX`;
+          const repo = new Agent2RuntimeRepository(status.projectDbPath);
+          repo.start({
+            run_id: runId,
+            project_id: projectId,
+            task_id: "T020",
+            provider: "CODEX_SESSION",
+            model_id: codex.modelId,
+            provider_response_id: null,
+            input_sha256: sha256Text(JSON.stringify(input)),
+            started_at: new Date().toISOString()
+          });
+          try {
+            const instruction = getAgent2TaskInstruction("T020");
+            const generated = await codex.execute<Agent2StoryBundle>({
+              projectId,
+              projectRoot: status.projectRoot,
+              dbPath: status.projectDbPath,
+              roleId: "CODEX_2_STORY_AUDIO",
+              taskId: "T020",
+              attempt,
+              instructions: [
+                ...instruction.rules,
+                "Do not add factual claims absent from fact_check_spec.",
+                "Write Korean narration that fits the requested format and approximate target duration.",
+                "For SHORTS, open immediately with the central mystery, keep background compact, introduce evidence quickly, distinguish hypotheses, and close by returning to the unresolved question.",
+                "Scene boundaries follow narrative purpose, not sentence count.",
+                "Return exact scene and beat script slices so concatenating them reproduces body_ko after whitespace normalization.",
+                "Do not use web search for T020; the approved T010 research/facts are the only factual source.",
+                "If manager_revision_instruction is present, repair that failure while preserving approved facts and central question."
+              ],
+              input,
+              outputSchema: STORY_SCHEMA,
+              webSearchMode: "disabled"
+            });
+            const bundle = normalizeStoryBundle(generated.output);
+            const worker = await this.worker.executePayload(projectId, "T020", bundle);
+            repo.complete({
+              runId,
+              providerResponseId: generated.runId,
+              outputSha256: generated.outputSha256,
+              completedAt: new Date().toISOString()
+            });
+            return {
+              provider: "CODEX_SESSION",
+              model: generated.model,
+              worker
+            };
+          } catch (error) {
+            repo.fail({
+              runId,
+              errorCode:
+                error instanceof Agent2RuntimeAdapterError
+                  ? error.code
+                  : error instanceof CodexRuntimeError
+                    ? error.code
+                    : "AGENT2_RUNTIME_HTTP",
+              errorDetail: error instanceof Error ? error.message : String(error),
+              completedAt: new Date().toISOString()
+            });
+            throw error;
+          } finally {
+            repo.close();
+          }
+        }
+
         const openAiProfile = await resolvePinnedOpenAiProfile(status.resourcePins);
         const openai = new OpenAiAgent2Runtime(openAiProfile, this.environment);
         const runId = `${projectId}:T020:A${attempt}:OPENAI`;
