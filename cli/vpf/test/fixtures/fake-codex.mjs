@@ -65,7 +65,8 @@ if (!fixtureDir) {
   process.exit(5);
 }
 
-const source = path.join(fixtureDir, taskId + ".json");
+const fixtureName = taskId.replace(/[^A-Za-z0-9._-]+/gu, "_") + ".json";
+const source = path.join(fixtureDir, fixtureName);
 const output = await readFile(source, "utf8");
 await writeFile(outputPath, output, "utf8");
 
