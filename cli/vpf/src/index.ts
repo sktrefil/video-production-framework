@@ -36,6 +36,7 @@ const USAGE = `VPF Unified CLI
 Commands:
   vpf project create <project_id> --title "..." --format <longform|shortform> [--target-duration-sec <seconds>] [--language <code>]
   vpf project status <project_id>
+  vpf project upgrade-runtime <project_id>
   vpf project doctor <project_id>
   vpf doctor <project_id>
   vpf env check --format <longform|shortform> [--min-free-gb <number>]
@@ -197,6 +198,40 @@ export async function runCli(
         resourcePins: created.record.resourcePins.length,
         legacyAllowed: created.record.legacyAllowed,
         productionSpec: created.projectSpec
+      });
+      return 0;
+    }
+
+    if (args[0] === "project" && args[1] === "upgrade-runtime") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] project upgrade-runtime requires <project_id>.");
+        return 2;
+      }
+      const upgraded = await service.upgradeRuntime(projectId);
+      printJson(io, {
+        status: "UPGRADED",
+        projectId: upgraded.projectId,
+        migration: {
+          before: {
+            appliedCount: upgraded.migrationBefore.appliedCount,
+            availableCount: upgraded.migrationBefore.availableCount,
+            current: upgraded.migrationBefore.current
+          },
+          after: {
+            latestMigration: upgraded.migrationAfter.latestMigrationId,
+            appliedCount: upgraded.migrationAfter.appliedCount,
+            availableCount: upgraded.migrationAfter.availableCount,
+            current: upgraded.migrationAfter.current
+          }
+        },
+        channelProfile: {
+          before: upgraded.previousChannelProfileVersion,
+          after: upgraded.currentChannelProfileVersion
+        },
+        addedProviderProfiles: upgraded.addedProviderProfiles,
+        preservedProjectRevision: upgraded.preservedProjectRevision,
+        preservedWorkflowState: upgraded.preservedWorkflowState
       });
       return 0;
     }
