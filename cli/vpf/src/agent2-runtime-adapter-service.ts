@@ -317,6 +317,56 @@ function collectWebSourceUrls(response: OpenAiResponseEnvelope): Set<string> {
   return urls;
 }
 
+function verifyResearchTrace(
+  bundle: Agent2ResearchBundle,
+  observedUrls: Iterable<string>,
+  providerLabel: string
+): void {
+  const observed = new Set([...observedUrls].map(canonicalWebUrl));
+  if (observed.size === 0) {
+    throw new Agent2RuntimeAdapterError(
+      "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+      `${providerLabel} T010 produced no traceable web-search source URLs.`
+    );
+  }
+
+  const sourceById = new Map(
+    bundle.research_spec.sources.map(source => [source.source_id, source] as const)
+  );
+  const criticalRefs = new Set<string>();
+  for (const fact of bundle.fact_check_spec.facts) {
+    if (fact.classification === "VERIFIED_FACT" || fact.confidence === "HIGH") {
+      for (const ref of fact.source_refs) criticalRefs.add(ref);
+    }
+  }
+
+  for (const source of bundle.research_spec.sources) {
+    if (!source.url) continue;
+    if (!observed.has(canonicalWebUrl(source.url))) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+        `${providerLabel} research referenced a URL not observed in web-search trace: ${source.url}`
+      );
+    }
+  }
+
+  for (const ref of criticalRefs) {
+    const source = sourceById.get(ref);
+    if (!source?.url) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+        `${providerLabel} critical source ${ref} has no traceable URL.`
+      );
+    }
+    if (!observed.has(canonicalWebUrl(source.url))) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+        `${providerLabel} critical source ${ref} was not observed in web-search trace: ${source.url}`
+      );
+    }
+  }
+}
+
 function parseStructuredJson<T>(response: OpenAiResponseEnvelope): T {
   const text = extractOutputText(response);
   if (!text) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_RESPONSE_INVALID", "OpenAI response did not contain structured output text.");
@@ -431,7 +481,9 @@ class OpenAiAgent2Runtime {
               "Research with the web search tool before producing the final JSON.",
               "Set research_spec.topic to the input topic exactly as provided. Do not shorten, paraphrase, translate, normalize, or rewrite it.",
               "Prefer primary sources, museums, universities, scholarly publications, government/institutional sources, and established reference works.",
-              "For VERIFIED_FACT, use traceable supporting source IDs. Do not invent URLs.",
+              "Every VERIFIED_FACT must cite at least two independent sources. Two URLs from the same publisher or institution count as one independent source.",
+              "Every HIGH-confidence claim must cite at least two independent sources and include at least one PRIMARY_SOURCE, PEER_REVIEWED_JOURNAL, ACADEMIC_PAPER, SCHOLARLY_PUBLICATION, UNIVERSITY, MUSEUM, GOVERNMENT, GOVERNMENT_INSTITUTION, RESEARCH_INSTITUTE, OFFICIAL_INSTITUTION, or ARCHIVE source.",
+              "For VERIFIED_FACT and HIGH-confidence claims, use source IDs with traceable HTTP(S) URLs actually observed in this web search. Do not invent URLs.",
               "Keep disputed claims explicitly classified as interpretation, hypothesis, legend, or editorial reconstruction."
             ].join("\n")
           }]
@@ -461,16 +513,7 @@ class OpenAiAgent2Runtime {
     };
     const response = await this.request(body);
     const bundle = normalizeResearchBundle(parseStructuredJson<Agent2ResearchBundle>(response));
-    const observed = collectWebSourceUrls(response);
-    for (const source of bundle.research_spec.sources) {
-      if (!source.url) continue;
-      if (!observed.has(canonicalWebUrl(source.url))) {
-        throw new Agent2RuntimeAdapterError(
-          "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
-          `Research output referenced a URL not observed in OpenAI web search evidence: ${source.url}`
-        );
-      }
-    }
+    verifyResearchTrace(bundle, collectWebSourceUrls(response), "OpenAI");
     return { responseId: typeof response.id === "string" ? response.id : null, bundle };
   }
 
@@ -1099,7 +1142,9 @@ export class Agent2RuntimeAdapterService {
                 "Use native Codex web search before finalizing the research bundle.",
                 "Set research_spec.topic to input.topic exactly as provided. Do not shorten, paraphrase, translate, normalize, or rewrite it.",
                 "Prefer primary sources, museums, universities, scholarly publications, government or institutional sources, and established reference works.",
-                "For VERIFIED_FACT, every source_ref must point to a supplied source with a traceable URL or citation.",
+                "Every VERIFIED_FACT must cite at least two independent sources. Two URLs from the same publisher or institution count as one independent source.",
+                "Every HIGH-confidence claim must cite at least two independent sources and include at least one PRIMARY_SOURCE, PEER_REVIEWED_JOURNAL, ACADEMIC_PAPER, SCHOLARLY_PUBLICATION, UNIVERSITY, MUSEUM, GOVERNMENT, GOVERNMENT_INSTITUTION, RESEARCH_INSTITUTE, OFFICIAL_INSTITUTION, or ARCHIVE source.",
+                "For VERIFIED_FACT and HIGH-confidence claims, every source_ref must point to a supplied source with a traceable HTTP(S) URL that was actually observed during this T010 web search.",
                 "Do not invent URLs, quotations, dates, or source metadata.",
                 "Keep disputed claims explicitly classified as interpretation, hypothesis, legend, or editorial reconstruction.",
                 "If manager_revision_instruction is present, repair that failure while preserving validated upstream constraints."
@@ -1115,17 +1160,7 @@ export class Agent2RuntimeAdapterService {
               );
             }
             const bundle = normalizeResearchBundle(generated.output);
-            if (generated.observedUrls.length > 0) {
-              const observed = new Set(generated.observedUrls.map(canonicalWebUrl));
-              for (const source of bundle.research_spec.sources) {
-                if (source.url && !observed.has(canonicalWebUrl(source.url))) {
-                  throw new Agent2RuntimeAdapterError(
-                    "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
-                    `Codex research referenced a URL not observed in web-search trace: ${source.url}`
-                  );
-                }
-              }
-            }
+            verifyResearchTrace(bundle, generated.observedUrls, "Codex");
             const worker = await this.worker.executePayload(projectId, "T010", bundle);
             repo.complete({
               runId,
