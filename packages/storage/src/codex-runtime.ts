@@ -145,6 +145,24 @@ export class CodexRuntimeRepository {
     );
   }
 
+  listManagerReviews(projectId: string): CodexManagerReview[] {
+    const rows = this.db.prepare(`SELECT * FROM codex_manager_reviews
+      WHERE project_id=?
+      ORDER BY attempt, created_at, review_id`
+    ).all(projectId) as Record<string, unknown>[];
+    return rows.map(row => ({
+      review_id: String(row.review_id),
+      project_id: String(row.project_id),
+      task_id: String(row.task_id),
+      attempt: Number(row.attempt),
+      verdict: row.verdict as CodexManagerReview["verdict"],
+      root_cause: String(row.root_cause),
+      revision_instruction: String(row.revision_instruction),
+      preserve: JSON.parse(String(row.preserve_json)) as string[],
+      created_at: String(row.created_at)
+    }));
+  }
+
   latestManagerReview(
     projectId: string,
     taskId: string
