@@ -351,7 +351,10 @@ export class CodexProcessRunner {
       role.allowedTasks.includes(request.taskId) ||
       (
         request.roleId === "CODEX_1_MANAGER" &&
-        request.taskId.startsWith("MANAGER_REVIEW:")
+        (
+          request.taskId.startsWith("MANAGER_REVIEW:") ||
+          request.taskId.startsWith("MANAGER_SUCCESS:")
+        )
       );
     if (!roleTaskAllowed) {
       throw new CodexRuntimeError(
