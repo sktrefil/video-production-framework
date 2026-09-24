@@ -670,6 +670,15 @@ test("Codex1 verdicts drive Agent2 workflow state", async () => {
         assert.equal(directive, null);
       }
 
+      if (item.verdict === "ESCALATE") {
+        await workflow.requestRevision(projectId, "T010");
+        const resumed = await workflow.status(projectId);
+        assert.equal(
+          resumed.tasks.find(row => row.task_id === "T010")?.status,
+          "REVISION_REQUIRED"
+        );
+      }
+
       const codex = new CodexRuntimeRepository(
         (await bootstrap.getStatus(projectId)).projectDbPath,
         { readonly: true }
