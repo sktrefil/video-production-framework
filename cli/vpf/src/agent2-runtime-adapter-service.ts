@@ -27,6 +27,8 @@ import {
   type RuntimeResult
 } from "@vpf/runtime-contracts";
 import { Agent1WorkflowOrchestratorService } from "./workflow-orchestrator-service.js";
+import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
+import { CodexManagerRuntimeService } from "./codex-manager-runtime-service.js";
 import { Agent2StoryAudioWorkerService } from "./agent2-story-audio-service.js";
 
 const DEFAULT_REPOSITORY_ROOT = path.resolve(
@@ -239,6 +241,26 @@ interface RuntimeStepResult {
 }
 
 const sha256Text = (value: string) => createHash("sha256").update(value, "utf8").digest("hex");
+
+type Agent2AiRuntimeMode = "CODEX_SESSION" | "OPENAI_API";
+
+function agent2AiRuntimeMode(environment: NodeJS.ProcessEnv): Agent2AiRuntimeMode {
+  const value = (environment.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION").trim().toUpperCase();
+  if (value === "CODEX_SESSION" || value === "OPENAI_API") return value;
+  throw new Agent2RuntimeAdapterError(
+    "AGENT2_RUNTIME_RESPONSE_INVALID",
+    "VPF_AI_RUNTIME_MODE must be CODEX_SESSION or OPENAI_API."
+  );
+}
+
+function codexFatal(error: unknown): boolean {
+  return error instanceof CodexRuntimeError && [
+    "CODEX_CLI_MISSING",
+    "CODEX_LOGIN_REQUIRED",
+    "CODEX_CAPABILITY_MISSING"
+  ].includes(error.code);
+}
+
 
 function extractOutputText(response: OpenAiResponseEnvelope): string {
   const texts: string[] = [];
