@@ -844,10 +844,10 @@ export class Agent3RuntimeAdapterService {
     const status = await this.projects.getStatus(projectId);
     const mode = agent3AiRuntimeMode(this.environment);
     if (mode === "CODEX_SESSION") {
-      if (!status.migrations.appliedMigrationIds.includes("0022")) {
+      if (!status.migrations.appliedMigrationIds.includes("0023")) {
         throw new Agent3RuntimeAdapterError(
           "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-          "Codex Agent3 runtime requires migration 0022."
+          "Codex Agent3 runtime requires migration 0023."
         );
       }
       if (!status.resourcePins.some(pin =>
