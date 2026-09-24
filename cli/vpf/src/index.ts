@@ -264,9 +264,16 @@ export async function runCli(
         return 2;
       }
       const status = await service.getStatus(projectId);
+      const productionRepo = new ProductionSpecRepository(
+        status.projectDbPath,
+        { readonly: true }
+      );
+      const projectSpec = productionRepo.getProjectSpec(projectId);
+      productionRepo.close();
       printJson(io, {
         projectId: status.project.projectId,
         title: status.project.title,
+        topic: projectSpec?.topic ?? null,
         format: status.project.format,
         revision: status.project.revision,
         pipeline: status.pipeline,
