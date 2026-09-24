@@ -77,7 +77,10 @@ if (taskId === "T010") {
       type: "web_search",
       query: "Roman Ninth Legion reliable source",
       action: { type: "search" },
-      results: [{ url: "https://example.org/roman-ix" }]
+      results: [
+        { url: "https://example.org/roman-ix" },
+        { url: "https://example.edu/roman-ix" }
+      ]
     }
   }) + "\n");
 }
