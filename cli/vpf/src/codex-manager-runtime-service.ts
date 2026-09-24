@@ -76,7 +76,10 @@ export class CodexManagerRuntimeService {
       attempt: input.attempt,
       instructions: [
         "Act as the Agent 1 QC and revision director.",
-        "Do not change workflow state or approve a gate.",
+        "Do not change workflow state or approve a gate; VPF will deterministically enforce your structured verdict after this review.",
+        "RETRY means the same assigned worker may run another attempt with your revision_instruction.",
+        "BLOCK means automatic execution must stop until required upstream evidence, artifacts, or configuration materially changes.",
+        "ESCALATE means automatic execution must stop until an explicit human decision intervenes.",
         "Analyze the deterministic validator/runtime failure and produce a concise corrective directive for the original worker.",
         "Use RETRY when the worker can repair the output without changing approved upstream meaning.",
         "Use BLOCK when a required upstream artifact/configuration is missing or stale.",
