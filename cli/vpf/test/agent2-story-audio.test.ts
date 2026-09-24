@@ -23,6 +23,7 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
     const created = await bootstrap.createProject({
       projectId: "agent2_sample",
       title: "Roman IX Sample",
+      topic: "로마 제9군단",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
@@ -175,6 +176,67 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
     } finally {
       agent2.close();
       production.close();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+
+test("Agent2 rejects research whose topic differs from the active Project Spec before storage", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-agent2-topic-binding-"));
+  try {
+    const bootstrap = new ProjectBootstrapService({ repositoryRoot, workspaceRoot: root });
+    const created = await bootstrap.createProject({
+      projectId: "agent2_topic_binding",
+      title: "Topic Binding",
+      topic: "네안데르탈인은 왜 약 4만 년 전 고고학 기록에서 사라졌으며, 현생인류와의 교배와 유전적 흡수가 그 과정에 어떤 역할을 했는가",
+      format: "longform",
+      targetDurationSec: 600,
+      language: "ko"
+    });
+    const manager = new Agent1WorkflowOrchestratorService(bootstrap);
+    const worker = new Agent2StoryAudioWorkerService(bootstrap);
+    await manager.dispatch("agent2_topic_binding", "T010");
+
+    await assert.rejects(
+      worker.executePayload("agent2_topic_binding", "T010", {
+        research_spec: {
+          schema_version: "1.0",
+          project_id: "agent2_topic_binding",
+          topic: "네안데르탈인은 왜 사라졌는가",
+          central_question: "네안데르탈인은 왜 사라졌는가?",
+          sources: [{
+            source_id: "SRC_001",
+            title: "Reference",
+            source_type: "JOURNAL",
+            citation: "Reference"
+          }],
+          research_notes: []
+        },
+        fact_check_spec: {
+          schema_version: "1.0",
+          project_id: "agent2_topic_binding",
+          facts: [{
+            fact_id: "FACT_001",
+            statement_ko: "테스트 사실",
+            classification: "VERIFIED_FACT",
+            confidence: "HIGH",
+            source_refs: ["SRC_001"]
+          }]
+        }
+      }),
+      (error: unknown) =>
+        error instanceof Error &&
+        error.message.includes("RESEARCH_TOPIC_MISMATCH")
+    );
+
+    const artifacts = new Agent2StoryAudioRepository(created.projectDbPath, { readonly: true });
+    try {
+      assert.equal(artifacts.getActive("agent2_topic_binding", "research_spec"), null);
+      assert.equal(artifacts.getActive("agent2_topic_binding", "fact_check_spec"), null);
+    } finally {
+      artifacts.close();
     }
   } finally {
     await rm(root, { recursive: true, force: true });
