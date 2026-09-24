@@ -457,6 +457,21 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
     );
     assert.equal((await stat(auditOutput)).isFile(), true);
     assert.match(await readFile(auditOutput, "utf8"), /research_spec/u);
+
+    const successQcRequest = path.join(
+      created.projectRoot,
+      "logs",
+      "codex",
+      "codex1-manager",
+      "MANAGER_SUCCESS_T010",
+      "attempt_01",
+      "request.json"
+    );
+    assert.equal((await stat(successQcRequest)).isFile(), true);
+    const successQcPayload = await readFile(successQcRequest, "utf8");
+    assert.match(successQcPayload, /output_artifacts/u);
+    assert.match(successQcPayload, /fact_check_spec/u);
+    assert.match(successQcPayload, /deterministic_gate/u);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
