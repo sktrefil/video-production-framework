@@ -236,7 +236,8 @@ export class Agent2RuntimeAdapterError extends Error {
       | "AGENT2_RUNTIME_TASK_UNAVAILABLE"
       | "AGENT2_RUNTIME_PREREQUISITE"
       | "AGENT2_RUNTIME_PROJECT_UPGRADE_REQUIRED"
-      | "AGENT2_TTS_RUNTIME_FAILED",
+      | "AGENT2_TTS_RUNTIME_FAILED"
+      | "AGENT2_MANAGER_QC_REJECTED",
     message: string
   ) {
     super(message);
@@ -966,6 +967,41 @@ export class Agent2RuntimeAdapterService {
     const dispatch = await this.manager.dispatch(projectId, taskId, "AGENT2_STORY_AUDIO");
     try {
       const runtime = await this.executeDispatched(projectId, taskId, dispatch.attempt);
+
+      if (
+        agent2AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
+        taskId !== "T030"
+      ) {
+        const gate = await this.manager.evaluateCompletionGate(projectId, taskId);
+        if (gate.status !== "PASS") {
+          throw new Agent2RuntimeAdapterError(
+            "AGENT2_RUNTIME_RESPONSE_INVALID",
+            `${gate.gate} rejected ${taskId} before Codex1 success QC.`
+          );
+        }
+        const review = await this.codexManager.reviewSuccess({
+          projectId,
+          taskId,
+          attempt: dispatch.attempt,
+          workerRole: "CODEX_2_STORY_AUDIO",
+          gateStatus: "PASS",
+          gateId: gate.gate,
+          warnings: runtime.worker.warnings
+        });
+        if (review.verdict !== "APPROVE") {
+          await this.manager.applyManagerVerdict(
+            projectId,
+            taskId,
+            dispatch.attempt,
+            review.verdict
+          );
+          throw new Agent2RuntimeAdapterError(
+            "AGENT2_MANAGER_QC_REJECTED",
+            `Codex1 success QC returned ${review.verdict} for ${taskId}: ${review.root_cause}`
+          );
+        }
+      }
+
       const completed = await this.manager.complete(projectId, taskId);
       return {
         task_id: taskId,
@@ -975,6 +1011,12 @@ export class Agent2RuntimeAdapterService {
         gate_status: completed.last_gate_status ?? "PASS"
       };
     } catch (error) {
+      if (
+        error instanceof Agent2RuntimeAdapterError &&
+        error.code === "AGENT2_MANAGER_QC_REJECTED"
+      ) {
+        throw error;
+      }
       let managerVerdictApplied = false;
       if (
         agent2AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
