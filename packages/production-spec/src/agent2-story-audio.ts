@@ -413,6 +413,17 @@ export function validateResearchBundle(
     }
 
     if (fact.confidence === "HIGH") {
+      if (fact.classification !== "VERIFIED_FACT") {
+        for (const source of referencedSources) {
+          if (!source.url || sourceHost(source.url) === null) {
+            errors.push({
+              code: "HIGH_CONFIDENCE_URL_REQUIRED",
+              path: `fact_check_spec.facts[${index}].source_refs`,
+              message: `HIGH-confidence source ${source.source_id} requires a traceable HTTP(S) URL.`
+            });
+          }
+        }
+      }
       if (uniqueRefs.length < 2 || independentSources < 2) {
         errors.push({
           code: "HIGH_CONFIDENCE_INDEPENDENT_SOURCES_REQUIRED",
