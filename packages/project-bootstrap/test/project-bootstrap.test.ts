@@ -270,7 +270,13 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
       "DELETE FROM schema_migrations WHERE migration_id IN ('0019','0020','0021','0022')"
     ).run();
     db.prepare(
-      "UPDATE production_task_instances SET status='REVISION_REQUIRED', attempt=2 WHERE project_id=? AND task_id='T010'"
+      "DELETE FROM production_task_instances WHERE project_id=?"
+    ).run("runtime_upgrade_fixture");
+    db.prepare(
+      "DELETE FROM production_workflow_instances WHERE project_id=?"
+    ).run("runtime_upgrade_fixture");
+    db.prepare(
+      "DELETE FROM production_project_specs WHERE project_id=?"
     ).run("runtime_upgrade_fixture");
   } finally {
     db.close();
@@ -298,6 +304,8 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
   assert.equal(upgraded.currentChannelProfileVersion, "1.8.0");
   assert.equal(upgraded.preservedProjectRevision, 1);
   assert.equal(upgraded.preservedWorkflowState, true);
+  assert.equal(upgraded.projectSpecBackfilled, true);
+  assert.equal(upgraded.workflowBackfilled, true);
   assert.ok(upgraded.addedProviderProfiles.includes("CODEX_MANAGER_V1"));
   assert.ok(upgraded.addedProviderProfiles.includes("CODEX_STORY_AUDIO_V1"));
   assert.ok(upgraded.addedProviderProfiles.includes("CODEX_VISUAL_PRODUCTION_V1"));
@@ -325,10 +333,18 @@ test("upgrade-runtime preserves workflow state while applying migrations and Cod
 
   const verifyDb = new Database(created.projectDbPath, { readonly: true });
   try {
-    const task = verifyDb.prepare(
-      "SELECT status, attempt FROM production_task_instances WHERE project_id=? AND task_id='T010'"
-    ).get("runtime_upgrade_fixture") as { status: string; attempt: number };
-    assert.deepEqual(task, { status: "REVISION_REQUIRED", attempt: 2 });
+    const workflowCount = verifyDb.prepare(
+      "SELECT COUNT(*) AS count FROM production_workflow_instances WHERE project_id=?"
+    ).get("runtime_upgrade_fixture") as { count: number };
+    const taskCount = verifyDb.prepare(
+      "SELECT COUNT(*) AS count FROM production_task_instances WHERE project_id=?"
+    ).get("runtime_upgrade_fixture") as { count: number };
+    const ready = verifyDb.prepare(
+      "SELECT task_id, status, attempt FROM production_task_instances WHERE project_id=? AND status='READY'"
+    ).get("runtime_upgrade_fixture") as { task_id: string; status: string; attempt: number };
+    assert.equal(workflowCount.count, 1);
+    assert.equal(taskCount.count, 10);
+    assert.deepEqual(ready, { task_id: "T010", status: "READY", attempt: 0 });
   } finally {
     verifyDb.close();
   }
