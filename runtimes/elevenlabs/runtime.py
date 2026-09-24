@@ -69,8 +69,20 @@ def validate_job(job:dict[str,Any])->dict[str,Any]:
     chunks=plan.get("chunks")
     if not isinstance(chunks,list) or not chunks: raise RuntimeFailure("RUNTIME_CONFIG_INVALID","TTS chunks required.")
     for i,c in enumerate(chunks,1):
-        text=c.get("text") if isinstance(c,dict) else None
-        if not isinstance(c,dict) or c.get("index")!=i or not isinstance(text,str) or not text or len(text)>MAX_CHARS or c.get("textCharacterCount")!=len(text): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Invalid/oversized TTS chunk.")
+        if not isinstance(c,dict):
+            raise RuntimeFailure("RUNTIME_CONFIG_INVALID",f"TTS chunk {i} must be an object.")
+        text=c.get("text")
+        if c.get("index")!=i:
+            raise RuntimeFailure("RUNTIME_CONFIG_INVALID",f"TTS chunk {i} index is invalid.")
+        if not isinstance(text,str) or not text:
+            raise RuntimeFailure("RUNTIME_CONFIG_INVALID",f"TTS chunk {i} text is empty or invalid.")
+        if len(text)>MAX_CHARS:
+            raise RuntimeFailure("RUNTIME_CONFIG_INVALID",f"TTS chunk {i} exceeds the {MAX_CHARS}-character limit.")
+        if c.get("textCharacterCount")!=len(text):
+            raise RuntimeFailure(
+                "RUNTIME_CONFIG_INVALID",
+                f"TTS chunk {i} character count mismatch: declared={c.get('textCharacterCount')!r}, actual={len(text)}."
+            )
         safe_rel(str(c.get("outputRelativePath") or ""))
     paths=plan.get("outputPaths")
     if not isinstance(paths,dict): raise RuntimeFailure("RUNTIME_CONFIG_INVALID","outputPaths required.")
