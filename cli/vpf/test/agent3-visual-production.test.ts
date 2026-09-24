@@ -39,8 +39,17 @@ test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () =>
         sources: [{
           source_id: "SRC_001",
           title: "Reference",
-          source_type: "BOOK",
-          citation: "Reference p.1"
+          source_type: "RESEARCH_INSTITUTE",
+          url: "https://research.example.org/roman-ix",
+          citation: "Reference",
+          publisher: "Example Research Institute"
+        }, {
+          source_id: "SRC_002",
+          title: "Independent Reference",
+          source_type: "UNIVERSITY",
+          url: "https://university.example.edu/roman-ix",
+          citation: "Independent Reference",
+          publisher: "Example University"
         }],
         research_notes: ["테스트"]
       },
@@ -52,7 +61,7 @@ test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () =>
           statement_ko: "제9군단에 대한 기록이 존재한다.",
           classification: "VERIFIED_FACT",
           confidence: "HIGH",
-          source_refs: ["SRC_001"]
+          source_refs: ["SRC_001", "SRC_002"]
         }]
       }
     });
