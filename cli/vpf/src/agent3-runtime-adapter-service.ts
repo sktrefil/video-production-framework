@@ -631,6 +631,7 @@ export class Agent3RuntimeAdapterService {
   private readonly manager: Agent1WorkflowOrchestratorService;
   private readonly worker: Agent3VisualProductionWorkerService;
   private readonly codexManager: CodexManagerRuntimeService;
+  private readonly codexRunner: CodexProcessRunner;
 
   constructor(
     private readonly projects: ProjectBootstrapService,
@@ -639,6 +640,7 @@ export class Agent3RuntimeAdapterService {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent3VisualProductionWorkerService(projects);
     this.codexManager = new CodexManagerRuntimeService(projects, environment);
+    this.codexRunner = new CodexProcessRunner(environment);
   }
 
   async runNext(
@@ -1038,7 +1040,7 @@ export class Agent3RuntimeAdapterService {
   }> {
     const status = await this.projects.getStatus(projectId);
     const codexPin = await resolvePinnedCodexVisualProfile(status.resourcePins);
-    const codex = new CodexProcessRunner(this.environment);
+    const codex = this.codexRunner;
     const production = new ProductionSpecRepository(
       status.projectDbPath,
       { readonly: true }
