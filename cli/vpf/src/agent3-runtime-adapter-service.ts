@@ -527,6 +527,35 @@ class OpenAiAgent3Runtime {
   }
 }
 
+async function resolvePinnedCodexVisualProfile(
+  pins: ResourcePin[]
+): Promise<ResourcePin> {
+  const pin = pins.find(item =>
+    item.resourceType === "PROVIDER_PROFILE" &&
+    item.resourceId === "CODEX_VISUAL_PRODUCTION_V1"
+  );
+  if (!pin) {
+    throw new Agent3RuntimeAdapterError(
+      "AGENT3_RUNTIME_PREREQUISITE",
+      "Pinned CODEX_VISUAL_PRODUCTION_V1 profile is missing."
+    );
+  }
+  const registry = new FileSystemResourceRegistry(
+    path.join(DEFAULT_REPOSITORY_ROOT, "resources")
+  );
+  const snapshot = await registry.resolvePinned<ProviderProfilePayload>(pin);
+  if (
+    snapshot.payload.provider !== "CODEX_SESSION" ||
+    snapshot.payload.executionMode !== "AUTOMATED"
+  ) {
+    throw new Agent3RuntimeAdapterError(
+      "AGENT3_RUNTIME_PREREQUISITE",
+      "CODEX_VISUAL_PRODUCTION_V1 must be an AUTOMATED CODEX_SESSION profile."
+    );
+  }
+  return pin;
+}
+
 async function resolvePinnedAgent3Profile(
   pins: ResourcePin[]
 ): Promise<{
@@ -601,6 +630,7 @@ async function resolvePinnedVisualBible(
 export class Agent3RuntimeAdapterService {
   private readonly manager: Agent1WorkflowOrchestratorService;
   private readonly worker: Agent3VisualProductionWorkerService;
+  private readonly codexManager: CodexManagerRuntimeService;
 
   constructor(
     private readonly projects: ProjectBootstrapService,
@@ -608,6 +638,7 @@ export class Agent3RuntimeAdapterService {
   ) {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent3VisualProductionWorkerService(projects);
+    this.codexManager = new CodexManagerRuntimeService(projects, environment);
   }
 
   async runNext(
@@ -651,12 +682,36 @@ export class Agent3RuntimeAdapterService {
       const completed = await this.manager.complete(projectId, taskId);
       return {
         task_id: taskId,
-        runtime_provider: "OPENAI",
+        runtime_provider: runtime.provider,
         runtime_model: runtime.model,
         worker: runtime.worker,
         gate_status: completed.last_gate_status ?? "PASS"
       };
     } catch (error) {
+      if (
+        agent3AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
+        !codexFatal(error)
+      ) {
+        try {
+          await this.codexManager.reviewFailure({
+            projectId,
+            taskId,
+            attempt: dispatch.attempt,
+            workerRole: "CODEX_3_VISUAL_PRODUCTION",
+            errorCode:
+              error instanceof Agent3RuntimeAdapterError
+                ? error.code
+                : error instanceof Agent3VisualProductionError
+                  ? error.code
+                  : error instanceof CodexRuntimeError
+                    ? error.code
+                    : "AGENT3_RUNTIME_FAILURE",
+            errorDetail: errorDetail(error)
+          });
+        } catch {
+          // Codex 1 review is advisory; deterministic workflow state owns the retry.
+        }
+      }
       await this.manager.requestRevision(projectId, taskId);
       throw error;
     }
@@ -695,7 +750,8 @@ export class Agent3RuntimeAdapterService {
           (task.attempt ?? 0) < 3 &&
           errorCode(error) !== "AGENT3_RUNTIME_SECRET_MISSING" &&
           errorCode(error) !== "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED" &&
-          errorCode(error) !== "AGENT3_RUNTIME_PREREQUISITE";
+          errorCode(error) !== "AGENT3_RUNTIME_PREREQUISITE" &&
+          !codexFatal(error);
         if (retryable) continue;
         throw error;
       }
@@ -732,20 +788,38 @@ export class Agent3RuntimeAdapterService {
 
   private async assertRuntimeProjectCurrent(projectId: string): Promise<void> {
     const status = await this.projects.getStatus(projectId);
+    const mode = agent3AiRuntimeMode(this.environment);
+    if (mode === "CODEX_SESSION") {
+      if (!status.migrations.appliedMigrationIds.includes("0022")) {
+        throw new Agent3RuntimeAdapterError(
+          "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+          "Codex Agent3 runtime requires migration 0022."
+        );
+      }
+      if (!status.resourcePins.some(pin =>
+        pin.resourceType === "PROVIDER_PROFILE" &&
+        pin.resourceId === "CODEX_VISUAL_PRODUCTION_V1"
+      )) {
+        throw new Agent3RuntimeAdapterError(
+          "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED",
+          "Project does not pin CODEX_VISUAL_PRODUCTION_V1. Use HISTORY_MYSTERY_V1@1.8.0 or explicitly upgrade resources."
+        );
+      }
+      return;
+    }
     if (!status.migrations.appliedMigrationIds.includes("0021")) {
       throw new Agent3RuntimeAdapterError(
         "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-        "Agent3 automatic runtime requires migration 0021. Upgrade the project schema explicitly or create a new project on the current framework."
+        "OpenAI API Agent3 runtime requires migration 0021."
       );
     }
-    const pin = status.resourcePins.find(item =>
-      item.resourceType === "PROVIDER_PROFILE" &&
-      item.resourceId === "OPENAI_AGENT3_VISUAL_V1"
-    );
-    if (!pin) {
+    if (!status.resourcePins.some(pin =>
+      pin.resourceType === "PROVIDER_PROFILE" &&
+      pin.resourceId === "OPENAI_AGENT3_VISUAL_V1"
+    )) {
       throw new Agent3RuntimeAdapterError(
         "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED",
-        "Project does not pin OPENAI_AGENT3_VISUAL_V1. Agent3 automatic runtime requires HISTORY_MYSTERY_V1@1.7.0 or an explicit resource-profile upgrade."
+        "OPENAI_API mode requires pinned OPENAI_AGENT3_VISUAL_V1."
       );
     }
   }
