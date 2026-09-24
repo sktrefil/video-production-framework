@@ -39,12 +39,15 @@ async function writeJson(dir: string, name: string, value: unknown): Promise<voi
   );
 }
 
-function researchBundle(projectId: string) {
+function researchBundle(
+  projectId: string,
+  topic = "로마 제9군단의 마지막 기록과 이후 행방"
+) {
   return {
     research_spec: {
       schema_version: "1.0",
       project_id: projectId,
-      topic: "로마 제9군단",
+      topic,
       central_question: "제9군단의 마지막 운명은 무엇이었는가?",
       sources: [{
         source_id: "SRC_001",
