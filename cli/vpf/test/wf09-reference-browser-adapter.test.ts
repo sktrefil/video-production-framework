@@ -151,5 +151,5 @@ test("ChatGPT Browser worker reuses one managed conversation per exact reference
   assert.match(worker, /page, reused_session = open_or_reuse_chatgpt_page\(browser, session_marker\)/);
   assert.match(worker, /mark_managed_session_page\(page, session_marker\)/);
   assert.match(worker, /"reused": True/);
-  assert.match(worker, /def generate[\s\S]*?finally:\n        # Keep the worker-managed ChatGPT tab alive[\s\S]*?playwright\.stop\(\)/);
+  assert.match(worker, /def generate[\s\S]*?finally:\r?\n        # Keep the worker-managed ChatGPT tab alive[\s\S]*?playwright\.stop\(\)/);
 });
