@@ -8,7 +8,7 @@ import { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
-import { Agent2RuntimeAdapterService } from "../src/agent2-runtime-adapter-service.js";
+import { Agent2RuntimeAdapterError, Agent2RuntimeAdapterService } from "../src/agent2-runtime-adapter-service.js";
 import { Agent3RuntimeAdapterService } from "../src/agent3-runtime-adapter-service.js";
 import { CodexManagerRuntimeService } from "../src/codex-manager-runtime-service.js";
 import { CodexProcessRunner, CodexRuntimeError } from "../src/codex-process-runner.js";
