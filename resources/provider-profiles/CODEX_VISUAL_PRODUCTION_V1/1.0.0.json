@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "PROVIDER_PROFILE",
+  "resourceId": "CODEX_VISUAL_PRODUCTION_V1",
+  "version": "1.0.0",
+  "payload": {
+    "provider": "CODEX_SESSION",
+    "executionMode": "AUTOMATED",
+    "jobTypes": [
+      "OTHER"
+    ],
+    "capabilities": {
+      "interface": "codex exec",
+      "role": "CODEX_3_VISUAL_PRODUCTION",
+      "structuredOutputs": true,
+      "webSearch": false,
+      "sandbox": "read-only",
+      "tasks": [
+        "VISUAL_SCENE_PLAN",
+        "STATE_IMAGE_PLAN",
+        "CLIP_CAMERA_PLAN"
+      ]
+    },
+    "retryPolicy": {
+      "maxAttempts": 3
+    },
+    "result": {
+      "mediaType": "DOCUMENT",
+      "requiredArtifacts": [
+        "scene_visual_spec",
+        "state_image_spec",
+        "clip_production_spec"
+      ]
+    },
+    "runtimeSecretNames": []
+  }
+}
