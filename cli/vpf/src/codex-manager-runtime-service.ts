@@ -124,7 +124,8 @@ export class CodexManagerRuntimeService {
 
   async latestDirective(
     projectId: string,
-    taskId: string
+    taskId: string,
+    currentAttempt?: number
   ): Promise<string | null> {
     const status = await this.projects.getStatus(projectId);
     if (!status.migrations.appliedMigrationIds.includes("0022")) return null;
@@ -135,6 +136,12 @@ export class CodexManagerRuntimeService {
     try {
       const review = repo.latestManagerReview(projectId, taskId);
       if (review === null || review.verdict !== "RETRY") return null;
+      if (
+        currentAttempt !== undefined &&
+        review.attempt !== currentAttempt - 1
+      ) {
+        return null;
+      }
       return [
         "Codex 1 revision directive:",
         review.revision_instruction,
