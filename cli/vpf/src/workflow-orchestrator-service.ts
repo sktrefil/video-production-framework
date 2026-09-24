@@ -203,6 +203,93 @@ export class Agent1WorkflowOrchestratorService {
     }
   }
 
+  async evaluateCompletionGate(
+    projectId: string,
+    taskId: string
+  ): Promise<ProductionGateEvaluation> {
+    const status = await this.projects.getStatus(projectId);
+    const workflowRepo = new WorkflowOrchestratorRepository(status.projectDbPath);
+    const productionRepo = new ProductionSpecRepository(status.projectDbPath);
+    try {
+      const workflow = workflowRepo.getWorkflow(projectId);
+      let task = workflowRepo.getTask(projectId, taskId);
+      if (workflow === null) {
+        throw new WorkflowOrchestratorError(
+          "WORKFLOW_NOT_FOUND",
+          `Workflow not found for ${projectId}.`
+        );
+      }
+      if (task === null) {
+        throw new WorkflowOrchestratorError(
+          "TASK_NOT_FOUND",
+          `Task not found: ${taskId}.`
+        );
+      }
+      if (task.status !== "RUNNING") {
+        throw new WorkflowOrchestratorError(
+          "TASK_NOT_RUNNING",
+          `${taskId} must be RUNNING before completion-gate evaluation.`
+        );
+      }
+      const definition = findTaskDefinition(workflow.definition, taskId);
+      if (definition === null) {
+        throw new WorkflowOrchestratorError(
+          "TASK_NOT_FOUND",
+          `Task definition missing: ${taskId}.`
+        );
+      }
+
+      const outputRefs = this.resolveRefs(
+        projectId,
+        definition.required_outputs,
+        workflowRepo
+      );
+      workflowRepo.updateTask({
+        projectId,
+        taskId,
+        outputRefs,
+        updatedAt: nowIso()
+      });
+      task = workflowRepo.getTask(projectId, taskId)!;
+
+      const evaluated = await this.ensureCompletionGate(
+        projectId,
+        definition,
+        task,
+        productionRepo
+      );
+      const at = nowIso();
+      workflowRepo.updateTask({
+        projectId,
+        taskId,
+        lastGateId: definition.completion_gate,
+        lastGateStatus: evaluated.status === "PASS" ? "PASS" : "FAIL",
+        updatedAt: at
+      });
+
+      if (evaluated.status !== "PASS") {
+        workflowRepo.updateTask({
+          projectId,
+          taskId,
+          status: "REVISION_REQUIRED",
+          completedAt: null,
+          updatedAt: at
+        });
+        this.blockDescendants(
+          projectId,
+          taskId,
+          workflow.definition.tasks,
+          workflowRepo,
+          at
+        );
+      }
+      return evaluated;
+    } finally {
+      productionRepo.close();
+      workflowRepo.close();
+    }
+  }
+
   async complete(projectId: string, taskId: string): Promise<ProjectTaskInstance> {
     const status = await this.projects.getStatus(projectId);
     const workflowRepo = new WorkflowOrchestratorRepository(status.projectDbPath);
