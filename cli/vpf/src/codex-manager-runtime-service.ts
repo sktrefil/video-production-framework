@@ -320,7 +320,7 @@ export class CodexManagerRuntimeService {
     currentAttempt?: number
   ): Promise<string | null> {
     const status = await this.projects.getStatus(projectId);
-    if (!status.migrations.appliedMigrationIds.includes("0022")) return null;
+    if (!status.migrations.appliedMigrationIds.includes("0023")) return null;
     const repo = new CodexRuntimeRepository(
       status.projectDbPath,
       { readonly: true }
