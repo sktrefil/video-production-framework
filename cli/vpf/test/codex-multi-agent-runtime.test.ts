@@ -550,3 +550,133 @@ test("Codex role contracts block cross-agent tasks and unauthorized web search",
       error.code === "CODEX_ROLE_TASK_FORBIDDEN"
   );
 });
+
+
+test("Codex1 verdicts drive Agent2 workflow state", async () => {
+  const cases = [
+    { verdict: "RETRY" as const, expectedStatus: "REVISION_REQUIRED" as const, directive: true },
+    { verdict: "BLOCK" as const, expectedStatus: "BLOCKED" as const, directive: false },
+    { verdict: "ESCALATE" as const, expectedStatus: "BLOCKED" as const, directive: false }
+  ];
+
+  for (const item of cases) {
+    const root = await mkdtemp(path.join(
+      tmpdir(),
+      "vpf-codex-manager-verdict-" + item.verdict.toLowerCase() + "-"
+    ));
+    const fixtures = path.join(root, "fixtures");
+    await import("node:fs/promises").then(fs => fs.mkdir(fixtures, { recursive: true }));
+
+    try {
+      const projectId = "codex_verdict_" + item.verdict.toLowerCase();
+      const topic = "로마 제9군단의 마지막 기록과 이후 행방";
+      const bootstrap = new ProjectBootstrapService({
+        repositoryRoot,
+        workspaceRoot: path.join(root, "workspace")
+      });
+      await bootstrap.createProject({
+        projectId,
+        title: "Codex verdict " + item.verdict,
+        topic,
+        format: "shortform",
+        targetDurationSec: 5,
+        language: "ko"
+      });
+
+      await writeJson(fixtures, "T010", {
+        research_spec: {
+          schema_version: "1.0",
+          project_id: projectId,
+          topic,
+          central_question: "제9군단의 마지막 운명은 무엇이었는가?",
+          sources: [{
+            source_id: "SRC_001",
+            title: "Roman Ninth Legion source one",
+            source_type: "RESEARCH_INSTITUTE",
+            url: "https://example.org/roman-ix",
+            citation: "Source one",
+            publisher: "Same Institute",
+            published_at: "2026-01-01",
+            notes: ""
+          }, {
+            source_id: "SRC_002",
+            title: "Roman Ninth Legion source two",
+            source_type: "UNIVERSITY",
+            url: "https://example.edu/roman-ix",
+            citation: "Source two",
+            publisher: "Same Institute",
+            published_at: "2026-01-02",
+            notes: ""
+          }],
+          research_notes: []
+        },
+        fact_check_spec: {
+          schema_version: "1.0",
+          project_id: projectId,
+          facts: [{
+            fact_id: "FACT_001",
+            statement_ko: "제9군단에 대한 기록이 존재한다.",
+            statement_en: "",
+            classification: "VERIFIED_FACT",
+            confidence: "HIGH",
+            source_refs: ["SRC_001", "SRC_002"],
+            visualisation_note: "",
+            uncertainty_note: ""
+          }]
+        }
+      });
+
+      await writeJson(fixtures, "MANAGER_REVIEW_T010", {
+        schema_version: "1.0",
+        verdict: item.verdict,
+        root_cause: "The failed T010 bundle does not satisfy the independent-source policy.",
+        revision_instruction:
+          item.verdict === "RETRY"
+            ? "Replace one source with an independent publisher and preserve the topic."
+            : item.verdict === "BLOCK"
+              ? "Do not retry until independent upstream evidence is available."
+              : "A human must decide whether the available evidence is sufficient to continue.",
+        preserve: ["project topic", "fact IDs"]
+      });
+
+      const env = runtimeEnv(fixtures);
+      const runtime = new Agent2RuntimeAdapterService(bootstrap, env);
+
+      await assert.rejects(runtime.runNext(projectId));
+
+      const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
+      const state = await workflow.status(projectId);
+      const task = state.tasks.find(row => row.task_id === "T010");
+      assert.equal(task?.status, item.expectedStatus);
+      assert.equal(task?.attempt, 1);
+      assert.equal(
+        state.tasks.find(row => row.task_id === "T020")?.status,
+        "BLOCKED"
+      );
+
+      const manager = new CodexManagerRuntimeService(bootstrap, env);
+      const directive = await manager.latestDirective(projectId, "T010");
+      if (item.directive) {
+        assert.match(directive ?? "", /independent publisher/u);
+      } else {
+        assert.equal(directive, null);
+      }
+
+      const codex = new CodexRuntimeRepository(
+        (await bootstrap.getStatus(projectId)).projectDbPath,
+        { readonly: true }
+      );
+      try {
+        const reviews = codex.list(projectId).filter(
+          run => run.role_id === "CODEX_1_MANAGER"
+        );
+        assert.equal(reviews.length, 1);
+        assert.equal(reviews[0]?.task_id, "MANAGER_REVIEW:T010");
+      } finally {
+        codex.close();
+      }
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+});
