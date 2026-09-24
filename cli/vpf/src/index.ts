@@ -23,6 +23,8 @@ import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-s
 import { Agent3VisualProductionWorkerService, Agent3VisualProductionError } from "./agent3-visual-production-service.js";
 import { Agent2RuntimeAdapterService, Agent2RuntimeAdapterError } from "./agent2-runtime-adapter-service.js";
 import { Agent3RuntimeAdapterService, Agent3RuntimeAdapterError } from "./agent3-runtime-adapter-service.js";
+import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
+import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 
 export interface CliIo {
   out(message: string): void;
@@ -50,6 +52,11 @@ Production Spec operations:
   vpf production validate-states <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
+  vpf production run <project_id>
+
+Codex multi-agent runtime:
+  vpf codex preflight
+  vpf codex status <project_id>
 
 Agent 1 workflow operations:
   vpf workflow status <project_id>
@@ -261,6 +268,40 @@ export async function runCli(
     const agent2Runtime = new Agent2RuntimeAdapterService(service);
     const agent3 = new Agent3VisualProductionWorkerService(service);
     const agent3Runtime = new Agent3RuntimeAdapterService(service);
+    const codexRuntime = new CodexProcessRunner();
+
+    if (args[0] === "codex" && args[1] === "preflight") {
+      const result = await codexRuntime.preflight();
+      printJson(io, result);
+      return result.ready ? 0 : 1;
+    }
+
+    if (args[0] === "codex" && args[1] === "status") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] codex status requires <project_id>.");
+        return 2;
+      }
+      const status = await service.getStatus(projectId);
+      if (!status.migrations.appliedMigrationIds.includes("0022")) {
+        io.error("[CODEX_CAPABILITY_MISSING] Project does not include migration 0022.");
+        return 1;
+      }
+      const repository = new CodexRuntimeRepository(
+        status.projectDbPath,
+        { readonly: true }
+      );
+      try {
+        printJson(io, {
+          project_id: projectId,
+          runtime_mode: process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION",
+          runs: repository.list(projectId)
+        });
+      } finally {
+        repository.close();
+      }
+      return 0;
+    }
 
     if (args[0] === "agent2" && args[1] === "instruction") {
       const taskId = args[2];
@@ -430,6 +471,37 @@ export async function runCli(
       }
       await workflow.requestRevision(projectId, taskId);
       printJson(io, { project_id: projectId, task_id: taskId, status: "REVISION_REQUIRED" });
+      return 0;
+    }
+
+    if (args[0] === "production" && args[1] === "run") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] production run requires <project_id>.");
+        return 2;
+      }
+      const preflight = await codexRuntime.preflight();
+      if (!preflight.ready) {
+        printJson(io, {
+          project_id: projectId,
+          status: "BLOCKED",
+          stage: "CODEX_PREFLIGHT",
+          preflight
+        });
+        return 1;
+      }
+      const agent2Result = await agent2Runtime.runAll(projectId);
+      const agent3Result = await agent3Runtime.runAll(projectId);
+      const finalWorkflow = await workflow.status(projectId);
+      printJson(io, {
+        project_id: projectId,
+        status: "RUN_COMPLETE",
+        runtime_mode: process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION",
+        codex_preflight: preflight,
+        agent2: agent2Result,
+        agent3: agent3Result,
+        next_task: finalWorkflow.next_task
+      });
       return 0;
     }
 
@@ -664,6 +736,7 @@ export async function runCli(
       error instanceof Agent2StoryAudioError ||
       error instanceof Agent2RuntimeAdapterError ||
       error instanceof Agent3RuntimeAdapterError ||
+      error instanceof CodexRuntimeError ||
       error instanceof Agent3VisualProductionError ||
       error instanceof EditorAssembleError ||
       error instanceof EditorMediaImportError
