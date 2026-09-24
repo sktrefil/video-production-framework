@@ -398,7 +398,7 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
         ["T010", "T020", "T040", "T050", "T060"]
       );
       assert.ok(runs.every(run => run.status === "COMPLETE"));
-      assert.ok(runs.every(run => run.auth_status?.includes("ChatGPT")));
+      assert.ok(runs.every(run => run.auth_status === "STORED_LOGIN_OK"));
       assert.equal(JSON.stringify(runs).includes("must-not-reach-codex-child"), false);
     } finally {
       codexRuns.close();
