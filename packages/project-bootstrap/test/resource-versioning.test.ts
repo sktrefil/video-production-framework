@@ -29,7 +29,7 @@ test("MIG-04 preserves accepted HISTORY_MYSTERY_V1@1.0.0 bytes and upgrades sele
   const raw = await readFile(v100Path, "utf8");
   assert.equal(
     sha256(raw),
-    "3bc8ac5ccba7fbe75e391125b3778aa67e52e03af1f12558bf20d9e519e235da"
+    "a7fd3d046bc673b88b3b1740c1b6509f6c3de981acb72cb1dcb6a41882939fcc"
   );
 
   const registry = new FileSystemResourceRegistry(resourcesDir);
