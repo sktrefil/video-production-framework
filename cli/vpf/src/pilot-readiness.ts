@@ -240,7 +240,9 @@ export class PilotReadinessService {
 
     const selection = await this.resolveDefaultSelection(format);
     checks.push(...selection.checks);
-    const providers = await this.summarizeProviders(selection.providerPins);
+    const providers = await this.summarizeProviders(
+      this.activeProviderPins(selection.providerPins)
+    );
     checks.push(...this.providerChecks(providers));
     checks.push(...await this.imageAdapterChecks(providers));
 
@@ -312,7 +314,9 @@ export class PilotReadinessService {
     ));
 
     const providerPins = status.resourcePins.filter(pin => pin.resourceType === "PROVIDER_PROFILE");
-    const providers = await this.summarizeProviders(providerPins);
+    const providers = await this.summarizeProviders(
+      this.activeProviderPins(providerPins)
+    );
     checks.push(...this.providerChecks(providers));
     checks.push(...await this.imageAdapterChecks(providers));
 
@@ -406,6 +410,25 @@ export class PilotReadinessService {
       ));
     }
     return {providerPins, checks};
+  }
+
+  private activeProviderPins(pins: ResourcePin[]): ResourcePin[] {
+    const mode = (this.environment.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION")
+      .trim()
+      .toUpperCase();
+    return pins.filter(pin => {
+      if (pin.resourceType !== "PROVIDER_PROFILE") return false;
+      if (mode === "CODEX_SESSION") {
+        return pin.resourceId !== "OPENAI_AGENT2_STORY_V1" &&
+          pin.resourceId !== "OPENAI_AGENT3_VISUAL_V1";
+      }
+      if (mode === "OPENAI_API") {
+        return pin.resourceId !== "CODEX_MANAGER_V1" &&
+          pin.resourceId !== "CODEX_STORY_AUDIO_V1" &&
+          pin.resourceId !== "CODEX_VISUAL_PRODUCTION_V1";
+      }
+      return true;
+    });
   }
 
   private async summarizeProviders(pins: ResourcePin[]): Promise<ProviderReadinessSummary[]> {
