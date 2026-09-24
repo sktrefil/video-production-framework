@@ -693,12 +693,13 @@ export class Agent3RuntimeAdapterService {
         gate_status: completed.last_gate_status ?? "PASS"
       };
     } catch (error) {
+      let managerVerdictApplied = false;
       if (
         agent3AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
         !codexFatal(error)
       ) {
         try {
-          await this.codexManager.reviewFailure({
+          const review = await this.codexManager.reviewFailure({
             projectId,
             taskId,
             attempt: dispatch.attempt,
@@ -713,11 +714,20 @@ export class Agent3RuntimeAdapterService {
                     : "AGENT3_RUNTIME_FAILURE",
             errorDetail: errorDetail(error)
           });
+          await this.manager.applyManagerVerdict(
+            projectId,
+            taskId,
+            dispatch.attempt,
+            review.verdict
+          );
+          managerVerdictApplied = true;
         } catch {
-          // Codex 1 review is advisory; deterministic workflow state owns the retry.
+          // Fail closed to deterministic revision handling if Codex 1 review cannot be applied.
         }
       }
-      await this.manager.requestRevision(projectId, taskId);
+      if (!managerVerdictApplied) {
+        await this.manager.requestRevision(projectId, taskId);
+      }
       throw error;
     }
   }
