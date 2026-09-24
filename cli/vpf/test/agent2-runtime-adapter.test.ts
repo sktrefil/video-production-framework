@@ -60,7 +60,7 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
           research_spec: {
             schema_version: "1.0",
             project_id: "agent2_runtime",
-            topic: "로마 제9군단",
+            topic: "로마 제9군단의 마지막 기록과 이후 행방",
             central_question: "제9군단은 어디로 사라졌는가?",
             sources: [{
               source_id: "SRC_001",
@@ -246,6 +246,7 @@ test("Agent2 automatic T010 fails closed when OPENAI_API_KEY is missing", async 
     await bootstrap.createProject({
       projectId: "agent2_no_key",
       title: "테스트 주제",
+      topic: "테스트용 역사 연구 주제",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
