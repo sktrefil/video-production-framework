@@ -310,6 +310,15 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
 
     await writeJson(fixtures, "T010", researchBundle("codex_multi"));
     await writeJson(fixtures, "T020", storyBundle("codex_multi"));
+    for (const taskId of ["T010", "T020", "T040", "T050", "T060"]) {
+      await writeJson(fixtures, "MANAGER_SUCCESS_" + taskId, {
+        schema_version: "1.0",
+        verdict: "APPROVE",
+        root_cause: "Deterministic-pass output is semantically coherent.",
+        revision_instruction: "",
+        preserve: ["validated upstream constraints"]
+      });
+    }
 
     const agent2 = new Agent2RuntimeAdapterService(bootstrap, env);
     const first = await agent2.runNext("codex_multi");
@@ -400,19 +409,39 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
         runs.map(run => run.role_id),
         [
           "CODEX_2_STORY_AUDIO",
+          "CODEX_1_MANAGER",
           "CODEX_2_STORY_AUDIO",
+          "CODEX_1_MANAGER",
           "CODEX_3_VISUAL_PRODUCTION",
+          "CODEX_1_MANAGER",
           "CODEX_3_VISUAL_PRODUCTION",
-          "CODEX_3_VISUAL_PRODUCTION"
+          "CODEX_1_MANAGER",
+          "CODEX_3_VISUAL_PRODUCTION",
+          "CODEX_1_MANAGER"
         ]
       );
       assert.deepEqual(
         runs.map(run => run.task_id),
-        ["T010", "T020", "T040", "T050", "T060"]
+        [
+          "T010",
+          "MANAGER_SUCCESS:T010",
+          "T020",
+          "MANAGER_SUCCESS:T020",
+          "T040",
+          "MANAGER_SUCCESS:T040",
+          "T050",
+          "MANAGER_SUCCESS:T050",
+          "T060",
+          "MANAGER_SUCCESS:T060"
+        ]
       );
       assert.ok(runs.every(run => run.status === "COMPLETE"));
       assert.ok(runs.every(run => run.auth_status === "STORED_LOGIN_OK"));
       assert.equal(JSON.stringify(runs).includes("must-not-reach-codex-child"), false);
+      const reviews = codexRuns.listManagerReviews("codex_multi");
+      assert.equal(reviews.length, 5);
+      assert.ok(reviews.every(review => review.review_kind === "SUCCESS"));
+      assert.ok(reviews.every(review => review.verdict === "APPROVE"));
     } finally {
       codexRuns.close();
     }
