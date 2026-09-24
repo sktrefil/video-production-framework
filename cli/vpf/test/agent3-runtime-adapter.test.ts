@@ -353,6 +353,7 @@ test("Agent3 runtime automatically runs T040-T060 and hands off T070", async () 
     const created = await bootstrap.createProject({
       projectId: "agent3_runtime",
       title: "로마 제9군단",
+      topic: "로마 제9군단",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
@@ -487,6 +488,7 @@ test("Agent3 run-all retries Core rejection with revision feedback", async () =>
     const created = await bootstrap.createProject({
       projectId: "agent3_retry",
       title: "로마 제9군단 재시도",
+      topic: "로마 제9군단",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
@@ -544,6 +546,7 @@ test("Agent3 automatic runtime fails closed when OPENAI_API_KEY is missing", asy
     await bootstrap.createProject({
       projectId: "agent3_no_key",
       title: "Agent3 no key",
+      topic: "로마 제9군단",
       format: "shortform",
       targetDurationSec: 5,
       language: "ko"
