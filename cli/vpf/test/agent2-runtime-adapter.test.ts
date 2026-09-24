@@ -291,3 +291,113 @@ test("Agent2 automatic T010 fails closed when OPENAI_API_KEY is missing", async 
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test("Agent2 T010 rejects a cross-source URL that was not observed in web-search evidence", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-agent2-unobserved-source-"));
+  const observedUrl = "https://example.org/roman-ix";
+  const missingUrl = "https://example.edu/roman-ix";
+
+  const server = await listen(async (req, res) => {
+    if (req.url === "/v1/responses" && req.method === "POST") {
+      await readBody(req);
+      const bundle = {
+        research_spec: {
+          schema_version: "1.0",
+          project_id: "agent2_unobserved",
+          topic: "로마 제9군단의 마지막 기록과 이후 행방",
+          central_question: "제9군단은 어디로 사라졌는가?",
+          sources: [{
+            source_id: "SRC_001",
+            title: "Observed research source",
+            source_type: "RESEARCH_INSTITUTE",
+            url: observedUrl,
+            citation: "Observed research source",
+            publisher: "Example Institute",
+            published_at: "2026-01-01",
+            notes: ""
+          }, {
+            source_id: "SRC_002",
+            title: "Unobserved university source",
+            source_type: "UNIVERSITY",
+            url: missingUrl,
+            citation: "Unobserved university source",
+            publisher: "Example University",
+            published_at: "2026-01-02",
+            notes: ""
+          }],
+          research_notes: []
+        },
+        fact_check_spec: {
+          schema_version: "1.0",
+          project_id: "agent2_unobserved",
+          facts: [{
+            fact_id: "FACT_001",
+            statement_ko: "검증 사실",
+            statement_en: "",
+            classification: "VERIFIED_FACT",
+            confidence: "HIGH",
+            source_refs: ["SRC_001", "SRC_002"],
+            visualisation_note: "",
+            uncertainty_note: ""
+          }]
+        }
+      };
+      res.statusCode = 200;
+      res.setHeader("content-type", "application/json");
+      res.end(JSON.stringify({
+        id: "resp_unobserved",
+        status: "completed",
+        output: [{
+          type: "web_search_call",
+          action: {
+            type: "search",
+            sources: [{ type: "url", url: observedUrl }]
+          }
+        }, {
+          type: "message",
+          role: "assistant",
+          content: [{ type: "output_text", text: JSON.stringify(bundle), annotations: [] }]
+        }]
+      }));
+      return;
+    }
+    res.statusCode = 404;
+    res.end("not found");
+  });
+
+  try {
+    const bootstrap = new ProjectBootstrapService({
+      repositoryRoot,
+      workspaceRoot: path.join(root, "workspace")
+    });
+    await bootstrap.createProject({
+      projectId: "agent2_unobserved",
+      title: "Unobserved Source",
+      topic: "로마 제9군단의 마지막 기록과 이후 행방",
+      format: "shortform",
+      targetDurationSec: 5,
+      language: "ko"
+    });
+
+    const runtime = new Agent2RuntimeAdapterService(bootstrap, {
+      ...process.env,
+      VPF_AI_RUNTIME_MODE: "OPENAI_API",
+      OPENAI_API_KEY: "test-openai-key",
+      VPF_AGENT2_OPENAI_MODEL: "gpt-5.6",
+      OPENAI_API_BASE_URL: server.baseUrl + "/v1",
+      VPF_AGENT2_OPENAI_RETRIES: "0"
+    });
+
+    await assert.rejects(
+      runtime.runNext("agent2_unobserved"),
+      (error: unknown) =>
+        error instanceof Agent2RuntimeAdapterError &&
+        error.code === "AGENT2_RUNTIME_SOURCE_UNVERIFIED" &&
+        error.message.includes(missingUrl)
+    );
+  } finally {
+    await server.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
