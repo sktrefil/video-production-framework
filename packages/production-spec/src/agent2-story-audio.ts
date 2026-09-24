@@ -10,6 +10,56 @@ export const FACT_CLASSIFICATIONS = [
 ] as const;
 export type Agent2FactClassification = typeof FACT_CLASSIFICATIONS[number];
 
+export const HIGH_AUTHORITY_SOURCE_TYPES = [
+  "PRIMARY_SOURCE",
+  "PEER_REVIEWED_JOURNAL",
+  "ACADEMIC_PAPER",
+  "SCHOLARLY_PUBLICATION",
+  "UNIVERSITY",
+  "MUSEUM",
+  "GOVERNMENT",
+  "GOVERNMENT_INSTITUTION",
+  "RESEARCH_INSTITUTE",
+  "OFFICIAL_INSTITUTION",
+  "ARCHIVE"
+] as const;
+
+function normalizedSourceType(value: string): string {
+  return value.trim().toUpperCase().replace(/[\s-]+/gu, "_");
+}
+
+function normalizedPublisher(value: string | undefined): string {
+  return (value ?? "")
+    .normalize("NFKC")
+    .trim()
+    .toLocaleLowerCase("en-US")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function sourceHost(value: string | undefined): string | null {
+  if (!value?.trim()) return null;
+  try {
+    const url = new URL(value);
+    if (!["http:", "https:"].includes(url.protocol)) return null;
+    return url.hostname.toLowerCase().replace(/^www\./u, "");
+  } catch {
+    return null;
+  }
+}
+
+function independentSourceIdentity(source: Agent2ResearchSource): string | null {
+  const publisher = normalizedPublisher(source.publisher);
+  if (publisher) return "publisher:" + publisher;
+  const host = sourceHost(source.url);
+  return host === null ? null : "host:" + host;
+}
+
+function isHighAuthoritySource(source: Agent2ResearchSource): boolean {
+  return HIGH_AUTHORITY_SOURCE_TYPES.includes(
+    normalizedSourceType(source.source_type) as typeof HIGH_AUTHORITY_SOURCE_TYPES[number]
+  );
+}
+
 export interface Agent2ResearchSource {
   source_id: string;
   title: string;
@@ -236,13 +286,25 @@ export function validateResearchBundle(
   }
 
   const sourceIds = new Set<string>();
+  const sourceById = new Map<string, Agent2ResearchSource>();
   for (const [index, source] of sources.entries()) {
     const id = requiredString(source.source_id, `research_spec.sources[${index}].source_id`, errors);
     requiredString(source.title, `research_spec.sources[${index}].title`, errors);
     requiredString(source.source_type, `research_spec.sources[${index}].source_type`, errors);
+    if (source.url && sourceHost(source.url) === null) {
+      errors.push({
+        code: "INVALID_SOURCE_URL",
+        path: `research_spec.sources[${index}].url`,
+        message: "Research source URL must be an absolute HTTP(S) URL."
+      });
+    }
     if (id) {
-      if (sourceIds.has(id)) errors.push({ code: "DUPLICATE_SOURCE_ID", path: `research_spec.sources[${index}].source_id`, message: `Duplicate source_id ${id}.` });
-      sourceIds.add(id);
+      if (sourceIds.has(id)) {
+        errors.push({ code: "DUPLICATE_SOURCE_ID", path: `research_spec.sources[${index}].source_id`, message: `Duplicate source_id ${id}.` });
+      } else {
+        sourceIds.add(id);
+        sourceById.set(id, source);
+      }
     }
     if (!source.url && !source.citation) {
       warnings.push({ code: "SOURCE_REFERENCE_WEAK", path: `research_spec.sources[${index}]`, message: "Source should include a URL or citation." });
@@ -267,11 +329,64 @@ export function validateResearchBundle(
     if (!["HIGH", "MEDIUM", "LOW"].includes(fact.confidence)) {
       errors.push({ code: "INVALID_FACT_CONFIDENCE", path: `fact_check_spec.facts[${index}].confidence`, message: "confidence must be HIGH, MEDIUM or LOW." });
     }
-    if (fact.classification === "VERIFIED_FACT" && (!Array.isArray(fact.source_refs) || fact.source_refs.length === 0)) {
-      errors.push({ code: "VERIFIED_FACT_SOURCE_REQUIRED", path: `fact_check_spec.facts[${index}].source_refs`, message: "VERIFIED_FACT requires at least one source reference." });
+    const sourceRefs = Array.isArray(fact.source_refs) ? fact.source_refs : [];
+    const uniqueRefs = [...new Set(sourceRefs)];
+    if (uniqueRefs.length !== sourceRefs.length) {
+      errors.push({
+        code: "DUPLICATE_FACT_SOURCE_REF",
+        path: `fact_check_spec.facts[${index}].source_refs`,
+        message: "A fact cannot count the same source reference more than once."
+      });
     }
-    for (const ref of fact.source_refs ?? []) {
-      if (!sourceIds.has(ref)) errors.push({ code: "UNKNOWN_SOURCE_REF", path: `fact_check_spec.facts[${index}].source_refs`, message: `Unknown source reference ${ref}.` });
+    for (const ref of uniqueRefs) {
+      if (!sourceIds.has(ref)) {
+        errors.push({ code: "UNKNOWN_SOURCE_REF", path: `fact_check_spec.facts[${index}].source_refs`, message: `Unknown source reference ${ref}.` });
+      }
+    }
+
+    const referencedSources = uniqueRefs
+      .map(ref => sourceById.get(ref))
+      .filter((source): source is Agent2ResearchSource => source !== undefined);
+    const independentSources = new Set(
+      referencedSources
+        .map(independentSourceIdentity)
+        .filter((identity): identity is string => identity !== null)
+    );
+
+    if (fact.classification === "VERIFIED_FACT") {
+      if (uniqueRefs.length < 2 || independentSources.size < 2) {
+        errors.push({
+          code: "VERIFIED_FACT_INDEPENDENT_SOURCES_REQUIRED",
+          path: `fact_check_spec.facts[${index}].source_refs`,
+          message: "VERIFIED_FACT requires at least two independent supporting sources."
+        });
+      }
+      for (const source of referencedSources) {
+        if (!source.url || sourceHost(source.url) === null) {
+          errors.push({
+            code: "VERIFIED_FACT_URL_REQUIRED",
+            path: `fact_check_spec.facts[${index}].source_refs`,
+            message: `VERIFIED_FACT source ${source.source_id} requires a traceable HTTP(S) URL.`
+          });
+        }
+      }
+    }
+
+    if (fact.confidence === "HIGH") {
+      if (uniqueRefs.length < 2 || independentSources.size < 2) {
+        errors.push({
+          code: "HIGH_CONFIDENCE_INDEPENDENT_SOURCES_REQUIRED",
+          path: `fact_check_spec.facts[${index}].source_refs`,
+          message: "HIGH confidence requires at least two independent supporting sources."
+        });
+      }
+      if (!referencedSources.some(isHighAuthoritySource)) {
+        errors.push({
+          code: "HIGH_CONFIDENCE_AUTHORITY_SOURCE_REQUIRED",
+          path: `fact_check_spec.facts[${index}].source_refs`,
+          message: "HIGH confidence requires at least one primary, scholarly, university, museum, government, archive, or research-institute source."
+        });
+      }
     }
   }
   return validation(errors, warnings);
@@ -417,10 +532,11 @@ export const AGENT2_TASK_INSTRUCTIONS: Record<"T010" | "T020" | "T030", Agent2Ta
     purpose: "Research the project topic, separate evidence from interpretation, and create a traceable fact base before script writing.",
     rules: [
       "Do not write the final script during T010.",
-      "Every VERIFIED_FACT must reference supporting research sources.",
+      "Every VERIFIED_FACT must cite at least two independent supporting sources; two pages from the same publisher do not count as two independent sources.",
       "Distinguish VERIFIED_FACT, LIKELY_INTERPRETATION, HYPOTHESIS, LEGEND and EDITORIAL_RECONSTRUCTION.",
       "Preserve uncertainty instead of upgrading a disputed claim into a fact.",
-      "Record enough source metadata for Agent 1 to audit the claim."
+      "HIGH confidence requires at least two independent sources and at least one primary, scholarly, university, museum, government, archive, official-institution, or research-institute source.",
+      "Every source used for VERIFIED_FACT must include a traceable HTTP(S) URL and enough publisher metadata for Agent 1 to audit independence."
     ],
     required_outputs: ["research_spec", "fact_check_spec"]
   },
