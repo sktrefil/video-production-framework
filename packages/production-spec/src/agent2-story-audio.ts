@@ -354,6 +354,13 @@ export function validateResearchBundle(
     );
 
     if (fact.classification === "VERIFIED_FACT") {
+      if (uniqueRefs.length === 0) {
+        errors.push({
+          code: "VERIFIED_FACT_SOURCE_REQUIRED",
+          path: `fact_check_spec.facts[${index}].source_refs`,
+          message: "VERIFIED_FACT requires supporting source references."
+        });
+      }
       if (uniqueRefs.length < 2 || independentSources.size < 2) {
         errors.push({
           code: "VERIFIED_FACT_INDEPENDENT_SOURCES_REQUIRED",
