@@ -4,6 +4,7 @@ import type { ProductionFormat } from "./enums.js";
 export interface ProjectSpec {
   schema_version: "1.0";
   project_id: string;
+  topic?: string;
   format: ProductionFormat;
   target_duration_sec: number;
   resolution: { width: number; height: number };
@@ -24,6 +25,7 @@ export interface ProjectSpec {
 
 export interface CreateProjectSpecInput {
   project_id: string;
+  topic?: string;
   format: ProductionFormat;
   target_duration_sec: number;
   resolution?: { width: number; height: number };
@@ -35,6 +37,7 @@ export function createProjectSpec(input: CreateProjectSpecInput): ProjectSpec {
   return {
     schema_version: "1.0",
     project_id: input.project_id,
+    ...(input.topic === undefined ? {} : { topic: input.topic.trim() }),
     format: input.format,
     target_duration_sec: input.target_duration_sec,
     resolution: input.resolution ? { ...input.resolution } : input.format === "LONGFORM"
