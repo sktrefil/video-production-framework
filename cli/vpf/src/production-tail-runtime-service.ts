@@ -17,7 +17,7 @@ import {
 import type {
   Agent2SubtitleTimingSpec,
   Agent2TtsManifest,
-  type ClipProductionDocument,
+  ClipProductionDocument,
   PromptBundleDocument,
   SceneVisualDocument,
   StateImageDocument
