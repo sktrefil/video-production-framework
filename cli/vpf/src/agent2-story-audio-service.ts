@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import * as path from "node:path";
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import {
   estimateKoreanNarrationDuration,
@@ -71,6 +72,74 @@ async function readJson(filename: string): Promise<unknown> {
 
 function validationMessage(result: { errors: Array<{ code: string; message: string }> }): string {
   return result.errors.map(issue => `${issue.code}: ${issue.message}`).join("; ");
+}
+
+export interface Agent2ScriptMaterializationResult {
+  project_id: string;
+  source: "project.db";
+  story_revision: number;
+  story_sha256: string;
+  script_revision: number;
+  script_sha256: string;
+  files: {
+    story_spec_json: string;
+    script_json: string;
+    script_ko_txt: string;
+  };
+}
+
+async function writeUtf8Atomic(filename: string, content: string): Promise<void> {
+  await mkdir(path.dirname(filename), { recursive: true });
+  const temporary = filename + ".tmp-" + process.pid + "-" + Date.now();
+  await writeFile(temporary, content, "utf8");
+  await rename(temporary, filename);
+}
+
+async function materializeScriptRecords(input: {
+  projectId: string;
+  projectRoot: string;
+  story: {
+    revision: number;
+    sha256: string;
+    value: Agent2StorySpec;
+  };
+  script: {
+    revision: number;
+    sha256: string;
+    value: Agent2ScriptSpec;
+  };
+}): Promise<Agent2ScriptMaterializationResult> {
+  const directory = path.join(input.projectRoot, "02_script");
+  const storyRelative = "02_script/story_spec.json";
+  const scriptRelative = "02_script/script.json";
+  const scriptTextRelative = "02_script/script_ko.txt";
+
+  await writeUtf8Atomic(
+    path.join(input.projectRoot, storyRelative),
+    JSON.stringify(input.story.value, null, 2) + "\n"
+  );
+  await writeUtf8Atomic(
+    path.join(input.projectRoot, scriptRelative),
+    JSON.stringify(input.script.value, null, 2) + "\n"
+  );
+  await writeUtf8Atomic(
+    path.join(input.projectRoot, scriptTextRelative),
+    input.script.value.body_ko.replace(/\s+$/u, "") + "\n"
+  );
+
+  return {
+    project_id: input.projectId,
+    source: "project.db",
+    story_revision: input.story.revision,
+    story_sha256: input.story.sha256,
+    script_revision: input.script.revision,
+    script_sha256: input.script.sha256,
+    files: {
+      story_spec_json: storyRelative,
+      script_json: scriptRelative,
+      script_ko_txt: scriptTextRelative
+    }
+  };
 }
 
 function subtitleChunks(text: string, maxChars: number): string[] {
@@ -356,7 +425,14 @@ export class Agent2StoryAudioWorkerService {
     }
 
     if (taskId === "T010") return this.executeResearch(status.projectDbPath, projectId, input);
-    if (taskId === "T020") return this.executeStory(status.projectDbPath, projectId, input);
+    if (taskId === "T020") {
+      return await this.executeStory(
+        status.projectDbPath,
+        status.projectRoot,
+        projectId,
+        input
+      );
+    }
     return this.executeTiming(status.projectDbPath, projectId, input);
   }
 
@@ -401,7 +477,12 @@ export class Agent2StoryAudioWorkerService {
     }
   }
 
-  private executeStory(dbPath: string, projectId: string, input: unknown): Agent2TaskExecutionResult {
+  private async executeStory(
+    dbPath: string,
+    projectRoot: string,
+    projectId: string,
+    input: unknown
+  ): Promise<Agent2TaskExecutionResult> {
     const repo = new Agent2StoryAudioRepository(dbPath);
     try {
       const facts = repo.getActive<Agent2ResearchBundle["fact_check_spec"]>(projectId, "fact_check_spec");
@@ -413,6 +494,20 @@ export class Agent2StoryAudioWorkerService {
       const at = new Date().toISOString();
       const story = repo.save(projectId, "story_spec", bundle.story_spec, "T020", at);
       const script = repo.save(projectId, "script", bundle.script, "T020", at);
+      await materializeScriptRecords({
+        projectId,
+        projectRoot,
+        story: {
+          revision: story.revision,
+          sha256: story.sha256,
+          value: bundle.story_spec
+        },
+        script: {
+          revision: script.revision,
+          sha256: script.sha256,
+          value: bundle.script
+        }
+      });
       return {
         project_id: projectId,
         task_id: "T020",
@@ -423,6 +518,29 @@ export class Agent2StoryAudioWorkerService {
         ],
         warnings: result.warnings.map(({ code, message }) => ({ code, message }))
       };
+    } finally {
+      repo.close();
+    }
+  }
+
+  async materializeScript(projectId: string): Promise<Agent2ScriptMaterializationResult> {
+    const status = await this.projects.getStatus(projectId);
+    const repo = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    try {
+      const story = repo.getActive<Agent2StorySpec>(projectId, "story_spec");
+      const script = repo.getActive<Agent2ScriptSpec>(projectId, "script");
+      if (story === null || script === null) {
+        throw new Agent2StoryAudioError(
+          "AGENT2_PREREQUISITE_MISSING",
+          "Script materialization requires active story_spec and script artifacts in project.db."
+        );
+      }
+      return await materializeScriptRecords({
+        projectId,
+        projectRoot: status.projectRoot,
+        story,
+        script
+      });
     } finally {
       repo.close();
     }
