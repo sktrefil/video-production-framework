@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  calculateOverallProgress,
   ProductionProgressReporter,
   type ProductionProgressEvent
 } from "../src/production-progress.js";
@@ -70,4 +71,25 @@ test("production progress reporter clamps invalid item progress and never breaks
   assert.equal(empty.completed, 0);
   assert.equal(empty.percent, 0);
   assert.equal(empty.sequence, 2);
+});
+
+test("overall production progress uses canonical task weights and active task partial progress", () => {
+  assert.equal(
+    calculateOverallProgress(["T010", "T020", "T030"]),
+    30
+  );
+  assert.equal(
+    calculateOverallProgress(
+      ["T010", "T020", "T030"],
+      { task_id: "T040", percent: 50 }
+    ),
+    34
+  );
+  assert.equal(
+    calculateOverallProgress(
+      ["T010", "T020", "T030", "T040"],
+      { task_id: "T040", percent: 50 }
+    ),
+    38
+  );
 });
