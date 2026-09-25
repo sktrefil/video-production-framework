@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 
@@ -63,6 +64,23 @@ const fixtureDir = process.env.VPF_FAKE_CODEX_OUTPUT_DIR;
 if (!fixtureDir) {
   process.stderr.write("VPF_FAKE_CODEX_OUTPUT_DIR missing\n");
   process.exit(5);
+}
+
+if (process.env.VPF_FAKE_CODEX_HANG_TASK === taskId) {
+  const grandchild = spawn(
+    process.execPath,
+    ["-e", "setInterval(() => {}, 1000)"],
+    { stdio: "inherit" }
+  );
+  grandchild.once("error", error => {
+    process.stderr.write("fake Codex grandchild failed: " + error.message + "\n");
+  });
+  process.stdout.write(JSON.stringify({
+    type: "runtime.activity",
+    task_id: taskId,
+    status: "HANGING_FOR_TIMEOUT_TEST"
+  }) + "\n");
+  await new Promise(() => undefined);
 }
 
 const fixtureName = taskId.replace(/[^A-Za-z0-9._-]+/gu, "_") + ".json";
