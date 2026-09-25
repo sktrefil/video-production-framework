@@ -51,6 +51,7 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
   </div>
   <section id="t070-panel" class="panel hidden" style="margin-top:14px"><div class="rowline"><b>T070 Image Generation</b><span id="t070-count"></span></div><div id="images" class="images"></div></section>
   <section id="t080-panel" class="panel action hidden" style="margin-top:14px"><b>ACTION REQUIRED — GOOGLE FLOW</b><p id="t080-summary"></p><div id="clips"></div></section>
+  <section id="t090-panel" class="panel hidden" style="margin-top:14px"><b>T090 Remotion Render</b><p id="t090-summary" class="muted"></p></section>
   <section id="final-panel" class="panel complete hidden" style="margin-top:14px"><b>PRODUCTION COMPLETE</b><p id="final-summary"></p></section>
 </main>
 <script>
@@ -106,6 +107,14 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
     q("t080-panel").classList.toggle("hidden",!s.t080.action_required);
     q("t080-summary").textContent=s.t080.action_required ? s.t080.completed+" / "+s.t080.total+" clips available · "+s.t080.missing.length+" missing · "+s.t080.manifest_relative_path : "";
     q("clips").innerHTML=s.t080.action_required ? s.t080.items.map(i=>"<div>"+(i.ready?"✓ ":"○ ")+esc(i.clip_id)+" <span class='muted'>"+esc(i.relative_path)+"</span></div>").join("") : "";
+    const t090=s.tasks.find(t=>t.task_id==="T090");
+    const showT090=t090 && (t090.workflow_status==="RUNNING" || t090.workflow_status==="COMPLETE");
+    q("t090-panel").classList.toggle("hidden",!showT090);
+    q("t090-summary").textContent=showT090
+      ? (s.t090.render_progress_available
+          ? String(s.t090.rendered_frames)+" / "+String(s.t090.total_frames)+" frames · "+String(s.t090.render_fps)+" fps"
+          : s.t090.message)
+      : "";
     q("final-panel").classList.toggle("hidden",!s.final.production_complete);
     q("final-summary").textContent=s.final.production_complete ? "Final QC "+(s.final.final_qc_verdict||"available")+" · "+s.final.final_relative_path : "";
   }
@@ -333,4 +342,13 @@ export function openDashboardBrowser(url: string): void {
   } catch {
     // Browser opening is convenience only and must never stop production.
   }
+}
+
+
+export async function settleDashboardFinalState(
+  handle: ProductionDashboardHandle | null,
+  milliseconds = 750
+): Promise<void> {
+  if (handle === null || milliseconds <= 0) return;
+  await new Promise<void>(resolve => setTimeout(resolve, milliseconds));
 }
