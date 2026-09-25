@@ -37,6 +37,8 @@ export interface ImageProviderRequest {
   height: number;
   aspectRatio: string;
   references: ImageProviderReference[];
+  /** Stable provider conversation identity for one project/task lineage. */
+  sessionKey?: string;
 }
 
 export interface ImageProviderResult {
