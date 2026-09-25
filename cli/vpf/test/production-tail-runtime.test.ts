@@ -400,7 +400,8 @@ test("T070 full generation is scene-batched with targeted pixel-QC regeneration"
   assert.match(manager,/reviewKind\?: "SCENE" \| "FINAL"/);
   assert.match(manager,/fantasy_control/);
   assert.match(manager,/video_readiness/);
-  assert.match(manager,/T070_SCENE/);
+  assert.match(manager,/"MANAGER_VISUAL:T070_" \+ \(input\.reviewKind \?\? "FINAL"\)/);
+  assert.match(manager,/":Q" \+ String\(input\.reviewCycle \?\? 1\)/);
 });
 
 test("T070 cannot complete workflow before full final pixel QC passes",()=>{
@@ -475,7 +476,7 @@ test("confirmed regeneration reset removes stale T070 outputs and preserves upst
       tail.indexOf("async resetT070ForRegeneration"),
       tail.indexOf("async runAll",tail.indexOf("async resetT070ForRegeneration"))
     ),
-    /research_spec|story_spec|script|tts_manifest|scene_visual_spec|state_image_spec|prompt_bundle_spec/
+    /research_spec|story_spec|script|tts_manifest|scene_visual_spec|state_image_spec/
   );
 
   assert.match(storage,/supersedeActive\(/);
