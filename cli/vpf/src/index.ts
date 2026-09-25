@@ -648,6 +648,7 @@ export async function runCli(
           });
         }
         try {
+          await dashboardHub?.flush();
           await dashboard?.close();
         } catch {
           // Dashboard lifecycle is observational and must not affect production exit.
@@ -710,6 +711,7 @@ export async function runCli(
         throw error;
       } finally {
         try {
+          await dashboardHub?.flush();
           await dashboard?.close();
         } catch {
           // Dashboard shutdown must not change the production result.
