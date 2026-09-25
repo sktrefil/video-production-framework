@@ -1151,40 +1151,97 @@ export class ProductionTailRuntimeService{
             checkpoint.value
           );
           if(seedQc.verdict!=="PASS"){
-            return{
-              project_id:projectId,
-              status:"AWAITING_SEED_QC",
-              steps,
-              next_task:"T070",
-              seed_qc_action:{
-                task_id:"T070",
-                checkpoint_relative_path:T070_CHECKPOINT_RELATIVE_PATH,
-                seed_image_ids:checkpoint.value.seed_image_ids,
-                verdict:seedQc.verdict,
-                summary:seedQc.summary,
-                revision_instruction:seedQc.revision_instruction
+            const seedQcAttempts=checkpoint.value.seed_qc_attempts+1;
+            if(seedQcAttempts>=3){
+              throw new ProductionTailRuntimeError(
+                "TAIL_MANAGER_QC_REJECTED",
+                "T070 seed visual QC did not pass after "+
+                  String(seedQcAttempts)+" calibration cycles: "+seedQc.summary
+              );
+            }
+            let failedSeedIds=seedQc.checks
+              .filter(check=>
+                check.verdict!=="PASS"||
+                check.fantasy_control!=="PASS"||
+                check.video_readiness!=="PASS"
+              )
+              .map(check=>check.state_image_id);
+            if(
+              seedQc.cross_seed_diversity!=="PASS"||
+              seedQc.style_coherence!=="PASS"||
+              failedSeedIds.length===0
+            ){
+              failedSeedIds=[...checkpoint.value.seed_image_ids];
+            }
+            const failedSet=new Set(failedSeedIds);
+            const retained:GeneratedImage[]=[];
+            const feedback={...checkpoint.value.revision_feedback_by_state};
+            for(const image of checkpoint.value.images){
+              if(!failedSet.has(image.state_image_id)){
+                retained.push(image);
+                continue;
               }
-            };
+              await rm(path.resolve(project.projectRoot,image.relative_path),{force:true});
+              const check=seedQc.checks.find(
+                item=>item.state_image_id===image.state_image_id
+              );
+              feedback[image.state_image_id]=[
+                seedQc.revision_instruction,
+                ...(check?.notes??[])
+              ].filter(Boolean).join(" ");
+            }
+            await writeT070Checkpoint(checkpointPath,{
+              projectId,
+              promptBundleSha256:checkpoint.value.source_prompt_bundle_sha256,
+              width:checkpoint.value.width,
+              height:checkpoint.value.height,
+              phase:"SEED_GENERATION",
+              seedImageIds:checkpoint.value.seed_image_ids,
+              seedQcAttempts,
+              sceneQcPassedIds:checkpoint.value.scene_qc_passed_ids,
+              sceneQcAttempts:checkpoint.value.scene_qc_attempts,
+              revisionFeedbackByState:feedback,
+              images:retained
+            });
+            await this.progress.taskProgress({
+              project_id:projectId,
+              task_id:"T070",
+              agent:"AGENT3_VISUAL_PRODUCTION",
+              attempt:Math.max(1,next.attempt??1),
+              phase:"SEED_REVISION",
+              completed:seedQcAttempts,
+              total:3,
+              message:
+                "Seed visual QC requested regeneration of "+
+                String(failedSet.size)+" seed image(s)."
+            });
+          }else{
+            await writeT070Checkpoint(checkpointPath,{
+              projectId,
+              promptBundleSha256:checkpoint.value.source_prompt_bundle_sha256,
+              width:checkpoint.value.width,
+              height:checkpoint.value.height,
+              phase:"FULL_GENERATION",
+              seedImageIds:checkpoint.value.seed_image_ids,
+              seedQcAttempts:checkpoint.value.seed_qc_attempts,
+              sceneQcPassedIds:checkpoint.value.scene_qc_passed_ids,
+              sceneQcAttempts:checkpoint.value.scene_qc_attempts,
+              revisionFeedbackByState:checkpoint.value.revision_feedback_by_state,
+              images:checkpoint.value.images
+            });
           }
-          await writeT070Checkpoint(checkpointPath,{
-            projectId,
-            promptBundleSha256:checkpoint.value.source_prompt_bundle_sha256,
-            width:checkpoint.value.width,
-            height:checkpoint.value.height,
-            phase:"FULL_GENERATION",
-            seedImageIds:checkpoint.value.seed_image_ids,
-            images:checkpoint.value.images
-          });
-          await this.progress.taskProgress({
-            project_id:projectId,
-            task_id:"T070",
-            agent:"AGENT3_VISUAL_PRODUCTION",
-            attempt:Math.max(1,next.attempt??1),
-            phase:"FULL_GENERATION",
-            completed:checkpoint.value.images.length,
-            total:Math.max(checkpoint.value.images.length,checkpoint.value.seed_image_ids.length),
-            message:"Seed visual QC passed. T070 full image generation is now unlocked."
-          });
+          if(seedQc.verdict==="PASS"){
+            await this.progress.taskProgress({
+              project_id:projectId,
+              task_id:"T070",
+              agent:"AGENT3_VISUAL_PRODUCTION",
+              attempt:Math.max(1,next.attempt??1),
+              phase:"FULL_GENERATION",
+              completed:checkpoint.value.images.length,
+              total:Math.max(checkpoint.value.images.length,checkpoint.value.seed_image_ids.length),
+              message:"Seed visual QC passed. T070 full image generation is now unlocked."
+            });
+          }
         }
       }
       try{
