@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import { execFile } from "node:child_process";
 import test from "node:test";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
+import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { runCli } from "../src/index.js";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -63,6 +64,54 @@ test("CLI creates LONGFORM and doctor returns healthy", async () => {
 
   const doctor = JSON.parse(f.output.at(-1)!) as any;
   assert.equal(doctor.healthy, true);
+});
+
+test("CLI materializes the active DB script into 02_script", async () => {
+  const f = await fixture();
+  assert.equal(await runCli([
+    "project", "create", "cli_script_materialize",
+    "--title", "CLI Script Materialize",
+    "--format", "longform"
+  ], f.io, f.service), 0);
+
+  const status = await f.service.getStatus("cli_script_materialize");
+  const repo = new Agent2StoryAudioRepository(status.projectDbPath);
+  try {
+    const at = "2026-09-25T12:00:00.000Z";
+    repo.save("cli_script_materialize", "story_spec", {
+      schema_version: "1.0",
+      project_id: "cli_script_materialize",
+      central_question: "테스트 질문",
+      sections: [],
+      scenes: []
+    }, "T020", at);
+    repo.save("cli_script_materialize", "script", {
+      schema_version: "1.0",
+      project_id: "cli_script_materialize",
+      language: "ko",
+      body_ko: "DB에 저장된 최종 스크립트입니다.",
+      body_en: "",
+      estimated_duration_sec: 2,
+      source_fact_refs: []
+    }, "T020", at);
+  } finally {
+    repo.close();
+  }
+
+  assert.equal(await runCli([
+    "agent2", "materialize-script", "cli_script_materialize"
+  ], f.io, f.service), 0);
+
+  const output = JSON.parse(f.output.at(-1)!) as {
+    source: string;
+    files: { script_ko_txt: string };
+  };
+  assert.equal(output.source, "project.db");
+  assert.equal(output.files.script_ko_txt, "02_script/script_ko.txt");
+  assert.equal(
+    (await readFile(path.join(status.projectRoot, output.files.script_ko_txt), "utf8")).trim(),
+    "DB에 저장된 최종 스크립트입니다."
+  );
 });
 
 test("future unified commands fail explicitly as NOT_IMPLEMENTED", async () => {
