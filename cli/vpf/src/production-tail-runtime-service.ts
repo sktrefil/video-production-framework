@@ -56,7 +56,8 @@ export type T070Phase=
   |"SEED_GENERATION"
   |"SEED_QC"
   |"FULL_GENERATION"
-  |"FINAL_QC";
+  |"FINAL_QC"
+  |"COMPLETE";
 
 type T070ExecutionResult="COMPLETE_READY"|"AWAITING_SEED_QC";
 
@@ -122,6 +123,7 @@ type T070SceneVisualQcArtifact={
 
 type T070FinalVisualQcArtifact={
   schema_version:"1.0";
+  policy_version:"T070_IMAGE_POLICY_V1";
   project_id:string;
   image_set_sha256:string;
   source_prompt_bundle_sha256:string;
@@ -145,6 +147,8 @@ type T070FinalVisualQcArtifact={
       factual_constraints:"PASS"|"FAIL";
       continuity_readiness:"PASS"|"FAIL";
       artifact_quality:"PASS"|"FAIL";
+      fantasy_control:"PASS"|"FAIL";
+      video_readiness:"PASS"|"FAIL";
       notes:string[];
     }>;
     revision_instruction:string;
@@ -327,7 +331,8 @@ function isT070Phase(value:unknown):value is T070Phase{
   return value==="SEED_GENERATION"||
     value==="SEED_QC"||
     value==="FULL_GENERATION"||
-    value==="FINAL_QC";
+    value==="FINAL_QC"||
+    value==="COMPLETE";
 }
 
 async function readT070Checkpoint(filename:string):Promise<T070CheckpointLoad>{
@@ -635,7 +640,7 @@ export function buildT070GenerationStateIds(
   phase:T070Phase,
   seedImageIds:Iterable<string>
 ):string[]{
-  if(phase==="SEED_QC"||phase==="FINAL_QC")return[];
+  if(phase==="SEED_QC"||phase==="FINAL_QC"||phase==="COMPLETE")return[];
   if(phase==="FULL_GENERATION")return prompts.map(prompt=>prompt.state_image_id);
   const seeds=new Set(seedImageIds);
   return prompts
@@ -1358,6 +1363,27 @@ export class ProductionTailRuntimeService{
         );
       }
 
+      const checkpointPath=path.resolve(status.projectRoot,T070_CHECKPOINT_RELATIVE_PATH);
+      const checkpoint=await readT070Checkpoint(checkpointPath);
+      if(
+        checkpoint.value!==null&&
+        checkpoint.value.project_id===projectId&&
+        checkpoint.value.source_prompt_bundle_sha256===prompts.sha256
+      ){
+        await writeT070Checkpoint(checkpointPath,{
+          projectId,
+          promptBundleSha256:checkpoint.value.source_prompt_bundle_sha256,
+          width:checkpoint.value.width,
+          height:checkpoint.value.height,
+          phase:"FINAL_QC",
+          seedImageIds:checkpoint.value.seed_image_ids,
+          sceneQcPassedIds:checkpoint.value.scene_qc_passed_ids,
+          sceneQcAttempts:checkpoint.value.scene_qc_attempts,
+          revisionFeedbackByState:checkpoint.value.revision_feedback_by_state,
+          images:checkpoint.value.images
+        });
+      }
+
       const expectedPrompts=prompts.value.image_prompts;
       const approvedById=new Map(
         approved.value.images.map(image=>[image.state_image_id,image] as const)
@@ -1410,10 +1436,25 @@ export class ProductionTailRuntimeService{
         "t070_final_visual_qc"
       );
       if(
-        cached?.value.image_set_sha256===imageSetSha256&&
+        cached?.value.policy_version==="T070_IMAGE_POLICY_V1"&&
+        cached.value.image_set_sha256===imageSetSha256&&
         cached.value.expected_image_count===expectedPrompts.length&&
         cached.value.checked_image_count===expectedPrompts.length
       ){
+        if(cached.value.verdict==="PASS"&&checkpoint.value!==null){
+          await writeT070Checkpoint(checkpointPath,{
+            projectId,
+            promptBundleSha256:checkpoint.value.source_prompt_bundle_sha256,
+            width:checkpoint.value.width,
+            height:checkpoint.value.height,
+            phase:"COMPLETE",
+            seedImageIds:checkpoint.value.seed_image_ids,
+            sceneQcPassedIds:checkpoint.value.scene_qc_passed_ids,
+            sceneQcAttempts:checkpoint.value.scene_qc_attempts,
+            revisionFeedbackByState:checkpoint.value.revision_feedback_by_state,
+            images:checkpoint.value.images
+          });
+        }
         return cached.value;
       }
 
@@ -1500,6 +1541,7 @@ export class ProductionTailRuntimeService{
         .map(scene=>scene.scene_id+": "+scene.revision_instruction);
       const artifact:T070FinalVisualQcArtifact={
         schema_version:"1.0",
+        policy_version:"T070_IMAGE_POLICY_V1",
         project_id:projectId,
         image_set_sha256:imageSetSha256,
         source_prompt_bundle_sha256:prompts.sha256,
@@ -1539,6 +1581,20 @@ export class ProductionTailRuntimeService{
             ?"All approved T070 images passed final visual QC; T080 is unlocked."
             :"T080 remains locked until failed T070 images/scenes are corrected."
       });
+      if(artifact.verdict==="PASS"&&checkpoint.value!==null){
+        await writeT070Checkpoint(checkpointPath,{
+          projectId,
+          promptBundleSha256:checkpoint.value.source_prompt_bundle_sha256,
+          width:checkpoint.value.width,
+          height:checkpoint.value.height,
+          phase:"COMPLETE",
+          seedImageIds:checkpoint.value.seed_image_ids,
+          sceneQcPassedIds:checkpoint.value.scene_qc_passed_ids,
+          sceneQcAttempts:checkpoint.value.scene_qc_attempts,
+          revisionFeedbackByState:checkpoint.value.revision_feedback_by_state,
+          images:checkpoint.value.images
+        });
+      }
       return artifact;
     }finally{
       tail.close();
