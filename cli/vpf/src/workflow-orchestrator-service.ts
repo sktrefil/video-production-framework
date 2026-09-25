@@ -92,7 +92,12 @@ export class Agent1WorkflowOrchestratorService {
     return (await this.status(projectId)).next_task;
   }
 
-  async dispatch(projectId: string, taskId?: string, requestedAgent?: WorkflowAgentId): Promise<TaskDispatchPackage> {
+  async dispatch(
+    projectId: string,
+    taskId?: string,
+    requestedAgent?: WorkflowAgentId,
+    options: { resumeCurrentAttempt?: boolean } = {}
+  ): Promise<TaskDispatchPackage> {
     const status = await this.projects.getStatus(projectId);
     await this.ensureProjectGate(projectId, status.projectDbPath);
     const repo = new WorkflowOrchestratorRepository(status.projectDbPath);
@@ -112,18 +117,28 @@ export class Agent1WorkflowOrchestratorService {
       }
       const definition = findTaskDefinition(workflow.definition, task.task_id);
       if (definition === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task definition missing: ${task.task_id}.`);
-      if (task.attempt >= definition.retry_policy.max_attempts) {
+      const resumeCurrentAttempt = options.resumeCurrentAttempt === true;
+      if (resumeCurrentAttempt) {
+        if (task.task_id !== "T070" || task.status !== "REVISION_REQUIRED" || task.attempt <= 0) {
+          throw new WorkflowOrchestratorError(
+            "TASK_NOT_READY",
+            "Only an incomplete T070 revision attempt can resume without consuming a new attempt."
+          );
+        }
+      } else if (task.attempt >= definition.retry_policy.max_attempts) {
         repo.updateTask({ projectId, taskId: task.task_id, status: "FAILED", updatedAt: nowIso() });
         throw new WorkflowOrchestratorError("TASK_RETRY_EXHAUSTED", `${task.task_id} exceeded ${definition.retry_policy.max_attempts} attempts.`);
       }
       if (task.task_id === "T070" && !(await this.generationGateCurrent(projectId, status.projectDbPath))) {
         throw new WorkflowOrchestratorError("TASK_GATE_REQUIRED", "T070 requires a current GENERATION_READY_GATE PASS.");
       }
-      const attempt = task.attempt + 1;
+      const attempt = resumeCurrentAttempt ? task.attempt : task.attempt + 1;
       const at = nowIso();
       const inputRefs = this.resolveRefs(projectId, definition.required_inputs, repo);
       const dispatch: TaskDispatchPackage = {
-        dispatch_id: `${projectId}:${task.task_id}:A${attempt}`,
+        dispatch_id: resumeCurrentAttempt
+          ? `${projectId}:${task.task_id}:A${attempt}:RESUME:${Date.now()}`
+          : `${projectId}:${task.task_id}:A${attempt}`,
         project_id: projectId,
         task_instance_id: task.task_instance_id,
         task_id: task.task_id,
