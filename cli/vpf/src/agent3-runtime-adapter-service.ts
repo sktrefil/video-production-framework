@@ -33,10 +33,7 @@ import {
   Agent3VisualProductionError,
   Agent3VisualProductionWorkerService
 } from "./agent3-visual-production-service.js";
-import {
-  NOOP_PROGRESS_REPORTER,
-  ProductionProgressReporter
-} from "./production-progress.js";
+import { ProductionProgressReporter } from "./production-progress.js";
 import {
   AGENT3_CLIP_CAMERA_SCHEMA,
   AGENT3_SCENE_VISUAL_SCHEMA,
@@ -644,7 +641,7 @@ export class Agent3RuntimeAdapterService {
   constructor(
     private readonly projects: ProjectBootstrapService,
     private readonly environment: NodeJS.ProcessEnv = process.env,
-    private readonly progress: ProductionProgressReporter = NOOP_PROGRESS_REPORTER
+    private readonly progress: ProductionProgressReporter = new ProductionProgressReporter()
   ) {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent3VisualProductionWorkerService(projects);
