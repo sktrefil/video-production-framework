@@ -2,6 +2,7 @@ import type { StoryRole } from "./enums.js";
 import type { Agent2FactClassification } from "./agent2-story-audio.js";
 import type { ValidationIssue, ValidationResult } from "./project-validator.js";
 import {
+  FANTASY_MODES,
   STATE_IMAGE_ROLES,
   VISUAL_FACTUALITY_MODES,
   type StateImageRole,
@@ -115,6 +116,38 @@ export function validateSceneVisualDocument(
     }
     if (!VISUAL_FACTUALITY_MODES.includes(raw.factuality_mode as VisualFactualityMode)) {
       errors.push({ code: "INVALID_FACTUALITY_MODE", path: base + ".factuality_mode", message: "Unsupported visual factuality_mode." });
+    }
+
+    if (raw.fantasy_mode === undefined) {
+      warnings.push({
+        code: "LEGACY_FANTASY_MODE_DEFAULTED",
+        path: base + ".fantasy_mode",
+        message: "Legacy Scene Visual has no fantasy_mode; runtime policy will derive a conservative default from factuality_mode."
+      });
+    } else if (!FANTASY_MODES.includes(raw.fantasy_mode as any)) {
+      errors.push({
+        code: "INVALID_FANTASY_MODE",
+        path: base + ".fantasy_mode",
+        message: "fantasy_mode must be OFF, RESTRAINED, EDITORIAL or HEIGHTENED."
+      });
+    } else if (
+      raw.factuality_mode === "EVIDENCE" &&
+      !["OFF", "RESTRAINED"].includes(String(raw.fantasy_mode))
+    ) {
+      errors.push({
+        code: "FANTASY_MODE_FACTUALITY_CONFLICT",
+        path: base + ".fantasy_mode",
+        message: "EVIDENCE scenes may only use OFF or RESTRAINED fantasy mode."
+      });
+    } else if (
+      raw.factuality_mode === "EDITORIAL_FANTASY_RECONSTRUCTION" &&
+      !["EDITORIAL", "HEIGHTENED"].includes(String(raw.fantasy_mode))
+    ) {
+      errors.push({
+        code: "FANTASY_MODE_FACTUALITY_CONFLICT",
+        path: base + ".fantasy_mode",
+        message: "EDITORIAL_FANTASY_RECONSTRUCTION scenes require EDITORIAL or HEIGHTENED fantasy mode."
+      });
     }
 
     const factRefs = strings(raw.fact_refs, base + ".fact_refs", errors, true);
