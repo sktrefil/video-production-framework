@@ -2448,6 +2448,31 @@ export class ProductionTailRuntimeService{
             }
 
             completedByState.set(prompt.state_image_id,generatedImage);
+            await writeJson(
+              path.resolve(
+                status.projectRoot,
+                "05_images/metadata/"+safeFileSegment(prompt.state_image_id)+".json"
+              ),
+              {
+                schema_version:"1.0",
+                policy_version:"T070_IMAGE_POLICY_V1",
+                project_id:projectId,
+                state_image_id:prompt.state_image_id,
+                scene_id:prompt.scene_id,
+                state_role:state.role,
+                sequence_order:state.sequence_order,
+                fantasy_mode:effectiveT070FantasyMode(scene),
+                image_relative_path:generatedImage.relative_path,
+                image_sha256:generatedImage.sha256,
+                prompt_bundle_sha256:promptRecord.sha256,
+                reference_policy:"TEXT_GRAMMAR_ONLY",
+                reference_roles:[],
+                motion_vector:state.motion_vector_en||state.motion_vector_ko,
+                handoff_anchor:state.handoff_anchor,
+                continuity_refs:[...state.continuity_refs],
+                generated_at:new Date().toISOString()
+              }
+            );
             await writeCurrentCheckpoint();
             await this.progress.taskProgress({
               project_id:projectId,
@@ -2601,6 +2626,15 @@ export class ProductionTailRuntimeService{
         source_prompt_bundle_sha256:promptRecord.sha256,
         images
       };
+      await writeJson(
+        path.resolve(status.projectRoot,"05_images/image-manifest.json"),
+        {
+          ...generated,
+          policy_version:"T070_IMAGE_POLICY_V1",
+          phase:"FULL_GENERATION_COMPLETE",
+          generated_at:new Date().toISOString()
+        }
+      );
       const qc={
         schema_version:"1.0",
         project_id:projectId,
