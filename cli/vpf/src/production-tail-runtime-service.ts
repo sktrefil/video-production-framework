@@ -87,11 +87,7 @@ type T070SeedVisualQcArtifact={
   reviewed_at:string;
 };
 
-type T070SceneVisualQcArtifact={
-  schema_version:"1.0";
-  policy_version:"T070_IMAGE_POLICY_V1";
-  project_id:string;
-  source_prompt_bundle_sha256:string;
+type T070SceneVisualQcResultRecord={
   scene_id:string;
   scene_image_set_sha256:string;
   attempt:number;
@@ -111,6 +107,15 @@ type T070SceneVisualQcArtifact={
   }>;
   revision_instruction:string;
   reviewed_at:string;
+};
+
+type T070SceneVisualQcArtifact={
+  schema_version:"1.0";
+  policy_version:"T070_IMAGE_POLICY_V1";
+  project_id:string;
+  source_prompt_bundle_sha256:string;
+  scene_results:T070SceneVisualQcResultRecord[];
+  updated_at:string;
 };
 
 type T070FinalVisualQcArtifact={
@@ -220,6 +225,46 @@ type PreviewRenderArtifact={
   width:number|null;
   height:number|null;
 };
+
+function effectiveT070FantasyMode(scene:SceneVisualDocument["scenes"][number]):"OFF"|"RESTRAINED"|"EDITORIAL"|"HEIGHTENED"{
+  if(scene.fantasy_mode!==undefined)return scene.fantasy_mode;
+  if(scene.factuality_mode==="EVIDENCE")return"RESTRAINED";
+  if(
+    scene.factuality_mode==="EDITORIAL_FANTASY_RECONSTRUCTION"||
+    scene.factuality_mode==="LEGEND_RECONSTRUCTION"
+  )return"EDITORIAL";
+  return"RESTRAINED";
+}
+
+function buildT070RuntimeProviderPrompt(input:{
+  basePrompt:string;
+  scene:SceneVisualDocument["scenes"][number];
+  state:StateImageDocument["state_images"][number];
+  revisionFeedback?:string;
+}):string{
+  const fantasyMode=effectiveT070FantasyMode(input.scene);
+  const fantasyPolicy=
+    fantasyMode==="OFF"
+      ?"Keep the frame observational and materially plausible; do not add symbolic fantasy."
+      :fantasyMode==="RESTRAINED"
+        ?"Allow restrained cinematic atmosphere, mist, light, texture and subtle symbolism, but no invented historical evidence, event or supernatural cause."
+        :fantasyMode==="HEIGHTENED"
+          ?"Allow heightened editorial atmosphere and symbolic spatial treatment, while every historical claim remains evidence-compatible and visibly non-literal."
+          :"Allow editorial fantasy through non-textual atmosphere, light, mist, texture and symbolic motifs; do not change the historical claim or invent evidence.";
+
+  return[
+    input.basePrompt,
+    "T070 IMAGE POLICY V1.",
+    "Content authority is the approved Scene/State meaning; compose this state from its own narrative purpose rather than from any reference-image composition.",
+    "Global visual grammar is text-only: cinematic editorial framing, layered depth, generous negative space, restrained subject scale, terrain/traces/light/weather as narrative devices, and mystery-compatible ambiguity.",
+    "Fantasy mode "+fantasyMode+": "+fantasyPolicy,
+    "The frame must be video-ready with a clear continuable motion vector and preserve the stated handoff anchor.",
+    "Do not repeat a master composition from another scene. Do not imitate or reconstruct any GLOBAL reference image.",
+    input.revisionFeedback?.trim()
+      ?"REVISION FEEDBACK FOR THIS STATE: "+input.revisionFeedback.trim()
+      :""
+  ].filter(Boolean).join(" ");
+}
 
 export class ProductionTailRuntimeError extends Error{
   constructor(
