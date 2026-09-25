@@ -679,28 +679,33 @@ export async function runCli(
         const tailResult = await productionTailRuntime.runAll(projectId);
         const finalWorkflow = await workflow.status(projectId);
         const awaitingManual = tailResult.status === "AWAITING_MANUAL_EXTERNAL";
+        const awaitingSeedQc = tailResult.status === "AWAITING_SEED_QC";
         const runComplete = tailResult.status === "COMPLETE";
         await progress.emit({
           event: "RUN_FINISHED",
           project_id: projectId,
           next_task: finalWorkflow.next_task?.task_id ?? tailResult.next_task ?? null,
           next_agent: finalWorkflow.next_task?.assigned_agent ?? null,
-          message: awaitingManual
-            ? "Production paused at the Google Flow manual-external boundary."
-            : runComplete
-              ? "Production run reached verified final completion."
-              : finalWorkflow.next_task !== null
-                ? `Production run stopped at handoff to ${finalWorkflow.next_task.task_id}.`
-                : "Production run stopped before final completion."
+          message: awaitingSeedQc
+            ? "Production paused at the T070 seed visual-QC gate."
+            : awaitingManual
+              ? "Production paused at the Google Flow manual-external boundary."
+              : runComplete
+                ? "Production run reached verified final completion."
+                : finalWorkflow.next_task !== null
+                  ? `Production run stopped at handoff to ${finalWorkflow.next_task.task_id}.`
+                  : "Production run stopped before final completion."
         });
         if (!eventsJsonl) {
           printJson(io, {
             project_id: projectId,
-            status: awaitingManual
-              ? "AWAITING_MANUAL_EXTERNAL"
-              : runComplete
-                ? "RUN_COMPLETE"
-                : "HANDOFF",
+            status: awaitingSeedQc
+              ? "AWAITING_SEED_QC"
+              : awaitingManual
+                ? "AWAITING_MANUAL_EXTERNAL"
+                : runComplete
+                  ? "RUN_COMPLETE"
+                  : "HANDOFF",
             runtime_mode: runtimeMode,
             codex_preflight: preflight,
             agent2: agent2Result,
