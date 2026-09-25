@@ -86,6 +86,39 @@ type T070SeedVisualQcArtifact={
   reviewed_at:string;
 };
 
+type T070FinalVisualQcArtifact={
+  schema_version:"1.0";
+  project_id:string;
+  image_set_sha256:string;
+  source_prompt_bundle_sha256:string;
+  expected_image_count:number;
+  checked_image_count:number;
+  verdict:"PASS"|"REVISE"|"FAIL";
+  summary:string;
+  failed_scene_ids:string[];
+  failed_image_ids:string[];
+  scene_results:Array<{
+    scene_id:string;
+    verdict:"PASS"|"REVISE"|"FAIL";
+    summary:string;
+    continuity_verdict:"PASS"|"FAIL";
+    handoff_verdict:"PASS"|"FAIL";
+    checks:Array<{
+      state_image_id:string;
+      verdict:"PASS"|"REVISE"|"FAIL";
+      prompt_alignment:"PASS"|"FAIL";
+      visual_consistency:"PASS"|"FAIL";
+      factual_constraints:"PASS"|"FAIL";
+      continuity_readiness:"PASS"|"FAIL";
+      artifact_quality:"PASS"|"FAIL";
+      notes:string[];
+    }>;
+    revision_instruction:string;
+  }>;
+  revision_instructions:string[];
+  reviewed_at:string;
+};
+
 type T070Checkpoint={
   schema_version:"1.0";
   project_id:string;
@@ -666,9 +699,19 @@ export class ProductionTailRuntimeService{
 
   async runAll(projectId:string):Promise<{
     project_id:string;
-    status:"COMPLETE"|"HANDOFF"|"AWAITING_MANUAL_EXTERNAL"|"AWAITING_SEED_QC";
+    status:"COMPLETE"|"HANDOFF"|"AWAITING_MANUAL_EXTERNAL"|"AWAITING_SEED_QC"|"AWAITING_FINAL_IMAGE_QC";
     steps:Array<{task_id:TailTaskId;status:string}>;
     next_task:string|null;
+    final_image_qc_action?:{
+      task_id:"T070";
+      expected_image_count:number;
+      checked_image_count:number;
+      verdict:"REVISE"|"FAIL";
+      failed_scene_ids:string[];
+      failed_image_ids:string[];
+      summary:string;
+      revision_instructions:string[];
+    };
     seed_qc_action?:{
       task_id:"T070";
       checkpoint_relative_path:string;
@@ -733,6 +776,28 @@ export class ProductionTailRuntimeService{
       }
       const taskId=next.task_id as TailTaskId;
       if(taskId==="T080"){
+        const finalImageQc=await this.runT070FinalVisualQcGate(
+          projectId,
+          Math.max(1,(next.attempt??0)+1)
+        );
+        if(finalImageQc.verdict!=="PASS"){
+          return{
+            project_id:projectId,
+            status:"AWAITING_FINAL_IMAGE_QC",
+            steps,
+            next_task:"T080",
+            final_image_qc_action:{
+              task_id:"T070",
+              expected_image_count:finalImageQc.expected_image_count,
+              checked_image_count:finalImageQc.checked_image_count,
+              verdict:finalImageQc.verdict,
+              failed_scene_ids:finalImageQc.failed_scene_ids,
+              failed_image_ids:finalImageQc.failed_image_ids,
+              summary:finalImageQc.summary,
+              revision_instructions:finalImageQc.revision_instructions
+            }
+          };
+        }
         const manual=await this.prepareT080Manual(projectId);
         if(!manual.ready){
           await this.progress.emit({
@@ -1009,6 +1074,217 @@ export class ProductionTailRuntimeService{
       return await readyFile(path.resolve(status.projectRoot,"09_render/final.mp4"));
     }finally{
       tail.close();
+    }
+  }
+
+  private async runT070FinalVisualQcGate(
+    projectId:string,
+    attempt:number
+  ):Promise<T070FinalVisualQcArtifact>{
+    const status=await this.projects.getStatus(projectId);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    try{
+      const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      const approved=tail.getActive<GeneratedImagesArtifact>(projectId,"approved_images");
+      if(prompts===null||approved===null){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 final visual QC requires prompt_bundle_spec and approved_images."
+        );
+      }
+      if(approved.value.source_prompt_bundle_sha256!==prompts.sha256){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 final visual QC refuses approved_images from a stale prompt bundle."
+        );
+      }
+
+      const expectedPrompts=prompts.value.image_prompts;
+      const approvedById=new Map(
+        approved.value.images.map(image=>[image.state_image_id,image] as const)
+      );
+      if(
+        approvedById.size!==expectedPrompts.length||
+        approved.value.images.length!==expectedPrompts.length
+      ){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 final visual QC requires exact approved-image coverage: "+
+            String(approvedById.size)+"/"+String(expectedPrompts.length)+"."
+        );
+      }
+
+      const orderedImages:GeneratedImage[]=[];
+      for(const prompt of expectedPrompts){
+        const image=approvedById.get(prompt.state_image_id);
+        if(image===undefined||image.scene_id!==prompt.scene_id){
+          throw new ProductionTailRuntimeError(
+            "TAIL_PREREQUISITE",
+            "T070 final visual QC image lineage mismatch for "+prompt.state_image_id+"."
+          );
+        }
+        const inspected=await inspectReusableImage({
+          projectRoot:status.projectRoot,
+          relativePath:image.relative_path,
+          expectedWidth:image.width,
+          expectedHeight:image.height,
+          expectedSha256:image.sha256
+        });
+        if(inspected===null){
+          throw new ProductionTailRuntimeError(
+            "TAIL_IMAGE_INVALID",
+            "T070 final visual QC cannot verify approved PNG "+image.state_image_id+"."
+          );
+        }
+        orderedImages.push(image);
+      }
+
+      const imageSetSha256=createHash("sha256")
+        .update(
+          prompts.sha256+"\n"+
+          orderedImages.map(image=>image.state_image_id+":"+image.sha256).join("\n"),
+          "utf8"
+        )
+        .digest("hex");
+      const cached=tail.getActive<T070FinalVisualQcArtifact>(
+        projectId,
+        "t070_final_visual_qc"
+      );
+      if(
+        cached?.value.image_set_sha256===imageSetSha256&&
+        cached.value.expected_image_count===expectedPrompts.length&&
+        cached.value.checked_image_count===expectedPrompts.length
+      ){
+        return cached.value;
+      }
+
+      const sceneOrder:string[]=[];
+      const imagesByScene=new Map<string,GeneratedImage[]>();
+      for(const prompt of expectedPrompts){
+        if(!imagesByScene.has(prompt.scene_id)){
+          sceneOrder.push(prompt.scene_id);
+          imagesByScene.set(prompt.scene_id,[]);
+        }
+        imagesByScene.get(prompt.scene_id)!.push(approvedById.get(prompt.state_image_id)!);
+      }
+
+      await this.progress.emit({
+        event:"QC_STARTED",
+        project_id:projectId,
+        task_id:"T070",
+        agent:"CODEX_1_MANAGER",
+        attempt,
+        qc_kind:"SUCCESS",
+        phase:"FINAL_IMAGE_VISUAL_QC",
+        message:
+          "Codex1 is visually inspecting all "+String(expectedPrompts.length)+
+          " approved T070 images before T080."
+      });
+
+      const sceneResults:T070FinalVisualQcArtifact["scene_results"]=[];
+      for(const [index,sceneId] of sceneOrder.entries()){
+        const sceneImages=imagesByScene.get(sceneId)!;
+        const review=await this.codexManager.reviewT070FinalVisualScene({
+          projectId,
+          attempt,
+          sceneId,
+          images:sceneImages.map(image=>({
+            stateImageId:image.state_image_id,
+            absolutePath:path.resolve(status.projectRoot,image.relative_path),
+            sha256:image.sha256
+          }))
+        });
+        sceneResults.push(review);
+        await this.progress.taskProgress({
+          project_id:projectId,
+          task_id:"T070",
+          agent:"CODEX_1_MANAGER",
+          attempt,
+          phase:"FINAL_IMAGE_VISUAL_QC",
+          completed:index+1,
+          total:sceneOrder.length,
+          message:
+            "Visual QC completed for "+sceneId+" ("+
+            String(sceneImages.length)+" images): "+review.verdict+"."
+        });
+      }
+
+      const checkedIds=sceneResults.flatMap(scene=>
+        scene.checks.map(check=>check.state_image_id)
+      );
+      const uniqueChecked=new Set(checkedIds);
+      const expectedIds=expectedPrompts.map(prompt=>prompt.state_image_id);
+      if(
+        checkedIds.length!==expectedIds.length||
+        uniqueChecked.size!==expectedIds.length||
+        expectedIds.some(id=>!uniqueChecked.has(id))
+      ){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 final visual QC did not inspect every approved image exactly once."
+        );
+      }
+
+      const hasFail=sceneResults.some(scene=>scene.verdict==="FAIL");
+      const hasRevise=sceneResults.some(scene=>scene.verdict==="REVISE");
+      const verdict:T070FinalVisualQcArtifact["verdict"]=
+        hasFail?"FAIL":hasRevise?"REVISE":"PASS";
+      const failedSceneIds=sceneResults
+        .filter(scene=>scene.verdict!=="PASS")
+        .map(scene=>scene.scene_id);
+      const failedImageIds=sceneResults
+        .flatMap(scene=>scene.checks)
+        .filter(check=>check.verdict!=="PASS")
+        .map(check=>check.state_image_id);
+      const revisionInstructions=sceneResults
+        .filter(scene=>scene.verdict!=="PASS"&&scene.revision_instruction.trim())
+        .map(scene=>scene.scene_id+": "+scene.revision_instruction);
+      const artifact:T070FinalVisualQcArtifact={
+        schema_version:"1.0",
+        project_id:projectId,
+        image_set_sha256:imageSetSha256,
+        source_prompt_bundle_sha256:prompts.sha256,
+        expected_image_count:expectedPrompts.length,
+        checked_image_count:uniqueChecked.size,
+        verdict,
+        summary:
+          verdict==="PASS"
+            ?"All "+String(expectedPrompts.length)+
+              " approved T070 images passed pixel-grounded scene and continuity QC."
+            :"Final T070 image QC requires correction in "+
+              failedSceneIds.join(", ")+".",
+        failed_scene_ids:failedSceneIds,
+        failed_image_ids:[...new Set(failedImageIds)],
+        scene_results:sceneResults,
+        revision_instructions:revisionInstructions,
+        reviewed_at:new Date().toISOString()
+      };
+      tail.save(
+        projectId,
+        "t070_final_visual_qc",
+        artifact,
+        "T070",
+        artifact.reviewed_at
+      );
+      await this.progress.emit({
+        event:"QC_COMPLETED",
+        project_id:projectId,
+        task_id:"T070",
+        agent:"CODEX_1_MANAGER",
+        attempt,
+        qc_kind:"SUCCESS",
+        verdict:artifact.verdict,
+        phase:"FINAL_IMAGE_VISUAL_QC",
+        message:
+          artifact.verdict==="PASS"
+            ?"All approved T070 images passed final visual QC; T080 is unlocked."
+            :"T080 remains locked until failed T070 images/scenes are corrected."
+      });
+      return artifact;
+    }finally{
+      tail.close();
+      agent3.close();
     }
   }
 
