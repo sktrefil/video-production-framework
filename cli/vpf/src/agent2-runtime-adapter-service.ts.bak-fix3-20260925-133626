@@ -340,9 +340,9 @@ function verifyResearchTrace(
   bundle: Agent2ResearchBundle,
   observedUrls: Iterable<string>,
   providerLabel: string,
-  webSearchCount?: number
+  webSearchCount: number
 ): void {
-  if (webSearchCount !== undefined && webSearchCount <= 0) {
+  if (webSearchCount <= 0) {
     throw new Agent2RuntimeAdapterError(
       "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
       `${providerLabel} T010 completed without a recorded native web_search event.`
@@ -585,19 +585,7 @@ class OpenAiAgent2Runtime {
       }
     };
     const response = await this.request(body);
-    const generatedBundle = parseStructuredJson<Agent2ResearchBundle>(response);
-    const bundle = normalizeResearchBundle({
-      ...generatedBundle,
-      research_spec: {
-        ...generatedBundle.research_spec,
-        project_id: input.projectId,
-        topic: input.topic
-      },
-      fact_check_spec: {
-        ...generatedBundle.fact_check_spec,
-        project_id: input.projectId
-      }
-    });
+    const bundle = normalizeResearchBundle(parseStructuredJson<Agent2ResearchBundle>(response));
     verifyResearchTrace(bundle, collectWebSourceUrls(response), "OpenAI");
     return { responseId: typeof response.id === "string" ? response.id : null, bundle };
   }
@@ -1297,18 +1285,7 @@ export class Agent2RuntimeAdapterService {
                 "Codex T010 completed without a recorded native web_search event."
               );
             }
-            const bundle = normalizeResearchBundle({
-              ...generated.output,
-              research_spec: {
-                ...generated.output.research_spec,
-                project_id: projectId,
-                topic
-              },
-              fact_check_spec: {
-                ...generated.output.fact_check_spec,
-                project_id: projectId
-              }
-            });
+            const bundle = normalizeResearchBundle(generated.output);
             verifyResearchTrace(
   bundle,
   generated.observedUrls,
@@ -1589,6 +1566,4 @@ export class Agent2RuntimeAdapterService {
     }
   }
 }
-
-
 

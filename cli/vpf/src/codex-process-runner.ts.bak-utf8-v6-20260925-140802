@@ -454,7 +454,7 @@ export class CodexProcessRunner {
     ].join("\n");
 
     await writeFile(schemaPath, JSON.stringify(request.outputSchema, null, 2), "utf8");
-    await writeFile(requestPath, "\uFEFF" + JSON.stringify(request.input, null, 2), "utf8");
+    await writeFile(requestPath, JSON.stringify(request.input, null, 2), "utf8");
     await writeFile(instructionsPath, baseInstructions, "utf8");
 
     const args = [
@@ -704,5 +704,4 @@ export class CodexProcessRunner {
     });
   }
 }
-
 

@@ -1,4 +1,4 @@
-﻿import { createHash } from "node:crypto";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -340,16 +340,16 @@ function verifyResearchTrace(
   bundle: Agent2ResearchBundle,
   observedUrls: Iterable<string>,
   providerLabel: string,
-  webSearchCount?: number
+  webSearchCount: number
 ): void {
-  if (webSearchCount !== undefined && webSearchCount <= 0) {
+  const observed = new Set([...observedUrls].map(canonicalWebUrl));
+
+  if (webSearchCount <= 0) {
     throw new Agent2RuntimeAdapterError(
       "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
       `${providerLabel} T010 completed without a recorded native web_search event.`
     );
   }
-
-  const observed = new Set([...observedUrls].map(canonicalWebUrl));
 
   const sourceById = new Map(
     bundle.research_spec.sources.map(source => [source.source_id, source] as const)
@@ -362,17 +362,10 @@ function verifyResearchTrace(
     }
   }
 
-  // Codex CLI may record native web_search activity without exposing result URLs
-  // in JSONL. In that degraded telemetry case, keep structural URL/source checks
-  // instead of falsely treating the run as if no research occurred.
+  // Codex CLI may record native web_search activity without exposing
+  // result URLs in JSONL. In that case preserve structural/source checks
+  // instead of treating missing URL telemetry as "no research".
   if (observed.size === 0) {
-    if (bundle.research_spec.sources.length === 0) {
-      throw new Agent2RuntimeAdapterError(
-        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
-        `${providerLabel} T010 produced no research sources.`
-      );
-    }
-
     for (const source of bundle.research_spec.sources) {
       if (!source.url) continue;
 
@@ -411,10 +404,56 @@ function verifyResearchTrace(
     return;
   }
 
-  // Strict provenance mode when Codex JSONL exposes URL telemetry.
+  // Normal strict provenance mode when Codex actually exposes URL telemetry.
   for (const source of bundle.research_spec.sources) {
     if (!source.url) continue;
 
+    if (!observed.has(canonicalWebUrl(source.url))) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+        `${providerLabel} research referenced a URL not observed in web-search trace: ${source.url}`
+      );
+    }
+  }
+
+  for (const ref of criticalRefs) {
+    const source = sourceById.get(ref);
+
+    if (!source?.url) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+        `${providerLabel} critical source ${ref} has no traceable URL.`
+      );
+    }
+
+    if (!observed.has(canonicalWebUrl(source.url))) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+        `${providerLabel} critical source ${ref} was not observed in web-search trace: ${source.url}`
+      );
+    }
+  }
+}
+  const observed = new Set([...observedUrls].map(canonicalWebUrl));
+  if (observed.size === 0) {
+    throw new Agent2RuntimeAdapterError(
+      "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
+      `${providerLabel} T010 produced no traceable web-search source URLs.`
+    );
+  }
+
+  const sourceById = new Map(
+    bundle.research_spec.sources.map(source => [source.source_id, source] as const)
+  );
+  const criticalRefs = new Set<string>();
+  for (const fact of bundle.fact_check_spec.facts) {
+    if (fact.classification === "VERIFIED_FACT" || fact.confidence === "HIGH") {
+      for (const ref of fact.source_refs) criticalRefs.add(ref);
+    }
+  }
+
+  for (const source of bundle.research_spec.sources) {
+    if (!source.url) continue;
     if (!observed.has(canonicalWebUrl(source.url))) {
       throw new Agent2RuntimeAdapterError(
         "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
@@ -431,7 +470,6 @@ function verifyResearchTrace(
         `${providerLabel} critical source ${ref} has no traceable URL.`
       );
     }
-
     if (!observed.has(canonicalWebUrl(source.url))) {
       throw new Agent2RuntimeAdapterError(
         "AGENT2_RUNTIME_SOURCE_UNVERIFIED",
@@ -440,6 +478,7 @@ function verifyResearchTrace(
     }
   }
 }
+
 function parseStructuredJson<T>(response: OpenAiResponseEnvelope): T {
   const text = extractOutputText(response);
   if (!text) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_RESPONSE_INVALID", "OpenAI response did not contain structured output text.");
@@ -585,19 +624,7 @@ class OpenAiAgent2Runtime {
       }
     };
     const response = await this.request(body);
-    const generatedBundle = parseStructuredJson<Agent2ResearchBundle>(response);
-    const bundle = normalizeResearchBundle({
-      ...generatedBundle,
-      research_spec: {
-        ...generatedBundle.research_spec,
-        project_id: input.projectId,
-        topic: input.topic
-      },
-      fact_check_spec: {
-        ...generatedBundle.fact_check_spec,
-        project_id: input.projectId
-      }
-    });
+    const bundle = normalizeResearchBundle(parseStructuredJson<Agent2ResearchBundle>(response));
     verifyResearchTrace(bundle, collectWebSourceUrls(response), "OpenAI");
     return { responseId: typeof response.id === "string" ? response.id : null, bundle };
   }
@@ -1297,18 +1324,7 @@ export class Agent2RuntimeAdapterService {
                 "Codex T010 completed without a recorded native web_search event."
               );
             }
-            const bundle = normalizeResearchBundle({
-              ...generated.output,
-              research_spec: {
-                ...generated.output.research_spec,
-                project_id: projectId,
-                topic
-              },
-              fact_check_spec: {
-                ...generated.output.fact_check_spec,
-                project_id: projectId
-              }
-            });
+            const bundle = normalizeResearchBundle(generated.output);
             verifyResearchTrace(
   bundle,
   generated.observedUrls,
@@ -1589,6 +1605,3 @@ export class Agent2RuntimeAdapterService {
     }
   }
 }
-
-
-

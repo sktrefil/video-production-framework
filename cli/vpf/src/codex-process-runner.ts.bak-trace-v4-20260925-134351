@@ -1,4 +1,4 @@
-﻿import { createHash } from "node:crypto";
+import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import {
   copyFile,
@@ -116,78 +116,53 @@ function collectTraceEvidence(trace: string): {
 } {
   let webSearchCount = 0;
   const urls = new Set<string>();
-
-  const addUrl = (candidate: unknown): void => {
-    if (typeof candidate !== "string" || !/^https?:\/\//iu.test(candidate)) return;
-    try {
-      const url = new URL(candidate);
-      url.hash = "";
-      urls.add(url.toString());
-    } catch {
-      // Ignore malformed URLs surfaced in Codex web-search telemetry.
-    }
-  };
-
-  const collectResultUrls = (input: unknown): void => {
-    if (Array.isArray(input)) {
-      input.forEach(collectResultUrls);
-      return;
-    }
-    if (typeof input !== "object" || input === null) return;
-
-    const object = input as Record<string, unknown>;
-
-    // Only accept URL-shaped response/result fields as provenance.
-    // Do NOT treat query/queries strings as observed source URLs:
-    // Codex 0.155.x may echo a URL supplied as the search query while
-    // omitting the actual result/open-page URL telemetry.
-    for (const key of ["url", "link", "href"]) {
-      addUrl(object[key]);
-    }
-
-    for (const [key, value] of Object.entries(object)) {
-      if (key === "query" || key === "queries") continue;
-      collectResultUrls(value);
-    }
-  };
-
   for (const line of trace.split(/\r?\n/u)) {
     if (!line.trim()) continue;
-
     let value: unknown;
     try {
       value = JSON.parse(line) as unknown;
     } catch {
       continue;
     }
-
-    const visit = (input: unknown): void => {
+    const visit = (input: unknown, webContext = false): void => {
       if (Array.isArray(input)) {
-        input.forEach(visit);
+        input.forEach(item => visit(item, webContext));
         return;
       }
       if (typeof input !== "object" || input === null) return;
-
       const object = input as Record<string, unknown>;
       const type = typeof object.type === "string" ? object.type : "";
-
-      if (type === "web_search" || type === "web_search_call") {
+      const nextWebContext =
+        webContext || type === "web_search" || type === "web_search_call";
+      if (!webContext && nextWebContext) {
         webSearchCount += 1;
-        collectResultUrls(object);
-        return;
       }
-
-      for (const nested of Object.values(object)) visit(nested);
+      for (const nested of Object.values(object)) {
+        if (
+          nextWebContext &&
+          typeof nested === "string" &&
+          /^https?:\/\//iu.test(nested)
+        ) {
+          try {
+            const url = new URL(nested);
+            url.hash = "";
+            urls.add(url.toString());
+          } catch {
+            // Ignore malformed URLs surfaced in web-search metadata.
+          }
+        } else {
+          visit(nested, nextWebContext);
+        }
+      }
     };
-
     visit(value);
   }
-
   return {
     webSearchCount,
     observedUrls: [...urls].sort()
   };
 }
+
 export class CodexProcessRunner {
   private readonly command: string;
   private readonly commandPrefixArgs: string[];
@@ -454,7 +429,7 @@ export class CodexProcessRunner {
     ].join("\n");
 
     await writeFile(schemaPath, JSON.stringify(request.outputSchema, null, 2), "utf8");
-    await writeFile(requestPath, "\uFEFF" + JSON.stringify(request.input, null, 2), "utf8");
+    await writeFile(requestPath, JSON.stringify(request.input, null, 2), "utf8");
     await writeFile(instructionsPath, baseInstructions, "utf8");
 
     const args = [
@@ -704,5 +679,3 @@ export class CodexProcessRunner {
     });
   }
 }
-
-
