@@ -12,6 +12,43 @@ export type ProductionProgressEventType =
 
 export type ProgressQcKind = "SUCCESS" | "FAILURE";
 
+export const PRODUCTION_TASK_WEIGHTS: Readonly<Record<string, number>> = Object.freeze({
+  T010: 8,
+  T020: 12,
+  T030: 10,
+  T040: 8,
+  T050: 8,
+  T060: 8,
+  T070: 18,
+  T080: 18,
+  T090: 5,
+  T100: 5
+});
+
+function clampPercent(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(100, value));
+}
+
+export function calculateOverallProgress(
+  completedTaskIds: Iterable<string>,
+  activeTask?: { task_id: string; percent: number }
+): number {
+  const completed = new Set(completedTaskIds);
+  let total = 0;
+
+  for (const taskId of completed) {
+    total += PRODUCTION_TASK_WEIGHTS[taskId] ?? 0;
+  }
+
+  if (activeTask !== undefined && !completed.has(activeTask.task_id)) {
+    const weight = PRODUCTION_TASK_WEIGHTS[activeTask.task_id] ?? 0;
+    total += weight * (clampPercent(activeTask.percent) / 100);
+  }
+
+  return Number(clampPercent(total).toFixed(1));
+}
+
 export interface ProductionProgressEvent {
   schema_version: "1.0";
   sequence: number;
@@ -95,4 +132,3 @@ export class ProductionProgressReporter {
   }
 }
 
-export const NOOP_PROGRESS_REPORTER = new ProductionProgressReporter();
