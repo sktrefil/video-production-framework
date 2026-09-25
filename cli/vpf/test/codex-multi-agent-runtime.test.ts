@@ -754,7 +754,18 @@ test("Codex1 verdicts drive Agent2 workflow state", async () => {
         assert.equal(directive, null);
       }
 
+      if (item.verdict === "BLOCK") {
+        const blockedResult = await runtime.runNext(projectId);
+        assert.equal("status" in blockedResult ? blockedResult.status : null, "BLOCKED");
+        if ("status" in blockedResult && blockedResult.status === "BLOCKED") {
+          assert.deepEqual(blockedResult.blocked_tasks, ["T010"]);
+          assert.equal(blockedResult.handoff_task, null);
+        }
+      }
+
       if (item.verdict === "ESCALATE") {
+        const blockedResult = await runtime.runNext(projectId);
+        assert.equal("status" in blockedResult ? blockedResult.status : null, "BLOCKED");
         await workflow.requestRevision(projectId, "T010");
         const resumed = await workflow.status(projectId);
         assert.equal(
