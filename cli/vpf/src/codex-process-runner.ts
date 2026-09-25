@@ -98,8 +98,12 @@ function safeSegment(value: string): string {
 }
 
 function stringifyAsciiSafeJson(value: unknown, space?: number): string {
-  return JSON.stringify(value, null, space).replace(
-    /[\u0080-\uFFFF]/gu,
+  const json = JSON.stringify(value, null, space);
+  if (json === undefined) {
+    throw new TypeError("Codex request input must be JSON-serializable.");
+  }
+  return json.replace(
+    /[\u0080-\uFFFF]/g,
     character =>
       "\\u" + character.charCodeAt(0).toString(16).padStart(4, "0")
   );
