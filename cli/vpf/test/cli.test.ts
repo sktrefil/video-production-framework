@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +8,9 @@ import { execFile } from "node:child_process";
 import test from "node:test";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
+import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
+import { ProductionTailRepository } from "@vpf/storage/production-tail";
+import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
 import { runCli } from "../src/index.js";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -112,6 +115,123 @@ test("CLI materializes the active DB script into 02_script", async () => {
     (await readFile(path.join(status.projectRoot, output.files.script_ko_txt), "utf8")).trim(),
     "DB에 저장된 최종 스크립트입니다."
   );
+});
+
+test("CLI confirmed image regeneration reset preserves T010-T060 and clears T070 outputs", async () => {
+  const f = await fixture();
+  assert.equal(await runCli([
+    "project", "create", "cli_t070_reset",
+    "--title", "CLI T070 Reset",
+    "--format", "longform"
+  ], f.io, f.service), 0);
+
+  const status = await f.service.getStatus("cli_t070_reset");
+  const workflow = new WorkflowOrchestratorRepository(status.projectDbPath);
+  try {
+    const at = "2026-09-25T12:00:00.000Z";
+    for (const taskId of ["T010","T020","T030","T040","T050","T060"] as const) {
+      workflow.updateTask({
+        projectId: "cli_t070_reset",
+        taskId,
+        status: "COMPLETE",
+        attempt: 1,
+        startedAt: at,
+        completedAt: at,
+        updatedAt: at
+      });
+    }
+    workflow.updateTask({
+      projectId: "cli_t070_reset",
+      taskId: "T070",
+      status: "COMPLETE",
+      attempt: 1,
+      startedAt: at,
+      completedAt: at,
+      updatedAt: at
+    });
+    workflow.updateTask({
+      projectId: "cli_t070_reset",
+      taskId: "T080",
+      status: "READY",
+      attempt: 0,
+      startedAt: null,
+      completedAt: null,
+      updatedAt: at
+    });
+  } finally {
+    workflow.close();
+  }
+
+  const agent3 = new Agent3VisualProductionRepository(status.projectDbPath);
+  try {
+    agent3.save("cli_t070_reset", "prompt_bundle_spec", {
+      schema_version: "1.0",
+      project_id: "cli_t070_reset",
+      compiler_version: "AGENT3_PROMPT_COMPILER_V1",
+      image_prompts: [{
+        state_image_id: "STATE_01",
+        scene_id: "SC01",
+        prompt_ko: "테스트",
+        prompt_en: "test",
+        provider_prompt_en: "test",
+        negative_prompt_en: "none"
+      }],
+      video_prompts: []
+    }, "T060", "2026-09-25T12:00:00.000Z");
+  } finally {
+    agent3.close();
+  }
+
+  const generatedPath = path.join(
+    status.projectRoot,
+    "05_images",
+    "generated",
+    "STATE_01.png"
+  );
+  await mkdir(path.dirname(generatedPath), { recursive: true });
+  await writeFile(generatedPath, "old-image");
+
+  const tail = new ProductionTailRepository(status.projectDbPath);
+  try {
+    tail.save(
+      "cli_t070_reset",
+      "generated_images",
+      {
+        schema_version: "1.0",
+        project_id: "cli_t070_reset",
+        provider: "CHATGPT_BROWSER",
+        source_prompt_bundle_sha256: "a".repeat(64),
+        images: []
+      },
+      "T070",
+      "2026-09-25T12:01:00.000Z"
+    );
+  } finally {
+    tail.close();
+  }
+
+  assert.equal(await runCli([
+    "production", "regenerate-images", "cli_t070_reset", "--confirm"
+  ], f.io, f.service), 0);
+
+  const result = JSON.parse(f.output.at(-1)!) as {
+    status: string;
+    reset_tasks: string[];
+  };
+  assert.equal(result.status, "RESET_FOR_T070_REGENERATION");
+  assert.deepEqual(result.reset_tasks, ["T070","T080","T090","T100"]);
+  await assert.rejects(readFile(generatedPath));
+
+  const after = new WorkflowOrchestratorRepository(status.projectDbPath, { readonly: true });
+  try {
+    assert.equal(after.getTask("cli_t070_reset", "T060")?.status, "COMPLETE");
+    assert.equal(after.getTask("cli_t070_reset", "T070")?.status, "READY");
+    assert.equal(after.getTask("cli_t070_reset", "T080")?.status, "BLOCKED");
+    assert.equal(after.getTask("cli_t070_reset", "T090")?.status, "BLOCKED");
+    assert.equal(after.getTask("cli_t070_reset", "T100")?.status, "BLOCKED");
+  } finally {
+    after.close();
+  }
 });
 
 test("future unified commands fail explicitly as NOT_IMPLEMENTED", async () => {
