@@ -110,15 +110,15 @@ export class Agent1WorkflowOrchestratorService {
         : repo.getTask(projectId, taskId);
       if (task === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task not found for ${projectId}: ${taskId ?? "<next>"}.`);
       const resumeCurrentAttempt = options.resumeCurrentAttempt === true;
-      const resumableFailedT070 =
+      const resumableInterruptedT070 =
         resumeCurrentAttempt &&
         task.task_id === "T070" &&
-        task.status === "FAILED" &&
+        (task.status === "FAILED" || task.status === "RUNNING") &&
         task.attempt > 0;
       if (
         task.status !== "READY" &&
         task.status !== "REVISION_REQUIRED" &&
-        !resumableFailedT070
+        !resumableInterruptedT070
       ) {
         throw new WorkflowOrchestratorError("TASK_NOT_READY", `${task.task_id} is ${task.status}, not dispatchable.`);
       }
@@ -130,12 +130,12 @@ export class Agent1WorkflowOrchestratorService {
       if (resumeCurrentAttempt) {
         if (
           task.task_id !== "T070" ||
-          !["REVISION_REQUIRED","FAILED"].includes(task.status) ||
+          !["REVISION_REQUIRED","FAILED","RUNNING"].includes(task.status) ||
           task.attempt <= 0
         ) {
           throw new WorkflowOrchestratorError(
             "TASK_NOT_READY",
-            "Only an incomplete T070 revision/failed attempt can resume without consuming a new attempt."
+            "Only an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
           );
         }
       } else if (task.attempt >= definition.retry_policy.max_attempts) {
