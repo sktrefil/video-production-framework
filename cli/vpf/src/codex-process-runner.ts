@@ -97,6 +97,14 @@ function safeSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9._-]+/gu, "_").slice(0, 96);
 }
 
+function stringifyAsciiSafeJson(value: unknown, space?: number): string {
+  return JSON.stringify(value, null, space).replace(
+    /[\u0080-\uFFFF]/gu,
+    character =>
+      "\\u" + character.charCodeAt(0).toString(16).padStart(4, "0")
+  );
+}
+
 function truncate(value: string, max = 2000): string {
   return value.length <= max ? value : value.slice(value.length - max);
 }
@@ -447,6 +455,7 @@ export class CodexProcessRunner {
       "- Do not change workflow state, revisions, gates, or task status.",
       "- Do not modify repository or project files.",
       "- Work only from request.json and these instructions.",
+      "- Parse request.json as JSON before using it. It is ASCII-safe JSON, so non-ASCII text is represented by standard JSON \\uXXXX escapes and must be interpreted as Unicode data.",
       "- Return only the structured result required by output.schema.json.",
       "- Do not include secrets, authentication data, or hidden local paths.",
       "",
@@ -454,7 +463,7 @@ export class CodexProcessRunner {
     ].join("\n");
 
     await writeFile(schemaPath, JSON.stringify(request.outputSchema, null, 2), "utf8");
-    await writeFile(requestPath, "\uFEFF" + JSON.stringify(request.input, null, 2), "utf8");
+    await writeFile(requestPath, stringifyAsciiSafeJson(request.input, 2), "utf8");
     await writeFile(instructionsPath, baseInstructions, "utf8");
 
     const args = [
@@ -471,7 +480,7 @@ export class CodexProcessRunner {
     const model = (this.environment.VPF_CODEX_MODEL ?? "").trim();
     if (model) args.push("--model", model);
     args.push(
-      "Read instructions.md and request.json in the current directory. " +
+      "Read instructions.md and parse request.json as JSON in the current directory. " +
       "Perform only the requested VPF role task. " +
       "Return the final structured JSON matching output.schema.json."
     );
