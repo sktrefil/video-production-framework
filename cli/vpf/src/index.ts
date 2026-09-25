@@ -64,6 +64,7 @@ Production Spec operations:
   vpf production validate-states <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
+  vpf production regenerate-images <project_id> --confirm
   vpf production run <project_id> [--events-jsonl] [--no-progress] [--dashboard] [--dashboard-port <port>] [--dashboard-open]
 
 Codex multi-agent runtime:
@@ -556,6 +557,17 @@ export async function runCli(
       }
       await workflow.requestRevision(projectId, taskId);
       printJson(io, { project_id: projectId, task_id: taskId, status: "REVISION_REQUIRED" });
+      return 0;
+    }
+
+    if (args[0] === "production" && args[1] === "regenerate-images") {
+      const projectId = args[2];
+      if (projectId === undefined || !args.includes("--confirm")) {
+        io.error("[CLI_USAGE] production regenerate-images requires <project_id> --confirm.");
+        return 2;
+      }
+      const runtime = new ProductionTailRuntimeService(service, process.env);
+      printJson(io, await runtime.resetT070ForRegeneration(projectId));
       return 0;
     }
 
