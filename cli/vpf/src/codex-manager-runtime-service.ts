@@ -63,6 +63,8 @@ export interface T070SceneVisualQcResult {
     factual_constraints: "PASS" | "FAIL";
     continuity_readiness: "PASS" | "FAIL";
     artifact_quality: "PASS" | "FAIL";
+    fantasy_control: "PASS" | "FAIL";
+    video_readiness: "PASS" | "FAIL";
     notes: string[];
   }>;
   revision_instruction: string;
@@ -127,6 +129,8 @@ const T070_SCENE_VISUAL_QC_SCHEMA = {
           "factual_constraints",
           "continuity_readiness",
           "artifact_quality",
+          "fantasy_control",
+          "video_readiness",
           "notes"
         ],
         properties: {
@@ -137,6 +141,8 @@ const T070_SCENE_VISUAL_QC_SCHEMA = {
           factual_constraints: { type: "string", enum: ["PASS", "FAIL"] },
           continuity_readiness: { type: "string", enum: ["PASS", "FAIL"] },
           artifact_quality: { type: "string", enum: ["PASS", "FAIL"] },
+          fantasy_control: { type: "string", enum: ["PASS", "FAIL"] },
+          video_readiness: { type: "string", enum: ["PASS", "FAIL"] },
           notes: { type: "array", items: { type: "string" } }
         }
       }
@@ -417,7 +423,13 @@ export class CodexManagerRuntimeService {
             ...scene.evidence_constraints,
             ...state.factual_constraints
           ],
-          forbidden_visual_claims: scene.forbidden_visual_claims
+          forbidden_visual_claims: scene.forbidden_visual_claims,
+          fantasy_mode: scene.fantasy_mode ?? (
+            scene.factuality_mode === "EVIDENCE" ? "RESTRAINED" :
+            scene.factuality_mode === "EDITORIAL_FANTASY_RECONSTRUCTION" ||
+            scene.factuality_mode === "LEGEND_RECONSTRUCTION" ? "EDITORIAL" :
+            "RESTRAINED"
+          )
         };
       });
 
@@ -433,7 +445,8 @@ export class CodexManagerRuntimeService {
           "The attached files are the actual generated PNG pixels for this scene. Inspect every attachment directly and compare them with one another.",
           "Attachment order exactly matches images[].attachment_index in request.json.",
           "Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone.",
-          "Assess every image for approved-state alignment, visual/factual correctness, visible artifact quality, and readiness for video animation.",
+          "Assess every image for approved-state alignment, visual/factual correctness, visible artifact quality, fantasy control, and readiness for video animation.",
+          "Fantasy may enhance atmosphere, light, mist, texture, symbolic spatial treatment and non-textual motifs only within the supplied fantasy_mode; it must not invent evidence, events, creatures, or magical causation.",
           "Assess the scene as a sequence: identity, environment, lighting, color language, movement/screen direction, recurring motifs, ENTRY/MID/TARGET progression, and handoff anchors must remain coherent where required.",
           "FAIL unsupported visible historical claims, modern/anachronistic objects, readable generated text, watermarks, severe anatomy/object corruption, or continuity that makes the planned clip misleading or unusable.",
           "Use REVISE when regeneration of one or more named state images can repair the scene without changing approved upstream facts or visual policy.",
@@ -494,7 +507,11 @@ export class CodexManagerRuntimeService {
           review.revision_instruction.trim() ||
           review.continuity_verdict !== "PASS" ||
           review.handoff_verdict !== "PASS" ||
-          review.checks.some(item => item.verdict !== "PASS")
+          review.checks.some(item =>
+            item.verdict !== "PASS" ||
+            item.fantasy_control !== "PASS" ||
+            item.video_readiness !== "PASS"
+          )
         )
       ) {
         throw new CodexRuntimeError(
