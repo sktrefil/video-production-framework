@@ -11,6 +11,9 @@ export interface ProductionDashboardLiveState {
     phase: string | null;
     agent: string | null;
     attempt: number | null;
+    elapsed_sec: number | null;
+    runtime_last_activity_age_sec: number | null;
+    runtime_pid: number | null;
     at: string;
   }>;
 }
@@ -43,6 +46,12 @@ export class ProductionDashboardHub {
         phase: event.phase ?? current?.phase ?? null,
         agent: event.agent ?? current?.agent ?? null,
         attempt: event.attempt ?? current?.attempt ?? null,
+        elapsed_sec: event.elapsed_sec ?? current?.elapsed_sec ?? null,
+        runtime_last_activity_age_sec:
+          event.runtime_last_activity_age_sec ??
+          current?.runtime_last_activity_age_sec ??
+          null,
+        runtime_pid: event.runtime_pid ?? current?.runtime_pid ?? null,
         at: event.at
       });
     }
