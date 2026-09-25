@@ -4,6 +4,7 @@ import {resolve} from "node:path";
 import test from "node:test";
 import {
   buildFlowManualManifest,
+  buildT070GenerationStateIds,
   buildT070PendingOrdinals,
   buildTailEditProject,
   selectT070SeedImageIds
@@ -168,6 +169,43 @@ test("T070 seed plan deterministically samples early, middle and late states",()
   assert.deepEqual(selectT070SeedImageIds([],3),[]);
 });
 
+test("T070 seed generation targets only three seeds and blocks later phases",()=>{
+  const prompts=Array.from({length:43},(_,index)=>({
+    state_image_id:"STATE_"+String(index+1).padStart(2,"0")
+  }));
+  const seeds=selectT070SeedImageIds(prompts);
+
+  assert.deepEqual(
+    buildT070GenerationStateIds(prompts,"SEED_GENERATION",seeds),
+    ["STATE_01","STATE_22","STATE_43"]
+  );
+  assert.deepEqual(buildT070GenerationStateIds(prompts,"SEED_QC",seeds),[]);
+  assert.equal(buildT070GenerationStateIds(prompts,"FULL_GENERATION",seeds).length,43);
+  assert.deepEqual(buildT070GenerationStateIds(prompts,"FINAL_QC",seeds),[]);
+});
+
+test("new T070 execution pauses at SEED_QC before completion gate or full generation",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const index=read("cli/vpf/src/index.ts");
+
+  assert.match(tail,/const legacyAdoption=!loadedCheckpoint\.exists&&attempt>1/);
+  assert.match(tail,/\?"FULL_GENERATION"\s*:\s*"SEED_GENERATION"/);
+  assert.match(tail,/selectT070SeedImageIds\(promptRecord\.value\.image_prompts,3\)/);
+  assert.match(tail,/if\(!generationStateIds\.has\(prompt\.state_image_id\)\)continue/);
+  assert.match(tail,/phase="SEED_QC"/);
+  assert.match(tail,/Full image generation is blocked until seed visual QC passes/);
+  assert.match(tail,/status:"AWAITING_SEED_QC"/);
+  assert.match(index,/const awaitingSeedQc = tailResult\.status === "AWAITING_SEED_QC"/);
+  assert.match(index,/Production paused at the T070 seed visual-QC gate/);
+
+  const t070Start=tail.indexOf('if(taskId==="T070"){');
+  const seedReturn=tail.indexOf('if(t070Result==="AWAITING_SEED_QC")return"AWAITING_SEED_QC"',t070Start);
+  const completionGate=tail.indexOf("await this.manager.recordGate(projectId,taskId,true)",t070Start);
+  assert.ok(t070Start>=0);
+  assert.ok(seedReturn>t070Start);
+  assert.ok(completionGate>seedReturn);
+});
+
 test("T070 checkpoint persists phased seed state and remains backward compatible",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
 
@@ -201,7 +239,7 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
 
   assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH="05_images\/generated\/t070-checkpoint\.json"/);
   assert.match(tail,/writeT070Checkpoint\(checkpointAbsolute/);
-  assert.match(tail,/loadedCheckpoint\.exists&&attempt>1/);
+  assert.match(tail,/const legacyAdoption=!loadedCheckpoint\.exists&&attempt>1/);
   assert.match(tail,/const reusable=completedByState\.get\(prompt\.state_image_id\)/);
   assert.match(tail,/T070_ITEM_MAX_ATTEMPTS=3/);
   assert.match(tail,/await this\.hasT070ResumeEvidence\(projectId\)/);
@@ -247,7 +285,8 @@ test("T070 checkpoint resume accepts an orphaned RUNNING attempt without increme
 
   assert.match(tail,/task\.status==="FAILED"\|\|task\.status==="RUNNING"/);
   assert.match(tail,/recoverableInterruptedT070/);
-  assert.match(tail,/next\.status==="REVISION_REQUIRED"\|\|next\.status==="FAILED"\|\|next\.status==="RUNNING"/);
+  assert.match(tail,/next\.status==="RUNNING"&&\(next\.attempt\?\?0\)>0/);
+  assert.match(tail,/checkpoint\.value\?\.phase==="SEED_QC"/);
   assert.match(workflow,/\["REVISION_REQUIRED","FAILED","RUNNING"\]\.includes\(task\.status\)/);
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
@@ -259,11 +298,12 @@ test("production tail never reports COMPLETE merely because no task is READY",()
   assert.match(tail,/if\(await this\.isProductionFinalized\(projectId,workflow\.tasks\)\)/);
   assert.match(tail,/Production tail has no runnable task but is not complete/);
   assert.match(tail,/task\.task_id==="T070"&&[\s\S]*?task\.status==="FAILED"\|\|task\.status==="RUNNING"/);
-  assert.match(tail,/next\.status==="REVISION_REQUIRED"\|\|next\.status==="FAILED"\|\|next\.status==="RUNNING"/);
+  assert.match(tail,/status:"AWAITING_SEED_QC"/);
 
+  assert.match(index,/const awaitingSeedQc = tailResult\.status === "AWAITING_SEED_QC"/);
   assert.match(index,/const runComplete = tailResult\.status === "COMPLETE"/);
   assert.match(index,/Production run reached verified final completion/);
-  assert.match(index,/: runComplete\s*\? "RUN_COMPLETE"\s*:\s*"HANDOFF"/);
+  assert.match(index,/\? "AWAITING_SEED_QC"/);
 });
 
 test("production run starts or resumes the T070-T100 tail and pauses before consuming T080",()=>{
