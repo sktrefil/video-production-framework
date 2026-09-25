@@ -1069,8 +1069,28 @@ export class Agent2RuntimeAdapterService {
       agent: "AGENT2_STORY_AUDIO",
       attempt: dispatch.attempt
     });
+    await this.progress.taskProgress({
+      project_id: projectId,
+      task_id: taskId,
+      agent: "AGENT2_STORY_AUDIO",
+      attempt: dispatch.attempt,
+      phase: "RUNTIME_EXECUTION",
+      completed: 5,
+      total: 100,
+      message: "Runtime execution started."
+    });
     try {
       const runtime = await this.executeDispatched(projectId, taskId, dispatch.attempt);
+      await this.progress.taskProgress({
+        project_id: projectId,
+        task_id: taskId,
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        phase: "WORKER_OUTPUT_READY",
+        completed: taskId === "T030" ? 90 : 70,
+        total: 100,
+        message: "Worker output is ready for validation."
+      });
 
       if (
         agent2AiRuntimeMode(this.environment) === "CODEX_SESSION" &&
@@ -1083,6 +1103,16 @@ export class Agent2RuntimeAdapterService {
             `${gate.gate} rejected ${taskId} before Codex1 success QC.`
           );
         }
+        await this.progress.taskProgress({
+          project_id: projectId,
+          task_id: taskId,
+          agent: "AGENT2_STORY_AUDIO",
+          attempt: dispatch.attempt,
+          phase: "DETERMINISTIC_GATE_PASS",
+          completed: 80,
+          total: 100,
+          message: "Deterministic completion gate passed."
+        });
         await this.progress.emit({
           event: "QC_STARTED",
           project_id: projectId,
@@ -1111,6 +1141,16 @@ export class Agent2RuntimeAdapterService {
           verdict: review.verdict,
           phase: "CODEX1_SUCCESS_QC"
         });
+        await this.progress.taskProgress({
+          project_id: projectId,
+          task_id: taskId,
+          agent: "AGENT2_STORY_AUDIO",
+          attempt: dispatch.attempt,
+          phase: "MANAGER_QC_COMPLETE",
+          completed: 95,
+          total: 100,
+          message: `Codex1 QC returned ${review.verdict}.`
+        });
         if (review.verdict !== "APPROVE") {
           await this.manager.applyManagerVerdict(
             projectId,
@@ -1126,6 +1166,16 @@ export class Agent2RuntimeAdapterService {
       }
 
       const completed = await this.manager.complete(projectId, taskId);
+      await this.progress.taskProgress({
+        project_id: projectId,
+        task_id: taskId,
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        phase: "COMPLETE",
+        completed: 100,
+        total: 100,
+        message: "Task completed."
+      });
       await this.progress.emit({
         event: "TASK_COMPLETED",
         project_id: projectId,
