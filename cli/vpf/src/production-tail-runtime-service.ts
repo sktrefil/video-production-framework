@@ -1,0 +1,1158 @@
+import {createHash} from "node:crypto";
+import {spawn} from "node:child_process";
+import {copyFile, mkdir, readFile, rename, stat, writeFile} from "node:fs/promises";
+import * as path from "node:path";
+import {fileURLToPath, pathToFileURL} from "node:url";
+import type {GenericEditProject} from "@vpf/domain";
+import type {ProjectBootstrapService, ProjectStatus} from "@vpf/project-bootstrap";
+import {
+  FileSystemResourceRegistry,
+  type FormatProfilePayload,
+  type ResourcePin
+} from "@vpf/resource-registry";
+import {
+  ThreeTierFilesystemReferenceSelector
+} from "@vpf/reference-library/tiered-selector";
+import {
+  probeImageBytes,
+  type ImageProviderAdapter,
+  type ImageProviderReference
+} from "@vpf/provider-orchestrator/image-runtime";
+import type {
+  Agent2SubtitleTimingSpec,
+  Agent2TtsManifest,
+  PromptBundleDocument,
+  SceneVisualDocument,
+  StateImageDocument
+} from "@vpf/production-spec";
+import {Agent2StoryAudioRepository} from "@vpf/storage/agent2-story-audio";
+import {Agent3VisualProductionRepository} from "@vpf/storage/agent3-visual-production";
+import {ProductionTailRepository} from "@vpf/storage/production-tail";
+import {Agent1WorkflowOrchestratorService} from "./workflow-orchestrator-service.js";
+import {CodexManagerRuntimeService} from "./codex-manager-runtime-service.js";
+import {CodexProcessRunner} from "./codex-process-runner.js";
+import {ProductionProgressReporter} from "./production-progress.js";
+
+const DEFAULT_REPOSITORY_ROOT=path.resolve(fileURLToPath(new URL("../../..",import.meta.url)));
+
+type TailTaskId="T070"|"T080"|"T090"|"T100";
+
+type GeneratedImage={
+  state_image_id:string;
+  scene_id:string;
+  relative_path:string;
+  sha256:string;
+  width:number;
+  height:number;
+  provider_request_ids:string[];
+  reference_roles:string[];
+};
+
+type GeneratedImagesArtifact={
+  schema_version:"1.0";
+  project_id:string;
+  provider:string;
+  source_prompt_bundle_sha256:string;
+  images:GeneratedImage[];
+};
+
+type FlowManifestItem={
+  clip_id:string;
+  scene_id:string;
+  provider_prompt_en:string;
+  editorial_duration_sec:number;
+  narrative_deadline_sec:number;
+  target_state_deadline_sec:number;
+  safe_trim_start_sec:number;
+  entry_image_relative_path:string;
+  mid_image_relative_path:string|null;
+  target_image_relative_path:string;
+  expected_output_relative_path:string;
+};
+
+export type FlowManualManifest={
+  schema_version:"1.0";
+  project_id:string;
+  provider:"GOOGLE_FLOW";
+  execution_mode:"MANUAL_EXTERNAL";
+  generated_at:string;
+  items:FlowManifestItem[];
+};
+
+type GeneratedClip={
+  clip_id:string;
+  scene_id:string;
+  relative_path:string;
+  sha256:string;
+  source_duration_sec:number;
+  editorial_duration_sec:number;
+  width:number|null;
+  height:number|null;
+};
+
+type GeneratedClipsArtifact={
+  schema_version:"1.0";
+  project_id:string;
+  provider:"GOOGLE_FLOW";
+  clips:GeneratedClip[];
+};
+
+type PreviewRenderArtifact={
+  schema_version:"1.0";
+  project_id:string;
+  relative_path:string;
+  sha256:string;
+  size_bytes:number;
+  duration_sec:number;
+  width:number|null;
+  height:number|null;
+};
+
+export class ProductionTailRuntimeError extends Error{
+  constructor(
+    public readonly code:
+      |"TAIL_MIGRATION_REQUIRED"
+      |"TAIL_PREREQUISITE"
+      |"TAIL_IMAGE_PROVIDER"
+      |"TAIL_IMAGE_INVALID"
+      |"TAIL_MANUAL_RESULT_INVALID"
+      |"TAIL_FFPROBE_FAILED"
+      |"TAIL_EDITOR_RENDER_FAILED"
+      |"TAIL_MANAGER_QC_REJECTED"
+      |"TAIL_FINAL_QC_REJECTED",
+    message:string
+  ){
+    super(message);
+    this.name="ProductionTailRuntimeError";
+  }
+}
+
+function sha256Bytes(bytes:Uint8Array):string{
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+function sha256Text(value:string):string{
+  return createHash("sha256").update(value,"utf8").digest("hex");
+}
+
+function safeFileSegment(value:string):string{
+  const safe=value.trim().replace(/[^A-Za-z0-9._-]+/gu,"_").replace(/^_+|_+$/gu,"");
+  return safe||"artifact";
+}
+
+async function atomicWrite(filename:string,bytes:Uint8Array):Promise<void>{
+  await mkdir(path.dirname(filename),{recursive:true});
+  const temporary=filename+".tmp-"+String(process.pid)+"-"+String(Date.now());
+  await writeFile(temporary,bytes);
+  await rename(temporary,filename);
+}
+
+async function writeJson(filename:string,value:unknown):Promise<void>{
+  await mkdir(path.dirname(filename),{recursive:true});
+  const temporary=filename+".tmp-"+String(process.pid)+"-"+String(Date.now());
+  await writeFile(temporary,JSON.stringify(value,null,2)+"\n","utf8");
+  await rename(temporary,filename);
+}
+
+async function readyFile(filename:string):Promise<boolean>{
+  try{
+    const info=await stat(filename);
+    return info.isFile()&&info.size>0;
+  }catch{
+    return false;
+  }
+}
+
+async function fileSha256(filename:string):Promise<string>{
+  return sha256Bytes(await readFile(filename));
+}
+
+async function runProcess(command:string,args:string[],cwd:string):Promise<void>{
+  await new Promise<void>((resolveRun,rejectRun)=>{
+    const child=spawn(command,args,{
+      cwd,
+      stdio:"inherit",
+      windowsHide:true,
+      shell:false,
+      env:{...process.env,PYTHONUTF8:"1",PYTHONIOENCODING:"utf-8"}
+    });
+    child.once("error",rejectRun);
+    child.once("exit",(code,signal)=>{
+      if(code===0)resolveRun();
+      else rejectRun(new Error(signal!==null
+        ?"Process terminated by "+signal
+        :"Process exited with code "+String(code??"unknown")));
+    });
+  });
+}
+
+async function probeVideo(filename:string):Promise<{
+  durationSec:number;
+  width:number|null;
+  height:number|null;
+}>{
+  const command=process.env.VPF_FFPROBE_PATH?.trim()||"ffprobe";
+  const args=[
+    "-v","error",
+    "-show_entries","format=duration",
+    "-show_entries","stream=codec_type,width,height",
+    "-of","json",
+    filename
+  ];
+  const stdout:Buffer[]=[];
+  const stderr:Buffer[]=[];
+  await new Promise<void>((resolveRun,rejectRun)=>{
+    const child=spawn(command,args,{stdio:["ignore","pipe","pipe"],windowsHide:true,shell:false});
+    child.stdout.on("data",chunk=>stdout.push(Buffer.from(chunk)));
+    child.stderr.on("data",chunk=>stderr.push(Buffer.from(chunk)));
+    child.once("error",error=>rejectRun(new ProductionTailRuntimeError(
+      "TAIL_FFPROBE_FAILED",
+      "ffprobe could not start: "+error.message
+    )));
+    child.once("exit",code=>{
+      if(code===0)resolveRun();
+      else rejectRun(new ProductionTailRuntimeError(
+        "TAIL_FFPROBE_FAILED",
+        Buffer.concat(stderr).toString("utf8").trim()||"ffprobe failed."
+      ));
+    });
+  });
+  let parsed:{format?:{duration?:string|number};streams?:Array<{codec_type?:string;width?:number;height?:number}>};
+  try{
+    parsed=JSON.parse(Buffer.concat(stdout).toString("utf8")) as typeof parsed;
+  }catch{
+    throw new ProductionTailRuntimeError("TAIL_FFPROBE_FAILED","ffprobe returned invalid JSON.");
+  }
+  const durationSec=Number(parsed.format?.duration??0);
+  if(!Number.isFinite(durationSec)||durationSec<=0){
+    throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Video duration is missing or invalid: "+filename);
+  }
+  const video=parsed.streams?.find(stream=>stream.codec_type==="video");
+  return{
+    durationSec,
+    width:Number.isFinite(video?.width)?Number(video?.width):null,
+    height:Number.isFinite(video?.height)?Number(video?.height):null
+  };
+}
+
+function requireFormatPin(status:ProjectStatus):ResourcePin{
+  const pin=status.resourcePins.find(item=>item.resourceType==="FORMAT_PROFILE");
+  if(pin===undefined)throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","FORMAT_PROFILE pin is missing.");
+  return pin;
+}
+
+async function importImageAdapter(moduleSpec:string):Promise<ImageProviderAdapter>{
+  const trimmed=moduleSpec.trim()||path.join(
+    DEFAULT_REPOSITORY_ROOT,
+    "runtimes","image","adapters","chatgpt-browser-adapter.mjs"
+  );
+  const specifier=path.isAbsolute(trimmed)||path.win32.isAbsolute(trimmed)
+    ?pathToFileURL(trimmed).href
+    :trimmed.startsWith(".")
+      ?pathToFileURL(path.resolve(trimmed)).href
+      :trimmed;
+  let loaded:Record<string,unknown>;
+  try{
+    loaded=await import(specifier) as Record<string,unknown>;
+  }catch(error){
+    throw new ProductionTailRuntimeError(
+      "TAIL_IMAGE_PROVIDER",
+      "Could not load image adapter: "+(error instanceof Error?error.message:String(error))
+    );
+  }
+  let candidate=loaded.default;
+  if(candidate===undefined&&typeof loaded.createImageProviderAdapter==="function"){
+    candidate=await (loaded.createImageProviderAdapter as ()=>Promise<unknown>|unknown)();
+  }
+  if(typeof candidate!=="object"||candidate===null||typeof (candidate as {generate?:unknown}).generate!=="function"){
+    throw new ProductionTailRuntimeError("TAIL_IMAGE_PROVIDER","Image adapter must expose generate(request).");
+  }
+  return candidate as ImageProviderAdapter;
+}
+
+function imageByState(images:GeneratedImage[],stateId:string):GeneratedImage{
+  const image=images.find(item=>item.state_image_id===stateId);
+  if(image===undefined)throw new ProductionTailRuntimeError(
+    "TAIL_PREREQUISITE",
+    "Approved image is missing for state "+stateId+"."
+  );
+  return image;
+}
+
+export function buildFlowManualManifest(input:{
+  projectId:string;
+  promptBundle:PromptBundleDocument;
+  approvedImages:GeneratedImagesArtifact;
+  generatedAt?:string;
+}):FlowManualManifest{
+  return{
+    schema_version:"1.0",
+    project_id:input.projectId,
+    provider:"GOOGLE_FLOW",
+    execution_mode:"MANUAL_EXTERNAL",
+    generated_at:input.generatedAt??new Date().toISOString(),
+    items:input.promptBundle.video_prompts.map(prompt=>{
+      const entry=imageByState(input.approvedImages.images,prompt.entry_state_image_id);
+      const target=imageByState(input.approvedImages.images,prompt.target_state_image_id);
+      const mid=prompt.mid_state_image_id===null
+        ?null
+        :imageByState(input.approvedImages.images,prompt.mid_state_image_id);
+      return{
+        clip_id:prompt.clip_id,
+        scene_id:prompt.scene_id,
+        provider_prompt_en:prompt.provider_prompt_en,
+        editorial_duration_sec:prompt.editorial_duration_sec,
+        narrative_deadline_sec:prompt.narrative_deadline_sec,
+        target_state_deadline_sec:prompt.target_state_deadline_sec,
+        safe_trim_start_sec:prompt.safe_trim_start_sec,
+        entry_image_relative_path:entry.relative_path,
+        mid_image_relative_path:mid?.relative_path??null,
+        target_image_relative_path:target.relative_path,
+        expected_output_relative_path:"06_clips/generated/"+safeFileSegment(prompt.clip_id)+".mp4"
+      };
+    })
+  };
+}
+
+function frames(seconds:number,fps:number):number{
+  return Math.max(1,Math.round(seconds*fps));
+}
+
+export function buildTailEditProject(input:{
+  projectId:string;
+  projectName:string;
+  fps:number;
+  width:number;
+  height:number;
+  clips:Array<GeneratedClip&{public_src:string}>;
+  tts:Agent2TtsManifest;
+  ttsPublicSrc:Record<string,string>;
+  subtitles:Agent2SubtitleTimingSpec;
+}):GenericEditProject{
+  const tracks=[
+    {id:"V1",type:"VIDEO" as const,name:"Video",enabled:true,locked:false,order:10},
+    {id:"A1",type:"AUDIO" as const,name:"Narration",enabled:true,locked:false,order:20},
+    {id:"T1",type:"TEXT" as const,name:"Subtitles",enabled:true,locked:false,order:30}
+  ];
+  const items:GenericEditProject["items"]=[];
+  let cursorFrame=0;
+  for(const clip of input.clips){
+    const durationFrames=frames(clip.editorial_duration_sec,input.fps);
+    const sourceFrames=Math.max(durationFrames,frames(clip.source_duration_sec,input.fps));
+    items.push({
+      id:"video-"+clip.clip_id,
+      type:"VIDEO",
+      trackId:"V1",
+      timelineStartFrame:cursorFrame,
+      durationInFrames:durationFrames,
+      enabled:true,
+      locked:false,
+      src:clip.public_src,
+      sourceStartFrame:0,
+      sourceDurationInFrames:durationFrames,
+      sourceAssetDurationInFrames:sourceFrames,
+      playbackRate:1,
+      volume:0,
+      x:0,
+      y:0,
+      scale:1,
+      rotation:0,
+      opacity:1,
+      fit:"cover"
+    });
+    cursorFrame+=durationFrames;
+  }
+  for(const section of input.tts.sections){
+    const src=input.ttsPublicSrc[section.section_id];
+    if(src===undefined)throw new ProductionTailRuntimeError(
+      "TAIL_PREREQUISITE",
+      "Public TTS source is missing for "+section.section_id+"."
+    );
+    const durationFrames=frames(section.audio_duration_sec,input.fps);
+    items.push({
+      id:"tts-"+safeFileSegment(section.section_id),
+      type:"TTS",
+      trackId:"A1",
+      timelineStartFrame:frames(section.timeline_start_sec,input.fps),
+      durationInFrames:durationFrames,
+      enabled:true,
+      locked:false,
+      src,
+      sourceStartFrame:0,
+      sourceDurationInFrames:durationFrames,
+      sourceAssetDurationInFrames:durationFrames,
+      volume:1,
+      muted:false,
+      fadeInFrames:0,
+      fadeOutFrames:0
+    });
+  }
+  const subtitleX=Math.round(input.width*0.05);
+  const subtitleY=Math.round(input.height*0.78);
+  const subtitleWidth=Math.round(input.width*0.9);
+  const fontSize=Math.max(32,Math.round(input.height*0.046));
+  for(const cue of input.subtitles.cues){
+    items.push({
+      id:"subtitle-"+safeFileSegment(cue.subtitle_id),
+      type:"SUBTITLE",
+      trackId:"T1",
+      timelineStartFrame:frames(cue.start_sec,input.fps),
+      durationInFrames:Math.max(1,frames(cue.end_sec-cue.start_sec,input.fps)),
+      enabled:true,
+      locked:false,
+      text:cue.text_ko,
+      x:subtitleX,
+      y:subtitleY,
+      width:subtitleWidth,
+      fontFamily:"VPF Noto Sans KR",
+      fontSize,
+      fontWeight:700,
+      color:"#FFFFFF",
+      strokeColor:"#000000",
+      strokeWidth:2,
+      textAlign:"center",
+      lineHeight:1.25,
+      maxLines:2,
+      backgroundEnabled:false,
+      backgroundColor:"#000000",
+      backgroundOpacity:0,
+      generationSource:"SCRIPT_TTS_ALIGN"
+    });
+  }
+  const narrationFrames=frames(input.tts.total_duration_sec,input.fps);
+  return{
+    schemaVersion:1,
+    project:{
+      id:input.projectId,
+      name:input.projectName,
+      fps:input.fps,
+      width:input.width,
+      height:input.height,
+      durationInFrames:Math.max(cursorFrame,narrationFrames)
+    },
+    tracks,
+    items,
+    settings:{
+      snapEnabled:true,
+      snapToleranceFrames:4,
+      timelineZoom:1,
+      masterVolume:1,
+      clipAudioMasterVolume:1
+    }
+  };
+}
+
+const FINAL_QC_SCHEMA={
+  type:"object",
+  additionalProperties:false,
+  required:["schema_version","verdict","summary","issues","limitations"],
+  properties:{
+    schema_version:{type:"string",enum:["1.0"]},
+    verdict:{type:"string",enum:["APPROVE","BLOCK","ESCALATE"]},
+    summary:{type:"string"},
+    issues:{type:"array",items:{type:"string"}},
+    limitations:{type:"array",items:{type:"string"}}
+  }
+} as const;
+
+export class ProductionTailRuntimeService{
+  private readonly manager:Agent1WorkflowOrchestratorService;
+  private readonly codexManager:CodexManagerRuntimeService;
+  private readonly codexRunner:CodexProcessRunner;
+  private readonly registry=new FileSystemResourceRegistry(path.join(DEFAULT_REPOSITORY_ROOT,"resources"));
+
+  constructor(
+    private readonly projects:ProjectBootstrapService,
+    private readonly environment:NodeJS.ProcessEnv=process.env,
+    private readonly progress:ProductionProgressReporter=new ProductionProgressReporter()
+  ){
+    this.manager=new Agent1WorkflowOrchestratorService(projects);
+    this.codexManager=new CodexManagerRuntimeService(projects,environment);
+    this.codexRunner=new CodexProcessRunner(environment);
+  }
+
+  async runAll(projectId:string):Promise<{
+    project_id:string;
+    status:"COMPLETE"|"HANDOFF"|"AWAITING_MANUAL_EXTERNAL";
+    steps:Array<{task_id:TailTaskId;status:string}>;
+    next_task:string|null;
+    manual_action?:{
+      task_id:"T080";
+      manifest_relative_path:string;
+      missing_outputs:string[];
+    };
+  }>{
+    const status=await this.projects.getStatus(projectId);
+    if(!status.migrations.appliedMigrationIds.includes("0024")){
+      throw new ProductionTailRuntimeError(
+        "TAIL_MIGRATION_REQUIRED",
+        "Production tail runtime requires migration 0024."
+      );
+    }
+    const steps:Array<{task_id:TailTaskId;status:string}>=[];
+    let guard=0;
+    while(guard<16){
+      guard+=1;
+      const workflow=await this.manager.status(projectId);
+      const next=workflow.tasks.find(task=>
+        ["T070","T080","T090","T100"].includes(task.task_id)&&
+        (task.status==="READY"||task.status==="REVISION_REQUIRED")
+      )??null;
+      if(next===null){
+        return{
+          project_id:projectId,
+          status:workflow.next_task===null?"COMPLETE":"HANDOFF",
+          steps,
+          next_task:workflow.next_task?.task_id??null
+        };
+      }
+      const taskId=next.task_id as TailTaskId;
+      if(taskId==="T080"){
+        const manual=await this.prepareT080Manual(projectId);
+        if(!manual.ready){
+          await this.progress.emit({
+            event:"HANDOFF",
+            project_id:projectId,
+            next_task:"T080",
+            next_agent:"AGENT3_VISUAL_PRODUCTION",
+            message:"Google Flow manual-external clips are required before T080 can continue."
+          });
+          return{
+            project_id:projectId,
+            status:"AWAITING_MANUAL_EXTERNAL",
+            steps,
+            next_task:"T080",
+            manual_action:{
+              task_id:"T080",
+              manifest_relative_path:manual.manifestRelativePath,
+              missing_outputs:manual.missing
+            }
+          };
+        }
+      }
+      try{
+        const result=await this.runTask(projectId,taskId);
+        steps.push({task_id:taskId,status:result});
+      }catch(error){
+        const after=await this.manager.status(projectId);
+        const current=after.tasks.find(item=>item.task_id===taskId);
+        const retryable=current?.status==="REVISION_REQUIRED"&&(current.attempt??0)<3;
+        if(retryable){
+          await this.progress.emit({
+            event:"TASK_RETRY",
+            project_id:projectId,
+            task_id:taskId,
+            agent:next.assigned_agent,
+            attempt:current?.attempt,
+            message:error instanceof Error?error.message:String(error)
+          });
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Production tail guard limit was exceeded.");
+  }
+
+  private async runTask(projectId:string,taskId:TailTaskId):Promise<string>{
+    const requestedAgent=taskId==="T090"
+      ?"EDITOR_REMOTION" as const
+      :taskId==="T100"
+        ?"AGENT1_MANAGER" as const
+        :"AGENT3_VISUAL_PRODUCTION" as const;
+    const dispatch=await this.manager.dispatch(projectId,taskId,requestedAgent);
+    await this.progress.emit({
+      event:"TASK_STARTED",
+      project_id:projectId,
+      task_id:taskId,
+      agent:requestedAgent,
+      attempt:dispatch.attempt
+    });
+    await this.progress.taskProgress({
+      project_id:projectId,
+      task_id:taskId,
+      agent:requestedAgent,
+      attempt:dispatch.attempt,
+      phase:"RUNTIME_EXECUTION",
+      completed:5,
+      total:100,
+      message:"Tail runtime execution started."
+    });
+    try{
+      if(taskId==="T070")await this.executeT070(projectId,dispatch.attempt);
+      else if(taskId==="T080")await this.executeT080(projectId,dispatch.attempt);
+      else if(taskId==="T090")await this.executeT090(projectId,dispatch.attempt);
+      else return await this.executeT100(projectId,dispatch.attempt);
+
+      await this.manager.recordGate(projectId,taskId,true);
+      await this.progress.emit({
+        event:"QC_STARTED",
+        project_id:projectId,
+        task_id:taskId,
+        agent:"CODEX_1_MANAGER",
+        attempt:dispatch.attempt,
+        qc_kind:"SUCCESS",
+        phase:"CODEX1_SUCCESS_QC"
+      });
+      const review=await this.codexManager.reviewSuccess({
+        projectId,
+        taskId,
+        attempt:dispatch.attempt,
+        workerRole:taskId==="T090"?"EDITOR_REMOTION":"CODEX_3_VISUAL_PRODUCTION",
+        gateStatus:"PASS",
+        gateId:dispatch.completion_gate,
+        warnings:[]
+      });
+      await this.progress.emit({
+        event:"QC_COMPLETED",
+        project_id:projectId,
+        task_id:taskId,
+        agent:"CODEX_1_MANAGER",
+        attempt:dispatch.attempt,
+        qc_kind:"SUCCESS",
+        verdict:review.verdict,
+        phase:"CODEX1_SUCCESS_QC"
+      });
+      if(review.verdict!=="APPROVE"){
+        await this.manager.applyManagerVerdict(
+          projectId,
+          taskId,
+          dispatch.attempt,
+          review.verdict
+        );
+        throw new ProductionTailRuntimeError(
+          "TAIL_MANAGER_QC_REJECTED",
+          "Codex1 success QC returned "+review.verdict+" for "+taskId+": "+review.root_cause
+        );
+      }
+      const completed=await this.manager.complete(projectId,taskId);
+      await this.progress.taskProgress({
+        project_id:projectId,
+        task_id:taskId,
+        agent:requestedAgent,
+        attempt:dispatch.attempt,
+        phase:"COMPLETE",
+        completed:100,
+        total:100,
+        message:"Task completed."
+      });
+      await this.progress.emit({
+        event:"TASK_COMPLETED",
+        project_id:projectId,
+        task_id:taskId,
+        agent:requestedAgent,
+        attempt:dispatch.attempt,
+        message:taskId+" completed with "+String(completed.last_gate_status??"PASS")+"."
+      });
+      return"COMPLETE";
+    }catch(error){
+      if(
+        error instanceof ProductionTailRuntimeError&&
+        error.code==="TAIL_MANAGER_QC_REJECTED"
+      )throw error;
+      try{
+        if(taskId!=="T100"){
+          const review=await this.codexManager.reviewFailure({
+            projectId,
+            taskId,
+            attempt:dispatch.attempt,
+            workerRole:taskId==="T090"?"EDITOR_REMOTION":"CODEX_3_VISUAL_PRODUCTION",
+            errorCode:error instanceof ProductionTailRuntimeError?error.code:"TAIL_RUNTIME_FAILURE",
+            errorDetail:error instanceof Error?error.message:String(error)
+          });
+          await this.manager.applyManagerVerdict(
+            projectId,
+            taskId,
+            dispatch.attempt,
+            review.verdict
+          );
+        }else{
+          await this.manager.requestRevision(projectId,taskId);
+        }
+      }catch{
+        await this.manager.requestRevision(projectId,taskId);
+      }
+      throw error;
+    }
+  }
+
+  private async resolveFormat(status:ProjectStatus):Promise<FormatProfilePayload>{
+    return(await this.registry.resolvePinned<FormatProfilePayload>(requireFormatPin(status))).payload;
+  }
+
+  private async executeT070(projectId:string,attempt:number):Promise<void>{
+    const status=await this.projects.getStatus(projectId);
+    const format=await this.resolveFormat(status);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    try{
+      const promptRecord=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      const states=agent3.getActive<StateImageDocument>(projectId,"state_image_spec");
+      const visual=agent3.getActive<SceneVisualDocument>(projectId,"scene_visual_spec");
+      if(promptRecord===null||states===null||visual===null){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 requires prompt_bundle_spec, state_image_spec and scene_visual_spec."
+        );
+      }
+      const adapter=await importImageAdapter(this.environment.VPF_IMAGE_ADAPTER_MODULE?.trim()??"");
+      const selector=new ThreeTierFilesystemReferenceSelector({
+        sharedAbsoluteRoot:path.join(DEFAULT_REPOSITORY_ROOT,"workspace","reference_library"),
+        projectAbsoluteRoot:status.projectRoot
+      });
+      const images:GeneratedImage[]=[];
+      for(const [index,prompt] of promptRecord.value.image_prompts.entries()){
+        const scene=visual.value.scenes.find(item=>item.scene_id===prompt.scene_id);
+        const state=states.value.state_images.find(item=>item.state_image_id===prompt.state_image_id);
+        if(scene===undefined||state===undefined){
+          throw new ProductionTailRuntimeError(
+            "TAIL_PREREQUISITE",
+            "T070 prompt references missing scene/state: "+prompt.state_image_id
+          );
+        }
+        const refs=await selector.selectReferences({
+          projectId,
+          scene:{
+            id:scene.scene_id,
+            scriptSegment:scene.narrative_purpose_ko,
+            primaryVisualIdea:scene.visual_intent_ko,
+            mustBeSeen:[
+              ...scene.evidence_constraints,
+              ...state.factual_constraints
+            ]
+          }
+        });
+        const providerRefs:ImageProviderReference[]=[];
+        for(const reference of refs){
+          const absolutePath=path.resolve(status.projectRoot,reference.relativePath);
+          const bytes=await readFile(absolutePath);
+          const probe=probeImageBytes(bytes);
+          providerRefs.push({
+            mediaId:reference.mediaId,
+            role:reference.role,
+            absolutePath,
+            sha256:sha256Bytes(bytes),
+            mimeType:probe.mimeType
+          });
+        }
+        const result=await adapter.generate({
+          prompt:prompt.provider_prompt_en,
+          negativePrompt:prompt.negative_prompt_en,
+          width:format.imageGeneration.width,
+          height:format.imageGeneration.height,
+          aspectRatio:format.aspectRatio,
+          references:providerRefs
+        });
+        const bytes=Buffer.from(result.bytes);
+        const probe=probeImageBytes(bytes);
+        if(
+          result.mimeType!=="image/png"||
+          probe.mimeType!=="image/png"||
+          probe.width!==format.imageGeneration.width||
+          probe.height!==format.imageGeneration.height
+        ){
+          throw new ProductionTailRuntimeError(
+            "TAIL_IMAGE_INVALID",
+            "Generated state image does not match the pinned format profile: "+prompt.state_image_id
+          );
+        }
+        const relativePath="05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
+        await atomicWrite(path.resolve(status.projectRoot,relativePath),bytes);
+        images.push({
+          state_image_id:prompt.state_image_id,
+          scene_id:prompt.scene_id,
+          relative_path:relativePath,
+          sha256:sha256Bytes(bytes),
+          width:probe.width,
+          height:probe.height,
+          provider_request_ids:[...(result.providerRequestIds??[])],
+          reference_roles:providerRefs.map(item=>item.role)
+        });
+        await this.progress.taskProgress({
+          project_id:projectId,
+          task_id:"T070",
+          agent:"AGENT3_VISUAL_PRODUCTION",
+          attempt,
+          phase:"RUNTIME_EXECUTION",
+          completed:10+Math.round(((index+1)/promptRecord.value.image_prompts.length)*60),
+          total:100,
+          message:"Generated state image "+String(index+1)+"/"+String(promptRecord.value.image_prompts.length)+"."
+        });
+      }
+      const generated:GeneratedImagesArtifact={
+        schema_version:"1.0",
+        project_id:projectId,
+        provider:"CHATGPT_BROWSER",
+        source_prompt_bundle_sha256:promptRecord.sha256,
+        images
+      };
+      const qc={
+        schema_version:"1.0",
+        project_id:projectId,
+        status:"PASS",
+        qc_scope:"PROVIDER_OUTPUT_CONTRACT",
+        checks:images.map(image=>({
+          state_image_id:image.state_image_id,
+          status:"PASS",
+          width:image.width,
+          height:image.height,
+          sha256:image.sha256,
+          reference_count:image.reference_roles.length
+        }))
+      };
+      const approved={
+        ...generated,
+        approval_basis:"T070_PROVIDER_CONTRACT_AND_CODEX1_SUCCESS_QC"
+      };
+      const at=new Date().toISOString();
+      tail.save(projectId,"generated_images",generated,"T070",at);
+      tail.save(projectId,"image_qc_result",qc,"T070",at);
+      tail.save(projectId,"approved_images",approved,"T070",at);
+    }finally{
+      tail.close();
+      agent3.close();
+    }
+  }
+
+  private async prepareT080Manual(projectId:string):Promise<{
+    ready:boolean;
+    manifestRelativePath:string;
+    missing:string[];
+  }>{
+    const status=await this.projects.getStatus(projectId);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    const tail=new ProductionTailRepository(status.projectDbPath,{readonly:true});
+    try{
+      const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      const approved=tail.getActive<GeneratedImagesArtifact>(projectId,"approved_images");
+      if(prompts===null||approved===null){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T080 requires prompt_bundle_spec and approved_images."
+        );
+      }
+      const manifest=buildFlowManualManifest({
+        projectId,
+        promptBundle:prompts.value,
+        approvedImages:approved.value
+      });
+      const manifestRelativePath="06_clips/google-flow-manifest.json";
+      await writeJson(path.resolve(status.projectRoot,manifestRelativePath),manifest);
+      const missing:string[]=[];
+      for(const item of manifest.items){
+        if(!(await readyFile(path.resolve(status.projectRoot,item.expected_output_relative_path)))){
+          missing.push(item.expected_output_relative_path);
+        }
+      }
+      return{ready:missing.length===0,manifestRelativePath,missing};
+    }finally{
+      tail.close();
+      agent3.close();
+    }
+  }
+
+  private async executeT080(projectId:string,attempt:number):Promise<void>{
+    const status=await this.projects.getStatus(projectId);
+    const manifest=JSON.parse(
+      await readFile(path.resolve(status.projectRoot,"06_clips/google-flow-manifest.json"),"utf8")
+    ) as FlowManualManifest;
+    const clips:GeneratedClip[]=[];
+    for(const [index,item] of manifest.items.entries()){
+      const absolute=path.resolve(status.projectRoot,item.expected_output_relative_path);
+      if(!(await readyFile(absolute))){
+        throw new ProductionTailRuntimeError(
+          "TAIL_MANUAL_RESULT_INVALID",
+          "Google Flow result is missing: "+item.expected_output_relative_path
+        );
+      }
+      const probe=await probeVideo(absolute);
+      if(probe.durationSec+0.05<item.editorial_duration_sec){
+        throw new ProductionTailRuntimeError(
+          "TAIL_MANUAL_RESULT_INVALID",
+          "Google Flow clip is shorter than its editorial duration: "+item.clip_id
+        );
+      }
+      clips.push({
+        clip_id:item.clip_id,
+        scene_id:item.scene_id,
+        relative_path:item.expected_output_relative_path,
+        sha256:await fileSha256(absolute),
+        source_duration_sec:probe.durationSec,
+        editorial_duration_sec:item.editorial_duration_sec,
+        width:probe.width,
+        height:probe.height
+      });
+      await this.progress.taskProgress({
+        project_id:projectId,
+        task_id:"T080",
+        agent:"AGENT3_VISUAL_PRODUCTION",
+        attempt,
+        phase:"RUNTIME_EXECUTION",
+        completed:10+Math.round(((index+1)/manifest.items.length)*60),
+        total:100,
+        message:"Validated Flow clip "+String(index+1)+"/"+String(manifest.items.length)+"."
+      });
+    }
+    const artifact:GeneratedClipsArtifact={
+      schema_version:"1.0",
+      project_id:projectId,
+      provider:"GOOGLE_FLOW",
+      clips
+    };
+    const qc={
+      schema_version:"1.0",
+      project_id:projectId,
+      status:"PASS",
+      qc_scope:"FILE_AND_EDITORIAL_DURATION",
+      results:clips.map(clip=>({
+        clip_id:clip.clip_id,
+        status:"PASS",
+        source_duration_sec:clip.source_duration_sec,
+        editorial_duration_sec:clip.editorial_duration_sec,
+        sha256:clip.sha256
+      }))
+    };
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    try{
+      const at=new Date().toISOString();
+      tail.save(projectId,"generated_clips",artifact,"T080",at);
+      tail.save(projectId,"clip_qc_result",qc,"T080",at);
+    }finally{
+      tail.close();
+    }
+  }
+
+  private async executeT090(projectId:string,attempt:number):Promise<void>{
+    const status=await this.projects.getStatus(projectId);
+    const format=await this.resolveFormat(status);
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    const agent2=new Agent2StoryAudioRepository(status.projectDbPath,{readonly:true});
+    try{
+      const clips=tail.getActive<GeneratedClipsArtifact>(projectId,"generated_clips");
+      const tts=agent2.getActive<Agent2TtsManifest>(projectId,"tts_manifest");
+      const subtitles=agent2.getActive<Agent2SubtitleTimingSpec>(projectId,"subtitle_timing");
+      if(clips===null||tts===null||subtitles===null){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T090 requires generated_clips, tts_manifest and subtitle_timing."
+        );
+      }
+      const publicRoot=path.join(
+        DEFAULT_REPOSITORY_ROOT,
+        "apps","editor","public","runtime",projectId
+      );
+      const publicClips:Array<GeneratedClip&{public_src:string}>=[];
+      for(const clip of clips.value.clips){
+        const fileName=safeFileSegment(clip.clip_id)+".mp4";
+        const target=path.join(publicRoot,"clips",fileName);
+        await mkdir(path.dirname(target),{recursive:true});
+        await copyFile(path.resolve(status.projectRoot,clip.relative_path),target);
+        publicClips.push({
+          ...clip,
+          public_src:"runtime/"+projectId+"/clips/"+fileName
+        });
+      }
+      const ttsPublicSrc:Record<string,string>={};
+      for(const section of tts.value.sections){
+        const extension=path.extname(section.audio_relative_path)||".mp3";
+        const fileName=safeFileSegment(section.section_id)+extension;
+        const target=path.join(publicRoot,"tts",fileName);
+        await mkdir(path.dirname(target),{recursive:true});
+        await copyFile(path.resolve(status.projectRoot,section.audio_relative_path),target);
+        ttsPublicSrc[section.section_id]="runtime/"+projectId+"/tts/"+fileName;
+      }
+      const editProject=buildTailEditProject({
+        projectId,
+        projectName:status.project.title,
+        fps:format.fpsPreference,
+        width:format.width,
+        height:format.height,
+        clips:publicClips,
+        tts:tts.value,
+        ttsPublicSrc,
+        subtitles:subtitles.value
+      });
+      const editRelativePath="08_editor/edit_project.json";
+      await writeJson(path.resolve(status.projectRoot,editRelativePath),editProject);
+      await this.progress.taskProgress({
+        project_id:projectId,
+        task_id:"T090",
+        agent:"EDITOR_REMOTION",
+        attempt,
+        phase:"RUNTIME_EXECUTION",
+        completed:45,
+        total:100,
+        message:"Canonical edit_project.json materialized."
+      });
+      try{
+        await runProcess(
+          process.execPath,
+          [
+            path.join(DEFAULT_REPOSITORY_ROOT,"apps","editor","scripts","render-tail-preview.mjs"),
+            status.projectRoot,
+            projectId
+          ],
+          DEFAULT_REPOSITORY_ROOT
+        );
+      }catch(error){
+        throw new ProductionTailRuntimeError(
+          "TAIL_EDITOR_RENDER_FAILED",
+          error instanceof Error?error.message:String(error)
+        );
+      }
+      const previewRelativePath="09_render/preview.mp4";
+      const previewAbsolute=path.resolve(status.projectRoot,previewRelativePath);
+      const info=await stat(previewAbsolute);
+      if(!info.isFile()||info.size<=0){
+        throw new ProductionTailRuntimeError("TAIL_EDITOR_RENDER_FAILED","Remotion preview render is missing or empty.");
+      }
+      const probe=await probeVideo(previewAbsolute);
+      const preview:PreviewRenderArtifact={
+        schema_version:"1.0",
+        project_id:projectId,
+        relative_path:previewRelativePath,
+        sha256:await fileSha256(previewAbsolute),
+        size_bytes:info.size,
+        duration_sec:probe.durationSec,
+        width:probe.width,
+        height:probe.height
+      };
+      const timeline={
+        schema_version:"1.0",
+        project_id:projectId,
+        edit_project_relative_path:editRelativePath,
+        fps:format.fpsPreference,
+        width:format.width,
+        height:format.height,
+        duration_in_frames:editProject.project.durationInFrames,
+        clip_count:publicClips.length,
+        narration_section_count:tts.value.sections.length,
+        subtitle_count:subtitles.value.cues.length
+      };
+      const at=new Date().toISOString();
+      tail.save(projectId,"timeline_spec",timeline,"T090",at);
+      tail.save(projectId,"preview_render",preview,"T090",at);
+    }finally{
+      agent2.close();
+      tail.close();
+    }
+  }
+
+  private async executeT100(projectId:string,attempt:number):Promise<string>{
+    const status=await this.projects.getStatus(projectId);
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    try{
+      const timeline=tail.getActive(projectId,"timeline_spec");
+      const preview=tail.getActive<PreviewRenderArtifact>(projectId,"preview_render");
+      if(timeline===null||preview===null){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T100 requires timeline_spec and preview_render."
+        );
+      }
+      await this.progress.emit({
+        event:"QC_STARTED",
+        project_id:projectId,
+        task_id:"T100",
+        agent:"CODEX_1_MANAGER",
+        attempt,
+        qc_kind:"SUCCESS",
+        phase:"CODEX1_SUCCESS_QC"
+      });
+      const result=await this.codexRunner.execute<{
+        schema_version:"1.0";
+        verdict:"APPROVE"|"BLOCK"|"ESCALATE";
+        summary:string;
+        issues:string[];
+        limitations:string[];
+      }>({
+        projectId,
+        projectRoot:status.projectRoot,
+        dbPath:status.projectDbPath,
+        roleId:"CODEX_1_MANAGER",
+        taskId:"T100",
+        attempt,
+        instructions:[
+          "Act as Agent 1 final production QC.",
+          "Review the supplied canonical timeline summary and technical preview-render evidence.",
+          "Do not claim direct visual or audio perception that is not present in the supplied evidence.",
+          "APPROVE only if timing, lineage, render dimensions, duration and artifact integrity are coherent.",
+          "BLOCK when an upstream artifact or render must be regenerated before approval.",
+          "ESCALATE only when an explicit human editorial judgment is required.",
+          "List evidence limitations explicitly."
+        ],
+        input:{
+          project_id:projectId,
+          timeline_spec:timeline.value,
+          preview_render:preview.value
+        },
+        outputSchema:FINAL_QC_SCHEMA,
+        webSearchMode:"disabled"
+      });
+      const qc={
+        ...result.output,
+        schema_version:"1.0" as const,
+        preview_sha256:preview.value.sha256,
+        reviewed_at:new Date().toISOString()
+      };
+      const at=new Date().toISOString();
+      tail.save(projectId,"final_qc_result",qc,"T100",at);
+      await this.progress.emit({
+        event:"QC_COMPLETED",
+        project_id:projectId,
+        task_id:"T100",
+        agent:"CODEX_1_MANAGER",
+        attempt,
+        qc_kind:"SUCCESS",
+        verdict:result.output.verdict,
+        phase:"CODEX1_SUCCESS_QC"
+      });
+      if(result.output.verdict!=="APPROVE"){
+        await this.manager.applyManagerVerdict(
+          projectId,
+          "T100",
+          attempt,
+          result.output.verdict
+        );
+        throw new ProductionTailRuntimeError(
+          "TAIL_FINAL_QC_REJECTED",
+          "T100 returned "+result.output.verdict+": "+result.output.summary
+        );
+      }
+      const previewAbsolute=path.resolve(status.projectRoot,preview.value.relative_path);
+      const finalRelativePath="09_render/final.mp4";
+      const finalAbsolute=path.resolve(status.projectRoot,finalRelativePath);
+      await mkdir(path.dirname(finalAbsolute),{recursive:true});
+      await copyFile(previewAbsolute,finalAbsolute);
+      const finalQc={
+        ...qc,
+        final_output_relative_path:finalRelativePath,
+        final_output_sha256:await fileSha256(finalAbsolute)
+      };
+      tail.save(projectId,"final_qc_result",finalQc,"T100",new Date().toISOString());
+      await this.manager.recordGate(projectId,"T100",true);
+      const completed=await this.manager.complete(projectId,"T100");
+      await this.progress.taskProgress({
+        project_id:projectId,
+        task_id:"T100",
+        agent:"AGENT1_MANAGER",
+        attempt,
+        phase:"COMPLETE",
+        completed:100,
+        total:100,
+        message:"Final QC approved and final.mp4 was sealed."
+      });
+      await this.progress.emit({
+        event:"TASK_COMPLETED",
+        project_id:projectId,
+        task_id:"T100",
+        agent:"AGENT1_MANAGER",
+        attempt,
+        message:"T100 completed with "+String(completed.last_gate_status??"PASS")+"."
+      });
+      return"COMPLETE";
+    }finally{
+      tail.close();
+    }
+  }
+}
