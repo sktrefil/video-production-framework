@@ -1608,7 +1608,6 @@ export class ProductionTailRuntimeService{
       // provider_prompt_en by Agent3. T070 therefore sends no GLOBAL image
       // attachments, preventing one reference composition from being copied
       // across the whole production.
-      const providerRefs=[] as const;
       const imageSessionKey=
         projectId+":T070:"+promptRecord.sha256+":TEXT_VISUAL_GRAMMAR_ONLY";
       await this.progress.taskProgress({
