@@ -928,6 +928,18 @@ export class ProductionTailRuntimeService{
     const tail=new ProductionTailRepository(status.projectDbPath);
     const workflow=new WorkflowOrchestratorRepository(status.projectDbPath);
     try{
+      const upstreamTaskIds=["T010","T020","T030","T040","T050","T060"] as const;
+      const incompleteUpstream=upstreamTaskIds.filter(taskId=>
+        workflow.getTask(projectId,taskId)?.status!=="COMPLETE"
+      );
+      if(incompleteUpstream.length>0){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 regeneration reset requires completed upstream tasks T010-T060; incomplete: "+
+            incompleteUpstream.join(", ")+"."
+        );
+      }
+
       const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
       if(prompts===null||prompts.value.image_prompts.length===0){
         throw new ProductionTailRuntimeError(
