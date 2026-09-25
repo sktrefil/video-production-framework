@@ -28,6 +28,12 @@ import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionProgressReporter } from "./production-progress.js";
 import { ProductionTerminalProgressRenderer } from "./production-progress-terminal.js";
 import { ProductionTailRuntimeService } from "./production-tail-runtime-service.js";
+import { ProductionDashboardHub } from "./production-dashboard-hub.js";
+import { ProductionDashboardSnapshotService } from "./production-dashboard-snapshot.js";
+import {
+  startProductionDashboard,
+  type ProductionDashboardHandle
+} from "./production-dashboard-server.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -57,7 +63,7 @@ Production Spec operations:
   vpf production validate-states <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
-  vpf production run <project_id> [--events-jsonl] [--no-progress]
+  vpf production run <project_id> [--events-jsonl] [--no-progress] [--dashboard] [--dashboard-port <port>] [--dashboard-open]
 
 Codex multi-agent runtime:
   vpf codex preflight
@@ -549,21 +555,69 @@ export async function runCli(
       }
       const eventsJsonl = args.includes("--events-jsonl");
       const noProgress = args.includes("--no-progress");
+      const dashboardPortRaw = readOption(args, "--dashboard-port");
+      const dashboardEnabled =
+        args.includes("--dashboard") ||
+        args.includes("--dashboard-open") ||
+        dashboardPortRaw !== undefined;
+      const dashboardOpen = args.includes("--dashboard-open");
+      const dashboardPort = dashboardPortRaw === undefined
+        ? undefined
+        : Number(dashboardPortRaw);
+      if (
+        dashboardPort !== undefined &&
+        (!Number.isInteger(dashboardPort) || dashboardPort < 1 || dashboardPort > 65535)
+      ) {
+        io.error("[CLI_USAGE] --dashboard-port must be an integer between 1 and 65535.");
+        return 2;
+      }
+
       const projectBeforeUpgrade = await service.getStatus(projectId);
       if (!projectBeforeUpgrade.migrations.current) {
         await service.upgradeRuntime(projectId);
       }
+      const projectStatus = await service.getStatus(projectId);
       const initialWorkflow = await workflow.status(projectId);
       const terminalProgress = !eventsJsonl && !noProgress
         ? new ProductionTerminalProgressRenderer(initialWorkflow.tasks, line => io.error(line))
         : null;
-      const progress = new ProductionProgressReporter(
-        eventsJsonl
-          ? event => { io.out(JSON.stringify(event)); }
-          : terminalProgress === null
-            ? () => undefined
-            : event => { terminalProgress.handle(event); }
-      );
+
+      const dashboardHub = dashboardEnabled
+        ? new ProductionDashboardHub(
+            path.join(projectStatus.projectRoot, "logs", "production-events.jsonl")
+          )
+        : null;
+      const dashboardSnapshot = dashboardHub === null
+        ? null
+        : new ProductionDashboardSnapshotService(service, dashboardHub);
+      let dashboard: ProductionDashboardHandle | null = null;
+      if (dashboardHub !== null && dashboardSnapshot !== null) {
+        try {
+          dashboard = await startProductionDashboard({
+            projectId,
+            projectRoot: projectStatus.projectRoot,
+            snapshot: dashboardSnapshot,
+            hub: dashboardHub,
+            ...(dashboardPort === undefined ? {} : { preferredPort: dashboardPort }),
+            openBrowser: dashboardOpen
+          });
+          io.error("[VPF DASHBOARD] " + dashboard.url);
+        } catch (error) {
+          io.error(
+            "[VPF DASHBOARD] unavailable: " +
+            (error instanceof Error ? error.message : String(error))
+          );
+        }
+      }
+
+      const progress = new ProductionProgressReporter(event => {
+        if (eventsJsonl) {
+          io.out(JSON.stringify(event));
+        } else if (terminalProgress !== null) {
+          terminalProgress.handle(event);
+        }
+        dashboardHub?.publish(event);
+      });
       const runtimeMode = (process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION")
         .trim()
         .toUpperCase();
@@ -592,6 +646,11 @@ export async function runCli(
             stage: "CODEX_PREFLIGHT",
             preflight
           });
+        }
+        try {
+          await dashboard?.close();
+        } catch {
+          // Dashboard lifecycle is observational and must not affect production exit.
         }
         return 1;
       }
@@ -649,6 +708,12 @@ export async function runCli(
           message: error instanceof Error ? error.message : String(error)
         });
         throw error;
+      } finally {
+        try {
+          await dashboard?.close();
+        } catch {
+          // Dashboard shutdown must not change the production result.
+        }
       }
     }
 
