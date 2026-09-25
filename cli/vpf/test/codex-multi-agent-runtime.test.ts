@@ -447,6 +447,40 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
     assert.equal((await stat(auditOutput)).isFile(), true);
     assert.match(await readFile(auditOutput, "utf8"), /research_spec/u);
 
+    const t010Request = path.join(
+      created.projectRoot,
+      "logs",
+      "codex",
+      "codex2-story-audio",
+      "T010",
+      "attempt_01",
+      "request.json"
+    );
+    const t010RequestBytes = await readFile(t010Request);
+    assert.equal(
+      t010RequestBytes.some(byte => byte > 0x7f),
+      false,
+      "Codex request.json must remain ASCII-safe across native Windows shell boundaries."
+    );
+    const t010RequestPayload = JSON.parse(t010RequestBytes.toString("ascii")) as {
+      topic: string;
+    };
+    assert.equal(
+      t010RequestPayload.topic,
+      "로마 제9군단의 마지막 기록과 이후 행방"
+    );
+
+    const unicodeFixture = {
+      topic: "네안데르탈인은 왜 사라졌나 — 멸종이었는가, 현생인류와 섞였는가",
+      sentinel: "표본비율 2.4–3.8%"
+    };
+    const unicodeSerialized = JSON.stringify(unicodeFixture);
+    assert.equal(
+      JSON.stringify(JSON.parse(unicodeSerialized)),
+      unicodeSerialized,
+      "Unicode fixture must remain JSON-round-trippable."
+    );
+
     const successQcRequest = path.join(
       created.projectRoot,
       "logs",
