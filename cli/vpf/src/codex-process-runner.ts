@@ -527,9 +527,8 @@ export class CodexProcessRunner {
     const model = (this.environment.VPF_CODEX_MODEL ?? "").trim();
     if (model) args.push("--model", model);
     if (attachedImages.length > 0) {
-      args.push("--image", ...attachedImages);
+      args.push("--image", ...attachedImages, "--");
     }
-    args.push("--");
     args.push(
       "Read instructions.md and parse request.json as JSON in the current directory. " +
       (attachedImages.length > 0
