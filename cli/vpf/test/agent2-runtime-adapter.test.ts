@@ -12,6 +12,10 @@ import {
   Agent2RuntimeAdapterError,
   Agent2RuntimeAdapterService
 } from "../src/agent2-runtime-adapter-service.js";
+import {
+  ProductionProgressReporter,
+  type ProductionProgressEvent
+} from "../src/production-progress.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 
@@ -201,6 +205,10 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
       language: "ko"
     });
 
+    const progressEvents: ProductionProgressEvent[] = [];
+    const progress = new ProductionProgressReporter(event => {
+      progressEvents.push(event);
+    });
     const runtime = new Agent2RuntimeAdapterService(bootstrap, {
       ...process.env,
       VPF_AI_RUNTIME_MODE: "OPENAI_API",
@@ -212,13 +220,30 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
       ELEVENLABS_VOICE_ID_HISTORY_MYSTERY_SHORTS: "voice-test",
       ELEVENLABS_API_BASE_URL: `${server.baseUrl}/v1`,
       ELEVENLABS_REQUEST_RETRIES: "0"
-    });
+    }, progress);
 
     const result = await runtime.runAll("agent2_runtime");
     assert.equal(result.steps.length, 3);
     assert.deepEqual(result.steps.map(step => step.task_id), ["T010", "T020", "T030"]);
     assert.equal(result.handoff_task, "T040");
     assert.equal(result.handoff_agent, "AGENT3_VISUAL_PRODUCTION");
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T030" &&
+      event.phase === "WORKER_OUTPUT_READY" &&
+      event.percent === 90
+    ));
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T030" &&
+      event.phase === "COMPLETE" &&
+      event.percent === 100
+    ));
+    assert.ok(progressEvents.some(event =>
+      event.event === "HANDOFF" &&
+      event.next_task === "T040" &&
+      event.next_agent === "AGENT3_VISUAL_PRODUCTION"
+    ));
     assert.equal(openAiCalls, 2);
     assert.equal(ttsCalls, 1);
 
