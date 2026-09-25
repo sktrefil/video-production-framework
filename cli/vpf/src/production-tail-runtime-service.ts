@@ -168,6 +168,7 @@ type T070Checkpoint={
   height:number;
   phase:T070Phase;
   seed_image_ids:string[];
+  seed_qc_attempts:number;
   scene_qc_passed_ids:string[];
   scene_qc_attempts:Record<string,number>;
   revision_feedback_by_state:Record<string,string>;
@@ -388,6 +389,10 @@ async function readT070Checkpoint(filename:string):Promise<T070CheckpointLoad>{
       seed_image_ids:Array.isArray(parsed.seed_image_ids)
         ?parsed.seed_image_ids.filter((value):value is string=>typeof value==="string")
         :[],
+      seed_qc_attempts:
+        typeof parsed.seed_qc_attempts==="number"&&Number.isFinite(parsed.seed_qc_attempts)
+          ?Math.max(0,Math.floor(parsed.seed_qc_attempts))
+          :0,
       scene_qc_passed_ids:Array.isArray(parsed.scene_qc_passed_ids)
         ?parsed.scene_qc_passed_ids.filter((value):value is string=>typeof value==="string")
         :[],
@@ -444,6 +449,7 @@ async function writeT070Checkpoint(
     height:number;
     phase?:T070Phase;
     seedImageIds?:string[];
+    seedQcAttempts?:number;
     sceneQcPassedIds?:string[];
     sceneQcAttempts?:Record<string,number>;
     revisionFeedbackByState?:Record<string,string>;
@@ -458,6 +464,7 @@ async function writeT070Checkpoint(
     height:input.height,
     phase:input.phase??"FULL_GENERATION",
     seed_image_ids:[...new Set(input.seedImageIds??[])],
+    seed_qc_attempts:Math.max(0,Math.floor(input.seedQcAttempts??0)),
     scene_qc_passed_ids:[...new Set(input.sceneQcPassedIds??[])],
     scene_qc_attempts:{...(input.sceneQcAttempts??{})},
     revision_feedback_by_state:{...(input.revisionFeedbackByState??{})},
@@ -2092,6 +2099,8 @@ export class ProductionTailRuntimeService{
             3
           )
           :[];
+      let seedQcAttempts=
+        checkpointCurrent?loadedCheckpoint.value!.seed_qc_attempts:0;
       const sceneQcPassedIds=new Set(
         checkpointCurrent?loadedCheckpoint.value!.scene_qc_passed_ids:[]
       );
@@ -2162,6 +2171,7 @@ export class ProductionTailRuntimeService{
         height:format.imageGeneration.height,
         phase,
         seedImageIds,
+        seedQcAttempts,
         sceneQcPassedIds:[...sceneQcPassedIds],
         sceneQcAttempts,
         revisionFeedbackByState,
