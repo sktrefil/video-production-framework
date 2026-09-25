@@ -240,6 +240,44 @@ test("T070 seed visual QC inspects actual pixels and only PASS unlocks full gene
   assert.ok(dispatch>unlock);
 });
 
+test("T080 is locked behind pixel-grounded final QC of every approved T070 image",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const manager=read("cli/vpf/src/codex-manager-runtime-service.ts");
+  const index=read("cli/vpf/src/index.ts");
+  const storage=read("packages/storage/src/production-tail.ts");
+  const resolver=read("packages/storage/src/workflow-orchestrator.ts");
+
+  assert.match(tail,/runT070FinalVisualQcGate/);
+  assert.match(tail,/approvedById\.size!==expectedPrompts\.length/);
+  assert.match(tail,/expectedSha256:image\.sha256/);
+  assert.match(tail,/reviewT070FinalVisualScene/);
+  assert.match(tail,/checkedIds\.length!==expectedIds\.length/);
+  assert.match(tail,/uniqueChecked\.size!==expectedIds\.length/);
+  assert.match(tail,/status:"AWAITING_FINAL_IMAGE_QC"/);
+  assert.match(tail,/T080 remains locked until failed T070 images\/scenes are corrected/);
+  assert.match(tail,/"t070_final_visual_qc"/);
+
+  assert.match(manager,/taskId: "MANAGER_VISUAL:T070_FINAL:" \+ input\.sceneId/);
+  assert.match(manager,/imagePaths: input\.images\.map\(item => item\.absolutePath\)/);
+  assert.match(manager,/Inspect every attachment directly and compare them with one another/);
+  assert.match(manager,/ENTRY\/MID\/TARGET progression/);
+  assert.match(manager,/PASS only when every attached image is individually acceptable/);
+
+  assert.match(storage,/\| "t070_final_visual_qc"/);
+  assert.match(resolver,/"t070_final_visual_qc"/);
+  assert.match(index,/const awaitingFinalImageQc = tailResult\.status === "AWAITING_FINAL_IMAGE_QC"/);
+  assert.match(index,/Production paused at the T070 final image visual-QC gate/);
+
+  const t080=tail.indexOf('if(taskId==="T080")');
+  const finalQc=tail.indexOf("await this.runT070FinalVisualQcGate",t080);
+  const verdictGate=tail.indexOf('if(finalImageQc.verdict!=="PASS")',finalQc);
+  const manifest=tail.indexOf("await this.prepareT080Manual(projectId)",verdictGate);
+  assert.ok(t080>=0);
+  assert.ok(finalQc>t080);
+  assert.ok(verdictGate>finalQc);
+  assert.ok(manifest>verdictGate);
+});
+
 test("T070 checkpoint persists phased seed state and remains backward compatible",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
 
@@ -347,6 +385,7 @@ test("production run starts or resumes the T070-T100 tail and pauses before cons
   assert.match(index,/service\.upgradeRuntime\(projectId\)/);
   assert.match(index,/productionTailRuntime\.runAll\(projectId\)/);
   assert.match(index,/AWAITING_MANUAL_EXTERNAL/);
+  assert.match(index,/AWAITING_FINAL_IMAGE_QC/);
 
   const prepare=tail.indexOf('if(taskId==="T080")');
   const resume=tail.indexOf("const resumeCurrentAttempt=",prepare);
@@ -374,6 +413,7 @@ test("migration 0024 and workflow resolver persist every tail artifact needed by
     "image_qc_result",
     "approved_images",
     "t070_seed_visual_qc",
+    "t070_final_visual_qc",
     "generated_clips",
     "clip_qc_result",
     "timeline_spec",
