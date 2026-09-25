@@ -128,6 +128,9 @@ type T070Checkpoint={
   height:number;
   phase:T070Phase;
   seed_image_ids:string[];
+  scene_qc_passed_ids:string[];
+  scene_qc_attempts:Record<string,number>;
+  revision_feedback_by_state:Record<string,string>;
   images:GeneratedImage[];
   updated_at:string;
 };
@@ -280,6 +283,17 @@ async function readT070Checkpoint(filename:string):Promise<T070CheckpointLoad>{
       seed_image_ids:Array.isArray(parsed.seed_image_ids)
         ?parsed.seed_image_ids.filter((value):value is string=>typeof value==="string")
         :[],
+      scene_qc_passed_ids:Array.isArray(parsed.scene_qc_passed_ids)
+        ?parsed.scene_qc_passed_ids.filter((value):value is string=>typeof value==="string")
+        :[],
+      scene_qc_attempts:
+        typeof parsed.scene_qc_attempts==="object"&&parsed.scene_qc_attempts!==null
+          ?parsed.scene_qc_attempts as Record<string,number>
+          :{},
+      revision_feedback_by_state:
+        typeof parsed.revision_feedback_by_state==="object"&&parsed.revision_feedback_by_state!==null
+          ?parsed.revision_feedback_by_state as Record<string,string>
+          :{},
       images:parsed.images as GeneratedImage[],
       updated_at:parsed.updated_at!
     };
@@ -325,6 +339,9 @@ async function writeT070Checkpoint(
     height:number;
     phase?:T070Phase;
     seedImageIds?:string[];
+    sceneQcPassedIds?:string[];
+    sceneQcAttempts?:Record<string,number>;
+    revisionFeedbackByState?:Record<string,string>;
     images:GeneratedImage[];
   }
 ):Promise<void>{
@@ -336,6 +353,9 @@ async function writeT070Checkpoint(
     height:input.height,
     phase:input.phase??"FULL_GENERATION",
     seed_image_ids:[...new Set(input.seedImageIds??[])],
+    scene_qc_passed_ids:[...new Set(input.sceneQcPassedIds??[])],
+    scene_qc_attempts:{...(input.sceneQcAttempts??{})},
+    revision_feedback_by_state:{...(input.revisionFeedbackByState??{})},
     images:input.images,
     updated_at:new Date().toISOString()
   };
