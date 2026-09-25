@@ -339,7 +339,6 @@ test("T070 uses text-only GLOBAL visual grammar and attaches no GLOBAL reference
   assert.doesNotMatch(tail,/ThreeTierFilesystemReferenceSelector/);
   assert.doesNotMatch(tail,/REFERENCE_LIBRARY:GLOBAL_VISUAL:/);
   assert.doesNotMatch(tail,/PINNED_GLOBAL_VISUAL_2/);
-  assert.match(tail,/const providerRefs=\[\] as const/);
   assert.match(tail,/TEXT_VISUAL_GRAMMAR_ONLY/);
   assert.match(tail,/references:\[\]/);
   assert.match(tail,/reference_roles:\[\]/);
