@@ -1,7 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import * as path from "node:path";
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
-import type { PromptBundleDocument } from "@vpf/production-spec";
+import type { PromptBundleDocument, SceneVisualDocument } from "@vpf/production-spec";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { ProductionTailRepository } from "@vpf/storage/production-tail";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
@@ -129,6 +129,74 @@ export async function inspectFlowManifestFiles(projectRoot: string): Promise<{
   };
 }
 
+export interface ProductionDashboardClipPlanItem {
+  clip_id: string;
+  scene_id: string;
+  entry_state_image_id: string;
+  mid_state_image_id: string | null;
+  target_state_image_id: string;
+  prompt_ko: string;
+  provider_prompt_en: string;
+  editorial_duration_sec: number;
+  narrative_deadline_sec: number;
+  target_state_deadline_sec: number;
+  safe_trim_start_sec: number;
+  handoff: {
+    entry_anchor: string;
+    exit_anchor: string;
+    preserve_elements: string[];
+    next_cut_intent: string;
+  } | null;
+  continuity: {
+    movement_direction: string;
+    screen_direction: string;
+    camera_energy: string;
+  } | null;
+}
+
+export function buildClipPlanPreview(
+  promptBundle: PromptBundleDocument | null,
+  sceneVisual: SceneVisualDocument | null
+): {
+  available: boolean;
+  total: number;
+  items: ProductionDashboardClipPlanItem[];
+} {
+  if (promptBundle === null) return { available: false, total: 0, items: [] };
+  const sceneById = new Map(
+    (sceneVisual?.scenes ?? []).map(scene => [scene.scene_id, scene])
+  );
+  const items = promptBundle.video_prompts.map(prompt => {
+    const scene = sceneById.get(prompt.scene_id);
+    return {
+      clip_id: prompt.clip_id,
+      scene_id: prompt.scene_id,
+      entry_state_image_id: prompt.entry_state_image_id,
+      mid_state_image_id: prompt.mid_state_image_id,
+      target_state_image_id: prompt.target_state_image_id,
+      prompt_ko: prompt.prompt_ko,
+      provider_prompt_en: prompt.provider_prompt_en,
+      editorial_duration_sec: prompt.editorial_duration_sec,
+      narrative_deadline_sec: prompt.narrative_deadline_sec,
+      target_state_deadline_sec: prompt.target_state_deadline_sec,
+      safe_trim_start_sec: prompt.safe_trim_start_sec,
+      handoff: scene === undefined ? null : {
+        entry_anchor: scene.handoff.entry_anchor,
+        exit_anchor: scene.handoff.exit_anchor,
+        preserve_elements: [...scene.handoff.preserve_elements],
+        next_cut_intent: scene.handoff.next_cut_intent
+      },
+      continuity: scene === undefined ? null : {
+        movement_direction: scene.continuity.movement_direction,
+        screen_direction: scene.continuity.screen_direction,
+        camera_energy: scene.continuity.camera_energy
+      }
+    };
+  });
+  return { available: items.length > 0, total: items.length, items };
+}
+
+
 export interface ProductionDashboardTaskSnapshot {
   task_id: string;
   name: string;
@@ -164,6 +232,7 @@ export interface ProductionDashboardSnapshot {
   remaining_eta: EtaRange | null;
   remaining_eta_excludes_manual_external: boolean;
   tasks: ProductionDashboardTaskSnapshot[];
+  clip_plan: ReturnType<typeof buildClipPlanPreview>;
   t070: {
     total: number;
     completed: number;
@@ -228,6 +297,12 @@ export class ProductionDashboardSnapshotService {
       const live = this.hub.snapshot();
       const promptBundle =
         agent3Repo.getActive<PromptBundleDocument>(projectId, "prompt_bundle_spec");
+      const sceneVisual =
+        agent3Repo.getActive<SceneVisualDocument>(projectId, "scene_visual_spec");
+      const clipPlan = buildClipPlanPreview(
+        promptBundle?.value ?? null,
+        sceneVisual?.value ?? null
+      );
       const stateImageIds = promptBundle?.value.image_prompts.map(item => item.state_image_id) ?? [];
       const imageProgress = await countGeneratedImageFiles(project.projectRoot, stateImageIds);
       const flow = await inspectFlowManifestFiles(project.projectRoot);
@@ -352,6 +427,7 @@ export class ProductionDashboardSnapshotService {
         remaining_eta_excludes_manual_external:
           tasks.some(task => task.task_id === "T080" && task.workflow_status !== "COMPLETE"),
         tasks,
+        clip_plan: clipPlan,
         t070: {
           total: imageProgress.total,
           completed: imageProgress.completed,
