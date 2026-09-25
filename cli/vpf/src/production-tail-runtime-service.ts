@@ -1900,70 +1900,139 @@ export class ProductionTailRuntimeService{
         message:"T070 is using text-only GLOBAL visual grammar; no GLOBAL reference image is attached."
       });
 
-      for(const [index,prompt] of promptRecord.value.image_prompts.entries()){
-        if(!generationStateIds.has(prompt.state_image_id))continue;
-        const scene=visual.value.scenes.find(item=>item.scene_id===prompt.scene_id);
-        const state=states.value.state_images.find(item=>item.state_image_id===prompt.state_image_id);
-        if(scene===undefined||state===undefined){
+      const promptIndexById=new Map(
+        promptRecord.value.image_prompts.map((prompt,index)=>[prompt.state_image_id,index] as const)
+      );
+      const stateById=new Map(
+        states.value.state_images.map(state=>[state.state_image_id,state] as const)
+      );
+      const sceneOrder:string[]=[];
+      for(const prompt of promptRecord.value.image_prompts){
+        if(
+          generationStateIds.has(prompt.state_image_id)&&
+          !sceneOrder.includes(prompt.scene_id)
+        )sceneOrder.push(prompt.scene_id);
+      }
+
+      for(const sceneId of sceneOrder){
+        const scene=visual.value.scenes.find(item=>item.scene_id===sceneId);
+        if(scene===undefined){
           throw new ProductionTailRuntimeError(
             "TAIL_PREREQUISITE",
-            "T070 prompt references missing scene/state: "+prompt.state_image_id
+            "T070 scene is missing from scene_visual_spec: "+sceneId
           );
         }
-
-        const reusable=completedByState.get(prompt.state_image_id);
-        if(reusable!==undefined){
-          const updated={
-            ...reusable,
-            reference_roles:[]
-          };
-          completedByState.set(prompt.state_image_id,updated);
-          await writeCurrentCheckpoint();
-          continue;
+        const scenePrompts=promptRecord.value.image_prompts
+          .filter(prompt=>
+            prompt.scene_id===sceneId&&generationStateIds.has(prompt.state_image_id)
+          )
+          .sort((left,right)=>
+            (stateById.get(left.state_image_id)?.sequence_order??0)-
+            (stateById.get(right.state_image_id)?.sequence_order??0)
+          );
+        if(
+          phase==="FULL_GENERATION"&&
+          scenePrompts.some(prompt=>!completedByState.has(prompt.state_image_id))
+        ){
+          sceneQcPassedIds.delete(sceneId);
         }
 
-        let generatedImage:GeneratedImage|null=null;
-        let lastError:unknown=null;
-        for(let itemAttempt=1;itemAttempt<=T070_ITEM_MAX_ATTEMPTS;itemAttempt+=1){
-          try{
-            const result=await adapter.generate({
-              prompt:prompt.provider_prompt_en,
-              negativePrompt:prompt.negative_prompt_en,
-              width:format.imageGeneration.width,
-              height:format.imageGeneration.height,
-              aspectRatio:format.aspectRatio,
-              references:[],
-              sessionKey:imageSessionKey
-            });
-            const bytes=Buffer.from(result.bytes);
-            const probe=probeImageBytes(bytes);
-            if(
-              result.mimeType!=="image/png"||
-              probe.mimeType!=="image/png"||
-              probe.width!==format.imageGeneration.width||
-              probe.height!==format.imageGeneration.height
-            ){
+        let sceneComplete=false;
+        while(!sceneComplete){
+          for(const prompt of scenePrompts){
+            const state=stateById.get(prompt.state_image_id);
+            if(state===undefined){
               throw new ProductionTailRuntimeError(
-                "TAIL_IMAGE_INVALID",
-                "Generated state image does not match the pinned format profile: "+prompt.state_image_id
+                "TAIL_PREREQUISITE",
+                "T070 prompt references missing state: "+prompt.state_image_id
               );
             }
-            const relativePath="05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
-            await atomicWrite(path.resolve(status.projectRoot,relativePath),bytes);
-            generatedImage={
-              state_image_id:prompt.state_image_id,
-              scene_id:prompt.scene_id,
-              relative_path:relativePath,
-              sha256:sha256Bytes(bytes),
-              width:probe.width,
-              height:probe.height,
-              provider_request_ids:[...(result.providerRequestIds??[])],
-              reference_roles:[]
-            };
-            break;
-          }catch(error){
-            lastError=error;
-            if(itemAttempt>=T070_ITEM_MAX_ATTEMPTS)break;
+
+            const reusable=completedByState.get(prompt.state_image_id);
+            if(reusable!==undefined){
+              completedByState.set(prompt.state_image_id,{
+                ...reusable,
+                reference_roles:[]
+              });
+              continue;
+            }
+
+            let generatedImage:GeneratedImage|null=null;
+            let lastError:unknown=null;
+            const globalIndex=(promptIndexById.get(prompt.state_image_id)??0)+1;
+            for(let itemAttempt=1;itemAttempt<=T070_ITEM_MAX_ATTEMPTS;itemAttempt+=1){
+              try{
+                const result=await adapter.generate({
+                  prompt:buildT070RuntimeProviderPrompt({
+                    basePrompt:prompt.provider_prompt_en,
+                    scene,
+                    state,
+                    revisionFeedback:revisionFeedbackByState[prompt.state_image_id]
+                  }),
+                  negativePrompt:prompt.negative_prompt_en,
+                  width:format.imageGeneration.width,
+                  height:format.imageGeneration.height,
+                  aspectRatio:format.aspectRatio,
+                  references:[],
+                  sessionKey:imageSessionKey
+                });
+                const bytes=Buffer.from(result.bytes);
+                const probe=probeImageBytes(bytes);
+                if(
+                  result.mimeType!=="image/png"||
+                  probe.mimeType!=="image/png"||
+                  probe.width!==format.imageGeneration.width||
+                  probe.height!==format.imageGeneration.height
+                ){
+                  throw new ProductionTailRuntimeError(
+                    "TAIL_IMAGE_INVALID",
+                    "Generated state image does not match the pinned format profile: "+
+                      prompt.state_image_id
+                  );
+                }
+                const relativePath=
+                  "05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
+                await atomicWrite(path.resolve(status.projectRoot,relativePath),bytes);
+                generatedImage={
+                  state_image_id:prompt.state_image_id,
+                  scene_id:prompt.scene_id,
+                  relative_path:relativePath,
+                  sha256:sha256Bytes(bytes),
+                  width:probe.width,
+                  height:probe.height,
+                  provider_request_ids:[...(result.providerRequestIds??[])],
+                  reference_roles:[]
+                };
+                break;
+              }catch(error){
+                lastError=error;
+                if(itemAttempt>=T070_ITEM_MAX_ATTEMPTS)break;
+                await this.progress.taskProgress({
+                  project_id:projectId,
+                  task_id:"T070",
+                  agent:"AGENT3_VISUAL_PRODUCTION",
+                  attempt,
+                  phase:"RUNTIME_EXECUTION",
+                  completed:10+Math.round((completedByState.size/total)*60),
+                  total:100,
+                  message:
+                    "Retrying state image "+String(globalIndex)+"/"+String(total)+
+                    " after provider failure ("+String(itemAttempt)+"/"+
+                    String(T070_ITEM_MAX_ATTEMPTS)+")."
+                });
+              }
+            }
+
+            if(generatedImage===null){
+              if(lastError instanceof Error)throw lastError;
+              throw new ProductionTailRuntimeError(
+                "TAIL_IMAGE_PROVIDER",
+                "Image provider failed for state "+prompt.state_image_id+"."
+              );
+            }
+
+            completedByState.set(prompt.state_image_id,generatedImage);
+            await writeCurrentCheckpoint();
             await this.progress.taskProgress({
               project_id:projectId,
               task_id:"T070",
@@ -1973,33 +2042,107 @@ export class ProductionTailRuntimeService{
               completed:10+Math.round((completedByState.size/total)*60),
               total:100,
               message:
-                "Retrying state image "+String(index+1)+"/"+String(total)+
-                " after provider failure ("+String(itemAttempt)+"/"+
-                String(T070_ITEM_MAX_ATTEMPTS)+")."
+                "Generated state image "+String(globalIndex)+"/"+String(total)+
+                " in "+sceneId+"."
             });
           }
-        }
 
-        if(generatedImage===null){
-          if(lastError instanceof Error)throw lastError;
-          throw new ProductionTailRuntimeError(
-            "TAIL_IMAGE_PROVIDER",
-            "Image provider failed for state "+prompt.state_image_id+"."
+          if(phase!=="FULL_GENERATION"){
+            sceneComplete=true;
+            continue;
+          }
+          if(sceneQcPassedIds.has(sceneId)){
+            sceneComplete=true;
+            continue;
+          }
+
+          const sceneImages=scenePrompts.map(prompt=>{
+            const image=completedByState.get(prompt.state_image_id);
+            if(image===undefined){
+              throw new ProductionTailRuntimeError(
+                "TAIL_PREREQUISITE",
+                "Scene-level QC requires every state image for "+sceneId+"."
+              );
+            }
+            return image;
+          });
+          const reviewCycle=(sceneQcAttempts[sceneId]??0)+1;
+          sceneQcAttempts[sceneId]=reviewCycle;
+          await writeCurrentCheckpoint();
+          const sceneQc=await this.runT070SceneVisualQc(
+            projectId,
+            attempt,
+            promptRecord.sha256,
+            sceneId,
+            sceneImages,
+            reviewCycle
           );
-        }
+          if(sceneQc.verdict==="PASS"){
+            sceneQcPassedIds.add(sceneId);
+            for(const prompt of scenePrompts){
+              delete revisionFeedbackByState[prompt.state_image_id];
+            }
+            await writeCurrentCheckpoint();
+            await this.progress.taskProgress({
+              project_id:projectId,
+              task_id:"T070",
+              agent:"CODEX_1_MANAGER",
+              attempt,
+              phase:"SCENE_IMAGE_VISUAL_QC",
+              completed:sceneQcPassedIds.size,
+              total:sceneOrder.length,
+              message:sceneId+" passed scene-level visual QC; continuing T070."
+            });
+            sceneComplete=true;
+            continue;
+          }
 
-        completedByState.set(prompt.state_image_id,generatedImage);
-        await writeCurrentCheckpoint();
-        await this.progress.taskProgress({
-          project_id:projectId,
-          task_id:"T070",
-          agent:"AGENT3_VISUAL_PRODUCTION",
-          attempt,
-          phase:"RUNTIME_EXECUTION",
-          completed:10+Math.round((completedByState.size/total)*60),
-          total:100,
-          message:"Generated state image "+String(index+1)+"/"+String(total)+"."
-        });
+          let failedIds=sceneQc.checks
+            .filter(check=>
+              check.verdict!=="PASS"||
+              check.fantasy_control!=="PASS"||
+              check.video_readiness!=="PASS"
+            )
+            .map(check=>check.state_image_id);
+          if(failedIds.length===0){
+            failedIds=scenePrompts.map(prompt=>prompt.state_image_id);
+          }
+          for(const stateImageId of new Set(failedIds)){
+            const previous=completedByState.get(stateImageId);
+            if(previous!==undefined){
+              await rm(path.resolve(status.projectRoot,previous.relative_path),{force:true});
+            }
+            completedByState.delete(stateImageId);
+            const notes=sceneQc.checks.find(check=>check.state_image_id===stateImageId)?.notes??[];
+            revisionFeedbackByState[stateImageId]=[
+              sceneQc.revision_instruction,
+              ...notes
+            ].filter(Boolean).join(" ");
+          }
+          sceneQcPassedIds.delete(sceneId);
+          await writeCurrentCheckpoint();
+
+          if(reviewCycle>=3){
+            throw new ProductionTailRuntimeError(
+              "TAIL_MANAGER_QC_REJECTED",
+              sceneId+" failed scene-level visual QC after "+
+                String(reviewCycle)+" targeted regeneration cycles: "+
+                sceneQc.summary
+            );
+          }
+          await this.progress.taskProgress({
+            project_id:projectId,
+            task_id:"T070",
+            agent:"AGENT3_VISUAL_PRODUCTION",
+            attempt,
+            phase:"SCENE_REVISION",
+            completed:sceneQcPassedIds.size,
+            total:sceneOrder.length,
+            message:
+              sceneId+" visual QC requested targeted regeneration of "+
+              String(new Set(failedIds).size)+" state image(s)."
+          });
+        }
       }
 
       if(phase==="SEED_GENERATION"){
