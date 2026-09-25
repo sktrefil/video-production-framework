@@ -261,12 +261,12 @@ type PreviewRenderArtifact={
 
 function effectiveT070FantasyMode(scene:SceneVisualDocument["scenes"][number]):"OFF"|"RESTRAINED"|"EDITORIAL"|"HEIGHTENED"{
   if(scene.fantasy_mode!==undefined)return scene.fantasy_mode;
-  if(scene.factuality_mode==="EVIDENCE")return"RESTRAINED";
   if(
-    scene.factuality_mode==="EDITORIAL_FANTASY_RECONSTRUCTION"||
-    scene.factuality_mode==="LEGEND_RECONSTRUCTION"
-  )return"EDITORIAL";
-  return"RESTRAINED";
+    scene.factuality_mode==="EVIDENCE"||
+    scene.factuality_mode==="HISTORICAL_RECONSTRUCTION"
+  )return"RESTRAINED";
+  if(scene.factuality_mode==="LEGEND_RECONSTRUCTION")return"HEIGHTENED";
+  return"EDITORIAL";
 }
 
 function buildT070RuntimeProviderPrompt(input:{
