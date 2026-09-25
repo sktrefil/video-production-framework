@@ -141,6 +141,8 @@ export interface ProductionDashboardTaskSnapshot {
   started_at: string | null;
   completed_at: string | null;
   elapsed_sec: number;
+  runtime_last_activity_age_sec: number | null;
+  runtime_pid: number | null;
   expected_default_sec: readonly [number, number] | null;
   eta: EtaRange | null;
 }
@@ -268,6 +270,9 @@ export class ProductionDashboardSnapshotService {
           started_at: task.started_at,
           completed_at: task.completed_at,
           elapsed_sec: elapsedSec,
+          runtime_last_activity_age_sec:
+            liveProgress?.runtime_last_activity_age_sec ?? null,
+          runtime_pid: liveProgress?.runtime_pid ?? null,
           expected_default_sec: DEFAULT_TASK_ETA_SEC[task.task_id] ?? null,
           eta
         };
