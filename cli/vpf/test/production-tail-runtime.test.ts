@@ -4,6 +4,7 @@ import {resolve} from "node:path";
 import test from "node:test";
 import {
   buildFlowManualManifest,
+  buildT070PendingOrdinals,
   buildTailEditProject
 } from "../src/production-tail-runtime-service.js";
 
@@ -148,6 +149,42 @@ test("production tail builds V1 A1 T1 edit project from unified artifacts",()=>{
   assert.equal(subtitle?.type,"SUBTITLE");
   assert.equal(subtitle?.timelineStartFrame,30);
   assert.equal(subtitle?.durationInFrames,60);
+});
+
+test("T070 resume plan starts at 7/43 when the first six state images are checkpointed",()=>{
+  const prompts=Array.from({length:43},(_,index)=>({
+    state_image_id:"STATE_"+String(index+1).padStart(2,"0")
+  }));
+  const completed=prompts.slice(0,6).map(item=>item.state_image_id);
+  const pending=buildT070PendingOrdinals(prompts,completed);
+
+  assert.equal(pending.length,37);
+  assert.equal(pending[0],7);
+  assert.equal(pending.at(-1),43);
+});
+
+test("T070 runtime persists item checkpoints, skips completed states and can resume an exhausted attempt",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const workflow=read("cli/vpf/src/workflow-orchestrator-service.ts");
+
+  assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH="05_images\/generated\/t070-checkpoint\.json"/);
+  assert.match(tail,/writeT070Checkpoint\(checkpointAbsolute/);
+  assert.match(tail,/loadedCheckpoint\.exists&&attempt>1/);
+  assert.match(tail,/const reusable=completedByState\.get\(prompt\.state_image_id\)/);
+  assert.match(tail,/T070_ITEM_MAX_ATTEMPTS=3/);
+  assert.match(tail,/await this\.hasT070ResumeEvidence\(projectId\)/);
+  assert.match(tail,/\{resumeCurrentAttempt\}/);
+
+  const reusableIndex=tail.indexOf("const reusable=completedByState.get(prompt.state_image_id)");
+  const continueIndex=tail.indexOf("continue;",reusableIndex);
+  const generateIndex=tail.indexOf("const result=await adapter.generate",reusableIndex);
+  assert.ok(reusableIndex>=0);
+  assert.ok(continueIndex>reusableIndex);
+  assert.ok(generateIndex>continueIndex);
+
+  assert.match(workflow,/options: \{ resumeCurrentAttempt\?: boolean \} = \{\}/);
+  assert.match(workflow,/Only an incomplete T070 revision attempt can resume without consuming a new attempt/);
+  assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
 test("production run starts or resumes the T070-T100 tail and pauses before consuming T080",()=>{
