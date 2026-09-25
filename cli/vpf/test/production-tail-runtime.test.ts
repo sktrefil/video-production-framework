@@ -5,7 +5,8 @@ import test from "node:test";
 import {
   buildFlowManualManifest,
   buildT070PendingOrdinals,
-  buildTailEditProject
+  buildTailEditProject,
+  selectT070SeedImageIds
 } from "../src/production-tail-runtime-service.js";
 
 const root=resolve(import.meta.dirname,"../../..");
@@ -149,6 +150,37 @@ test("production tail builds V1 A1 T1 edit project from unified artifacts",()=>{
   assert.equal(subtitle?.type,"SUBTITLE");
   assert.equal(subtitle?.timelineStartFrame,30);
   assert.equal(subtitle?.durationInFrames,60);
+});
+
+test("T070 seed plan deterministically samples early, middle and late states",()=>{
+  const prompts=Array.from({length:43},(_,index)=>({
+    state_image_id:"STATE_"+String(index+1).padStart(2,"0")
+  }));
+
+  assert.deepEqual(
+    selectT070SeedImageIds(prompts),
+    ["STATE_01","STATE_22","STATE_43"]
+  );
+  assert.deepEqual(
+    selectT070SeedImageIds(prompts.slice(0,2)),
+    ["STATE_01","STATE_02"]
+  );
+  assert.deepEqual(selectT070SeedImageIds([],3),[]);
+});
+
+test("T070 checkpoint persists phased seed state and remains backward compatible",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  assert.match(tail,/export type T070Phase=/);
+  for(const phase of ["SEED_GENERATION","SEED_QC","FULL_GENERATION","FINAL_QC"]){
+    assert.match(tail,new RegExp("\\|\\\""+phase+"\\\""));
+  }
+  assert.match(tail,/phase:T070Phase/);
+  assert.match(tail,/seed_image_ids:string\[\]/);
+  assert.match(tail,/phase:isT070Phase\(parsed\.phase\)\?parsed\.phase:"FULL_GENERATION"/);
+  assert.match(tail,/seed_image_ids:Array\.isArray\(parsed\.seed_image_ids\)/);
+  assert.match(tail,/phase:input\.phase\?\?"FULL_GENERATION"/);
+  assert.match(tail,/seed_image_ids:\[\.\.\.new Set\(input\.seedImageIds\?\?\[\]\)\]/);
 });
 
 test("T070 resume plan starts at 7/43 when the first six state images are checkpointed",()=>{
