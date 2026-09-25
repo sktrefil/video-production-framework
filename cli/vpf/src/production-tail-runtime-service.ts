@@ -103,6 +103,8 @@ type T070SceneVisualQcResultRecord={
     factual_constraints:"PASS"|"FAIL";
     continuity_readiness:"PASS"|"FAIL";
     artifact_quality:"PASS"|"FAIL";
+    fantasy_control:"PASS"|"FAIL";
+    video_readiness:"PASS"|"FAIL";
     notes:string[];
   }>;
   revision_instruction:string;
