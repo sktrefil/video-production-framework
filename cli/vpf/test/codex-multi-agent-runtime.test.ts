@@ -6,6 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
+import { Agent3RuntimeRepository } from "@vpf/storage/agent3-runtime";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
 import { Agent2RuntimeAdapterError, Agent2RuntimeAdapterService } from "../src/agent2-runtime-adapter-service.js";
@@ -1194,4 +1195,144 @@ test("Agent3 fatal Codex failure path restores task to revision-required", async
     source,
     /!codexFatal\(error\)/u
   );
+});
+
+
+test("T050 timeout restores workflow to REVISION_REQUIRED for a later production retry", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-t050-timeout-retry-"));
+  const fixtures = path.join(root, "fixtures");
+  await import("node:fs/promises").then(fs => fs.mkdir(fixtures, { recursive: true }));
+  const projectId = "t050_timeout_retry";
+  try {
+    const bootstrap = new ProjectBootstrapService({
+      repositoryRoot,
+      workspaceRoot: path.join(root, "workspace")
+    });
+    const created = await bootstrap.createProject({
+      projectId,
+      title: "T050 timeout retry",
+      topic: "로마 제9군단의 마지막 기록과 이후 행방",
+      format: "shortform",
+      targetDurationSec: 6,
+      language: "ko"
+    });
+    const baseEnv = runtimeEnv(fixtures);
+    await writeJson(fixtures, "T010", researchBundle(projectId));
+    await writeJson(fixtures, "T020", storyBundle(projectId));
+    for (const taskId of ["T010", "T020", "T040"]) {
+      await writeJson(fixtures, "MANAGER_SUCCESS_" + taskId, {
+        schema_version: "1.0",
+        verdict: "APPROVE",
+        root_cause: "Fixture output is coherent.",
+        revision_instruction: "",
+        preserve: ["validated upstream constraints"]
+      });
+    }
+
+    const agent2 = new Agent2RuntimeAdapterService(bootstrap, baseEnv);
+    await agent2.runNext(projectId);
+    await agent2.runNext(projectId);
+
+    const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
+    const worker = new Agent2StoryAudioWorkerService(bootstrap);
+    const characters = Array.from(scriptText);
+    const starts = characters.map((_, index) => Number((index * 0.2).toFixed(3)));
+    const ends = characters.map((_, index) => Number(((index + 1) * 0.2).toFixed(3)));
+    const duration = ends.at(-1)!;
+    await workflow.dispatch(projectId, "T030");
+    await worker.executePayload(projectId, "T030", {
+      schema_version: "1.0",
+      project_id: projectId,
+      provider: "ELEVENLABS",
+      voice_id: "TEST",
+      model_id: "eleven_v3",
+      sections: [{
+        section_id: "TTS_001",
+        timeline_start_sec: 0,
+        text: scriptText,
+        audio_relative_path: "03_tts/narration.mp3",
+        audio_sha256: "a".repeat(64),
+        audio_duration_sec: duration,
+        alignment: {
+          characters,
+          character_start_times_seconds: starts,
+          character_end_times_seconds: ends
+        }
+      }]
+    });
+    await workflow.complete(projectId, "T030");
+
+    const status = await bootstrap.getStatus(projectId);
+    const biblePin = status.resourcePins.find(pin =>
+      pin.resourceType === "CHANNEL_VISUAL_BIBLE"
+    );
+    assert.ok(biblePin);
+    await writeJson(fixtures, "T040", visualSpec(projectId, {
+      resourceId: biblePin!.resourceId,
+      version: biblePin!.version,
+      contentHash: biblePin!.contentHash
+    }));
+
+    const agent3Normal = new Agent3RuntimeAdapterService(bootstrap, baseEnv);
+    const t040 = await agent3Normal.runNext(projectId);
+    assert.equal("task_id" in t040 ? t040.task_id : null, "T040");
+
+    const progressEvents: ProductionProgressEvent[] = [];
+    const timeoutProgress = new ProductionProgressReporter(event => {
+      progressEvents.push(event);
+    });
+    const timeoutEnv = {
+      ...baseEnv,
+      VPF_FAKE_CODEX_HANG_TASK: "T050",
+      VPF_CODEX_TIMEOUT_MS: "250",
+      VPF_CODEX_HEARTBEAT_MS: "50"
+    };
+    const agent3Timeout = new Agent3RuntimeAdapterService(
+      bootstrap,
+      timeoutEnv,
+      timeoutProgress
+    );
+
+    await assert.rejects(
+      agent3Timeout.runNext(projectId),
+      (error: unknown) =>
+        error instanceof CodexRuntimeError &&
+        error.code === "CODEX_EXEC_TIMEOUT"
+    );
+
+    const after = await workflow.status(projectId);
+    const t050 = after.tasks.find(task => task.task_id === "T050");
+    assert.equal(t050?.status, "REVISION_REQUIRED");
+    assert.equal(t050?.attempt, 1);
+    assert.equal(
+      after.tasks.find(task => task.task_id === "T060")?.status,
+      "BLOCKED"
+    );
+
+    const agent3Runs = new Agent3RuntimeRepository(
+      created.projectDbPath,
+      { readonly: true }
+    );
+    try {
+      const run = agent3Runs.list(projectId)
+        .filter(item => item.task_id === "T050")
+        .at(-1);
+      assert.equal(run?.status, "FAILED");
+      assert.equal(run?.error_code, "CODEX_EXEC_TIMEOUT");
+      assert.match(run?.error_detail ?? "", /CODEX_TIMEOUT/u);
+    } finally {
+      agent3Runs.close();
+    }
+
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T050" &&
+      event.phase === "RUNTIME_EXECUTION" &&
+      (event.elapsed_sec ?? 0) > 0 &&
+      event.runtime_pid !== null &&
+      event.runtime_pid !== undefined
+    ));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
