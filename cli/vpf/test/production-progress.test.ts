@@ -92,4 +92,11 @@ test("overall production progress uses canonical task weights and active task pa
     ),
     38
   );
+  assert.equal(
+    calculateOverallProgress([
+      "T010", "T020", "T030", "T040", "T050",
+      "T060", "T070", "T080", "T090", "T100"
+    ]),
+    100
+  );
 });
