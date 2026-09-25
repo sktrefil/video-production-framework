@@ -366,6 +366,16 @@ function imageByState(images:GeneratedImage[],stateId:string):GeneratedImage{
   return image;
 }
 
+export function buildT070PendingOrdinals(
+  prompts:Array<{state_image_id:string}>,
+  completedStateIds:Iterable<string>
+):number[]{
+  const completed=new Set(completedStateIds);
+  return prompts.flatMap((prompt,index)=>
+    completed.has(prompt.state_image_id)?[]:[index+1]
+  );
+}
+
 export function buildFlowManualManifest(input:{
   projectId:string;
   promptBundle:PromptBundleDocument;
@@ -902,6 +912,11 @@ export class ProductionTailRuntimeService{
         .map(prompt=>completedByState.get(prompt.state_image_id)??null)
         .filter((image):image is GeneratedImage=>image!==null);
 
+      const pendingOrdinals=buildT070PendingOrdinals(
+        promptRecord.value.image_prompts,
+        completedByState.keys()
+      );
+
       if(completedByState.size>0){
         await writeT070Checkpoint(checkpointAbsolute,{
           projectId,
@@ -918,7 +933,10 @@ export class ProductionTailRuntimeService{
           phase:"RUNTIME_EXECUTION",
           completed:10+Math.round((completedByState.size/total)*60),
           total:100,
-          message:"Resuming T070 from "+String(completedByState.size)+"/"+String(total)+" generated state images."
+          message:
+            "Resuming T070 from "+String(completedByState.size)+"/"+String(total)+
+            " generated state images; next pending "+String(pendingOrdinals[0]??"none")+
+            "/"+String(total)+"."
         });
       }
 
