@@ -491,10 +491,27 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
       "request.json"
     );
     assert.equal((await stat(successQcRequest)).isFile(), true);
-    const successQcPayload = await readFile(successQcRequest, "utf8");
+    const successQcRequestBytes = await readFile(successQcRequest);
+    assert.equal(
+      successQcRequestBytes.some(byte => byte > 0x7f),
+      false,
+      "Codex1 QC request.json must also remain ASCII-safe when it embeds Korean upstream artifacts."
+    );
+    const successQcPayload = successQcRequestBytes.toString("ascii");
+    const successQcParsed = JSON.parse(successQcPayload) as {
+      output_artifacts: {
+        research_spec?: {
+          central_question?: string;
+        };
+      };
+    };
     assert.match(successQcPayload, /output_artifacts/u);
     assert.match(successQcPayload, /fact_check_spec/u);
     assert.match(successQcPayload, /deterministic_gate/u);
+    assert.equal(
+      successQcParsed.output_artifacts.research_spec?.central_question,
+      "제9군단의 마지막 운명은 무엇이었는가?"
+    );
   } finally {
     await rm(root, { recursive: true, force: true });
   }
