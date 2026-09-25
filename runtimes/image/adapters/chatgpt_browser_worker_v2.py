@@ -201,31 +201,117 @@ def normalize_text(value: str) -> str:
 
 def fill_and_verify_composer(page, text: str, timeout_seconds: float):
     expected = normalize_text(text)
-    composer = find_composer(page)
-    try:
-        composer.fill(text, timeout=7000)
-    except Exception:
-        composer = find_composer(page)
-        composer.click(timeout=5000)
-        composer.press("Control+A")
-        composer.press("Backspace")
-        composer.evaluate(
-            """(el, value) => {
-              if ('value' in el) el.value = value;
-              else el.textContent = value;
-              el.dispatchEvent(new InputEvent('input', {bubbles: true, inputType: 'insertText', data: value}));
-            }""",
-            text,
-        )
+    if not expected:
+        raise RuntimeError("Approved prompt is empty after normalization.")
 
-    def matches():
+    def snapshot():
         current = find_composer(page)
         actual = normalize_text(composer_text(current))
         if "�" in actual:
             raise RuntimeError("Composer text contains Unicode replacement characters; refusing to send corrupted prompt text.")
+        return current, actual
+
+    def verified():
+        current, actual = snapshot()
         return current if actual == expected else None
 
-    return poll_until("composer text to exactly match approved prompt", matches, min(timeout_seconds, 30))
+    def mismatch_status(label: str) -> None:
+        _, actual = snapshot()
+        status(
+            "FILL_PROMPT mismatch "
+            + label
+            + " expected_chars="
+            + str(len(expected))
+            + " actual_chars="
+            + str(len(actual))
+            + " expected_sha="
+            + hashlib.sha256(expected.encode("utf-8")).hexdigest()[:12]
+            + " actual_sha="
+            + hashlib.sha256(actual.encode("utf-8")).hexdigest()[:12]
+        )
+
+    composer = find_composer(page)
+    try:
+        composer.fill(text, timeout=7000)
+    except Exception as exc:
+        status("FILL_PROMPT playwright_fill_error=" + type(exc).__name__)
+
+    try:
+        return poll_until(
+            "composer text after Playwright fill",
+            verified,
+            min(timeout_seconds, 2.0),
+            0.15,
+        )
+    except Exception:
+        mismatch_status("after_playwright_fill")
+
+    # ChatGPT's composer is commonly a React/ProseMirror contenteditable. A
+    # Playwright fill() call can complete while its framework state still lags
+    # behind the DOM. Re-enter through the browser keyboard so the editor sees
+    # a real input event, then keep the same exact normalized-integrity check.
+    composer = find_composer(page)
+    composer.click(timeout=5000)
+    page.keyboard.press("Control+A")
+    page.keyboard.press("Backspace")
+    page.keyboard.insert_text(text)
+
+    try:
+        return poll_until(
+            "composer text after keyboard insertion",
+            verified,
+            min(timeout_seconds, 6.0),
+            0.15,
+        )
+    except Exception:
+        mismatch_status("after_keyboard_insert")
+
+    # Final fallback for a textarea/contenteditable whose keyboard insertion was
+    # intercepted. Use the native value setter for textareas and execCommand for
+    # contenteditables so framework input listeners receive the change.
+    composer = find_composer(page)
+    composer.evaluate(
+        """(el, value) => {
+          el.focus();
+          if ('value' in el) {
+            const proto = Object.getPrototypeOf(el);
+            const descriptor = Object.getOwnPropertyDescriptor(proto, 'value');
+            if (descriptor && descriptor.set) descriptor.set.call(el, value);
+            else el.value = value;
+            el.dispatchEvent(new InputEvent('input', {
+              bubbles: true,
+              inputType: 'insertText',
+              data: value
+            }));
+            return;
+          }
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          document.execCommand('insertText', false, value);
+          el.dispatchEvent(new InputEvent('input', {
+            bubbles: true,
+            inputType: 'insertText',
+            data: value
+          }));
+        }""",
+        text,
+    )
+
+    try:
+        return poll_until(
+            "composer text to exactly match approved prompt",
+            verified,
+            min(timeout_seconds, 12.0),
+            0.15,
+        )
+    except Exception as exc:
+        mismatch_status("after_native_fallback")
+        raise RuntimeError(
+            "Composer text still differs from the approved prompt after all exact-input strategies."
+        ) from exc
 
 
 def validated_reference_paths(request: dict[str, Any]) -> list[str]:
