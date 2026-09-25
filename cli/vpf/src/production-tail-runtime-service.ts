@@ -457,7 +457,7 @@ function imageByState(images:GeneratedImage[],stateId:string):GeneratedImage{
 }
 
 export function selectT070SeedImageIds(
-  prompts:Array<{state_image_id:string}>,
+  prompts:Array<{state_image_id:string;scene_id?:string}>,
   seedCount=3
 ):string[]{
   if(prompts.length===0||seedCount<=0)return[];
@@ -476,6 +476,60 @@ export function selectT070SeedImageIds(
     selected.push(id);
   }
   return selected;
+}
+
+export function selectT070RepresentativeSeedImageIds(
+  prompts:Array<{state_image_id:string;scene_id:string}>,
+  states:StateImageDocument["state_images"],
+  seedCount=3
+):string[]{
+  if(prompts.length===0||seedCount<=0)return[];
+  const target=Math.min(Math.max(1,Math.floor(seedCount)),prompts.length);
+  const promptById=new Map(prompts.map(prompt=>[prompt.state_image_id,prompt] as const));
+  const stateById=new Map(states.map(state=>[state.state_image_id,state] as const));
+  const sceneOrder:string[]=[];
+  for(const prompt of prompts){
+    if(!sceneOrder.includes(prompt.scene_id))sceneOrder.push(prompt.scene_id);
+  }
+
+  const pickFromScene=(sceneId:string,preferredRole:"ENTRY"|"MID"|"TARGET"):string|null=>{
+    const candidates=states
+      .filter(state=>state.scene_id===sceneId&&promptById.has(state.state_image_id))
+      .sort((a,b)=>a.sequence_order-b.sequence_order);
+    if(candidates.length===0)return null;
+    if(preferredRole==="MID"){
+      const mids=candidates.filter(state=>state.role==="MID");
+      if(mids.length>0)return mids[Math.floor((mids.length-1)/2)]!.state_image_id;
+    }
+    const preferred=candidates.find(state=>state.role===preferredRole);
+    return (preferred??candidates[Math.floor((candidates.length-1)/2)]!)!.state_image_id;
+  };
+
+  const selected:string[]=[];
+  const add=(id:string|null)=>{
+    if(id!==null&&!selected.includes(id)&&selected.length<target)selected.push(id);
+  };
+
+  if(sceneOrder.length>=1)add(pickFromScene(sceneOrder[0]!,"ENTRY"));
+  if(target>=2&&sceneOrder.length>=2){
+    const middleScene=sceneOrder[Math.floor((sceneOrder.length-1)/2)]!;
+    add(pickFromScene(middleScene,"MID"));
+  }
+  if(target>=3&&sceneOrder.length>=1){
+    add(pickFromScene(sceneOrder.at(-1)!,"TARGET"));
+  }
+
+  // Fill any remaining slots from evenly distributed prompt positions while
+  // preserving deterministic output and avoiding duplicate scene/state picks.
+  for(const id of selectT070SeedImageIds(prompts,target)){
+    add(id);
+  }
+  for(const prompt of prompts){
+    add(prompt.state_image_id);
+  }
+
+  // Ignore stale state rows that are not represented by the current prompt set.
+  return selected.filter(id=>stateById.has(id)&&promptById.has(id)).slice(0,target);
 }
 
 export function buildT070GenerationStateIds(
@@ -1478,7 +1532,11 @@ export class ProductionTailRuntimeService{
       const seedImageIds=checkpointCurrent&&loadedCheckpoint.value!.seed_image_ids.length>0
         ?[...loadedCheckpoint.value!.seed_image_ids]
         :phase==="SEED_GENERATION"
-          ?selectT070SeedImageIds(promptRecord.value.image_prompts,3)
+          ?selectT070RepresentativeSeedImageIds(
+            promptRecord.value.image_prompts,
+            states.value.state_images,
+            3
+          )
           :[];
 
       if(checkpointCurrent){
