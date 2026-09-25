@@ -141,7 +141,7 @@ test("ChatGPT Browser worker accepts only a stable new assistant image and downl
   assert.doesNotMatch(worker, /locator\.screenshot/);
 });
 
-test("ChatGPT Browser worker reuses one managed conversation per exact reference set", async () => {
+test("ChatGPT Browser worker reuses one managed conversation per exact reference set across changing prompts", async () => {
   const worker = await readFile(
     new URL("../../../runtimes/image/adapters/chatgpt_browser_worker_v2.py", import.meta.url),
     "utf8"
@@ -151,5 +151,14 @@ test("ChatGPT Browser worker reuses one managed conversation per exact reference
   assert.match(worker, /page, reused_session = open_or_reuse_chatgpt_page\(browser, session_marker\)/);
   assert.match(worker, /mark_managed_session_page\(page, session_marker\)/);
   assert.match(worker, /"reused": True/);
+  assert.match(worker, /Prompt text is deliberately excluded/);
+  const markerStart=worker.indexOf("def reference_session_marker");
+  const markerEnd=worker.indexOf("\ndef managed_session_page",markerStart);
+  assert.ok(markerStart>=0);
+  assert.ok(markerEnd>markerStart);
+  const markerBody=worker.slice(markerStart,markerEnd);
+  assert.doesNotMatch(markerBody,/promptSha256/);
+  assert.doesNotMatch(markerBody,/transmissionText/);
+  assert.match(markerBody,/"references": identity/);
   assert.match(worker, /def generate[\s\S]*?finally:\r?\n        # Keep the worker-managed ChatGPT tab alive[\s\S]*?playwright\.stop\(\)/);
 });
