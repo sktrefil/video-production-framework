@@ -27,6 +27,7 @@ import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionProgressReporter } from "./production-progress.js";
 import { ProductionTerminalProgressRenderer } from "./production-progress-terminal.js";
+import { ProductionTailRuntimeService, ProductionTailRuntimeError } from "./production-tail-runtime-service.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -548,6 +549,10 @@ export async function runCli(
       }
       const eventsJsonl = args.includes("--events-jsonl");
       const noProgress = args.includes("--no-progress");
+      const projectBeforeUpgrade = await service.getStatus(projectId);
+      if (!projectBeforeUpgrade.migrations.current) {
+        await service.upgradeRuntime(projectId);
+      }
       const initialWorkflow = await workflow.status(projectId);
       const terminalProgress = !eventsJsonl && !noProgress
         ? new ProductionTerminalProgressRenderer(initialWorkflow.tasks, line => io.error(line))
@@ -601,28 +606,38 @@ export async function runCli(
         process.env,
         progress
       );
+      const productionTailRuntime = new ProductionTailRuntimeService(
+        service,
+        process.env,
+        progress
+      );
 
       try {
         const agent2Result = await productionAgent2Runtime.runAll(projectId);
         const agent3Result = await productionAgent3Runtime.runAll(projectId);
+        const tailResult = await productionTailRuntime.runAll(projectId);
         const finalWorkflow = await workflow.status(projectId);
+        const awaitingManual = tailResult.status === "AWAITING_MANUAL_EXTERNAL";
         await progress.emit({
           event: "RUN_FINISHED",
           project_id: projectId,
           next_task: finalWorkflow.next_task?.task_id ?? null,
           next_agent: finalWorkflow.next_task?.assigned_agent ?? null,
-          message: finalWorkflow.next_task === null
-            ? "Production run reached the end of the current workflow."
-            : `Production run stopped at handoff to ${finalWorkflow.next_task.task_id}.`
+          message: awaitingManual
+            ? "Production paused at the Google Flow manual-external boundary."
+            : finalWorkflow.next_task === null
+              ? "Production run reached the end of the workflow."
+              : `Production run stopped at handoff to ${finalWorkflow.next_task.task_id}.`
         });
         if (!eventsJsonl) {
           printJson(io, {
             project_id: projectId,
-            status: "RUN_COMPLETE",
+            status: awaitingManual ? "AWAITING_MANUAL_EXTERNAL" : "RUN_COMPLETE",
             runtime_mode: runtimeMode,
             codex_preflight: preflight,
             agent2: agent2Result,
             agent3: agent3Result,
+            tail: tailResult,
             next_task: finalWorkflow.next_task
           });
         }
