@@ -44,6 +44,26 @@ export interface T070SeedVisualQcResult {
   revision_instruction: string;
 }
 
+export interface T070SceneVisualQcResult {
+  schema_version: "1.0";
+  scene_id: string;
+  verdict: "PASS" | "REVISE" | "FAIL";
+  summary: string;
+  continuity_verdict: "PASS" | "FAIL";
+  handoff_verdict: "PASS" | "FAIL";
+  checks: Array<{
+    state_image_id: string;
+    verdict: "PASS" | "REVISE" | "FAIL";
+    prompt_alignment: "PASS" | "FAIL";
+    visual_consistency: "PASS" | "FAIL";
+    factual_constraints: "PASS" | "FAIL";
+    continuity_readiness: "PASS" | "FAIL";
+    artifact_quality: "PASS" | "FAIL";
+    notes: string[];
+  }>;
+  revision_instruction: string;
+}
+
 const MANAGER_SUCCESS_SCHEMA = {
   type: "object",
   additionalProperties: false,
@@ -69,6 +89,57 @@ const MANAGER_SUCCESS_SCHEMA = {
   }
 } as const;
 
+
+const T070_SCENE_VISUAL_QC_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "schema_version",
+    "scene_id",
+    "verdict",
+    "summary",
+    "continuity_verdict",
+    "handoff_verdict",
+    "checks",
+    "revision_instruction"
+  ],
+  properties: {
+    schema_version: { type: "string", enum: ["1.0"] },
+    scene_id: { type: "string" },
+    verdict: { type: "string", enum: ["PASS", "REVISE", "FAIL"] },
+    summary: { type: "string" },
+    continuity_verdict: { type: "string", enum: ["PASS", "FAIL"] },
+    handoff_verdict: { type: "string", enum: ["PASS", "FAIL"] },
+    checks: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: [
+          "state_image_id",
+          "verdict",
+          "prompt_alignment",
+          "visual_consistency",
+          "factual_constraints",
+          "continuity_readiness",
+          "artifact_quality",
+          "notes"
+        ],
+        properties: {
+          state_image_id: { type: "string" },
+          verdict: { type: "string", enum: ["PASS", "REVISE", "FAIL"] },
+          prompt_alignment: { type: "string", enum: ["PASS", "FAIL"] },
+          visual_consistency: { type: "string", enum: ["PASS", "FAIL"] },
+          factual_constraints: { type: "string", enum: ["PASS", "FAIL"] },
+          continuity_readiness: { type: "string", enum: ["PASS", "FAIL"] },
+          artifact_quality: { type: "string", enum: ["PASS", "FAIL"] },
+          notes: { type: "array", items: { type: "string" } }
+        }
+      }
+    },
+    revision_instruction: { type: "string" }
+  }
+} as const;
 
 const T070_SEED_VISUAL_QC_SCHEMA = {
   type: "object",
@@ -230,6 +301,205 @@ export class CodexManagerRuntimeService {
       repo.close();
     }
     return review;
+  }
+
+  async reviewT070FinalVisualScene(input: {
+    projectId: string;
+    attempt: number;
+    sceneId: string;
+    images: Array<{
+      stateImageId: string;
+      absolutePath: string;
+      sha256: string;
+    }>;
+  }): Promise<T070SceneVisualQcResult> {
+    const status = await this.projects.getStatus(input.projectId);
+    if (!status.migrations.appliedMigrationIds.includes("0023")) {
+      throw new CodexRuntimeError(
+        "CODEX_CAPABILITY_MISSING",
+        "T070 final visual QC requires migration 0023."
+      );
+    }
+    if (!status.resourcePins.some(pin =>
+      pin.resourceType === "PROVIDER_PROFILE" &&
+      pin.resourceId === "CODEX_MANAGER_V1"
+    )) {
+      throw new CodexRuntimeError(
+        "CODEX_CAPABILITY_MISSING",
+        "Project does not pin CODEX_MANAGER_V1."
+      );
+    }
+    if (input.images.length === 0) {
+      throw new CodexRuntimeError(
+        "CODEX_OUTPUT_INVALID",
+        "T070 final scene visual QC requires at least one image."
+      );
+    }
+
+    const agent3 = new Agent3VisualProductionRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+    try {
+      const prompts = agent3.getActive<PromptBundleDocument>(
+        input.projectId,
+        "prompt_bundle_spec"
+      );
+      const states = agent3.getActive<StateImageDocument>(
+        input.projectId,
+        "state_image_spec"
+      );
+      const visual = agent3.getActive<SceneVisualDocument>(
+        input.projectId,
+        "scene_visual_spec"
+      );
+      if (prompts === null || states === null || visual === null) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final visual QC requires prompt, state-image and scene-visual artifacts."
+        );
+      }
+      const scene = visual.value.scenes.find(item => item.scene_id === input.sceneId);
+      if (scene === undefined) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final visual QC cannot find scene design context for " + input.sceneId + "."
+        );
+      }
+
+      const imageInputs = input.images.map((image, index) => {
+        const prompt = prompts.value.image_prompts.find(
+          item => item.state_image_id === image.stateImageId
+        );
+        const state = states.value.state_images.find(
+          item => item.state_image_id === image.stateImageId
+        );
+        if (
+          prompt === undefined ||
+          state === undefined ||
+          prompt.scene_id !== input.sceneId ||
+          state.scene_id !== input.sceneId
+        ) {
+          throw new CodexRuntimeError(
+            "CODEX_OUTPUT_INVALID",
+            "T070 final visual QC input does not belong to " +
+              input.sceneId + ": " + image.stateImageId
+          );
+        }
+        return {
+          attachment_index: index + 1,
+          state_image_id: image.stateImageId,
+          image_sha256: image.sha256,
+          role: state.role,
+          sequence_order: state.sequence_order,
+          provider_prompt_en: prompt.provider_prompt_en,
+          negative_prompt_en: prompt.negative_prompt_en,
+          visual_goal_en: state.visual_goal_en || state.visual_goal_ko,
+          composition_en: state.composition_en || state.composition_ko,
+          subject_state_en: state.subject_state_en || state.subject_state_ko,
+          environment_state_en: state.environment_state_en || state.environment_state_ko,
+          motion_vector_en: state.motion_vector_en || state.motion_vector_ko,
+          handoff_anchor: state.handoff_anchor,
+          continuity_refs: state.continuity_refs,
+          factual_constraints: [
+            ...scene.evidence_constraints,
+            ...state.factual_constraints
+          ],
+          forbidden_visual_claims: scene.forbidden_visual_claims
+        };
+      });
+
+      const result = await this.runner.execute<T070SceneVisualQcResult>({
+        projectId: input.projectId,
+        projectRoot: status.projectRoot,
+        dbPath: status.projectDbPath,
+        roleId: "CODEX_1_MANAGER",
+        taskId: "MANAGER_VISUAL:T070_FINAL:" + input.sceneId,
+        attempt: input.attempt,
+        instructions: [
+          "Act as Agent 1 final image-set visual QC for one T070 scene.",
+          "The attached files are the actual generated PNG pixels for this scene. Inspect every attachment directly and compare them with one another.",
+          "Attachment order exactly matches images[].attachment_index in request.json.",
+          "Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone.",
+          "Assess every image for approved-state alignment, visual/factual correctness, visible artifact quality, and readiness for video animation.",
+          "Assess the scene as a sequence: identity, environment, lighting, color language, movement/screen direction, recurring motifs, ENTRY/MID/TARGET progression, and handoff anchors must remain coherent where required.",
+          "FAIL unsupported visible historical claims, modern/anachronistic objects, readable generated text, watermarks, severe anatomy/object corruption, or continuity that makes the planned clip misleading or unusable.",
+          "Use REVISE when regeneration of one or more named state images can repair the scene without changing approved upstream facts or visual policy.",
+          "PASS only when every attached image is individually acceptable and the scene continuity/handoff is visually usable.",
+          "Return exactly one check for every state_image_id and no extras.",
+          "If verdict is PASS, continuity_verdict and handoff_verdict must both PASS and revision_instruction must be empty.",
+          "For REVISE or FAIL, identify the exact state_image_ids to regenerate in revision_instruction.",
+          "Web search is disabled; judge only the supplied approved design context and actual attached pixels."
+        ],
+        input: {
+          project_id: input.projectId,
+          scene_id: input.sceneId,
+          scene_design: {
+            factuality_mode: scene.factuality_mode,
+            visual_intent_en: scene.visual_intent_en || scene.visual_intent_ko,
+            environment_en: scene.environment_en || scene.environment_ko,
+            subject_en: scene.subject_en || scene.subject_ko,
+            action_en: scene.action_en || scene.action_ko,
+            evidence_constraints: scene.evidence_constraints,
+            forbidden_visual_claims: scene.forbidden_visual_claims,
+            continuity: scene.continuity,
+            handoff: scene.handoff
+          },
+          images: imageInputs
+        },
+        imagePaths: input.images.map(item => item.absolutePath),
+        outputSchema: T070_SCENE_VISUAL_QC_SCHEMA,
+        webSearchMode: "disabled"
+      });
+
+      const review = {
+        ...result.output,
+        schema_version: "1.0" as const
+      };
+      if (review.scene_id !== input.sceneId) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final visual QC returned the wrong scene_id."
+        );
+      }
+      const expectedIds = input.images.map(item => item.stateImageId).sort();
+      const actualIds = review.checks.map(item => item.state_image_id).sort();
+      if (JSON.stringify(actualIds) !== JSON.stringify(expectedIds)) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final visual QC must return exactly one check for every scene image."
+        );
+      }
+      if (!review.summary.trim()) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final visual QC requires a non-empty scene summary."
+        );
+      }
+      if (
+        review.verdict === "PASS" &&
+        (
+          review.revision_instruction.trim() ||
+          review.continuity_verdict !== "PASS" ||
+          review.handoff_verdict !== "PASS" ||
+          review.checks.some(item => item.verdict !== "PASS")
+        )
+      ) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final scene QC PASS is inconsistent with its checks or continuity verdicts."
+        );
+      }
+      if (review.verdict !== "PASS" && !review.revision_instruction.trim()) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 final scene QC non-PASS verdict requires concrete regeneration instructions."
+        );
+      }
+      return review;
+    } finally {
+      agent3.close();
+    }
   }
 
   async reviewT070SeedVisuals(input: {
