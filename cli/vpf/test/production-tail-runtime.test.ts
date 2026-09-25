@@ -403,6 +403,25 @@ test("T070 full generation is scene-batched with targeted pixel-QC regeneration"
   assert.match(manager,/T070_SCENE/);
 });
 
+test("T070 cannot complete workflow before full final pixel QC passes",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  const runTask=tail.indexOf("private async runTask(");
+  const execute=tail.indexOf("const t070Result=await this.executeT070",runTask);
+  const finalQc=tail.indexOf("const finalImageQc=await this.runT070FinalVisualQcGate",execute);
+  const gate=tail.indexOf("await this.manager.recordGate(projectId,taskId,true)",finalQc);
+  const complete=tail.indexOf("const completed=await this.manager.complete(projectId,taskId)",gate);
+
+  assert.ok(runTask>=0);
+  assert.ok(execute>runTask);
+  assert.ok(finalQc>execute);
+  assert.ok(gate>finalQc);
+  assert.ok(complete>gate);
+  assert.match(tail,/prepareT070FinalQcRevision\(projectId,finalImageQc\)/);
+  assert.match(tail,/for\(let finalCycle=1;finalCycle<=3;finalCycle\+=1\)/);
+  assert.match(tail,/phase:"FINAL_QC_REVISION"/);
+});
+
 test("T070 final QC is policy-versioned and marks checkpoint COMPLETE only after PASS",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
 
