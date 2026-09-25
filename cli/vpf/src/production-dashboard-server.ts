@@ -43,7 +43,7 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
   </section>
   <section class="panel current">
     <div class="rowline"><div><b id="current-title">Current task</b><div id="current-detail" class="muted">—</div></div><b id="current-percent">0%</b></div>
-    <div class="progress" style="margin-top:10px"><i id="overall-bar"></i></div>
+    <div class="progress" style="margin-top:10px"><i id="current-bar"></i></div>
   </section>
   <div class="grid">
     <section class="panel"><b>Production stages</b><div class="tablewrap"><table><thead><tr><th>Task</th><th>Status</th><th>Progress</th><th>Elapsed</th><th>Expected / ETA</th><th>Attempt</th></tr></thead><tbody id="tasks"></tbody></table></div></section>
@@ -84,12 +84,16 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
   function render(s){
     q("project").textContent=s.project_id+" · "+s.format+" · "+s.title;
     q("overall").textContent=s.overall_percent.toFixed(1)+"%";
-    q("overall-bar").style.width=Math.max(0,Math.min(100,s.overall_percent))+"%";
+    const current=s.tasks.find(t=>t.task_id===s.current_task);
+    q("current-bar").style.width=(current?Math.max(0,Math.min(100,current.percent)):s.final.production_complete?100:0)+"%";
     q("elapsed").textContent=fmt(s.elapsed_sec);
     q("remaining").textContent=eta(s.remaining_eta);
     q("confidence").textContent=s.remaining_eta ? "confidence "+s.remaining_eta.confidence+(s.remaining_eta_excludes_manual_external?" · manual Flow excluded":"") : "";
-    q("activity").textContent=s.last_activity_age_sec==null?"—":s.last_activity_age_sec+"s ago";
-    const current=s.tasks.find(t=>t.task_id===s.current_task);
+    q("activity").textContent=s.last_activity_age_sec==null
+      ?"—"
+      :s.last_activity_age_sec>300
+        ?"POSSIBLY STALLED · "+s.last_activity_age_sec+"s"
+        :s.last_activity_age_sec+"s ago";
     q("current-title").textContent=current ? current.task_id+" "+current.name : (s.final.production_complete?"Production complete":"No active task");
     q("current-detail").textContent=current ? [current.phase||current.status,current.agent,"attempt "+current.attempt+"/3"].join(" · ") : "—";
     q("current-percent").textContent=current ? current.percent.toFixed(1)+"%" : (s.final.production_complete?"100%":"0%");
