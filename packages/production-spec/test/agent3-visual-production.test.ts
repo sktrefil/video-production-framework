@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   compileAgent3Prompts,
+  effectiveFantasyMode,
   validateClipStateBindings,
   validatePromptBundle,
   validateSceneVisualDocument,
@@ -188,11 +189,51 @@ test("Agent3 prompt compiler preserves clip timing and state references", () => 
   assert.equal(prompts.video_prompts[0]?.narrative_deadline_sec, 2.6);
   assert.equal(prompts.video_prompts[0]?.safe_trim_start_sec, 4);
   assert.match(prompts.video_prompts[0]?.provider_prompt_en ?? "", /safe disposable continuation/);
+  assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Fantasy mode RESTRAINED:/);
   assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Global visual grammar:/);
   assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Do not imitate, reconstruct, or reuse the composition of any reference image/);
   assert.match(prompts.image_prompts[0]?.prompt_ko ?? "", /글로벌 시각 문법:/);
   assert.match(prompts.image_prompts[0]?.negative_prompt_en ?? "", /readable generated text/);
   assert.match(prompts.image_prompts[0]?.negative_prompt_en ?? "", /direct imitation of any reference image/);
+});
+
+test("Agent3 fantasy mode defaults preserve facts while allowing editorial mystery treatment", () => {
+  assert.equal(
+    effectiveFantasyMode({ factuality_mode: "EVIDENCE" }),
+    "RESTRAINED"
+  );
+  assert.equal(
+    effectiveFantasyMode({ factuality_mode: "HISTORICAL_RECONSTRUCTION" }),
+    "RESTRAINED"
+  );
+  assert.equal(
+    effectiveFantasyMode({ factuality_mode: "HYPOTHESIS_RECONSTRUCTION" }),
+    "EDITORIAL"
+  );
+  assert.equal(
+    effectiveFantasyMode({ factuality_mode: "EDITORIAL_FANTASY_RECONSTRUCTION" }),
+    "EDITORIAL"
+  );
+  assert.equal(
+    effectiveFantasyMode({ factuality_mode: "LEGEND_RECONSTRUCTION" }),
+    "HEIGHTENED"
+  );
+});
+
+test("Agent3 rejects editorial fantasy mode on evidence scenes", () => {
+  const invalid = structuredClone(visual);
+  invalid.scenes[0]!.factuality_mode = "EVIDENCE";
+  invalid.scenes[0]!.fantasy_mode = "EDITORIAL";
+  const checked = validateSceneVisualDocument(invalid, {
+    projectId: "p1",
+    sceneIds: ["SCENE_01"],
+    storyRoles: new Map([["SCENE_01", "HOOK"]]),
+    visualBible: visual.visual_bible
+  });
+  assert.equal(checked.valid, false);
+  assert.ok(
+    checked.errors.some(issue => issue.code === "FANTASY_MODE_FACTUALITY_CONFLICT")
+  );
 });
 
 test("Agent3 state validation rejects missing TARGET state", () => {
