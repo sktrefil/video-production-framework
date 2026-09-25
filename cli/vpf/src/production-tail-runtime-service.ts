@@ -131,10 +131,6 @@ function sha256Bytes(bytes:Uint8Array):string{
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-function sha256Text(value:string):string{
-  return createHash("sha256").update(value,"utf8").digest("hex");
-}
-
 function safeFileSegment(value:string):string{
   const safe=value.trim().replace(/[^A-Za-z0-9._-]+/gu,"_").replace(/^_+|_+$/gu,"");
   return safe||"artifact";
@@ -543,7 +539,7 @@ export class ProductionTailRuntimeService{
             project_id:projectId,
             task_id:taskId,
             agent:next.assigned_agent,
-            attempt:current?.attempt,
+            ...(current===undefined?{}:{attempt:current.attempt}),
             message:error instanceof Error?error.message:String(error)
           });
           continue;
@@ -1095,8 +1091,6 @@ export class ProductionTailRuntimeService{
         preview_sha256:preview.value.sha256,
         reviewed_at:new Date().toISOString()
       };
-      const at=new Date().toISOString();
-      tail.save(projectId,"final_qc_result",qc,"T100",at);
       await this.progress.emit({
         event:"QC_COMPLETED",
         project_id:projectId,
@@ -1108,6 +1102,7 @@ export class ProductionTailRuntimeService{
         phase:"CODEX1_SUCCESS_QC"
       });
       if(result.output.verdict!=="APPROVE"){
+        tail.save(projectId,"final_qc_result",qc,"T100",new Date().toISOString());
         await this.manager.applyManagerVerdict(
           projectId,
           "T100",
