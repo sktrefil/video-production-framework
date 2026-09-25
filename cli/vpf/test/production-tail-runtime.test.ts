@@ -183,8 +183,19 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
   assert.ok(generateIndex>continueIndex);
 
   assert.match(workflow,/options: \{ resumeCurrentAttempt\?: boolean \} = \{\}/);
-  assert.match(workflow,/Only an incomplete T070 revision\/failed attempt can resume without consuming a new attempt/);
-  assert.match(workflow,/task\.status === "FAILED"/);
+  assert.match(workflow,/Only an incomplete T070 revision\/failed\/running attempt can resume without consuming a new attempt/);
+  assert.match(workflow,/task\.status === "FAILED" \|\| task\.status === "RUNNING"/);
+  assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
+});
+
+test("T070 checkpoint resume accepts an orphaned RUNNING attempt without incrementing it",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const workflow=read("cli/vpf/src/workflow-orchestrator-service.ts");
+
+  assert.match(tail,/task\.status==="FAILED"\|\|task\.status==="RUNNING"/);
+  assert.match(tail,/recoverableInterruptedT070/);
+  assert.match(tail,/next\.status==="REVISION_REQUIRED"\|\|next\.status==="FAILED"\|\|next\.status==="RUNNING"/);
+  assert.match(workflow,/\["REVISION_REQUIRED","FAILED","RUNNING"\]\.includes\(task\.status\)/);
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
@@ -194,8 +205,8 @@ test("production tail never reports COMPLETE merely because no task is READY",()
 
   assert.match(tail,/if\(await this\.isProductionFinalized\(projectId,workflow\.tasks\)\)/);
   assert.match(tail,/Production tail has no runnable task but is not complete/);
-  assert.match(tail,/task\.task_id==="T070"&&task\.status==="FAILED"/);
-  assert.match(tail,/next\.status==="REVISION_REQUIRED"\|\|next\.status==="FAILED"/);
+  assert.match(tail,/task\.task_id==="T070"&&[\s\S]*?task\.status==="FAILED"\|\|task\.status==="RUNNING"/);
+  assert.match(tail,/next\.status==="REVISION_REQUIRED"\|\|next\.status==="FAILED"\|\|next\.status==="RUNNING"/);
 
   assert.match(index,/const runComplete = tailResult\.status === "COMPLETE"/);
   assert.match(index,/Production run reached verified final completion/);
