@@ -105,6 +105,20 @@ export class ProductionTailRepository {
     };
   }
 
+  supersedeActive(
+    projectId: string,
+    artifactTypes: readonly ProductionTailArtifactType[]
+  ): number {
+    if (artifactTypes.length === 0) return 0;
+    const placeholders = artifactTypes.map(() => "?").join(",");
+    const result = this.db.prepare(
+      "UPDATE production_tail_artifacts SET lifecycle_status='SUPERSEDED' " +
+      "WHERE project_id=? AND lifecycle_status='ACTIVE' AND artifact_type IN (" +
+      placeholders + ")"
+    ).run(projectId, ...artifactTypes);
+    return Number(result.changes);
+  }
+
   listActive(projectId: string): ProductionTailStoredArtifact[] {
     const rows = this.db.prepare(
       "SELECT artifact_type, revision, artifact_json, artifact_sha256, source_task_id, created_at FROM production_tail_artifacts WHERE project_id=? AND lifecycle_status='ACTIVE' ORDER BY artifact_type"
