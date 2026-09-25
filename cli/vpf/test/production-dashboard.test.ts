@@ -320,3 +320,93 @@ test("production run keeps JSONL stdout separate from dashboard diagnostics", as
   assert.match(source, /io\.error\("\[VPF DASHBOARD\] " \+ dashboard\.url\)/u);
   assert.match(source, /Dashboard lifecycle is observational and must not affect production exit/u);
 });
+
+
+test("dashboard event log persists ordered JSONL without blocking publishers", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-dashboard-log-"));
+  try {
+    const logPath = path.join(root, "logs", "production-events.jsonl");
+    const hub = new ProductionDashboardHub(logPath);
+    hub.publish(event(1, "RUN_STARTED"));
+    hub.publish(event(2, "TASK_STARTED", { task_id: "T010" }));
+    hub.publish(event(3, "TASK_PROGRESS", {
+      task_id: "T010",
+      percent: 25,
+      completed: 25,
+      total: 100
+    }));
+    await hub.flush();
+    const lines = (await readFile(logPath, "utf8")).trim().split("\n");
+    assert.deepEqual(
+      lines.map(line => (JSON.parse(line) as ProductionProgressEvent).sequence),
+      [1, 2, 3]
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("dashboard SSE delivers production events in order", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-dashboard-sse-"));
+  const hub = new ProductionDashboardHub();
+  const fakeSnapshot = { get: async () => ({}) } as unknown as ProductionDashboardSnapshotService;
+  const handle = await startProductionDashboard({
+    projectId: "sse_fixture",
+    projectRoot: root,
+    snapshot: fakeSnapshot,
+    hub,
+    preferredPort: 0
+  });
+  const controller = new AbortController();
+  try {
+    const response = await fetch(handle.url + "api/events", { signal: controller.signal });
+    assert.equal(response.status, 200);
+    assert.ok(response.body !== null);
+    const reader = response.body!.getReader();
+    const decoder = new TextDecoder();
+    let body = "";
+    hub.publish(event(1, "RUN_STARTED", { project_id: "sse_fixture" }));
+    hub.publish(event(2, "TASK_STARTED", {
+      project_id: "sse_fixture",
+      task_id: "T010"
+    }));
+    const deadline = Date.now() + 1500;
+    while (!body.includes('"sequence":2') && Date.now() < deadline) {
+      const next = await Promise.race([
+        reader.read(),
+        new Promise<{done:true;value?:undefined}>(resolve =>
+          setTimeout(() => resolve({ done: true }), 100)
+        )
+      ]);
+      if (next.done) continue;
+      body += decoder.decode(next.value, { stream: true });
+    }
+    assert.match(body, /"sequence":1/u);
+    assert.match(body, /"sequence":2/u);
+    assert.ok(body.indexOf('"sequence":1') < body.indexOf('"sequence":2'));
+  } finally {
+    controller.abort();
+    await handle.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("dashboard reports T090 frame progress as unavailable instead of inventing it", async () => {
+  const { root, service } = await fixture("dashboard_t090_fixture");
+  try {
+    const hub = new ProductionDashboardHub();
+    const snapshot = new ProductionDashboardSnapshotService(service, hub);
+    const state = await snapshot.get("dashboard_t090_fixture");
+    assert.equal(state.t090.render_progress_available, false);
+    assert.equal(state.t090.rendered_frames, null);
+    assert.equal(state.t090.total_frames, null);
+    assert.match(state.t090.message, /unavailable/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("production run gives dashboard a final snapshot settle window before shutdown", async () => {
+  const source = await readFile(path.join(repositoryRoot, "cli", "vpf", "src", "index.ts"), "utf8");
+  assert.match(source, /await dashboardHub\?\.flush\(\);\s*await settleDashboardFinalState\(dashboard\);\s*await dashboard\?\.close\(\);/u);
+});
