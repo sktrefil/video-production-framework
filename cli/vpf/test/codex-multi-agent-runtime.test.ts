@@ -425,6 +425,30 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
       progressEvents.map(event => event.sequence),
       progressEvents.map((_, index) => index + 1)
     );
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T010" &&
+      event.phase === "RUNTIME_EXECUTION" &&
+      event.percent === 5
+    ));
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T030" &&
+      event.phase === "WORKER_OUTPUT_READY" &&
+      event.percent === 90
+    ));
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T060" &&
+      event.phase === "MANAGER_QC_COMPLETE" &&
+      event.percent === 95
+    ));
+    assert.ok(progressEvents.some(event =>
+      event.event === "TASK_PROGRESS" &&
+      event.task_id === "T060" &&
+      event.phase === "COMPLETE" &&
+      event.percent === 100
+    ));
 
     const finalState = await workflow.status("codex_multi");
     assert.equal(finalState.tasks.find(task => task.task_id === "T060")?.status, "COMPLETE");
