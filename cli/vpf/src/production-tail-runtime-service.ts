@@ -62,12 +62,15 @@ type T070ExecutionResult="COMPLETE_READY"|"AWAITING_SEED_QC";
 
 type T070SeedVisualQcArtifact={
   schema_version:"1.0";
+  policy_version:"T070_IMAGE_POLICY_V1";
   project_id:string;
   seed_set_sha256:string;
   source_prompt_bundle_sha256:string;
   seed_image_ids:string[];
   verdict:"PASS"|"REVISE"|"FAIL";
   summary:string;
+  cross_seed_diversity:"PASS"|"FAIL";
+  style_coherence:"PASS"|"FAIL";
   checks:Array<{
     state_image_id:string;
     verdict:"PASS"|"REVISE"|"FAIL";
@@ -76,6 +79,8 @@ type T070SeedVisualQcArtifact={
     factual_constraints:"PASS"|"FAIL";
     continuity_readiness:"PASS"|"FAIL";
     artifact_quality:"PASS"|"FAIL";
+    fantasy_control:"PASS"|"FAIL";
+    video_readiness:"PASS"|"FAIL";
     notes:string[];
   }>;
   revision_instruction:string;
@@ -1394,7 +1399,10 @@ export class ProductionTailRuntimeService{
         projectId,
         "t070_seed_visual_qc"
       );
-      if(cached?.value.seed_set_sha256===seedSetSha256){
+      if(
+        cached?.value.seed_set_sha256===seedSetSha256&&
+        cached.value.policy_version==="T070_IMAGE_POLICY_V1"
+      ){
         return cached.value;
       }
 
@@ -1419,12 +1427,15 @@ export class ProductionTailRuntimeService{
       });
       const artifact:T070SeedVisualQcArtifact={
         schema_version:"1.0",
+        policy_version:"T070_IMAGE_POLICY_V1",
         project_id:projectId,
         seed_set_sha256:seedSetSha256,
         source_prompt_bundle_sha256:checkpoint.source_prompt_bundle_sha256,
         seed_image_ids:[...checkpoint.seed_image_ids],
         verdict:review.verdict,
         summary:review.summary,
+        cross_seed_diversity:review.cross_seed_diversity,
+        style_coherence:review.style_coherence,
         checks:review.checks,
         revision_instruction:review.revision_instruction,
         reviewed_at:new Date().toISOString()
