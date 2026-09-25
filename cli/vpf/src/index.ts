@@ -25,6 +25,7 @@ import { Agent2RuntimeAdapterService, Agent2RuntimeAdapterError } from "./agent2
 import { Agent3RuntimeAdapterService, Agent3RuntimeAdapterError } from "./agent3-runtime-adapter-service.js";
 import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
+import { ProductionProgressReporter } from "./production-progress.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -54,7 +55,7 @@ Production Spec operations:
   vpf production validate-states <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
-  vpf production run <project_id>
+  vpf production run <project_id> [--events-jsonl]
 
 Codex multi-agent runtime:
   vpf codex preflight
@@ -544,34 +545,88 @@ export async function runCli(
         io.error("[CLI_USAGE] production run requires <project_id>.");
         return 2;
       }
+      const eventsJsonl = args.includes("--events-jsonl");
+      const progress = new ProductionProgressReporter(
+        eventsJsonl
+          ? event => { io.out(JSON.stringify(event)); }
+          : () => undefined
+      );
       const runtimeMode = (process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION")
         .trim()
         .toUpperCase();
+
+      await progress.emit({
+        event: "RUN_STARTED",
+        project_id: projectId,
+        phase: "PREFLIGHT",
+        message: `Production run started in ${runtimeMode} mode.`
+      });
+
       const preflight = runtimeMode === "CODEX_SESSION"
         ? await codexRuntime.preflight()
         : null;
       if (preflight !== null && !preflight.ready) {
-        printJson(io, {
+        await progress.emit({
+          event: "RUN_BLOCKED",
           project_id: projectId,
-          status: "BLOCKED",
-          stage: "CODEX_PREFLIGHT",
-          preflight
+          phase: "CODEX_PREFLIGHT",
+          message: "Codex preflight did not pass."
         });
+        if (!eventsJsonl) {
+          printJson(io, {
+            project_id: projectId,
+            status: "BLOCKED",
+            stage: "CODEX_PREFLIGHT",
+            preflight
+          });
+        }
         return 1;
       }
-      const agent2Result = await agent2Runtime.runAll(projectId);
-      const agent3Result = await agent3Runtime.runAll(projectId);
-      const finalWorkflow = await workflow.status(projectId);
-      printJson(io, {
-        project_id: projectId,
-        status: "RUN_COMPLETE",
-        runtime_mode: runtimeMode,
-        codex_preflight: preflight,
-        agent2: agent2Result,
-        agent3: agent3Result,
-        next_task: finalWorkflow.next_task
-      });
-      return 0;
+
+      const productionAgent2Runtime = new Agent2RuntimeAdapterService(
+        service,
+        process.env,
+        progress
+      );
+      const productionAgent3Runtime = new Agent3RuntimeAdapterService(
+        service,
+        process.env,
+        progress
+      );
+
+      try {
+        const agent2Result = await productionAgent2Runtime.runAll(projectId);
+        const agent3Result = await productionAgent3Runtime.runAll(projectId);
+        const finalWorkflow = await workflow.status(projectId);
+        await progress.emit({
+          event: "RUN_FINISHED",
+          project_id: projectId,
+          next_task: finalWorkflow.next_task?.task_id ?? null,
+          next_agent: finalWorkflow.next_task?.assigned_agent ?? null,
+          message: finalWorkflow.next_task === null
+            ? "Production run reached the end of the current workflow."
+            : `Production run stopped at handoff to ${finalWorkflow.next_task.task_id}.`
+        });
+        if (!eventsJsonl) {
+          printJson(io, {
+            project_id: projectId,
+            status: "RUN_COMPLETE",
+            runtime_mode: runtimeMode,
+            codex_preflight: preflight,
+            agent2: agent2Result,
+            agent3: agent3Result,
+            next_task: finalWorkflow.next_task
+          });
+        }
+        return 0;
+      } catch (error) {
+        await progress.emit({
+          event: "RUN_BLOCKED",
+          project_id: projectId,
+          message: error instanceof Error ? error.message : String(error)
+        });
+        throw error;
+      }
     }
 
     if (args[0] === "production" && (args[1] === "apply-story" || args[1] === "apply-clips")) {
