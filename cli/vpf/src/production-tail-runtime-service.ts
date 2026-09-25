@@ -2393,10 +2393,36 @@ export class ProductionTailRuntimeService{
 
             const reusable=completedByState.get(prompt.state_image_id);
             if(reusable!==undefined){
-              completedByState.set(prompt.state_image_id,{
+              const normalizedReusable={
                 ...reusable,
                 reference_roles:[]
-              });
+              };
+              completedByState.set(prompt.state_image_id,normalizedReusable);
+              await writeJson(
+                path.resolve(
+                  status.projectRoot,
+                  "05_images/metadata/"+safeFileSegment(prompt.state_image_id)+".json"
+                ),
+                {
+                  schema_version:"1.0",
+                  policy_version:"T070_IMAGE_POLICY_V1",
+                  project_id:projectId,
+                  state_image_id:prompt.state_image_id,
+                  scene_id:prompt.scene_id,
+                  state_role:state.role,
+                  sequence_order:state.sequence_order,
+                  fantasy_mode:effectiveT070FantasyMode(scene),
+                  image_relative_path:normalizedReusable.relative_path,
+                  image_sha256:normalizedReusable.sha256,
+                  prompt_bundle_sha256:promptRecord.sha256,
+                  reference_policy:"TEXT_GRAMMAR_ONLY",
+                  reference_roles:[],
+                  motion_vector:state.motion_vector_en||state.motion_vector_ko,
+                  handoff_anchor:state.handoff_anchor,
+                  continuity_refs:[...state.continuity_refs],
+                  generated_at:new Date().toISOString()
+                }
+              );
               continue;
             }
 
