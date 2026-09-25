@@ -30,6 +30,7 @@ if (args[0] === "exec" && args[1] === "--help") {
     "--config <KEY=VALUE>",
     "--output-schema <FILE>",
     "--output-last-message <FILE>",
+    "--image <FILE>",
     "--model <MODEL>"
   ].join("\n"));
   process.exit(0);
