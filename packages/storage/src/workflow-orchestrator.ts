@@ -218,6 +218,29 @@ export class WorkflowOrchestratorRepository {
       };
     }
 
+    const tailTypes = new Set([
+      "generated_images",
+      "image_qc_result",
+      "approved_images",
+      "generated_clips",
+      "clip_qc_result",
+      "timeline_spec",
+      "preview_render",
+      "final_qc_result"
+    ]);
+    if (tailTypes.has(artifactType)) {
+      const row = this.db.prepare(`SELECT revision, artifact_sha256
+        FROM production_tail_artifacts
+        WHERE project_id = ? AND artifact_type = ? AND lifecycle_status = 'ACTIVE'
+        ORDER BY revision DESC LIMIT 1`)
+        .get(projectId, artifactType) as { revision: number; artifact_sha256: string } | undefined;
+      return row === undefined ? null : {
+        artifact_type: artifactType,
+        revision: Number(row.revision),
+        sha256: String(row.artifact_sha256)
+      };
+    }
+
     if (artifactType === "visual_bible") {
       const row = this.db.prepare(`SELECT resource_pins_json FROM projects
         WHERE project_id = ? AND lifecycle_status = 'ACTIVE' ORDER BY revision DESC LIMIT 1`)
