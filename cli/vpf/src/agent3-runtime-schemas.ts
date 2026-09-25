@@ -6,6 +6,7 @@ import {
   STORY_ROLES
 } from "@vpf/production-spec";
 import {
+  FANTASY_MODES,
   STATE_IMAGE_ROLES,
   VISUAL_FACTUALITY_MODES
 } from "@vpf/production-spec";
@@ -50,7 +51,7 @@ export const AGENT3_SCENE_VISUAL_SCHEMA = {
         type: "object",
         additionalProperties: false,
         required: [
-          "scene_id", "story_role", "factuality_mode", "fact_refs",
+          "scene_id", "story_role", "factuality_mode", "fantasy_mode", "fact_refs",
           "narrative_purpose_ko", "narrative_purpose_en",
           "visual_intent_ko", "visual_intent_en",
           "environment_ko", "environment_en",
@@ -65,6 +66,7 @@ export const AGENT3_SCENE_VISUAL_SCHEMA = {
           scene_id: { type: "string" },
           story_role: { type: "string", enum: STORY_ROLES },
           factuality_mode: { type: "string", enum: VISUAL_FACTUALITY_MODES },
+          fantasy_mode: { type: "string", enum: FANTASY_MODES },
           fact_refs: strings,
           narrative_purpose_ko: { type: "string" },
           narrative_purpose_en: { type: "string" },
