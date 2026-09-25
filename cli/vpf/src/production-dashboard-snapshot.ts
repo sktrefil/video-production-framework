@@ -73,6 +73,61 @@ export async function countGeneratedImageFiles(
   };
 }
 
+interface T070CheckpointSnapshot {
+  phase?: unknown;
+  seed_image_ids?: unknown;
+  scene_qc_passed_ids?: unknown;
+  scene_qc_attempts?: unknown;
+  revision_feedback_by_state?: unknown;
+}
+
+async function inspectT070Checkpoint(projectRoot:string):Promise<{
+  phase:string|null;
+  seed_image_ids:string[];
+  scene_qc_passed_ids:string[];
+  scene_qc_attempts:Record<string,number>;
+  revision_pending_count:number;
+}>{
+  try{
+    const parsed=JSON.parse(
+      await readFile(
+        path.resolve(projectRoot,"05_images/generated/t070-checkpoint.json"),
+        "utf8"
+      )
+    ) as T070CheckpointSnapshot;
+    const attempts:Record<string,number>={};
+    if(typeof parsed.scene_qc_attempts==="object"&&parsed.scene_qc_attempts!==null){
+      for(const [key,value] of Object.entries(parsed.scene_qc_attempts)){
+        if(typeof value==="number"&&Number.isFinite(value))attempts[key]=value;
+      }
+    }
+    const feedback=
+      typeof parsed.revision_feedback_by_state==="object"&&
+      parsed.revision_feedback_by_state!==null
+        ?Object.keys(parsed.revision_feedback_by_state)
+        :[];
+    return{
+      phase:typeof parsed.phase==="string"?parsed.phase:null,
+      seed_image_ids:Array.isArray(parsed.seed_image_ids)
+        ?parsed.seed_image_ids.filter((value):value is string=>typeof value==="string")
+        :[],
+      scene_qc_passed_ids:Array.isArray(parsed.scene_qc_passed_ids)
+        ?parsed.scene_qc_passed_ids.filter((value):value is string=>typeof value==="string")
+        :[],
+      scene_qc_attempts:attempts,
+      revision_pending_count:feedback.length
+    };
+  }catch{
+    return{
+      phase:null,
+      seed_image_ids:[],
+      scene_qc_passed_ids:[],
+      scene_qc_attempts:{},
+      revision_pending_count:0
+    };
+  }
+}
+
 interface FlowManifest {
   items?: Array<{
     clip_id?: unknown;
@@ -237,6 +292,22 @@ export interface ProductionDashboardSnapshot {
     total: number;
     completed: number;
     current_state_image_id: string | null;
+    phase: string | null;
+    seed_image_ids: string[];
+    seed_qc_verdict: string | null;
+    seed_cross_seed_diversity: string | null;
+    seed_style_coherence: string | null;
+    scene_qc_passed_ids: string[];
+    scene_qc_passed_count: number;
+    scene_qc_total: number;
+    scene_qc_attempts: Record<string, number>;
+    revision_pending_count: number;
+    final_qc_verdict: string | null;
+    final_checked_image_count: number | null;
+    final_expected_image_count: number | null;
+    final_failed_scene_ids: string[];
+    final_failed_image_ids: string[];
+    policy_version: string | null;
     items: Array<{
       state_image_id: string;
       relative_path: string;
@@ -305,6 +376,19 @@ export class ProductionDashboardSnapshotService {
       );
       const stateImageIds = promptBundle?.value.image_prompts.map(item => item.state_image_id) ?? [];
       const imageProgress = await countGeneratedImageFiles(project.projectRoot, stateImageIds);
+      const t070Checkpoint = await inspectT070Checkpoint(project.projectRoot);
+      const seedVisualQc = tailRepo.getActive<Record<string, unknown>>(
+        projectId,
+        "t070_seed_visual_qc"
+      );
+      const sceneVisualQc = tailRepo.getActive<Record<string, unknown>>(
+        projectId,
+        "t070_scene_visual_qc"
+      );
+      const finalImageQc = tailRepo.getActive<Record<string, unknown>>(
+        projectId,
+        "t070_final_visual_qc"
+      );
       const flow = await inspectFlowManifestFiles(project.projectRoot);
 
       const tasks: ProductionDashboardTaskSnapshot[] = rawTasks.map(task => {
@@ -432,6 +516,55 @@ export class ProductionDashboardSnapshotService {
           total: imageProgress.total,
           completed: imageProgress.completed,
           current_state_image_id: generatedCurrent,
+          phase:t070Checkpoint.phase,
+          seed_image_ids:t070Checkpoint.seed_image_ids,
+          seed_qc_verdict:
+            typeof seedVisualQc?.value.verdict==="string"
+              ?seedVisualQc.value.verdict
+              :null,
+          seed_cross_seed_diversity:
+            typeof seedVisualQc?.value.cross_seed_diversity==="string"
+              ?seedVisualQc.value.cross_seed_diversity
+              :null,
+          seed_style_coherence:
+            typeof seedVisualQc?.value.style_coherence==="string"
+              ?seedVisualQc.value.style_coherence
+              :null,
+          scene_qc_passed_ids:t070Checkpoint.scene_qc_passed_ids,
+          scene_qc_passed_count:t070Checkpoint.scene_qc_passed_ids.length,
+          scene_qc_total:new Set(
+            promptBundle?.value.image_prompts.map(item=>item.scene_id)??[]
+          ).size,
+          scene_qc_attempts:t070Checkpoint.scene_qc_attempts,
+          revision_pending_count:t070Checkpoint.revision_pending_count,
+          final_qc_verdict:
+            typeof finalImageQc?.value.verdict==="string"
+              ?finalImageQc.value.verdict
+              :null,
+          final_checked_image_count:
+            typeof finalImageQc?.value.checked_image_count==="number"
+              ?finalImageQc.value.checked_image_count
+              :null,
+          final_expected_image_count:
+            typeof finalImageQc?.value.expected_image_count==="number"
+              ?finalImageQc.value.expected_image_count
+              :null,
+          final_failed_scene_ids:Array.isArray(finalImageQc?.value.failed_scene_ids)
+            ?finalImageQc.value.failed_scene_ids.filter(
+              (value):value is string=>typeof value==="string"
+            )
+            :[],
+          final_failed_image_ids:Array.isArray(finalImageQc?.value.failed_image_ids)
+            ?finalImageQc.value.failed_image_ids.filter(
+              (value):value is string=>typeof value==="string"
+            )
+            :[],
+          policy_version:
+            typeof finalImageQc?.value.policy_version==="string"
+              ?finalImageQc.value.policy_version
+              :typeof seedVisualQc?.value.policy_version==="string"
+                ?seedVisualQc.value.policy_version
+                :null,
           items: t070Items
         },
         t080: {
