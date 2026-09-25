@@ -189,6 +189,7 @@ test("dashboard exposes T060 clip prompts and scene handoff before T080", () => 
   assert.equal(preview.items[0]?.handoff?.exit_anchor, "reeds at screen right");
   assert.deepEqual(preview.items[0]?.handoff?.preserve_elements, ["river bend", "reeds"]);
   assert.equal(preview.items[0]?.continuity?.screen_direction, "LEFT_TO_RIGHT");
+  assert.equal(preview.items[0]?.fantasy_mode, "RESTRAINED");
 });
 
 test("dashboard counts only real generated image files", async () => {
@@ -465,6 +466,7 @@ test("dashboard server binds only to localhost", async () => {
     assert.match(page, /VPF LONGFORM PRODUCTION/u);
     assert.match(page, /T060 VIDEO CLIP PLAN — PREVIEW/u);
     assert.match(page, /Google Flow provider prompt/u);
+    assert.match(page, /fantasy /u);
     assert.match(page, /T070 IMAGE GENERATION \/ VISUAL QC/u);
     assert.match(page, /t070-qc-summary/u);
     assert.match(page, /Seed diversity:/u);
