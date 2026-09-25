@@ -34,6 +34,10 @@ import {
   Agent3VisualProductionWorkerService
 } from "./agent3-visual-production-service.js";
 import {
+  NOOP_PROGRESS_REPORTER,
+  ProductionProgressReporter
+} from "./production-progress.js";
+import {
   AGENT3_CLIP_CAMERA_SCHEMA,
   AGENT3_SCENE_VISUAL_SCHEMA,
   AGENT3_STATE_IMAGE_SCHEMA
@@ -639,7 +643,8 @@ export class Agent3RuntimeAdapterService {
 
   constructor(
     private readonly projects: ProjectBootstrapService,
-    private readonly environment: NodeJS.ProcessEnv = process.env
+    private readonly environment: NodeJS.ProcessEnv = process.env,
+    private readonly progress: ProductionProgressReporter = NOOP_PROGRESS_REPORTER
   ) {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent3VisualProductionWorkerService(projects);
@@ -679,6 +684,13 @@ export class Agent3RuntimeAdapterService {
       taskId,
       "AGENT3_VISUAL_PRODUCTION"
     );
+    await this.progress.emit({
+      event: "TASK_STARTED",
+      project_id: projectId,
+      task_id: taskId,
+      agent: "AGENT3_VISUAL_PRODUCTION",
+      attempt: dispatch.attempt
+    });
     try {
       const runtime = await this.executeDispatched(
         projectId,
@@ -694,6 +706,15 @@ export class Agent3RuntimeAdapterService {
             `${gate.gate} rejected ${taskId} before Codex1 success QC.`
           );
         }
+        await this.progress.emit({
+          event: "QC_STARTED",
+          project_id: projectId,
+          task_id: taskId,
+          agent: "CODEX_1_MANAGER",
+          attempt: dispatch.attempt,
+          qc_kind: "SUCCESS",
+          phase: "CODEX1_SUCCESS_QC"
+        });
         const review = await this.codexManager.reviewSuccess({
           projectId,
           taskId,
@@ -702,6 +723,16 @@ export class Agent3RuntimeAdapterService {
           gateStatus: "PASS",
           gateId: gate.gate,
           warnings: runtime.worker.warnings
+        });
+        await this.progress.emit({
+          event: "QC_COMPLETED",
+          project_id: projectId,
+          task_id: taskId,
+          agent: "CODEX_1_MANAGER",
+          attempt: dispatch.attempt,
+          qc_kind: "SUCCESS",
+          verdict: review.verdict,
+          phase: "CODEX1_SUCCESS_QC"
         });
         if (review.verdict !== "APPROVE") {
           await this.manager.applyManagerVerdict(
@@ -718,6 +749,14 @@ export class Agent3RuntimeAdapterService {
       }
 
       const completed = await this.manager.complete(projectId, taskId);
+      await this.progress.emit({
+        event: "TASK_COMPLETED",
+        project_id: projectId,
+        task_id: taskId,
+        agent: "AGENT3_VISUAL_PRODUCTION",
+        attempt: dispatch.attempt,
+        message: `${taskId} completed with ${completed.last_gate_status ?? "PASS"}.`
+      });
       return {
         task_id: taskId,
         runtime_provider: runtime.provider,
@@ -738,6 +777,15 @@ export class Agent3RuntimeAdapterService {
         !codexFatal(error)
       ) {
         try {
+          await this.progress.emit({
+            event: "QC_STARTED",
+            project_id: projectId,
+            task_id: taskId,
+            agent: "CODEX_1_MANAGER",
+            attempt: dispatch.attempt,
+            qc_kind: "FAILURE",
+            phase: "CODEX1_FAILURE_REVIEW"
+          });
           const review = await this.codexManager.reviewFailure({
             projectId,
             taskId,
@@ -752,6 +800,16 @@ export class Agent3RuntimeAdapterService {
                     ? error.code
                     : "AGENT3_RUNTIME_FAILURE",
             errorDetail: errorDetail(error)
+          });
+          await this.progress.emit({
+            event: "QC_COMPLETED",
+            project_id: projectId,
+            task_id: taskId,
+            agent: "CODEX_1_MANAGER",
+            attempt: dispatch.attempt,
+            qc_kind: "FAILURE",
+            verdict: review.verdict,
+            phase: "CODEX1_FAILURE_REVIEW"
           });
           await this.manager.applyManagerVerdict(
             projectId,
@@ -806,12 +864,31 @@ export class Agent3RuntimeAdapterService {
           errorCode(error) !== "AGENT3_RUNTIME_PROJECT_UPGRADE_REQUIRED" &&
           errorCode(error) !== "AGENT3_RUNTIME_PREREQUISITE" &&
           !codexFatal(error);
-        if (retryable) continue;
+        if (retryable) {
+          await this.progress.emit({
+            event: "TASK_RETRY",
+            project_id: projectId,
+            task_id: next.task_id,
+            agent: "AGENT3_VISUAL_PRODUCTION",
+            attempt: task?.attempt ?? undefined,
+            message: errorDetail(error)
+          });
+          continue;
+        }
         throw error;
       }
     }
 
     const handoff = await this.manager.next(projectId);
+    if (handoff !== null) {
+      await this.progress.emit({
+        event: "HANDOFF",
+        project_id: projectId,
+        next_task: handoff.task_id,
+        next_agent: handoff.assigned_agent,
+        message: `Agent3 handed production to ${handoff.assigned_agent} at ${handoff.task_id}.`
+      });
+    }
     return {
       project_id: projectId,
       steps,
