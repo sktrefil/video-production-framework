@@ -206,6 +206,40 @@ test("new T070 execution pauses at SEED_QC before completion gate or full genera
   assert.ok(completionGate>seedReturn);
 });
 
+test("T070 seed visual QC inspects actual pixels and only PASS unlocks full generation",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const manager=read("cli/vpf/src/codex-manager-runtime-service.ts");
+  const runner=read("cli/vpf/src/codex-process-runner.ts");
+  const storage=read("packages/storage/src/production-tail.ts");
+
+  assert.match(tail,/runT070SeedVisualQcGate/);
+  assert.match(tail,/expectedSha256:image\.sha256/);
+  assert.match(tail,/reviewT070SeedVisuals\(/);
+  assert.match(tail,/if\(seedQc\.verdict!=="PASS"\)/);
+  assert.match(tail,/phase:"FULL_GENERATION"/);
+  assert.match(tail,/Seed visual QC passed\. T070 full image generation is now unlocked/);
+  assert.match(tail,/"t070_seed_visual_qc"/);
+  assert.match(tail,/seed_set_sha256/);
+
+  assert.match(manager,/taskId: "MANAGER_VISUAL:T070_SEED"/);
+  assert.match(manager,/imagePaths: input\.seedImages\.map\(item => item\.absolutePath\)/);
+  assert.match(manager,/Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone/);
+  assert.match(manager,/PASS only when every attached seed is visually suitable/);
+  assert.match(runner,/imagePaths\?: string\[\]/);
+  assert.match(runner,/args\.push\("--image", \.\.\.attachedImages\)/);
+  assert.match(runner,/Inspect every attached image directly/);
+  assert.match(storage,/\| "t070_seed_visual_qc"/);
+
+  const qcIndex=tail.indexOf("const seedQc=await this.runT070SeedVisualQcGate");
+  const passGuard=tail.indexOf('if(seedQc.verdict!=="PASS")',qcIndex);
+  const unlock=tail.indexOf('phase:"FULL_GENERATION"',passGuard);
+  const dispatch=tail.indexOf("const result=await this.runTask(projectId,taskId,resumeCurrentAttempt)",unlock);
+  assert.ok(qcIndex>=0);
+  assert.ok(passGuard>qcIndex);
+  assert.ok(unlock>passGuard);
+  assert.ok(dispatch>unlock);
+});
+
 test("T070 checkpoint persists phased seed state and remains backward compatible",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
 
@@ -339,6 +373,7 @@ test("migration 0024 and workflow resolver persist every tail artifact needed by
     "generated_images",
     "image_qc_result",
     "approved_images",
+    "t070_seed_visual_qc",
     "generated_clips",
     "clip_qc_result",
     "timeline_spec",
