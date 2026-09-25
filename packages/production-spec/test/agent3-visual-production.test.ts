@@ -188,7 +188,11 @@ test("Agent3 prompt compiler preserves clip timing and state references", () => 
   assert.equal(prompts.video_prompts[0]?.narrative_deadline_sec, 2.6);
   assert.equal(prompts.video_prompts[0]?.safe_trim_start_sec, 4);
   assert.match(prompts.video_prompts[0]?.provider_prompt_en ?? "", /safe disposable continuation/);
+  assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Global visual grammar:/);
+  assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Do not imitate, reconstruct, or reuse the composition of any reference image/);
+  assert.match(prompts.image_prompts[0]?.prompt_ko ?? "", /글로벌 시각 문법:/);
   assert.match(prompts.image_prompts[0]?.negative_prompt_en ?? "", /readable generated text/);
+  assert.match(prompts.image_prompts[0]?.negative_prompt_en ?? "", /direct imitation of any reference image/);
 });
 
 test("Agent3 state validation rejects missing TARGET state", () => {
