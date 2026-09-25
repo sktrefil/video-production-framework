@@ -1,4 +1,9 @@
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
+import type {
+  PromptBundleDocument,
+  SceneVisualDocument,
+  StateImageDocument
+} from "@vpf/production-spec";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
@@ -264,9 +269,18 @@ export class CodexManagerRuntimeService {
       { readonly: true }
     );
     try {
-      const prompts = agent3.getActive<any>(input.projectId, "prompt_bundle_spec");
-      const states = agent3.getActive<any>(input.projectId, "state_image_spec");
-      const visual = agent3.getActive<any>(input.projectId, "scene_visual_spec");
+      const prompts = agent3.getActive<PromptBundleDocument>(
+        input.projectId,
+        "prompt_bundle_spec"
+      );
+      const states = agent3.getActive<StateImageDocument>(
+        input.projectId,
+        "state_image_spec"
+      );
+      const visual = agent3.getActive<SceneVisualDocument>(
+        input.projectId,
+        "scene_visual_spec"
+      );
       if (prompts === null || states === null || visual === null) {
         throw new CodexRuntimeError(
           "CODEX_OUTPUT_INVALID",
@@ -276,13 +290,13 @@ export class CodexManagerRuntimeService {
 
       const seedInputs = input.seedImages.map((seed, index) => {
         const prompt = prompts.value.image_prompts.find(
-          (item: any) => item.state_image_id === seed.stateImageId
+          item => item.state_image_id === seed.stateImageId
         );
         const state = states.value.state_images.find(
-          (item: any) => item.state_image_id === seed.stateImageId
+          item => item.state_image_id === seed.stateImageId
         );
         const scene = visual.value.scenes.find(
-          (item: any) => item.scene_id === state?.scene_id
+          item => item.scene_id === state?.scene_id
         );
         if (prompt === undefined || state === undefined || scene === undefined) {
           throw new CodexRuntimeError(
