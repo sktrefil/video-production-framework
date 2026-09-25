@@ -31,6 +31,7 @@ import { ProductionTailRuntimeService } from "./production-tail-runtime-service.
 import { ProductionDashboardHub } from "./production-dashboard-hub.js";
 import { ProductionDashboardSnapshotService } from "./production-dashboard-snapshot.js";
 import {
+  settleDashboardFinalState,
   startProductionDashboard,
   type ProductionDashboardHandle
 } from "./production-dashboard-server.js";
@@ -712,6 +713,7 @@ export async function runCli(
       } finally {
         try {
           await dashboardHub?.flush();
+          await settleDashboardFinalState(dashboard);
           await dashboard?.close();
         } catch {
           // Dashboard shutdown must not change the production result.
