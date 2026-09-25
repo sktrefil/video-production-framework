@@ -67,6 +67,9 @@ export interface ProductionProgressEvent {
   next_task?: string | null;
   next_agent?: string | null;
   message?: string;
+  elapsed_sec?: number;
+  runtime_last_activity_age_sec?: number;
+  runtime_pid?: number | null;
 }
 
 export type ProductionProgressEventInput = Omit<
@@ -115,6 +118,9 @@ export class ProductionProgressReporter {
     completed: number;
     total: number;
     message?: string;
+    elapsed_sec?: number;
+    runtime_last_activity_age_sec?: number;
+    runtime_pid?: number | null;
   }): Promise<ProductionProgressEvent> {
     const total = Math.max(0, input.total);
     const completed = Math.max(0, Math.min(input.completed, total));
