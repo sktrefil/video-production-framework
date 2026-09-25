@@ -13,6 +13,7 @@ import {
 } from "../src/production-dashboard-eta.js";
 import { ProductionDashboardHub } from "../src/production-dashboard-hub.js";
 import {
+  buildClipPlanPreview,
   countGeneratedImageFiles,
   inspectFlowManifestFiles,
   ProductionDashboardSnapshotService
@@ -111,6 +112,83 @@ test("dashboard hub preserves event order and isolates broken subscribers", () =
   assert.equal(brokenCalls, 1);
   assert.deepEqual(hub.snapshot().recent_events.map(item => item.sequence), [1, 2, 3]);
   assert.equal(hub.snapshot().task_progress.T010?.percent, 25);
+});
+
+test("dashboard exposes T060 clip prompts and scene handoff before T080", () => {
+  const promptBundle = {
+    schema_version: "1.0",
+    project_id: "dashboard_fixture",
+    compiler_version: "AGENT3_PROMPT_COMPILER_V1",
+    image_prompts: [],
+    video_prompts: [{
+      clip_id: "CLIP_01",
+      scene_id: "SC01",
+      entry_state_image_id: "SC01_ENTRY",
+      mid_state_image_id: "SC01_MID",
+      target_state_image_id: "SC01_TARGET",
+      prompt_ko: "진입에서 목표 상태까지 연결한다.",
+      prompt_en: "Connect entry to target.",
+      provider_prompt_en: "Flow prompt with continuity and camera motion.",
+      editorial_duration_sec: 8,
+      narrative_deadline_sec: 7,
+      target_state_deadline_sec: 7.5,
+      safe_trim_start_sec: 8
+    }]
+  } as Parameters<typeof buildClipPlanPreview>[0];
+  const sceneVisual = {
+    schema_version: "1.0",
+    project_id: "dashboard_fixture",
+    visual_bible: {
+      resource_id: "VB",
+      version: "1",
+      content_hash: "a".repeat(64)
+    },
+    scenes: [{
+      scene_id: "SC01",
+      story_role: "HOOK",
+      factuality_mode: "EVIDENCE",
+      fact_refs: [],
+      narrative_purpose_ko: "",
+      narrative_purpose_en: "",
+      visual_intent_ko: "",
+      visual_intent_en: "",
+      environment_ko: "",
+      environment_en: "",
+      subject_ko: "",
+      subject_en: "",
+      action_ko: "",
+      action_en: "",
+      evidence_constraints: [],
+      uncertainty_handling_ko: "",
+      uncertainty_handling_en: "",
+      forbidden_visual_claims: [],
+      continuity: {
+        character_identity: [],
+        environment_identity: [],
+        lighting_direction: "LEFT",
+        color_language: "COOL",
+        weather: "MIST",
+        movement_direction: "RIGHTWARD",
+        screen_direction: "LEFT_TO_RIGHT",
+        camera_energy: "RESTRAINED",
+        visual_motif: []
+      },
+      handoff: {
+        entry_anchor: "river bend",
+        exit_anchor: "reeds at screen right",
+        preserve_elements: ["river bend", "reeds"],
+        next_cut_intent: "continue rightward"
+      }
+    }]
+  } as Parameters<typeof buildClipPlanPreview>[1];
+
+  const preview = buildClipPlanPreview(promptBundle, sceneVisual);
+  assert.equal(preview.available, true);
+  assert.equal(preview.total, 1);
+  assert.equal(preview.items[0]?.provider_prompt_en, "Flow prompt with continuity and camera motion.");
+  assert.equal(preview.items[0]?.handoff?.exit_anchor, "reeds at screen right");
+  assert.deepEqual(preview.items[0]?.handoff?.preserve_elements, ["river bend", "reeds"]);
+  assert.equal(preview.items[0]?.continuity?.screen_direction, "LEFT_TO_RIGHT");
 });
 
 test("dashboard counts only real generated image files", async () => {
@@ -304,7 +382,10 @@ test("dashboard server binds only to localhost", async () => {
     assert.match(handle.url, /^http:\/\/127\.0\.0\.1:\d+\/$/u);
     const response = await fetch(handle.url);
     assert.equal(response.status, 200);
-    assert.match(await response.text(), /VPF LONGFORM PRODUCTION/u);
+    const page = await response.text();
+    assert.match(page, /VPF LONGFORM PRODUCTION/u);
+    assert.match(page, /T060 VIDEO CLIP PLAN — PREVIEW/u);
+    assert.match(page, /Google Flow provider prompt/u);
   } finally {
     await handle.close();
     await rm(root, { recursive: true, force: true });
