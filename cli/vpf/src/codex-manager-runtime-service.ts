@@ -31,6 +31,8 @@ export interface T070SeedVisualQcResult {
   schema_version: "1.0";
   verdict: "PASS" | "REVISE" | "FAIL";
   summary: string;
+  cross_seed_diversity: "PASS" | "FAIL";
+  style_coherence: "PASS" | "FAIL";
   checks: Array<{
     state_image_id: string;
     verdict: "PASS" | "REVISE" | "FAIL";
@@ -39,6 +41,8 @@ export interface T070SeedVisualQcResult {
     factual_constraints: "PASS" | "FAIL";
     continuity_readiness: "PASS" | "FAIL";
     artifact_quality: "PASS" | "FAIL";
+    fantasy_control: "PASS" | "FAIL";
+    video_readiness: "PASS" | "FAIL";
     notes: string[];
   }>;
   revision_instruction: string;
@@ -148,6 +152,8 @@ const T070_SEED_VISUAL_QC_SCHEMA = {
     "schema_version",
     "verdict",
     "summary",
+    "cross_seed_diversity",
+    "style_coherence",
     "checks",
     "revision_instruction"
   ],
@@ -155,6 +161,8 @@ const T070_SEED_VISUAL_QC_SCHEMA = {
     schema_version: { type: "string", enum: ["1.0"] },
     verdict: { type: "string", enum: ["PASS", "REVISE", "FAIL"] },
     summary: { type: "string" },
+    cross_seed_diversity: { type: "string", enum: ["PASS", "FAIL"] },
+    style_coherence: { type: "string", enum: ["PASS", "FAIL"] },
     checks: {
       type: "array",
       items: {
@@ -168,6 +176,8 @@ const T070_SEED_VISUAL_QC_SCHEMA = {
           "factual_constraints",
           "continuity_readiness",
           "artifact_quality",
+          "fantasy_control",
+          "video_readiness",
           "notes"
         ],
         properties: {
@@ -178,6 +188,8 @@ const T070_SEED_VISUAL_QC_SCHEMA = {
           factual_constraints: { type: "string", enum: ["PASS", "FAIL"] },
           continuity_readiness: { type: "string", enum: ["PASS", "FAIL"] },
           artifact_quality: { type: "string", enum: ["PASS", "FAIL"] },
+          fantasy_control: { type: "string", enum: ["PASS", "FAIL"] },
+          video_readiness: { type: "string", enum: ["PASS", "FAIL"] },
           notes: { type: "array", items: { type: "string" } }
         }
       }
@@ -595,6 +607,12 @@ export class CodexManagerRuntimeService {
             ...state.factual_constraints
           ],
           forbidden_visual_claims: scene.forbidden_visual_claims,
+          fantasy_mode: scene.fantasy_mode ?? (
+            scene.factuality_mode === "EVIDENCE" ? "RESTRAINED" :
+            scene.factuality_mode === "EDITORIAL_FANTASY_RECONSTRUCTION" ||
+            scene.factuality_mode === "LEGEND_RECONSTRUCTION" ? "EDITORIAL" :
+            "RESTRAINED"
+          ),
           scene_continuity: scene.continuity,
           scene_handoff: scene.handoff
         };
@@ -612,10 +630,12 @@ export class CodexManagerRuntimeService {
           "The attached images are the actual generated PNG pixels. Inspect every attachment directly.",
           "Attachment order exactly matches seed_images[].attachment_index in request.json.",
           "Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone.",
-          "For every seed image assess prompt alignment, visual consistency, factual constraints, continuity/handoff readiness, and visible artifact quality.",
-          "FAIL factual contradictions, unsupported visible claims, modern/anachronistic objects, readable generated text, watermarks, severe anatomy/object corruption, or an image that cannot serve its approved state.",
+          "For every seed image assess prompt alignment, visual consistency, factual constraints, continuity/handoff readiness, visible artifact quality, fantasy control, and video-animation readiness.",
+          "Across the seed set, explicitly judge cross_seed_diversity: different scripts/scenes must not collapse into one repeated master composition. Also judge style_coherence: they should still feel like the same production.",
+          "Fantasy is allowed only as atmosphere, light, mist, texture, symbolic space, or non-textual motif within the supplied fantasy_mode. It must not invent historical evidence, events, creatures, or magical causation.",
+          "FAIL factual contradictions, unsupported visible claims, modern/anachronistic objects, readable generated text, watermarks, severe anatomy/object corruption, reference-like repeated composition, or an image that cannot serve its approved state.",
           "Use REVISE when regeneration can repair the seed without changing approved upstream facts or visual policy.",
-          "PASS only when every attached seed is visually suitable to calibrate full-batch generation.",
+          "PASS only when every attached seed is visually suitable, cross_seed_diversity is PASS, and style_coherence is PASS.",
           "Return exactly one check for every state_image_id and no extras.",
           "If overall verdict is PASS, revision_instruction must be empty. Otherwise provide a concrete regeneration instruction.",
           "Web search is disabled; judge only the supplied approved design context and actual attached pixels."
@@ -661,11 +681,19 @@ export class CodexManagerRuntimeService {
       }
       if (
         review.verdict === "PASS" &&
-        review.checks.some(item => item.verdict !== "PASS")
+        (
+          review.cross_seed_diversity !== "PASS" ||
+          review.style_coherence !== "PASS" ||
+          review.checks.some(item =>
+            item.verdict !== "PASS" ||
+            item.fantasy_control !== "PASS" ||
+            item.video_readiness !== "PASS"
+          )
+        )
       ) {
         throw new CodexRuntimeError(
           "CODEX_OUTPUT_INVALID",
-          "T070 seed visual QC cannot PASS while an individual seed is non-PASS."
+          "T070 seed visual QC cannot PASS with failed diversity, style, fantasy-control, video-readiness, or per-image checks."
         );
       }
       return review;
