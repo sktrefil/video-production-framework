@@ -7,6 +7,7 @@ import {
   buildT070GenerationStateIds,
   buildT070PendingOrdinals,
   buildTailEditProject,
+  selectT070RepresentativeSeedImageIds,
   selectT070SeedImageIds
 } from "../src/production-tail-runtime-service.js";
 
@@ -169,6 +170,32 @@ test("T070 seed plan deterministically samples early, middle and late states",()
   assert.deepEqual(selectT070SeedImageIds([],3),[]);
 });
 
+test("T070 representative seed plan samples ENTRY, middle MID and final TARGET",()=>{
+  const prompts=[
+    {state_image_id:"SC01_ENTRY",scene_id:"SC01"},
+    {state_image_id:"SC01_TARGET",scene_id:"SC01"},
+    {state_image_id:"SC02_ENTRY",scene_id:"SC02"},
+    {state_image_id:"SC02_MID",scene_id:"SC02"},
+    {state_image_id:"SC02_TARGET",scene_id:"SC02"},
+    {state_image_id:"SC03_ENTRY",scene_id:"SC03"},
+    {state_image_id:"SC03_TARGET",scene_id:"SC03"}
+  ];
+  const states=[
+    {state_image_id:"SC01_ENTRY",scene_id:"SC01",role:"ENTRY",sequence_order:1},
+    {state_image_id:"SC01_TARGET",scene_id:"SC01",role:"TARGET",sequence_order:2},
+    {state_image_id:"SC02_ENTRY",scene_id:"SC02",role:"ENTRY",sequence_order:1},
+    {state_image_id:"SC02_MID",scene_id:"SC02",role:"MID",sequence_order:2},
+    {state_image_id:"SC02_TARGET",scene_id:"SC02",role:"TARGET",sequence_order:3},
+    {state_image_id:"SC03_ENTRY",scene_id:"SC03",role:"ENTRY",sequence_order:1},
+    {state_image_id:"SC03_TARGET",scene_id:"SC03",role:"TARGET",sequence_order:2}
+  ] as any;
+
+  assert.deepEqual(
+    selectT070RepresentativeSeedImageIds(prompts,states,3),
+    ["SC01_ENTRY","SC02_MID","SC03_TARGET"]
+  );
+});
+
 test("T070 seed generation targets only three seeds and blocks later phases",()=>{
   const prompts=Array.from({length:43},(_,index)=>({
     state_image_id:"STATE_"+String(index+1).padStart(2,"0")
@@ -190,8 +217,9 @@ test("new T070 execution pauses at SEED_QC before completion gate or full genera
 
   assert.match(tail,/const legacyAdoption=!loadedCheckpoint\.exists&&attempt>1/);
   assert.match(tail,/\?"FULL_GENERATION"\s*:\s*"SEED_GENERATION"/);
-  assert.match(tail,/selectT070SeedImageIds\(promptRecord\.value\.image_prompts,3\)/);
-  assert.match(tail,/if\(!generationStateIds\.has\(prompt\.state_image_id\)\)continue/);
+  assert.match(tail,/selectT070RepresentativeSeedImageIds\(/);
+  assert.match(tail,/const sceneOrder:string\[\]=\[\]/);
+  assert.match(tail,/scenePrompts=promptRecord\.value\.image_prompts/);
   assert.match(tail,/phase="SEED_QC"/);
   assert.match(tail,/Full image generation is blocked until seed visual QC passes/);
   assert.match(tail,/status:"AWAITING_SEED_QC"/);
@@ -258,7 +286,7 @@ test("T080 is locked behind pixel-grounded final QC of every approved T070 image
   assert.match(tail,/rm\([\s\S]*?"06_clips\/google-flow-manifest\.json"[\s\S]*?\{force:true\}/);
   assert.match(tail,/"t070_final_visual_qc"/);
 
-  assert.match(manager,/taskId: "MANAGER_VISUAL:T070_FINAL:" \+ input\.sceneId/);
+  assert.match(manager,/"MANAGER_VISUAL:T070_" \+ \(input\.reviewKind \?\? "FINAL"\)/);
   assert.match(manager,/imagePaths: input\.images\.map\(item => item\.absolutePath\)/);
   assert.match(manager,/Inspect every attachment directly and compare them with one another/);
   assert.match(manager,/ENTRY\/MID\/TARGET progression/);
@@ -283,7 +311,7 @@ test("T070 checkpoint persists phased seed state and remains backward compatible
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
 
   assert.match(tail,/export type T070Phase=/);
-  for(const phase of ["SEED_GENERATION","SEED_QC","FULL_GENERATION","FINAL_QC"]){
+  for(const phase of ["SEED_GENERATION","SEED_QC","FULL_GENERATION","FINAL_QC","COMPLETE"]){
     assert.match(tail,new RegExp("\\|\\\""+phase+"\\\""));
   }
   assert.match(tail,/phase:T070Phase/);
@@ -414,6 +442,7 @@ test("migration 0024 and workflow resolver persist every tail artifact needed by
     "image_qc_result",
     "approved_images",
     "t070_seed_visual_qc",
+    "t070_scene_visual_qc",
     "t070_final_visual_qc",
     "generated_clips",
     "clip_qc_result",
