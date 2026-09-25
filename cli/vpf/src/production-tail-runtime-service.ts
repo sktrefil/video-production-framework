@@ -26,6 +26,7 @@ import {Agent2StoryAudioRepository} from "@vpf/storage/agent2-story-audio";
 import {Agent3VisualProductionRepository} from "@vpf/storage/agent3-visual-production";
 import {ProductionTailRepository} from "@vpf/storage/production-tail";
 import {ProductionSpecRepository} from "@vpf/storage/production-spec";
+import {WorkflowOrchestratorRepository} from "@vpf/storage/workflow-orchestrator";
 import {Agent1WorkflowOrchestratorService} from "./workflow-orchestrator-service.js";
 import {CodexManagerRuntimeService} from "./codex-manager-runtime-service.js";
 import {CodexProcessRunner} from "./codex-process-runner.js";
@@ -906,6 +907,102 @@ export class ProductionTailRuntimeService{
     this.manager=new Agent1WorkflowOrchestratorService(projects);
     this.codexManager=new CodexManagerRuntimeService(projects,environment);
     this.codexRunner=new CodexProcessRunner(environment);
+  }
+
+  async resetT070ForRegeneration(projectId:string):Promise<{
+    project_id:string;
+    status:"RESET_FOR_T070_REGENERATION";
+    removed_files:string[];
+    superseded_artifacts:number;
+    reset_tasks:string[];
+  }>{
+    const status=await this.projects.getStatus(projectId);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    const workflow=new WorkflowOrchestratorRepository(status.projectDbPath);
+    try{
+      const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      if(prompts===null||prompts.value.image_prompts.length===0){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 regeneration reset requires an active prompt_bundle_spec."
+        );
+      }
+
+      const removeTargets=new Set<string>([
+        T070_CHECKPOINT_RELATIVE_PATH,
+        "06_clips/google-flow-manifest.json",
+        "08_editor/edit_project.json",
+        "09_render/preview.mp4",
+        "09_render/final.mp4"
+      ]);
+      for(const prompt of prompts.value.image_prompts){
+        removeTargets.add(
+          "05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png"
+        );
+      }
+      for(const prompt of prompts.value.video_prompts){
+        removeTargets.add(
+          "06_clips/generated/"+safeFileSegment(prompt.clip_id)+".mp4"
+        );
+      }
+
+      const removedFiles:string[]=[];
+      for(const relativePath of removeTargets){
+        const absolute=path.resolve(status.projectRoot,relativePath);
+        if(await readyFile(absolute)){
+          await rm(absolute,{force:true});
+          removedFiles.push(relativePath);
+        }
+      }
+
+      const supersededArtifacts=tail.supersedeActive(projectId,[
+        "generated_images",
+        "image_qc_result",
+        "approved_images",
+        "t070_seed_visual_qc",
+        "t070_scene_visual_qc",
+        "t070_final_visual_qc",
+        "generated_clips",
+        "clip_qc_result",
+        "timeline_spec",
+        "preview_render",
+        "final_qc_result"
+      ]);
+
+      const at=new Date().toISOString();
+      const resetTasks:string[]=[];
+      for(const taskId of ["T070","T080","T090","T100"] as const){
+        const task=workflow.getTask(projectId,taskId);
+        if(task===null)continue;
+        workflow.updateTask({
+          projectId,
+          taskId,
+          status:taskId==="T070"?"READY":"BLOCKED",
+          attempt:0,
+          inputRefs:[],
+          outputRefs:[],
+          lastGateId:null,
+          lastGateStatus:null,
+          startedAt:null,
+          completedAt:null,
+          updatedAt:at
+        });
+        resetTasks.push(taskId);
+      }
+
+      return{
+        project_id:projectId,
+        status:"RESET_FOR_T070_REGENERATION",
+        removed_files:removedFiles,
+        superseded_artifacts:supersededArtifacts,
+        reset_tasks:resetTasks
+      };
+    }finally{
+      workflow.close();
+      tail.close();
+      agent3.close();
+    }
   }
 
   async runAll(projectId:string):Promise<{
