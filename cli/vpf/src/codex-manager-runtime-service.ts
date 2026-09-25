@@ -3,6 +3,7 @@ import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
+import { ProductionTailRepository } from "@vpf/storage/production-tail";
 import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
 
 export interface CodexManagerReviewResult {
@@ -165,9 +166,9 @@ export class CodexManagerRuntimeService {
 
   async reviewSuccess(input: {
     projectId: string;
-    taskId: "T010" | "T020" | "T040" | "T050" | "T060";
+    taskId: "T010" | "T020" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090";
     attempt: number;
-    workerRole: "CODEX_2_STORY_AUDIO" | "CODEX_3_VISUAL_PRODUCTION";
+    workerRole: "CODEX_2_STORY_AUDIO" | "CODEX_3_VISUAL_PRODUCTION" | "EDITOR_REMOTION";
     gateStatus: "PASS";
     gateId: string;
     warnings?: Array<{ code: string; message: string }>;
@@ -281,11 +282,12 @@ export class CodexManagerRuntimeService {
   private readSuccessArtifacts(
     dbPath: string,
     projectId: string,
-    taskId: "T010" | "T020" | "T040" | "T050" | "T060"
+    taskId: "T010" | "T020" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090"
   ): unknown {
     const agent2 = new Agent2StoryAudioRepository(dbPath, { readonly: true });
     const agent3 = new Agent3VisualProductionRepository(dbPath, { readonly: true });
     const production = new ProductionSpecRepository(dbPath, { readonly: true });
+    const tail = new ProductionTailRepository(dbPath, { readonly: true });
     try {
       if (taskId === "T010") {
         return {
@@ -315,14 +317,37 @@ export class CodexManagerRuntimeService {
           scene_timing_spec: production.getSceneTiming(projectId)
         };
       }
+      if (taskId === "T060") {
+        return {
+          clip_production_spec: production.getClipProduction(projectId),
+          prompt_bundle_spec: agent3.getActive(projectId, "prompt_bundle_spec")?.value ?? null,
+          state_image_spec: agent3.getActive(projectId, "state_image_spec")?.value ?? null,
+          scene_visual_spec: agent3.getActive(projectId, "scene_visual_spec")?.value ?? null,
+          scene_timing_spec: production.getSceneTiming(projectId)
+        };
+      }
+      if (taskId === "T070") {
+        return {
+          generated_images: tail.getActive(projectId, "generated_images")?.value ?? null,
+          image_qc_result: tail.getActive(projectId, "image_qc_result")?.value ?? null,
+          approved_images: tail.getActive(projectId, "approved_images")?.value ?? null,
+          prompt_bundle_spec: agent3.getActive(projectId, "prompt_bundle_spec")?.value ?? null
+        };
+      }
+      if (taskId === "T080") {
+        return {
+          generated_clips: tail.getActive(projectId, "generated_clips")?.value ?? null,
+          clip_qc_result: tail.getActive(projectId, "clip_qc_result")?.value ?? null,
+          clip_production_spec: production.getClipProduction(projectId)
+        };
+      }
       return {
-        clip_production_spec: production.getClipProduction(projectId),
-        prompt_bundle_spec: agent3.getActive(projectId, "prompt_bundle_spec")?.value ?? null,
-        state_image_spec: agent3.getActive(projectId, "state_image_spec")?.value ?? null,
-        scene_visual_spec: agent3.getActive(projectId, "scene_visual_spec")?.value ?? null,
-        scene_timing_spec: production.getSceneTiming(projectId)
+        timeline_spec: tail.getActive(projectId, "timeline_spec")?.value ?? null,
+        preview_render: tail.getActive(projectId, "preview_render")?.value ?? null,
+        generated_clips: tail.getActive(projectId, "generated_clips")?.value ?? null
       };
     } finally {
+      tail.close();
       production.close();
       agent3.close();
       agent2.close();
