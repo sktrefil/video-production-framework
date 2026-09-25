@@ -316,6 +316,7 @@ test("T070 checkpoint persists phased seed state and remains backward compatible
   }
   assert.match(tail,/phase:T070Phase/);
   assert.match(tail,/seed_image_ids:string\[\]/);
+  assert.match(tail,/seed_qc_attempts:number/);
   assert.match(tail,/phase:isT070Phase\(parsed\.phase\)\?parsed\.phase:"FULL_GENERATION"/);
   assert.match(tail,/seed_image_ids:Array\.isArray\(parsed\.seed_image_ids\)/);
   assert.match(tail,/phase:input\.phase\?\?"FULL_GENERATION"/);
@@ -378,6 +379,20 @@ test("T070 uses text-only GLOBAL visual grammar and attaches no GLOBAL reference
   assert.match(compiler,/direct imitation of any reference image/);
 
   assert.match(imageRuntime,/sessionKey\?: string/);
+});
+
+test("T070 seed QC regenerates failed calibration images instead of deadlocking",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  assert.match(tail,/seed_qc_attempts:number/);
+  assert.match(tail,/const seedQcAttempts=checkpoint\.value\.seed_qc_attempts\+1/);
+  assert.match(tail,/seedQc\.cross_seed_diversity!=="PASS"/);
+  assert.match(tail,/seedQc\.style_coherence!=="PASS"/);
+  assert.match(tail,/phase:"SEED_GENERATION"/);
+  assert.match(tail,/failedSet=new Set\(failedSeedIds\)/);
+  assert.match(tail,/revisionFeedbackByState:feedback/);
+  assert.match(tail,/Seed visual QC requested regeneration of /);
+  assert.match(tail,/seedQcAttempts>=3/);
 });
 
 test("T070 full generation is scene-batched with targeted pixel-QC regeneration",()=>{
