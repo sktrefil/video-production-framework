@@ -188,6 +188,27 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
+test("T070 pins exactly two GLOBAL_VISUAL references to one provider conversation",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const imageRuntime=read("packages/provider-orchestrator/src/image-runtime.ts");
+
+  assert.match(tail,/const referenceAnchorPrompt=promptRecord\.value\.image_prompts\[0\]!/);
+  assert.match(tail,/\.filter\(reference=>reference\.role\.includes\("REFERENCE_LIBRARY:GLOBAL_VISUAL:"\)\)/);
+  assert.match(tail,/\.slice\(0,2\)/);
+  assert.match(tail,/pinnedRuntimeRefs\.length!==2/);
+  assert.match(tail,/const imageSessionKey=/);
+  assert.match(tail,/sessionKey:imageSessionKey/);
+
+  const loopStart=tail.indexOf("for(const [index,prompt] of promptRecord.value.image_prompts.entries())");
+  const loopEnd=tail.indexOf("const images=checkpointImages()",loopStart);
+  assert.ok(loopStart>=0);
+  assert.ok(loopEnd>loopStart);
+  const loopBody=tail.slice(loopStart,loopEnd);
+  assert.doesNotMatch(loopBody,/selector\.selectReferences/);
+
+  assert.match(imageRuntime,/sessionKey\?: string/);
+});
+
 test("T070 checkpoint resume accepts an orphaned RUNNING attempt without incrementing it",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
   const workflow=read("cli/vpf/src/workflow-orchestrator-service.ts");
