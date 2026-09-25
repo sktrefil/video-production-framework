@@ -109,7 +109,17 @@ export class Agent1WorkflowOrchestratorService {
         ? repo.listTasks(projectId).find(item => item.status === "READY") ?? null
         : repo.getTask(projectId, taskId);
       if (task === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task not found for ${projectId}: ${taskId ?? "<next>"}.`);
-      if (task.status !== "READY" && task.status !== "REVISION_REQUIRED") {
+      const resumeCurrentAttempt = options.resumeCurrentAttempt === true;
+      const resumableFailedT070 =
+        resumeCurrentAttempt &&
+        task.task_id === "T070" &&
+        task.status === "FAILED" &&
+        task.attempt > 0;
+      if (
+        task.status !== "READY" &&
+        task.status !== "REVISION_REQUIRED" &&
+        !resumableFailedT070
+      ) {
         throw new WorkflowOrchestratorError("TASK_NOT_READY", `${task.task_id} is ${task.status}, not dispatchable.`);
       }
       if (requestedAgent !== undefined && requestedAgent !== task.assigned_agent) {
@@ -117,12 +127,15 @@ export class Agent1WorkflowOrchestratorService {
       }
       const definition = findTaskDefinition(workflow.definition, task.task_id);
       if (definition === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task definition missing: ${task.task_id}.`);
-      const resumeCurrentAttempt = options.resumeCurrentAttempt === true;
       if (resumeCurrentAttempt) {
-        if (task.task_id !== "T070" || task.status !== "REVISION_REQUIRED" || task.attempt <= 0) {
+        if (
+          task.task_id !== "T070" ||
+          !["REVISION_REQUIRED","FAILED"].includes(task.status) ||
+          task.attempt <= 0
+        ) {
           throw new WorkflowOrchestratorError(
             "TASK_NOT_READY",
-            "Only an incomplete T070 revision attempt can resume without consuming a new attempt."
+            "Only an incomplete T070 revision/failed attempt can resume without consuming a new attempt."
           );
         }
       } else if (task.attempt >= definition.retry_policy.max_attempts) {
