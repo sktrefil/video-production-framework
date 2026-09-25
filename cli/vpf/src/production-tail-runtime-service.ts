@@ -1268,8 +1268,45 @@ export class ProductionTailRuntimeService{
     });
     try{
       if(taskId==="T070"){
-        const t070Result=await this.executeT070(projectId,dispatch.attempt);
-        if(t070Result==="AWAITING_SEED_QC")return"AWAITING_SEED_QC";
+        let finalVisualPass=false;
+        for(let finalCycle=1;finalCycle<=3;finalCycle+=1){
+          const t070Result=await this.executeT070(projectId,dispatch.attempt);
+          if(t070Result==="AWAITING_SEED_QC")return"AWAITING_SEED_QC";
+          const finalImageQc=await this.runT070FinalVisualQcGate(
+            projectId,
+            dispatch.attempt
+          );
+          if(finalImageQc.verdict==="PASS"){
+            finalVisualPass=true;
+            break;
+          }
+          if(finalCycle>=3){
+            throw new ProductionTailRuntimeError(
+              "TAIL_MANAGER_QC_REJECTED",
+              "T070 final visual QC did not pass after "+
+                String(finalCycle)+" targeted correction cycles: "+
+                finalImageQc.summary
+            );
+          }
+          await this.prepareT070FinalQcRevision(projectId,finalImageQc);
+          await this.progress.taskProgress({
+            project_id:projectId,
+            task_id:"T070",
+            agent:"AGENT3_VISUAL_PRODUCTION",
+            attempt:dispatch.attempt,
+            phase:"FINAL_QC_REVISION",
+            completed:finalCycle,
+            total:3,
+            message:
+              "Final visual QC requested targeted T070 regeneration before completion."
+          });
+        }
+        if(!finalVisualPass){
+          throw new ProductionTailRuntimeError(
+            "TAIL_MANAGER_QC_REJECTED",
+            "T070 final visual QC did not reach PASS."
+          );
+        }
       }else if(taskId==="T080")await this.executeT080(projectId,dispatch.attempt);
       else if(taskId==="T090")await this.executeT090(projectId,dispatch.attempt);
       else return await this.executeT100(projectId,dispatch.attempt);
@@ -1387,6 +1424,103 @@ export class ProductionTailRuntimeService{
       return await readyFile(path.resolve(status.projectRoot,"09_render/final.mp4"));
     }finally{
       tail.close();
+    }
+  }
+
+  private async prepareT070FinalQcRevision(
+    projectId:string,
+    qc:T070FinalVisualQcArtifact
+  ):Promise<void>{
+    const status=await this.projects.getStatus(projectId);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    try{
+      const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      if(prompts===null){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "Final-QC regeneration requires prompt_bundle_spec."
+        );
+      }
+      const checkpointPath=path.resolve(status.projectRoot,T070_CHECKPOINT_RELATIVE_PATH);
+      const loaded=await readT070Checkpoint(checkpointPath);
+      if(
+        loaded.value===null||
+        loaded.value.project_id!==projectId||
+        loaded.value.source_prompt_bundle_sha256!==prompts.sha256
+      ){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "Final-QC regeneration requires the current T070 checkpoint."
+        );
+      }
+
+      const failedIds=new Set(qc.failed_image_ids);
+      for(const sceneId of qc.failed_scene_ids){
+        if(
+          !qc.failed_image_ids.some(id=>
+            prompts.value.image_prompts.some(prompt=>
+              prompt.state_image_id===id&&prompt.scene_id===sceneId
+            )
+          )
+        ){
+          for(const prompt of prompts.value.image_prompts){
+            if(prompt.scene_id===sceneId)failedIds.add(prompt.state_image_id);
+          }
+        }
+      }
+      if(failedIds.size===0){
+        for(const sceneResult of qc.scene_results){
+          if(sceneResult.verdict!=="PASS"){
+            for(const prompt of prompts.value.image_prompts){
+              if(prompt.scene_id===sceneResult.scene_id){
+                failedIds.add(prompt.state_image_id);
+              }
+            }
+          }
+        }
+      }
+      if(failedIds.size===0){
+        throw new ProductionTailRuntimeError(
+          "TAIL_MANAGER_QC_REJECTED",
+          "Final visual QC failed without identifying a correctable scene or state."
+        );
+      }
+
+      const affectedScenes=new Set<string>();
+      const retained:GeneratedImage[]=[];
+      const revisionFeedback={...loaded.value.revision_feedback_by_state};
+      for(const image of loaded.value.images){
+        if(!failedIds.has(image.state_image_id)){
+          retained.push(image);
+          continue;
+        }
+        await rm(path.resolve(status.projectRoot,image.relative_path),{force:true});
+        affectedScenes.add(image.scene_id);
+        const sceneResult=qc.scene_results.find(item=>item.scene_id===image.scene_id);
+        const check=sceneResult?.checks.find(item=>item.state_image_id===image.state_image_id);
+        revisionFeedback[image.state_image_id]=[
+          sceneResult?.revision_instruction??"",
+          ...(check?.notes??[])
+        ].filter(Boolean).join(" ");
+      }
+
+      const passedScenes=loaded.value.scene_qc_passed_ids.filter(
+        sceneId=>!affectedScenes.has(sceneId)
+      );
+      await writeT070Checkpoint(checkpointPath,{
+        projectId,
+        promptBundleSha256:loaded.value.source_prompt_bundle_sha256,
+        width:loaded.value.width,
+        height:loaded.value.height,
+        phase:"FULL_GENERATION",
+        seedImageIds:loaded.value.seed_image_ids,
+        sceneQcPassedIds:passedScenes,
+        sceneQcAttempts:loaded.value.scene_qc_attempts,
+        revisionFeedbackByState:revisionFeedback,
+        images:retained
+      });
+    }finally{
+      agent3.close();
     }
   }
 
