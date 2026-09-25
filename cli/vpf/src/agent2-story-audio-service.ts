@@ -109,7 +109,6 @@ async function materializeScriptRecords(input: {
     value: Agent2ScriptSpec;
   };
 }): Promise<Agent2ScriptMaterializationResult> {
-  const directory = path.join(input.projectRoot, "02_script");
   const storyRelative = "02_script/story_spec.json";
   const scriptRelative = "02_script/script.json";
   const scriptTextRelative = "02_script/script_ko.txt";
