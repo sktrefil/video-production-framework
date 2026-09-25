@@ -62,6 +62,8 @@ export type T070Phase=
   |"FULL_GENERATION"
   |"FINAL_QC";
 
+type T070ExecutionResult="COMPLETE_READY"|"AWAITING_SEED_QC";
+
 type T070Checkpoint={
   schema_version:"1.0";
   project_id:string;
@@ -425,6 +427,19 @@ export function selectT070SeedImageIds(
   return selected;
 }
 
+export function buildT070GenerationStateIds(
+  prompts:Array<{state_image_id:string}>,
+  phase:T070Phase,
+  seedImageIds:Iterable<string>
+):string[]{
+  if(phase==="SEED_QC"||phase==="FINAL_QC")return[];
+  if(phase==="FULL_GENERATION")return prompts.map(prompt=>prompt.state_image_id);
+  const seeds=new Set(seedImageIds);
+  return prompts
+    .filter(prompt=>seeds.has(prompt.state_image_id))
+    .map(prompt=>prompt.state_image_id);
+}
+
 export function buildT070PendingOrdinals(
   prompts:Array<{state_image_id:string}>,
   completedStateIds:Iterable<string>
@@ -629,9 +644,14 @@ export class ProductionTailRuntimeService{
 
   async runAll(projectId:string):Promise<{
     project_id:string;
-    status:"COMPLETE"|"HANDOFF"|"AWAITING_MANUAL_EXTERNAL";
+    status:"COMPLETE"|"HANDOFF"|"AWAITING_MANUAL_EXTERNAL"|"AWAITING_SEED_QC";
     steps:Array<{task_id:TailTaskId;status:string}>;
     next_task:string|null;
+    seed_qc_action?:{
+      task_id:"T070";
+      checkpoint_relative_path:string;
+      seed_image_ids:string[];
+    };
     manual_action?:{
       task_id:"T080";
       manifest_relative_path:string;
@@ -718,6 +738,23 @@ export class ProductionTailRuntimeService{
           await this.hasT070ResumeEvidence(projectId);
         const result=await this.runTask(projectId,taskId,resumeCurrentAttempt);
         steps.push({task_id:taskId,status:result});
+        if(taskId==="T070"&&result==="AWAITING_SEED_QC"){
+          const project=await this.projects.getStatus(projectId);
+          const checkpoint=await readT070Checkpoint(
+            path.resolve(project.projectRoot,T070_CHECKPOINT_RELATIVE_PATH)
+          );
+          return{
+            project_id:projectId,
+            status:"AWAITING_SEED_QC",
+            steps,
+            next_task:"T070",
+            seed_qc_action:{
+              task_id:"T070",
+              checkpoint_relative_path:T070_CHECKPOINT_RELATIVE_PATH,
+              seed_image_ids:checkpoint.value?.seed_image_ids??[]
+            }
+          };
+        }
       }catch(error){
         const after=await this.manager.status(projectId);
         const current=after.tasks.find(item=>item.task_id===taskId);
@@ -773,8 +810,10 @@ export class ProductionTailRuntimeService{
       message:"Tail runtime execution started."
     });
     try{
-      if(taskId==="T070")await this.executeT070(projectId,dispatch.attempt);
-      else if(taskId==="T080")await this.executeT080(projectId,dispatch.attempt);
+      if(taskId==="T070"){
+        const t070Result=await this.executeT070(projectId,dispatch.attempt);
+        if(t070Result==="AWAITING_SEED_QC")return"AWAITING_SEED_QC";
+      }else if(taskId==="T080")await this.executeT080(projectId,dispatch.attempt);
       else if(taskId==="T090")await this.executeT090(projectId,dispatch.attempt);
       else return await this.executeT100(projectId,dispatch.attempt);
 
@@ -909,6 +948,10 @@ export class ProductionTailRuntimeService{
         checkpoint.value.source_prompt_bundle_sha256===prompts.sha256
       ){
         const completed=new Set(checkpoint.value.images.map(item=>item.state_image_id)).size;
+        if(
+          checkpoint.value.phase==="SEED_GENERATION"||
+          checkpoint.value.phase==="SEED_QC"
+        )return completed<total;
         return completed>0&&completed<total;
       }
       if(checkpoint.exists)return false;
@@ -924,7 +967,7 @@ export class ProductionTailRuntimeService{
     }
   }
 
-  private async executeT070(projectId:string,attempt:number):Promise<void>{
+  private async executeT070(projectId:string,attempt:number):Promise<T070ExecutionResult>{
     const status=await this.projects.getStatus(projectId);
     const format=await this.resolveFormat(status);
     const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
@@ -957,6 +1000,17 @@ export class ProductionTailRuntimeService{
         loadedCheckpoint.value.source_prompt_bundle_sha256===promptRecord.sha256&&
         loadedCheckpoint.value.width===format.imageGeneration.width&&
         loadedCheckpoint.value.height===format.imageGeneration.height;
+      const legacyAdoption=!loadedCheckpoint.exists&&attempt>1;
+      let phase:T070Phase=checkpointCurrent
+        ?loadedCheckpoint.value!.phase
+        :legacyAdoption
+          ?"FULL_GENERATION"
+          :"SEED_GENERATION";
+      const seedImageIds=checkpointCurrent&&loadedCheckpoint.value!.seed_image_ids.length>0
+        ?[...loadedCheckpoint.value!.seed_image_ids]
+        :phase==="SEED_GENERATION"
+          ?selectT070SeedImageIds(promptRecord.value.image_prompts,3)
+          :[];
 
       if(checkpointCurrent){
         for(const image of loadedCheckpoint.value!.images){
@@ -982,7 +1036,7 @@ export class ProductionTailRuntimeService{
             height:inspected.height
           });
         }
-      }else if(!loadedCheckpoint.exists&&attempt>1){
+      }else if(legacyAdoption){
         // Backward-compatible adoption for projects that produced PNGs before
         // item-level checkpoints existed. This is allowed only on a retry of
         // the same T070 lineage; a stale/mismatched checkpoint is never adopted.
@@ -1011,6 +1065,46 @@ export class ProductionTailRuntimeService{
       const checkpointImages=()=>promptRecord.value.image_prompts
         .map(prompt=>completedByState.get(prompt.state_image_id)??null)
         .filter((image):image is GeneratedImage=>image!==null);
+      const writeCurrentCheckpoint=()=>writeT070Checkpoint(checkpointAbsolute,{
+        projectId,
+        promptBundleSha256:promptRecord.sha256,
+        width:format.imageGeneration.width,
+        height:format.imageGeneration.height,
+        phase,
+        seedImageIds,
+        images:checkpointImages()
+      });
+
+      if(!checkpointCurrent&&!legacyAdoption){
+        await writeCurrentCheckpoint();
+        await this.progress.taskProgress({
+          project_id:projectId,
+          task_id:"T070",
+          agent:"AGENT3_VISUAL_PRODUCTION",
+          attempt,
+          phase:"SEED_GENERATION",
+          completed:0,
+          total:seedImageIds.length,
+          message:
+            "T070 seed calibration started with "+String(seedImageIds.length)+
+            " representative state images."
+        });
+      }
+
+      if(phase==="SEED_QC"){
+        await writeCurrentCheckpoint();
+        await this.progress.taskProgress({
+          project_id:projectId,
+          task_id:"T070",
+          agent:"AGENT3_VISUAL_PRODUCTION",
+          attempt,
+          phase:"SEED_QC",
+          completed:seedImageIds.filter(id=>completedByState.has(id)).length,
+          total:seedImageIds.length,
+          message:"T070 seed images are complete and awaiting visual QC before full generation."
+        });
+        return"AWAITING_SEED_QC";
+      }
 
       const pendingOrdinals=buildT070PendingOrdinals(
         promptRecord.value.image_prompts,
@@ -1018,13 +1112,7 @@ export class ProductionTailRuntimeService{
       );
 
       if(completedByState.size>0){
-        await writeT070Checkpoint(checkpointAbsolute,{
-          projectId,
-          promptBundleSha256:promptRecord.sha256,
-          width:format.imageGeneration.width,
-          height:format.imageGeneration.height,
-          images:checkpointImages()
-        });
+        await writeCurrentCheckpoint();
         await this.progress.taskProgress({
           project_id:projectId,
           task_id:"T070",
@@ -1040,6 +1128,11 @@ export class ProductionTailRuntimeService{
         });
       }
 
+      const generationStateIds=new Set(buildT070GenerationStateIds(
+        promptRecord.value.image_prompts,
+        phase,
+        seedImageIds
+      ));
       const adapter=await importImageAdapter(this.environment.VPF_IMAGE_ADAPTER_MODULE?.trim()??"");
       const selector=new ThreeTierFilesystemReferenceSelector({
         sharedAbsoluteRoot:path.join(DEFAULT_REPOSITORY_ROOT,"workspace","reference_library"),
@@ -1110,6 +1203,7 @@ export class ProductionTailRuntimeService{
       });
 
       for(const [index,prompt] of promptRecord.value.image_prompts.entries()){
+        if(!generationStateIds.has(prompt.state_image_id))continue;
         const scene=visual.value.scenes.find(item=>item.scene_id===prompt.scene_id);
         const state=states.value.state_images.find(item=>item.state_image_id===prompt.state_image_id);
         if(scene===undefined||state===undefined){
@@ -1126,13 +1220,7 @@ export class ProductionTailRuntimeService{
             reference_roles:providerRefs.map(item=>item.role)
           };
           completedByState.set(prompt.state_image_id,updated);
-          await writeT070Checkpoint(checkpointAbsolute,{
-            projectId,
-            promptBundleSha256:promptRecord.sha256,
-            width:format.imageGeneration.width,
-            height:format.imageGeneration.height,
-            images:checkpointImages()
-          });
+          await writeCurrentCheckpoint();
           continue;
         }
 
@@ -1203,13 +1291,7 @@ export class ProductionTailRuntimeService{
         }
 
         completedByState.set(prompt.state_image_id,generatedImage);
-        await writeT070Checkpoint(checkpointAbsolute,{
-          projectId,
-          promptBundleSha256:promptRecord.sha256,
-          width:format.imageGeneration.width,
-          height:format.imageGeneration.height,
-          images:checkpointImages()
-        });
+        await writeCurrentCheckpoint();
         await this.progress.taskProgress({
           project_id:projectId,
           task_id:"T070",
@@ -1220,6 +1302,32 @@ export class ProductionTailRuntimeService{
           total:100,
           message:"Generated state image "+String(index+1)+"/"+String(total)+"."
         });
+      }
+
+      if(phase==="SEED_GENERATION"){
+        const completedSeeds=seedImageIds.filter(id=>completedByState.has(id));
+        if(completedSeeds.length!==seedImageIds.length){
+          throw new ProductionTailRuntimeError(
+            "TAIL_IMAGE_PROVIDER",
+            "T070 seed checkpoint is incomplete: "+String(completedSeeds.length)+
+            "/"+String(seedImageIds.length)+"."
+          );
+        }
+        phase="SEED_QC";
+        await writeCurrentCheckpoint();
+        await this.progress.taskProgress({
+          project_id:projectId,
+          task_id:"T070",
+          agent:"AGENT3_VISUAL_PRODUCTION",
+          attempt,
+          phase:"SEED_QC",
+          completed:seedImageIds.length,
+          total:seedImageIds.length,
+          message:
+            "Generated "+String(seedImageIds.length)+
+            " seed images. Full image generation is blocked until seed visual QC passes."
+        });
+        return"AWAITING_SEED_QC";
       }
 
       const images=checkpointImages();
@@ -1258,6 +1366,7 @@ export class ProductionTailRuntimeService{
       tail.save(projectId,"generated_images",generated,"T070",at);
       tail.save(projectId,"image_qc_result",qc,"T070",at);
       tail.save(projectId,"approved_images",approved,"T070",at);
+      return"COMPLETE_READY";
     }finally{
       tail.close();
       agent3.close();
