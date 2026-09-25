@@ -562,9 +562,11 @@ export class ProductionDashboardSnapshotService {
           policy_version:
             typeof finalImageQc?.value.policy_version==="string"
               ?finalImageQc.value.policy_version
-              :typeof seedVisualQc?.value.policy_version==="string"
-                ?seedVisualQc.value.policy_version
-                :null,
+              :typeof sceneVisualQc?.value.policy_version==="string"
+                ?sceneVisualQc.value.policy_version
+                :typeof seedVisualQc?.value.policy_version==="string"
+                  ?seedVisualQc.value.policy_version
+                  :null,
           items: t070Items
         },
         t080: {
