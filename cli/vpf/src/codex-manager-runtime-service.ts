@@ -22,6 +22,23 @@ export interface CodexManagerSuccessReviewResult {
   preserve: string[];
 }
 
+export interface T070SeedVisualQcResult {
+  schema_version: "1.0";
+  verdict: "PASS" | "REVISE" | "FAIL";
+  summary: string;
+  checks: Array<{
+    state_image_id: string;
+    verdict: "PASS" | "REVISE" | "FAIL";
+    prompt_alignment: "PASS" | "FAIL";
+    visual_consistency: "PASS" | "FAIL";
+    factual_constraints: "PASS" | "FAIL";
+    continuity_readiness: "PASS" | "FAIL";
+    artifact_quality: "PASS" | "FAIL";
+    notes: string[];
+  }>;
+  revision_instruction: string;
+}
+
 const MANAGER_SUCCESS_SCHEMA = {
   type: "object",
   additionalProperties: false,
@@ -44,6 +61,52 @@ const MANAGER_SUCCESS_SCHEMA = {
       type: "array",
       items: { type: "string" }
     }
+  }
+} as const;
+
+
+const T070_SEED_VISUAL_QC_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: [
+    "schema_version",
+    "verdict",
+    "summary",
+    "checks",
+    "revision_instruction"
+  ],
+  properties: {
+    schema_version: { type: "string", enum: ["1.0"] },
+    verdict: { type: "string", enum: ["PASS", "REVISE", "FAIL"] },
+    summary: { type: "string" },
+    checks: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: [
+          "state_image_id",
+          "verdict",
+          "prompt_alignment",
+          "visual_consistency",
+          "factual_constraints",
+          "continuity_readiness",
+          "artifact_quality",
+          "notes"
+        ],
+        properties: {
+          state_image_id: { type: "string" },
+          verdict: { type: "string", enum: ["PASS", "REVISE", "FAIL"] },
+          prompt_alignment: { type: "string", enum: ["PASS", "FAIL"] },
+          visual_consistency: { type: "string", enum: ["PASS", "FAIL"] },
+          factual_constraints: { type: "string", enum: ["PASS", "FAIL"] },
+          continuity_readiness: { type: "string", enum: ["PASS", "FAIL"] },
+          artifact_quality: { type: "string", enum: ["PASS", "FAIL"] },
+          notes: { type: "array", items: { type: "string" } }
+        }
+      }
+    },
+    revision_instruction: { type: "string" }
   }
 } as const;
 
@@ -162,6 +225,169 @@ export class CodexManagerRuntimeService {
       repo.close();
     }
     return review;
+  }
+
+  async reviewT070SeedVisuals(input: {
+    projectId: string;
+    attempt: number;
+    seedImages: Array<{
+      stateImageId: string;
+      absolutePath: string;
+      sha256: string;
+    }>;
+  }): Promise<T070SeedVisualQcResult> {
+    const status = await this.projects.getStatus(input.projectId);
+    if (!status.migrations.appliedMigrationIds.includes("0023")) {
+      throw new CodexRuntimeError(
+        "CODEX_CAPABILITY_MISSING",
+        "T070 seed visual QC requires migration 0023."
+      );
+    }
+    if (!status.resourcePins.some(pin =>
+      pin.resourceType === "PROVIDER_PROFILE" &&
+      pin.resourceId === "CODEX_MANAGER_V1"
+    )) {
+      throw new CodexRuntimeError(
+        "CODEX_CAPABILITY_MISSING",
+        "Project does not pin CODEX_MANAGER_V1."
+      );
+    }
+    if (input.seedImages.length === 0) {
+      throw new CodexRuntimeError(
+        "CODEX_OUTPUT_INVALID",
+        "T070 seed visual QC requires at least one seed image."
+      );
+    }
+
+    const agent3 = new Agent3VisualProductionRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+    try {
+      const prompts = agent3.getActive<any>(input.projectId, "prompt_bundle_spec");
+      const states = agent3.getActive<any>(input.projectId, "state_image_spec");
+      const visual = agent3.getActive<any>(input.projectId, "scene_visual_spec");
+      if (prompts === null || states === null || visual === null) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 seed visual QC requires prompt, state-image and scene-visual artifacts."
+        );
+      }
+
+      const seedInputs = input.seedImages.map((seed, index) => {
+        const prompt = prompts.value.image_prompts.find(
+          (item: any) => item.state_image_id === seed.stateImageId
+        );
+        const state = states.value.state_images.find(
+          (item: any) => item.state_image_id === seed.stateImageId
+        );
+        const scene = visual.value.scenes.find(
+          (item: any) => item.scene_id === state?.scene_id
+        );
+        if (prompt === undefined || state === undefined || scene === undefined) {
+          throw new CodexRuntimeError(
+            "CODEX_OUTPUT_INVALID",
+            "T070 seed visual QC input is missing approved design context for " +
+              seed.stateImageId + "."
+          );
+        }
+        return {
+          attachment_index: index + 1,
+          state_image_id: seed.stateImageId,
+          image_sha256: seed.sha256,
+          scene_id: state.scene_id,
+          role: state.role,
+          provider_prompt_en: prompt.provider_prompt_en,
+          negative_prompt_en: prompt.negative_prompt_en,
+          visual_goal_en: state.visual_goal_en || state.visual_goal_ko,
+          composition_en: state.composition_en || state.composition_ko,
+          subject_state_en: state.subject_state_en || state.subject_state_ko,
+          environment_state_en: state.environment_state_en || state.environment_state_ko,
+          motion_vector_en: state.motion_vector_en || state.motion_vector_ko,
+          handoff_anchor: state.handoff_anchor,
+          continuity_refs: state.continuity_refs,
+          factual_constraints: [
+            ...scene.evidence_constraints,
+            ...state.factual_constraints
+          ],
+          forbidden_visual_claims: scene.forbidden_visual_claims,
+          scene_continuity: scene.continuity,
+          scene_handoff: scene.handoff
+        };
+      });
+
+      const result = await this.runner.execute<T070SeedVisualQcResult>({
+        projectId: input.projectId,
+        projectRoot: status.projectRoot,
+        dbPath: status.projectDbPath,
+        roleId: "CODEX_1_MANAGER",
+        taskId: "MANAGER_VISUAL:T070_SEED",
+        attempt: input.attempt,
+        instructions: [
+          "Act as Agent 1 visual calibration QC for T070 seed images.",
+          "The attached images are the actual generated PNG pixels. Inspect every attachment directly.",
+          "Attachment order exactly matches seed_images[].attachment_index in request.json.",
+          "Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone.",
+          "For every seed image assess prompt alignment, visual consistency, factual constraints, continuity/handoff readiness, and visible artifact quality.",
+          "FAIL factual contradictions, unsupported visible claims, modern/anachronistic objects, readable generated text, watermarks, severe anatomy/object corruption, or an image that cannot serve its approved state.",
+          "Use REVISE when regeneration can repair the seed without changing approved upstream facts or visual policy.",
+          "PASS only when every attached seed is visually suitable to calibrate full-batch generation.",
+          "Return exactly one check for every state_image_id and no extras.",
+          "If overall verdict is PASS, revision_instruction must be empty. Otherwise provide a concrete regeneration instruction.",
+          "Web search is disabled; judge only the supplied approved design context and actual attached pixels."
+        ],
+        input: {
+          project_id: input.projectId,
+          seed_images: seedInputs
+        },
+        imagePaths: input.seedImages.map(item => item.absolutePath),
+        outputSchema: T070_SEED_VISUAL_QC_SCHEMA,
+        webSearchMode: "disabled"
+      });
+
+      const review = {
+        ...result.output,
+        schema_version: "1.0" as const
+      };
+      const expectedIds = input.seedImages.map(item => item.stateImageId).sort();
+      const actualIds = review.checks.map(item => item.state_image_id).sort();
+      if (JSON.stringify(actualIds) !== JSON.stringify(expectedIds)) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 seed visual QC must return exactly one check for every seed image."
+        );
+      }
+      if (!review.summary.trim()) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 seed visual QC requires a non-empty summary."
+        );
+      }
+      if (review.verdict === "PASS" && review.revision_instruction.trim()) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 seed visual QC PASS must not include a revision instruction."
+        );
+      }
+      if (review.verdict !== "PASS" && !review.revision_instruction.trim()) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 seed visual QC non-PASS verdict requires a revision instruction."
+        );
+      }
+      if (
+        review.verdict === "PASS" &&
+        review.checks.some(item => item.verdict !== "PASS")
+      ) {
+        throw new CodexRuntimeError(
+          "CODEX_OUTPUT_INVALID",
+          "T070 seed visual QC cannot PASS while an individual seed is non-PASS."
+        );
+      }
+      return review;
+    } finally {
+      agent3.close();
+    }
   }
 
   async reviewSuccess(input: {
