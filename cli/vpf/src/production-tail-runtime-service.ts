@@ -87,6 +87,32 @@ type T070SeedVisualQcArtifact={
   reviewed_at:string;
 };
 
+type T070SceneVisualQcArtifact={
+  schema_version:"1.0";
+  policy_version:"T070_IMAGE_POLICY_V1";
+  project_id:string;
+  source_prompt_bundle_sha256:string;
+  scene_id:string;
+  scene_image_set_sha256:string;
+  attempt:number;
+  verdict:"PASS"|"REVISE"|"FAIL";
+  summary:string;
+  continuity_verdict:"PASS"|"FAIL";
+  handoff_verdict:"PASS"|"FAIL";
+  checks:Array<{
+    state_image_id:string;
+    verdict:"PASS"|"REVISE"|"FAIL";
+    prompt_alignment:"PASS"|"FAIL";
+    visual_consistency:"PASS"|"FAIL";
+    factual_constraints:"PASS"|"FAIL";
+    continuity_readiness:"PASS"|"FAIL";
+    artifact_quality:"PASS"|"FAIL";
+    notes:string[];
+  }>;
+  revision_instruction:string;
+  reviewed_at:string;
+};
+
 type T070FinalVisualQcArtifact={
   schema_version:"1.0";
   project_id:string;
@@ -1569,6 +1595,15 @@ export class ProductionTailRuntimeService{
             3
           )
           :[];
+      const sceneQcPassedIds=new Set(
+        checkpointCurrent?loadedCheckpoint.value!.scene_qc_passed_ids:[]
+      );
+      const sceneQcAttempts:Record<string,number>={
+        ...(checkpointCurrent?loadedCheckpoint.value!.scene_qc_attempts:{})
+      };
+      const revisionFeedbackByState:Record<string,string>={
+        ...(checkpointCurrent?loadedCheckpoint.value!.revision_feedback_by_state:{})
+      };
 
       if(checkpointCurrent){
         for(const image of loadedCheckpoint.value!.images){
@@ -1630,6 +1665,9 @@ export class ProductionTailRuntimeService{
         height:format.imageGeneration.height,
         phase,
         seedImageIds,
+        sceneQcPassedIds:[...sceneQcPassedIds],
+        sceneQcAttempts,
+        revisionFeedbackByState,
         images:checkpointImages()
       });
 
