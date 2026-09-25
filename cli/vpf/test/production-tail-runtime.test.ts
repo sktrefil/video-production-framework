@@ -493,6 +493,8 @@ test("confirmed regeneration reset removes stale T070 outputs and preserves upst
   const storage=read("packages/storage/src/production-tail.ts");
 
   assert.match(tail,/async resetT070ForRegeneration/);
+  assert.match(tail,/const upstreamTaskIds=\["T010","T020","T030","T040","T050","T060"\] as const/);
+  assert.match(tail,/T070 regeneration reset requires completed upstream tasks T010-T060/);
   assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH/);
   assert.match(tail,/"06_clips\/google-flow-manifest\.json"/);
   assert.match(tail,/"09_render\/preview\.mp4"/);
