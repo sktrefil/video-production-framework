@@ -235,6 +235,7 @@ export function buildT050CodexInput(input: {
         scene_id: scene.scene_id,
         story_role: scene.story_role,
         factuality_mode: scene.factuality_mode,
+        fantasy_mode: scene.fantasy_mode,
         fact_refs: scene.fact_refs,
         narrative_purpose_ko: scene.narrative_purpose_ko,
         visual_intent_ko: scene.visual_intent_ko,
@@ -417,6 +418,7 @@ class OpenAiAgent3Runtime {
         "Any Scene longer than 10 seconds must have enough sequential states to permit multiple Clips of at most 10 seconds.",
         "Prefer the minimum number of states that can carry the narrative clearly. Do not add novelty-only states.",
         "Every State Image must be video-ready: layered depth, complete physical relationships, and one continuable motion vector.",
+        "Respect each Scene fantasy_mode when designing states: fantasy may affect atmosphere, light, mist, texture, symbolic space and non-textual motifs, but never invent historical evidence or events.",
         "Use only Beat IDs that exist in the Scene Timing input, or null when the state is scene-level.",
         "If revision_feedback is present, correct those exact validation failures without changing approved Scene Visual meaning."
       ],
