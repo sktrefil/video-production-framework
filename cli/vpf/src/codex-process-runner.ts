@@ -57,6 +57,7 @@ export interface CodexExecutionRequest<TInput = unknown> {
   instructions: string[];
   input: TInput;
   outputSchema: unknown;
+  imagePaths?: string[];
   webSearchMode?: CodexWebSearchMode;
   onActivity?: (activity: CodexExecutionActivity) => void | Promise<void>;
 }
@@ -339,7 +340,8 @@ export class CodexProcessRunner {
         "--cd",
         "--config",
         "--output-schema",
-        "--output-last-message"
+        "--output-last-message",
+        "--image"
       ];
       const missingExecFlags = requiredExecFlags.filter(flag => !text.includes(flag));
       const execOk = help.exitCode === 0 && missingExecFlags.length === 0;
@@ -462,6 +464,30 @@ export class CodexProcessRunner {
     const outputPath = path.join(tempRoot, "output.json");
     const tracePath = path.join(tempRoot, "trace.jsonl");
     const stderrPath = path.join(tempRoot, "stderr.log");
+    const attachedImages: string[] = [];
+    for (const [index, sourcePath] of (request.imagePaths ?? []).entries()) {
+      const extension = path.extname(sourcePath).toLowerCase();
+      if (![".png", ".jpg", ".jpeg", ".webp"].includes(extension)) {
+        throw new CodexRuntimeError(
+          "CODEX_CAPABILITY_MISSING",
+          "Codex visual input must be PNG/JPEG/WEBP: " + sourcePath
+        );
+      }
+      try {
+        const target = path.join(
+          tempRoot,
+          "visual-input-" + String(index + 1).padStart(2, "0") + extension
+        );
+        await copyFile(sourcePath, target);
+        attachedImages.push(target);
+      } catch (error) {
+        throw new CodexRuntimeError(
+          "CODEX_CAPABILITY_MISSING",
+          "Codex visual input could not be prepared: " +
+            (error instanceof Error ? error.message : String(error))
+        );
+      }
+    }
 
     const baseInstructions = [
       "# VPF Codex Role",
@@ -499,8 +525,15 @@ export class CodexProcessRunner {
     ];
     const model = (this.environment.VPF_CODEX_MODEL ?? "").trim();
     if (model) args.push("--model", model);
+    if (attachedImages.length > 0) {
+      args.push("--image", ...attachedImages);
+    }
+    args.push("--");
     args.push(
       "Read instructions.md and parse request.json as JSON in the current directory. " +
+      (attachedImages.length > 0
+        ? "Inspect every attached image directly; do not infer image content from filenames or metadata. "
+        : "") +
       "Perform only the requested VPF role task. " +
       "Return the final structured JSON matching output.schema.json."
     );
@@ -604,6 +637,15 @@ export class CodexProcessRunner {
       ] as const) {
         await copyIfPresent(source, path.join(auditDirectory, target));
       }
+      for (const [index, source] of attachedImages.entries()) {
+        await copyIfPresent(
+          source,
+          path.join(
+            auditDirectory,
+            "visual-input-" + String(index + 1).padStart(2, "0") + path.extname(source)
+          )
+        );
+      }
 
       return {
         runId,
@@ -634,6 +676,15 @@ export class CodexProcessRunner {
           [stderrPath, "stderr.log"]
         ] as const) {
           await copyIfPresent(source, path.join(auditDirectory, target));
+        }
+        for (const [index, source] of attachedImages.entries()) {
+          await copyIfPresent(
+            source,
+            path.join(
+              auditDirectory,
+              "visual-input-" + String(index + 1).padStart(2, "0") + path.extname(source)
+            )
+          );
         }
       } catch {
         // Preserve the original runtime error even if audit persistence fails.
