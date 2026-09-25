@@ -187,6 +187,7 @@ export async function inspectFlowManifestFiles(projectRoot: string): Promise<{
 export interface ProductionDashboardClipPlanItem {
   clip_id: string;
   scene_id: string;
+  fantasy_mode: "OFF" | "RESTRAINED" | "EDITORIAL" | "HEIGHTENED" | null;
   entry_state_image_id: string;
   mid_state_image_id: string | null;
   target_state_image_id: string;
@@ -221,11 +222,22 @@ export function buildClipPlanPreview(
   const sceneById = new Map(
     (sceneVisual?.scenes ?? []).map(scene => [scene.scene_id, scene])
   );
+  const fantasyMode = (scene: SceneVisualDocument["scenes"][number] | undefined) => {
+    if (scene === undefined) return null;
+    if (scene.fantasy_mode !== undefined) return scene.fantasy_mode;
+    if (
+      scene.factuality_mode === "EVIDENCE" ||
+      scene.factuality_mode === "HISTORICAL_RECONSTRUCTION"
+    ) return "RESTRAINED" as const;
+    if (scene.factuality_mode === "LEGEND_RECONSTRUCTION") return "HEIGHTENED" as const;
+    return "EDITORIAL" as const;
+  };
   const items = promptBundle.video_prompts.map(prompt => {
     const scene = sceneById.get(prompt.scene_id);
     return {
       clip_id: prompt.clip_id,
       scene_id: prompt.scene_id,
+      fantasy_mode: fantasyMode(scene),
       entry_state_image_id: prompt.entry_state_image_id,
       mid_state_image_id: prompt.mid_state_image_id,
       target_state_image_id: prompt.target_state_image_id,
