@@ -150,6 +150,7 @@ test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () =>
         scene_id: "SCENE_01",
         story_role: "HOOK",
         factuality_mode: "HISTORICAL_RECONSTRUCTION",
+        fantasy_mode: "RESTRAINED",
         fact_refs: ["FACT_001"],
         narrative_purpose_ko: "기록이 끊기는 미스터리를 제기한다.",
         narrative_purpose_en: "",
