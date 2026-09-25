@@ -27,7 +27,7 @@ import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionProgressReporter } from "./production-progress.js";
 import { ProductionTerminalProgressRenderer } from "./production-progress-terminal.js";
-import { ProductionTailRuntimeService, ProductionTailRuntimeError } from "./production-tail-runtime-service.js";
+import { ProductionTailRuntimeService } from "./production-tail-runtime-service.js";
 
 export interface CliIo {
   out(message: string): void;
