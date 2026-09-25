@@ -143,6 +143,19 @@ test("ChatGPT Browser worker accepts only a stable new assistant image and downl
   assert.doesNotMatch(worker, /locator\.screenshot/);
 });
 
+test("ChatGPT Browser worker hardens exact prompt entry on reused conversations", async () => {
+  const worker = await readFile(
+    new URL("../../../runtimes/image/adapters/chatgpt_browser_worker_v2.py", import.meta.url),
+    "utf8"
+  );
+  assert.match(worker, /page\.keyboard\.insert_text\(text\)/);
+  assert.match(worker, /FILL_PROMPT mismatch/);
+  assert.match(worker, /expected_sha=/);
+  assert.match(worker, /actual_sha=/);
+  assert.match(worker, /document\.execCommand\('insertText', false, value\)/);
+  assert.match(worker, /Composer text still differs from the approved prompt after all exact-input strategies/);
+});
+
 test("ChatGPT Browser worker reuses one managed conversation per exact reference set across changing prompts", async () => {
   const worker = await readFile(
     new URL("../../../runtimes/image/adapters/chatgpt_browser_worker_v2.py", import.meta.url),
