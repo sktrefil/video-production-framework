@@ -84,6 +84,7 @@ Agent 2 story/audio operations:
   vpf agent2 run <project_id>
   vpf agent2 run-all <project_id>
   vpf agent2 runtime-status <project_id>
+  vpf agent2 materialize-script <project_id>
 
 Agent 3 visual/production operations:
   vpf agent3 instruction <T040|T050|T060>
@@ -428,6 +429,16 @@ export async function runCli(
         return 2;
       }
       printJson(io, await agent2Runtime.runtimeStatus(projectId));
+      return 0;
+    }
+
+    if (args[0] === "agent2" && args[1] === "materialize-script") {
+      const projectId = args[2];
+      if (projectId === undefined) {
+        io.error("[CLI_USAGE] agent2 materialize-script requires <project_id>.");
+        return 2;
+      }
+      printJson(io, await agent2.materializeScript(projectId));
       return 0;
     }
 
