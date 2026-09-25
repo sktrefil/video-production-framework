@@ -26,6 +26,7 @@ import { Agent3RuntimeAdapterService, Agent3RuntimeAdapterError } from "./agent3
 import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionProgressReporter } from "./production-progress.js";
+import { ProductionTerminalProgressRenderer } from "./production-progress-terminal.js";
 
 export interface CliIo {
   out(message: string): void;
@@ -55,7 +56,7 @@ Production Spec operations:
   vpf production validate-states <project_id>
   vpf production validate-clips <project_id>
   vpf production generation-ready <project_id>
-  vpf production run <project_id> [--events-jsonl]
+  vpf production run <project_id> [--events-jsonl] [--no-progress]
 
 Codex multi-agent runtime:
   vpf codex preflight
@@ -546,10 +547,17 @@ export async function runCli(
         return 2;
       }
       const eventsJsonl = args.includes("--events-jsonl");
+      const noProgress = args.includes("--no-progress");
+      const initialWorkflow = await workflow.status(projectId);
+      const terminalProgress = !eventsJsonl && !noProgress
+        ? new ProductionTerminalProgressRenderer(initialWorkflow.tasks, line => io.error(line))
+        : null;
       const progress = new ProductionProgressReporter(
         eventsJsonl
           ? event => { io.out(JSON.stringify(event)); }
-          : () => undefined
+          : terminalProgress === null
+            ? () => undefined
+            : event => { terminalProgress.handle(event); }
       );
       const runtimeMode = (process.env.VPF_AI_RUNTIME_MODE ?? "CODEX_SESSION")
         .trim()
