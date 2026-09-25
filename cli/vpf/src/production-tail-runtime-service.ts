@@ -56,6 +56,24 @@ type GeneratedImagesArtifact={
   images:GeneratedImage[];
 };
 
+type T070Checkpoint={
+  schema_version:"1.0";
+  project_id:string;
+  source_prompt_bundle_sha256:string;
+  width:number;
+  height:number;
+  images:GeneratedImage[];
+  updated_at:string;
+};
+
+type T070CheckpointLoad={
+  exists:boolean;
+  value:T070Checkpoint|null;
+};
+
+const T070_CHECKPOINT_RELATIVE_PATH="05_images/generated/t070-checkpoint.json";
+const T070_ITEM_MAX_ATTEMPTS=3;
+
 type FlowManifestItem={
   clip_id:string;
   scene_id:string;
@@ -161,6 +179,72 @@ async function readyFile(filename:string):Promise<boolean>{
 
 async function fileSha256(filename:string):Promise<string>{
   return sha256Bytes(await readFile(filename));
+}
+
+async function readT070Checkpoint(filename:string):Promise<T070CheckpointLoad>{
+  try{
+    const parsed=JSON.parse(await readFile(filename,"utf8")) as Partial<T070Checkpoint>;
+    const valid=
+      parsed.schema_version==="1.0"&&
+      typeof parsed.project_id==="string"&&
+      typeof parsed.source_prompt_bundle_sha256==="string"&&
+      typeof parsed.width==="number"&&
+      typeof parsed.height==="number"&&
+      Array.isArray(parsed.images)&&
+      typeof parsed.updated_at==="string";
+    return{exists:true,value:valid?parsed as T070Checkpoint:null};
+  }catch(error){
+    const code=(error as NodeJS.ErrnoException).code;
+    if(code==="ENOENT")return{exists:false,value:null};
+    return{exists:true,value:null};
+  }
+}
+
+async function inspectReusableImage(input:{
+  projectRoot:string;
+  relativePath:string;
+  expectedWidth:number;
+  expectedHeight:number;
+  expectedSha256?:string;
+}):Promise<{sha256:string;width:number;height:number}|null>{
+  try{
+    const absolute=path.resolve(input.projectRoot,input.relativePath);
+    if(!(await readyFile(absolute)))return null;
+    const bytes=await readFile(absolute);
+    const probe=probeImageBytes(bytes);
+    if(
+      probe.mimeType!=="image/png"||
+      probe.width!==input.expectedWidth||
+      probe.height!==input.expectedHeight
+    )return null;
+    const sha256=sha256Bytes(bytes);
+    if(input.expectedSha256!==undefined&&sha256!==input.expectedSha256)return null;
+    return{sha256,width:probe.width,height:probe.height};
+  }catch{
+    return null;
+  }
+}
+
+async function writeT070Checkpoint(
+  filename:string,
+  input:{
+    projectId:string;
+    promptBundleSha256:string;
+    width:number;
+    height:number;
+    images:GeneratedImage[];
+  }
+):Promise<void>{
+  const checkpoint:T070Checkpoint={
+    schema_version:"1.0",
+    project_id:input.projectId,
+    source_prompt_bundle_sha256:input.promptBundleSha256,
+    width:input.width,
+    height:input.height,
+    images:input.images,
+    updated_at:new Date().toISOString()
+  };
+  await writeJson(filename,checkpoint);
 }
 
 async function runProcess(command:string,args:string[],cwd:string):Promise<void>{
@@ -534,7 +618,12 @@ export class ProductionTailRuntimeService{
         }
       }
       try{
-        const result=await this.runTask(projectId,taskId);
+        const resumeCurrentAttempt=
+          taskId==="T070"&&
+          next.status==="REVISION_REQUIRED"&&
+          (next.attempt??0)>=3&&
+          await this.hasT070ResumeEvidence(projectId);
+        const result=await this.runTask(projectId,taskId,resumeCurrentAttempt);
         steps.push({task_id:taskId,status:result});
       }catch(error){
         const after=await this.manager.status(projectId);
@@ -557,13 +646,22 @@ export class ProductionTailRuntimeService{
     throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Production tail guard limit was exceeded.");
   }
 
-  private async runTask(projectId:string,taskId:TailTaskId):Promise<string>{
+  private async runTask(
+    projectId:string,
+    taskId:TailTaskId,
+    resumeCurrentAttempt=false
+  ):Promise<string>{
     const requestedAgent=taskId==="T090"
       ?"EDITOR_REMOTION" as const
       :taskId==="T100"
         ?"AGENT1_MANAGER" as const
         :"AGENT3_VISUAL_PRODUCTION" as const;
-    const dispatch=await this.manager.dispatch(projectId,taskId,requestedAgent);
+    const dispatch=await this.manager.dispatch(
+      projectId,
+      taskId,
+      requestedAgent,
+      {resumeCurrentAttempt}
+    );
     await this.progress.emit({
       event:"TASK_STARTED",
       project_id:projectId,
@@ -686,6 +784,36 @@ export class ProductionTailRuntimeService{
     return(await this.registry.resolvePinned<FormatProfilePayload>(requireFormatPin(status))).payload;
   }
 
+  private async hasT070ResumeEvidence(projectId:string):Promise<boolean>{
+    const status=await this.projects.getStatus(projectId);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    try{
+      const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      if(prompts===null||prompts.value.image_prompts.length===0)return false;
+      const total=prompts.value.image_prompts.length;
+      const checkpointPath=path.resolve(status.projectRoot,T070_CHECKPOINT_RELATIVE_PATH);
+      const checkpoint=await readT070Checkpoint(checkpointPath);
+      if(
+        checkpoint.value!==null&&
+        checkpoint.value.project_id===projectId&&
+        checkpoint.value.source_prompt_bundle_sha256===prompts.sha256
+      ){
+        const completed=new Set(checkpoint.value.images.map(item=>item.state_image_id)).size;
+        return completed>0&&completed<total;
+      }
+      if(checkpoint.exists)return false;
+
+      let existing=0;
+      for(const prompt of prompts.value.image_prompts){
+        const relativePath="05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
+        if(await readyFile(path.resolve(status.projectRoot,relativePath)))existing+=1;
+      }
+      return existing>0&&existing<total;
+    }finally{
+      agent3.close();
+    }
+  }
+
   private async executeT070(projectId:string,attempt:number):Promise<void>{
     const status=await this.projects.getStatus(projectId);
     const format=await this.resolveFormat(status);
@@ -701,12 +829,105 @@ export class ProductionTailRuntimeService{
           "T070 requires prompt_bundle_spec, state_image_spec and scene_visual_spec."
         );
       }
+      const total=promptRecord.value.image_prompts.length;
+      if(total===0){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 requires at least one image prompt."
+        );
+      }
+
+      const checkpointAbsolute=path.resolve(status.projectRoot,T070_CHECKPOINT_RELATIVE_PATH);
+      const loadedCheckpoint=await readT070Checkpoint(checkpointAbsolute);
+      const completedByState=new Map<string,GeneratedImage>();
+
+      const checkpointCurrent=
+        loadedCheckpoint.value!==null&&
+        loadedCheckpoint.value.project_id===projectId&&
+        loadedCheckpoint.value.source_prompt_bundle_sha256===promptRecord.sha256&&
+        loadedCheckpoint.value.width===format.imageGeneration.width&&
+        loadedCheckpoint.value.height===format.imageGeneration.height;
+
+      if(checkpointCurrent){
+        for(const image of loadedCheckpoint.value!.images){
+          const expectedPrompt=promptRecord.value.image_prompts.find(
+            item=>item.state_image_id===image.state_image_id&&item.scene_id===image.scene_id
+          );
+          if(expectedPrompt===undefined)continue;
+          const expectedRelativePath=
+            "05_images/generated/"+safeFileSegment(expectedPrompt.state_image_id)+".png";
+          if(image.relative_path!==expectedRelativePath)continue;
+          const inspected=await inspectReusableImage({
+            projectRoot:status.projectRoot,
+            relativePath:expectedRelativePath,
+            expectedWidth:format.imageGeneration.width,
+            expectedHeight:format.imageGeneration.height,
+            expectedSha256:image.sha256
+          });
+          if(inspected===null)continue;
+          completedByState.set(image.state_image_id,{
+            ...image,
+            sha256:inspected.sha256,
+            width:inspected.width,
+            height:inspected.height
+          });
+        }
+      }else if(!loadedCheckpoint.exists&&attempt>1){
+        // Backward-compatible adoption for projects that produced PNGs before
+        // item-level checkpoints existed. This is allowed only on a retry of
+        // the same T070 lineage; a stale/mismatched checkpoint is never adopted.
+        for(const prompt of promptRecord.value.image_prompts){
+          const relativePath="05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
+          const inspected=await inspectReusableImage({
+            projectRoot:status.projectRoot,
+            relativePath,
+            expectedWidth:format.imageGeneration.width,
+            expectedHeight:format.imageGeneration.height
+          });
+          if(inspected===null)continue;
+          completedByState.set(prompt.state_image_id,{
+            state_image_id:prompt.state_image_id,
+            scene_id:prompt.scene_id,
+            relative_path:relativePath,
+            sha256:inspected.sha256,
+            width:inspected.width,
+            height:inspected.height,
+            provider_request_ids:[],
+            reference_roles:[]
+          });
+        }
+      }
+
+      const checkpointImages=()=>promptRecord.value.image_prompts
+        .map(prompt=>completedByState.get(prompt.state_image_id)??null)
+        .filter((image):image is GeneratedImage=>image!==null);
+
+      if(completedByState.size>0){
+        await writeT070Checkpoint(checkpointAbsolute,{
+          projectId,
+          promptBundleSha256:promptRecord.sha256,
+          width:format.imageGeneration.width,
+          height:format.imageGeneration.height,
+          images:checkpointImages()
+        });
+        await this.progress.taskProgress({
+          project_id:projectId,
+          task_id:"T070",
+          agent:"AGENT3_VISUAL_PRODUCTION",
+          attempt,
+          phase:"RUNTIME_EXECUTION",
+          completed:10+Math.round((completedByState.size/total)*60),
+          total:100,
+          message:"Resuming T070 from "+String(completedByState.size)+"/"+String(total)+" generated state images."
+        });
+      }
+
       const adapter=await importImageAdapter(this.environment.VPF_IMAGE_ADAPTER_MODULE?.trim()??"");
       const selector=new ThreeTierFilesystemReferenceSelector({
         sharedAbsoluteRoot:path.join(DEFAULT_REPOSITORY_ROOT,"workspace","reference_library"),
         projectAbsoluteRoot:status.projectRoot
       });
-      const images:GeneratedImage[]=[];
+
       for(const [index,prompt] of promptRecord.value.image_prompts.entries()){
         const scene=visual.value.scenes.find(item=>item.scene_id===prompt.scene_id);
         const state=states.value.state_images.find(item=>item.state_image_id===prompt.state_image_id);
@@ -716,6 +937,7 @@ export class ProductionTailRuntimeService{
             "T070 prompt references missing scene/state: "+prompt.state_image_id
           );
         }
+
         const refs=await selector.selectReferences({
           projectId,
           scene:{
@@ -741,38 +963,96 @@ export class ProductionTailRuntimeService{
             mimeType:probe.mimeType
           });
         }
-        const result=await adapter.generate({
-          prompt:prompt.provider_prompt_en,
-          negativePrompt:prompt.negative_prompt_en,
-          width:format.imageGeneration.width,
-          height:format.imageGeneration.height,
-          aspectRatio:format.aspectRatio,
-          references:providerRefs
-        });
-        const bytes=Buffer.from(result.bytes);
-        const probe=probeImageBytes(bytes);
-        if(
-          result.mimeType!=="image/png"||
-          probe.mimeType!=="image/png"||
-          probe.width!==format.imageGeneration.width||
-          probe.height!==format.imageGeneration.height
-        ){
+
+        const reusable=completedByState.get(prompt.state_image_id);
+        if(reusable!==undefined){
+          const updated={
+            ...reusable,
+            reference_roles:providerRefs.map(item=>item.role)
+          };
+          completedByState.set(prompt.state_image_id,updated);
+          await writeT070Checkpoint(checkpointAbsolute,{
+            projectId,
+            promptBundleSha256:promptRecord.sha256,
+            width:format.imageGeneration.width,
+            height:format.imageGeneration.height,
+            images:checkpointImages()
+          });
+          continue;
+        }
+
+        let generatedImage:GeneratedImage|null=null;
+        let lastError:unknown=null;
+        for(let itemAttempt=1;itemAttempt<=T070_ITEM_MAX_ATTEMPTS;itemAttempt+=1){
+          try{
+            const result=await adapter.generate({
+              prompt:prompt.provider_prompt_en,
+              negativePrompt:prompt.negative_prompt_en,
+              width:format.imageGeneration.width,
+              height:format.imageGeneration.height,
+              aspectRatio:format.aspectRatio,
+              references:providerRefs
+            });
+            const bytes=Buffer.from(result.bytes);
+            const probe=probeImageBytes(bytes);
+            if(
+              result.mimeType!=="image/png"||
+              probe.mimeType!=="image/png"||
+              probe.width!==format.imageGeneration.width||
+              probe.height!==format.imageGeneration.height
+            ){
+              throw new ProductionTailRuntimeError(
+                "TAIL_IMAGE_INVALID",
+                "Generated state image does not match the pinned format profile: "+prompt.state_image_id
+              );
+            }
+            const relativePath="05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
+            await atomicWrite(path.resolve(status.projectRoot,relativePath),bytes);
+            generatedImage={
+              state_image_id:prompt.state_image_id,
+              scene_id:prompt.scene_id,
+              relative_path:relativePath,
+              sha256:sha256Bytes(bytes),
+              width:probe.width,
+              height:probe.height,
+              provider_request_ids:[...(result.providerRequestIds??[])],
+              reference_roles:providerRefs.map(item=>item.role)
+            };
+            break;
+          }catch(error){
+            lastError=error;
+            if(itemAttempt>=T070_ITEM_MAX_ATTEMPTS)break;
+            await this.progress.taskProgress({
+              project_id:projectId,
+              task_id:"T070",
+              agent:"AGENT3_VISUAL_PRODUCTION",
+              attempt,
+              phase:"RUNTIME_EXECUTION",
+              completed:10+Math.round((completedByState.size/total)*60),
+              total:100,
+              message:
+                "Retrying state image "+String(index+1)+"/"+String(total)+
+                " after provider failure ("+String(itemAttempt)+"/"+
+                String(T070_ITEM_MAX_ATTEMPTS)+")."
+            });
+          }
+        }
+
+        if(generatedImage===null){
+          if(lastError instanceof Error)throw lastError;
           throw new ProductionTailRuntimeError(
-            "TAIL_IMAGE_INVALID",
-            "Generated state image does not match the pinned format profile: "+prompt.state_image_id
+            "TAIL_IMAGE_PROVIDER",
+            "Image provider failed for state "+prompt.state_image_id+"."
           );
         }
-        const relativePath="05_images/generated/"+safeFileSegment(prompt.state_image_id)+".png";
-        await atomicWrite(path.resolve(status.projectRoot,relativePath),bytes);
-        images.push({
-          state_image_id:prompt.state_image_id,
-          scene_id:prompt.scene_id,
-          relative_path:relativePath,
-          sha256:sha256Bytes(bytes),
-          width:probe.width,
-          height:probe.height,
-          provider_request_ids:[...(result.providerRequestIds??[])],
-          reference_roles:providerRefs.map(item=>item.role)
+
+        completedByState.set(prompt.state_image_id,generatedImage);
+        await writeT070Checkpoint(checkpointAbsolute,{
+          projectId,
+          promptBundleSha256:promptRecord.sha256,
+          width:format.imageGeneration.width,
+          height:format.imageGeneration.height,
+          images:checkpointImages()
         });
         await this.progress.taskProgress({
           project_id:projectId,
@@ -780,10 +1060,18 @@ export class ProductionTailRuntimeService{
           agent:"AGENT3_VISUAL_PRODUCTION",
           attempt,
           phase:"RUNTIME_EXECUTION",
-          completed:10+Math.round(((index+1)/promptRecord.value.image_prompts.length)*60),
+          completed:10+Math.round((completedByState.size/total)*60),
           total:100,
-          message:"Generated state image "+String(index+1)+"/"+String(promptRecord.value.image_prompts.length)+"."
+          message:"Generated state image "+String(index+1)+"/"+String(total)+"."
         });
+      }
+
+      const images=checkpointImages();
+      if(images.length!==total){
+        throw new ProductionTailRuntimeError(
+          "TAIL_IMAGE_PROVIDER",
+          "T070 checkpoint is incomplete: "+String(images.length)+"/"+String(total)+"."
+        );
       }
       const generated:GeneratedImagesArtifact={
         schema_version:"1.0",
