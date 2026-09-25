@@ -1,6 +1,6 @@
 import {createHash} from "node:crypto";
 import {spawn} from "node:child_process";
-import {copyFile, mkdir, readFile, rename, stat, writeFile} from "node:fs/promises";
+import {copyFile, mkdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
 import * as path from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 import type {GenericEditProject} from "@vpf/domain";
@@ -781,6 +781,11 @@ export class ProductionTailRuntimeService{
           Math.max(1,(next.attempt??0)+1)
         );
         if(finalImageQc.verdict!=="PASS"){
+          const project=await this.projects.getStatus(projectId);
+          await rm(
+            path.resolve(project.projectRoot,"06_clips/google-flow-manifest.json"),
+            {force:true}
+          );
           return{
             project_id:projectId,
             status:"AWAITING_FINAL_IMAGE_QC",
