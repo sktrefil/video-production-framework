@@ -1013,7 +1013,11 @@ export class Agent2RuntimeAdapterService {
     this.codexRunner = new CodexProcessRunner(environment);
   }
 
-  async runNext(projectId: string): Promise<RuntimeStepResult | { project_id: string; handoff_task: string | null; status: "HANDOFF" }> {
+  async runNext(projectId: string): Promise<
+    RuntimeStepResult |
+    { project_id: string; handoff_task: string | null; status: "HANDOFF" } |
+    { project_id: string; handoff_task: null; status: "BLOCKED"; blocked_tasks: string[] }
+  > {
     await this.assertRuntimeProjectCurrent(projectId);
     const workflowState = await this.manager.status(projectId);
     const next = workflowState.tasks.find(task =>
@@ -1022,9 +1026,34 @@ export class Agent2RuntimeAdapterService {
       ["T010", "T020", "T030"].includes(task.task_id)
     ) ?? null;
     if (next === null) {
+      if (workflowState.next_task !== null) {
+        return {
+          project_id: projectId,
+          handoff_task: workflowState.next_task.task_id,
+          status: "HANDOFF"
+        };
+      }
+
+      const blockedTasks = workflowState.tasks
+        .filter(task =>
+          task.assigned_agent === "AGENT2_STORY_AUDIO" &&
+          ["T010", "T020", "T030"].includes(task.task_id) &&
+          task.status === "BLOCKED"
+        )
+        .map(task => task.task_id);
+
+      if (blockedTasks.length > 0) {
+        return {
+          project_id: projectId,
+          handoff_task: null,
+          status: "BLOCKED",
+          blocked_tasks: blockedTasks
+        };
+      }
+
       return {
         project_id: projectId,
-        handoff_task: workflowState.next_task?.task_id ?? null,
+        handoff_task: null,
         status: "HANDOFF"
       };
     }
