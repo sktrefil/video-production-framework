@@ -54,7 +54,11 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
     <div class="rowline"><div><b>T060 VIDEO CLIP PLAN — PREVIEW</b><div class="muted">Available before T080 · approved clip prompts and scene-to-scene handoff contracts</div></div><span id="clip-plan-count"></span></div>
     <div id="clip-plan" class="clipplan"></div>
   </section>
-  <section id="t070-panel" class="panel hidden" style="margin-top:14px"><div class="rowline"><b>T070 Image Generation</b><span id="t070-count"></span></div><div id="images" class="images"></div></section>
+  <section id="t070-panel" class="panel hidden" style="margin-top:14px">
+    <div class="rowline"><div><b>T070 IMAGE GENERATION / VISUAL QC</b><div id="t070-qc-summary" class="muted"></div></div><span id="t070-count"></span></div>
+    <div id="t070-qc-detail" class="handoff" style="margin-top:10px"></div>
+    <div id="images" class="images"></div>
+  </section>
   <section id="t080-panel" class="panel action hidden" style="margin-top:14px"><b>ACTION REQUIRED — GOOGLE FLOW</b><p id="t080-summary"></p><div id="clips"></div></section>
   <section id="t090-panel" class="panel hidden" style="margin-top:14px"><b>T090 Remotion Render</b><p id="t090-summary" class="muted"></p></section>
   <section id="final-panel" class="panel complete hidden" style="margin-top:14px"><b>PRODUCTION COMPLETE</b><p id="final-summary"></p></section>
@@ -136,6 +140,27 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
     const showImages=s.t070.total>0;
     q("t070-panel").classList.toggle("hidden",!showImages);
     q("t070-count").textContent=s.t070.completed+" / "+s.t070.total+" images";
+    const seedQc=s.t070.seed_qc_verdict||"PENDING";
+    const finalQc=s.t070.final_qc_verdict||"PENDING";
+    q("t070-qc-summary").textContent=[
+      "phase "+(s.t070.phase||"—"),
+      "policy "+(s.t070.policy_version||"T070_IMAGE_POLICY_V1"),
+      "seed "+seedQc,
+      "scene QC "+s.t070.scene_qc_passed_count+"/"+s.t070.scene_qc_total,
+      "final "+finalQc
+    ].join(" · ");
+    const failedScenes=(s.t070.final_failed_scene_ids||[]).join(", ")||"none";
+    const failedImages=(s.t070.final_failed_image_ids||[]).join(", ")||"none";
+    q("t070-qc-detail").innerHTML=[
+      "<b>Visual QC</b>",
+      "Seeds: "+esc((s.t070.seed_image_ids||[]).join(" · ")||"not selected"),
+      "Seed diversity: "+esc(s.t070.seed_cross_seed_diversity||"PENDING")+" · style coherence: "+esc(s.t070.seed_style_coherence||"PENDING"),
+      "Scene QC passed: "+esc((s.t070.scene_qc_passed_ids||[]).join(" · ")||"none"),
+      "Targeted revisions pending: "+esc(s.t070.revision_pending_count||0),
+      "Final coverage: "+esc(s.t070.final_checked_image_count==null?"—":s.t070.final_checked_image_count)+"/"+esc(s.t070.final_expected_image_count==null?"—":s.t070.final_expected_image_count),
+      "Failed scenes: "+esc(failedScenes),
+      "Failed images: "+esc(failedImages)
+    ].join("<br>");
     q("images").innerHTML=s.t070.items.map(i=>"<div class='img'>"+(i.preview_url?"<img loading='lazy' src='"+esc(i.preview_url)+"' alt='"+esc(i.state_image_id)+"'>":"<div style='aspect-ratio:16/9;display:grid;place-items:center;background:#0b0d10;border-radius:6px;color:#6d7884'>waiting</div>")+"<small>"+(i.ready?"✓ ":"○ ")+esc(i.state_image_id)+"</small></div>").join("");
     q("t080-panel").classList.toggle("hidden",!s.t080.action_required);
     q("t080-summary").textContent=s.t080.action_required ? s.t080.completed+" / "+s.t080.total+" clips available · "+s.t080.missing.length+" missing · "+s.t080.manifest_relative_path : "";
