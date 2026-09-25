@@ -380,6 +380,91 @@ test("T070 uses text-only GLOBAL visual grammar and attaches no GLOBAL reference
   assert.match(imageRuntime,/sessionKey\?: string/);
 });
 
+test("T070 full generation is scene-batched with targeted pixel-QC regeneration",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const manager=read("cli/vpf/src/codex-manager-runtime-service.ts");
+
+  assert.match(tail,/const sceneOrder:string\[\]=\[\]/);
+  assert.match(tail,/for\(const sceneId of sceneOrder\)/);
+  assert.match(tail,/runT070SceneVisualQc\(/);
+  assert.match(tail,/reviewKind:"SCENE"/);
+  assert.match(tail,/sceneQcPassedIds\.add\(sceneId\)/);
+  assert.match(tail,/revisionFeedbackByState\[stateImageId\]/);
+  assert.match(tail,/completedByState\.delete\(stateImageId\)/);
+  assert.match(tail,/await rm\(path\.resolve\(status\.projectRoot,previous\.relative_path\),\{force:true\}\)/);
+  assert.match(tail,/if\(reviewCycle>=3\)/);
+  assert.match(tail,/buildT070RuntimeProviderPrompt/);
+  assert.match(tail,/Fantasy mode /);
+  assert.match(tail,/Do not repeat a master composition from another scene/);
+
+  assert.match(manager,/reviewKind\?: "SCENE" \| "FINAL"/);
+  assert.match(manager,/fantasy_control/);
+  assert.match(manager,/video_readiness/);
+  assert.match(manager,/T070_SCENE/);
+});
+
+test("T070 final QC is policy-versioned and marks checkpoint COMPLETE only after PASS",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  assert.match(tail,/policy_version:"T070_IMAGE_POLICY_V1"/);
+  assert.match(tail,/cached\?\.value\.policy_version==="T070_IMAGE_POLICY_V1"/);
+  assert.match(tail,/phase:"FINAL_QC"/);
+  assert.match(tail,/phase:"COMPLETE"/);
+  assert.match(tail,/checkedIds\.length!==expectedIds\.length/);
+  assert.match(tail,/uniqueChecked\.size!==expectedIds\.length/);
+});
+
+test("T080 manifest carries state, camera, transition, continuity, handoff and fantasy metadata",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  for(const field of [
+    "entry_state_image_id",
+    "mid_state_image_id",
+    "target_state_image_id",
+    "fantasy_mode",
+    "camera",
+    "transition_in",
+    "transition_out",
+    "continuity",
+    "handoff"
+  ]){
+    assert.match(tail,new RegExp(field));
+  }
+  assert.match(tail,/clipProduction:ClipProductionDocument/);
+  assert.match(tail,/sceneVisual:SceneVisualDocument/);
+  assert.match(tail,/effectiveT070FantasyMode\(scene\)/);
+  assert.match(tail,/purpose:clip\.camera\.purpose/);
+  assert.match(tail,/movement_direction:scene\.continuity\.movement_direction/);
+  assert.match(tail,/entry_anchor:scene\.handoff\.entry_anchor/);
+});
+
+test("confirmed regeneration reset removes stale T070 outputs and preserves upstream planning",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const index=read("cli/vpf/src/index.ts");
+  const storage=read("packages/storage/src/production-tail.ts");
+
+  assert.match(tail,/async resetT070ForRegeneration/);
+  assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH/);
+  assert.match(tail,/"06_clips\/google-flow-manifest\.json"/);
+  assert.match(tail,/"09_render\/preview\.mp4"/);
+  assert.match(tail,/tail\.supersedeActive\(projectId,\[/);
+  assert.match(tail,/"t070_scene_visual_qc"/);
+  assert.match(tail,/status:taskId==="T070"\?"READY":"BLOCKED"/);
+  assert.match(tail,/for\(const taskId of \["T070","T080","T090","T100"\]/);
+  assert.doesNotMatch(
+    tail.slice(
+      tail.indexOf("async resetT070ForRegeneration"),
+      tail.indexOf("async runAll",tail.indexOf("async resetT070ForRegeneration"))
+    ),
+    /research_spec|story_spec|script|tts_manifest|scene_visual_spec|state_image_spec|prompt_bundle_spec/
+  );
+
+  assert.match(storage,/supersedeActive\(/);
+  assert.match(index,/production regenerate-images <project_id> --confirm/);
+  assert.match(index,/args\[1\] === "regenerate-images"/);
+  assert.match(index,/resetT070ForRegeneration\(projectId\)/);
+});
+
 test("T070 checkpoint resume accepts an orphaned RUNNING attempt without incrementing it",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
   const workflow=read("cli/vpf/src/workflow-orchestrator-service.ts");
