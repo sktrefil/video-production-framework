@@ -300,6 +300,85 @@ test("dashboard snapshot reconstructs progress from DB and does not mutate workf
   }
 });
 
+test("dashboard exposes T070 seed, scene and final visual QC state", async () => {
+  const { root, service, created } = await fixture("dashboard_t070_qc_fixture");
+  try {
+    await mkdir(path.join(created.projectRoot, "05_images", "generated"), { recursive: true });
+    await writeFile(
+      path.join(created.projectRoot, "05_images", "generated", "t070-checkpoint.json"),
+      JSON.stringify({
+        schema_version: "1.0",
+        project_id: "dashboard_t070_qc_fixture",
+        source_prompt_bundle_sha256: "a".repeat(64),
+        width: 1920,
+        height: 1080,
+        phase: "FULL_GENERATION",
+        seed_image_ids: ["SEED_A", "SEED_B", "SEED_C"],
+        scene_qc_passed_ids: ["SC01", "SC02"],
+        scene_qc_attempts: { SC01: 1, SC02: 2, SC03: 1 },
+        revision_feedback_by_state: { SC03_MID: "regenerate composition" },
+        images: [],
+        updated_at: "2026-09-25T06:00:00.000Z"
+      }),
+      "utf8"
+    );
+
+    const tail = new ProductionTailRepository(created.projectDbPath);
+    try {
+      tail.save(
+        "dashboard_t070_qc_fixture",
+        "t070_seed_visual_qc",
+        {
+          schema_version: "1.0",
+          policy_version: "T070_IMAGE_POLICY_V1",
+          verdict: "PASS",
+          cross_seed_diversity: "PASS",
+          style_coherence: "PASS"
+        },
+        "T070",
+        "2026-09-25T06:01:00.000Z"
+      );
+      tail.save(
+        "dashboard_t070_qc_fixture",
+        "t070_final_visual_qc",
+        {
+          schema_version: "1.0",
+          policy_version: "T070_IMAGE_POLICY_V1",
+          verdict: "REVISE",
+          checked_image_count: 43,
+          expected_image_count: 43,
+          failed_scene_ids: ["SC03"],
+          failed_image_ids: ["SC03_MID"]
+        },
+        "T070",
+        "2026-09-25T06:02:00.000Z"
+      );
+    } finally {
+      tail.close();
+    }
+
+    const snapshot = new ProductionDashboardSnapshotService(
+      service,
+      new ProductionDashboardHub()
+    );
+    const state = await snapshot.get("dashboard_t070_qc_fixture");
+    assert.equal(state.t070.phase, "FULL_GENERATION");
+    assert.deepEqual(state.t070.seed_image_ids, ["SEED_A", "SEED_B", "SEED_C"]);
+    assert.equal(state.t070.seed_qc_verdict, "PASS");
+    assert.equal(state.t070.seed_cross_seed_diversity, "PASS");
+    assert.equal(state.t070.seed_style_coherence, "PASS");
+    assert.deepEqual(state.t070.scene_qc_passed_ids, ["SC01", "SC02"]);
+    assert.equal(state.t070.revision_pending_count, 1);
+    assert.equal(state.t070.final_qc_verdict, "REVISE");
+    assert.equal(state.t070.final_checked_image_count, 43);
+    assert.deepEqual(state.t070.final_failed_scene_ids, ["SC03"]);
+    assert.deepEqual(state.t070.final_failed_image_ids, ["SC03_MID"]);
+    assert.equal(state.t070.policy_version, "T070_IMAGE_POLICY_V1");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("dashboard only reports production complete after T100 DB completion and final artifacts", async () => {
   const { root, service, created } = await fixture("dashboard_complete_fixture");
   try {
@@ -386,6 +465,11 @@ test("dashboard server binds only to localhost", async () => {
     assert.match(page, /VPF LONGFORM PRODUCTION/u);
     assert.match(page, /T060 VIDEO CLIP PLAN — PREVIEW/u);
     assert.match(page, /Google Flow provider prompt/u);
+    assert.match(page, /T070 IMAGE GENERATION \/ VISUAL QC/u);
+    assert.match(page, /t070-qc-summary/u);
+    assert.match(page, /Seed diversity:/u);
+    assert.match(page, /Scene QC passed:/u);
+    assert.match(page, /Final coverage:/u);
   } finally {
     await handle.close();
     await rm(root, { recursive: true, force: true });
