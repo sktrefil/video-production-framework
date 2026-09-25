@@ -1519,11 +1519,13 @@ export class Agent3RuntimeAdapterService {
         outputSchema,
         webSearchMode: "disabled",
         onActivity: async activity => {
-          if (activity.elapsedMs < 1000) return;
-          const elapsedSec = Math.max(0, Math.round(activity.elapsedMs / 1000));
+          const elapsedSec = Math.max(
+            0,
+            Math.round(activity.elapsedMs / 100) / 10
+          );
           const quietSec = Math.max(
             0,
-            Math.round(activity.lastActivityAgeMs / 1000)
+            Math.round(activity.lastActivityAgeMs / 100) / 10
           );
           await this.progress.taskProgress({
             project_id: projectId,
