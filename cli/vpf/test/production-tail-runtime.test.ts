@@ -465,8 +465,8 @@ test("T080 manifest carries state, camera, transition, continuity, handoff and f
   ]){
     assert.match(tail,new RegExp(field));
   }
-  assert.match(tail,/clipProduction:ClipProductionDocument/);
-  assert.match(tail,/sceneVisual:SceneVisualDocument/);
+  assert.match(tail,/clipProduction\?:ClipProductionDocument\|null/);
+  assert.match(tail,/sceneVisual\?:SceneVisualDocument\|null/);
   assert.match(tail,/effectiveT070FantasyMode\(scene\)/);
   assert.match(tail,/purpose:clip\.camera\.purpose/);
   assert.match(tail,/movement_direction:scene\.continuity\.movement_direction/);
