@@ -90,4 +90,8 @@ export class ProductionDashboardHub {
   listenerCount(): number {
     return this.listeners.size;
   }
+
+  async flush(): Promise<void> {
+    await this.logQueue;
+  }
 }
