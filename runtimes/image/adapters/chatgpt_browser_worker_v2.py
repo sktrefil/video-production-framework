@@ -118,19 +118,23 @@ def reference_session_marker(request: dict[str, Any]) -> str:
     prompts using the same two references must stay in this conversation instead
     of reopening ChatGPT and re-uploading those references for every image.
     The semantic reference role remains part of the identity so a genuinely
-    different reference contract still opens a fresh conversation.
+    different reference contract still opens a fresh conversation. Reference
+    ordering, media IDs and local file paths do not split an otherwise identical
+    two-reference conversation.
     """
     references = request.get("references") or []
     identity = []
     for index, reference in enumerate(references):
         if not isinstance(reference, dict):
             raise RuntimeError(f"Reference {index + 1} is invalid.")
+        checksum = str(reference.get("sha256") or "").strip()
+        if not checksum:
+            raise RuntimeError(f"Reference {index + 1} is missing sha256 for session reuse.")
         identity.append({
-            "mediaId": str(reference.get("mediaId") or ""),
             "role": str(reference.get("role") or "REFERENCE"),
-            "sha256": str(reference.get("sha256") or ""),
-            "absolutePath": os.path.abspath(str(reference.get("absolutePath") or "")),
+            "sha256": checksum,
         })
+    identity.sort(key=lambda item: (item["role"], item["sha256"]))
     encoded = json.dumps({
         "sessionKey": str(request.get("sessionKey") or ""),
         "width": int(request.get("width") or 0),
