@@ -255,6 +255,7 @@ test("T080 is locked behind pixel-grounded final QC of every approved T070 image
   assert.match(tail,/uniqueChecked\.size!==expectedIds\.length/);
   assert.match(tail,/status:"AWAITING_FINAL_IMAGE_QC"/);
   assert.match(tail,/T080 remains locked until failed T070 images\/scenes are corrected/);
+  assert.match(tail,/rm\([\s\S]*?"06_clips\/google-flow-manifest\.json"[\s\S]*?\{force:true\}/);
   assert.match(tail,/"t070_final_visual_qc"/);
 
   assert.match(manager,/taskId: "MANAGER_VISUAL:T070_FINAL:" \+ input\.sceneId/);
