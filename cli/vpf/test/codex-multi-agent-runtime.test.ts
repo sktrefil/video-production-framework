@@ -577,6 +577,71 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
   }
 });
 
+test("Codex visual review attaches actual local images to the initial exec message", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-codex-visual-input-"));
+  const fixtures = path.join(root, "fixtures");
+  const workspaceRoot = path.join(root, "workspace");
+  await import("node:fs/promises").then(fs => fs.mkdir(fixtures, { recursive: true }));
+
+  try {
+    const bootstrap = new ProjectBootstrapService({
+      repositoryRoot,
+      workspaceRoot
+    });
+    const created = await bootstrap.createProject({
+      projectId: "codex_visual_input",
+      title: "Codex Visual Input",
+      topic: "Visual input fixture",
+      format: "shortform",
+      targetDurationSec: 5,
+      language: "ko"
+    });
+    const firstImage = path.join(root, "seed-1.png");
+    const secondImage = path.join(root, "seed-2.png");
+    await writeFile(firstImage, Buffer.from("seed-one"));
+    await writeFile(secondImage, Buffer.from("seed-two"));
+    await writeJson(fixtures, "MANAGER_VISUAL_TEST", {
+      schema_version: "1.0",
+      verdict: "PASS"
+    });
+
+    const runner = new CodexProcessRunner(runtimeEnv(fixtures));
+    const result = await runner.execute<{schema_version:"1.0";verdict:"PASS"}>({
+      projectId: "codex_visual_input",
+      projectRoot: created.projectRoot,
+      dbPath: created.projectDbPath,
+      roleId: "CODEX_1_MANAGER",
+      taskId: "MANAGER_VISUAL:TEST",
+      attempt: 1,
+      instructions: ["Inspect both attached images."],
+      input: { expected_image_count: 2 },
+      imagePaths: [firstImage, secondImage],
+      outputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["schema_version", "verdict"],
+        properties: {
+          schema_version: { type: "string", enum: ["1.0"] },
+          verdict: { type: "string", enum: ["PASS"] }
+        }
+      },
+      webSearchMode: "disabled"
+    });
+
+    assert.equal(result.output.verdict, "PASS");
+    assert.equal(
+      (await stat(path.join(result.auditDirectory, "visual-input-01.png"))).isFile(),
+      true
+    );
+    assert.equal(
+      (await stat(path.join(result.auditDirectory, "visual-input-02.png"))).isFile(),
+      true
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("Codex 1 produces an advisory revision directive without changing workflow state", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-codex-manager-"));
   const fixtures = path.join(root, "fixtures");
