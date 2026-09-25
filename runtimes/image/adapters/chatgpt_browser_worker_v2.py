@@ -668,14 +668,27 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
         # CDP. The next sequential image job with the same reference set uses
         # this conversation and its initial attachments instead of opening a
         # new tab and uploading the same files again.
-        # A failed request can leave this conversation in a state ChatGPT will
-        # not accept as the next prompt. Do not silently reuse it on a later
-        # CLI invocation: a fresh tab will upload and verify the references.
+        # Failures before a prompt is sent are safe to retry in-place. Keeping
+        # the managed marker preserves the already-uploaded reference pair and
+        # avoids opening another Chrome tab for FILL_PROMPT/WAIT_SEND_READY
+        # retries. Once sending may have started, discard the tab because its
+        # generation state is ambiguous and must not be reused silently.
         if page is not None and not succeeded:
-            try:
-                page.evaluate("() => { window.name = ''; }")
-            except Exception:
-                pass
+            unsafe_reuse_stages = {
+                "OPEN_PAGE",
+                "ATTACH_REFERENCES",
+                "SEND_PROMPT",
+                "WAIT_IMAGE",
+                "CAPTURE_IMAGE",
+            }
+            if stage in unsafe_reuse_stages:
+                try:
+                    page.close()
+                except Exception:
+                    try:
+                        page.evaluate("() => { window.name = ''; }")
+                    except Exception:
+                        pass
         playwright.stop()
 
 
