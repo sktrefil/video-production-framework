@@ -40,3 +40,8 @@ workspace/_reset_backup/
 
 apps\editor\build
 .venv-whisper/
+
+# Local runtime/debug artifacts
+*.bak-*
+patch-*.ps1
+codex-*-probe*.ps1
