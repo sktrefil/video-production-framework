@@ -331,23 +331,24 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
-test("T070 pins exactly two GLOBAL_VISUAL references to one provider conversation",()=>{
+test("T070 uses text-only GLOBAL visual grammar and attaches no GLOBAL reference image",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const compiler=read("packages/production-spec/src/agent3-prompt-compiler.ts");
   const imageRuntime=read("packages/provider-orchestrator/src/image-runtime.ts");
 
-  assert.match(tail,/const referenceAnchorPrompt=promptRecord\.value\.image_prompts\[0\]!/);
-  assert.match(tail,/\.filter\(reference=>reference\.role\.includes\("REFERENCE_LIBRARY:GLOBAL_VISUAL:"\)\)/);
-  assert.match(tail,/\.slice\(0,2\)/);
-  assert.match(tail,/pinnedRuntimeRefs\.length!==2/);
-  assert.match(tail,/const imageSessionKey=/);
-  assert.match(tail,/sessionKey:imageSessionKey/);
+  assert.doesNotMatch(tail,/ThreeTierFilesystemReferenceSelector/);
+  assert.doesNotMatch(tail,/REFERENCE_LIBRARY:GLOBAL_VISUAL:/);
+  assert.doesNotMatch(tail,/PINNED_GLOBAL_VISUAL_2/);
+  assert.match(tail,/const providerRefs=\[\] as const/);
+  assert.match(tail,/TEXT_VISUAL_GRAMMAR_ONLY/);
+  assert.match(tail,/references:\[\]/);
+  assert.match(tail,/reference_roles:\[\]/);
+  assert.match(tail,/no GLOBAL reference image is attached/);
 
-  const loopStart=tail.indexOf("for(const [index,prompt] of promptRecord.value.image_prompts.entries())");
-  const loopEnd=tail.indexOf("const images=checkpointImages()",loopStart);
-  assert.ok(loopStart>=0);
-  assert.ok(loopEnd>loopStart);
-  const loopBody=tail.slice(loopStart,loopEnd);
-  assert.doesNotMatch(loopBody,/selector\.selectReferences/);
+  assert.match(compiler,/GLOBAL_VISUAL_GRAMMAR_EN/);
+  assert.match(compiler,/GLOBAL_VISUAL_GRAMMAR_KO/);
+  assert.match(compiler,/Do not imitate, reconstruct, or reuse the composition of any reference image/);
+  assert.match(compiler,/direct imitation of any reference image/);
 
   assert.match(imageRuntime,/sessionKey\?: string/);
 });
