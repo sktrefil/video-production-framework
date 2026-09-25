@@ -936,6 +936,18 @@ export class ProductionTailRuntimeService{
         );
       }
 
+      await rm(path.resolve(status.projectRoot,"05_images/metadata"),{
+        recursive:true,
+        force:true
+      });
+      await rm(path.resolve(status.projectRoot,"05_images/qc"),{
+        recursive:true,
+        force:true
+      });
+      await rm(path.resolve(status.projectRoot,"05_images/image-manifest.json"),{
+        force:true
+      });
+
       const removeTargets=new Set<string>([
         T070_CHECKPOINT_RELATIVE_PATH,
         "06_clips/google-flow-manifest.json",
@@ -1674,6 +1686,13 @@ export class ProductionTailRuntimeService{
         "T070",
         result.reviewed_at
       );
+      await writeJson(
+        path.resolve(
+          status.projectRoot,
+          "05_images/qc/scene_qc_"+safeFileSegment(sceneId)+".json"
+        ),
+        result
+      );
       await this.progress.emit({
         event:"QC_COMPLETED",
         project_id:projectId,
@@ -1923,6 +1942,10 @@ export class ProductionTailRuntimeService{
         "T070",
         artifact.reviewed_at
       );
+      await writeJson(
+        path.resolve(status.projectRoot,"05_images/qc/final_qc_report.json"),
+        artifact
+      );
       await this.progress.emit({
         event:"QC_COMPLETED",
         project_id:projectId,
@@ -2057,6 +2080,10 @@ export class ProductionTailRuntimeService{
         artifact,
         "T070",
         artifact.reviewed_at
+      );
+      await writeJson(
+        path.resolve(status.projectRoot,"05_images/qc/seed_qc_report.json"),
+        artifact
       );
       await this.progress.emit({
         event:"QC_COMPLETED",
