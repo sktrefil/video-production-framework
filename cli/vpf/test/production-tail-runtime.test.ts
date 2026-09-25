@@ -183,8 +183,23 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
   assert.ok(generateIndex>continueIndex);
 
   assert.match(workflow,/options: \{ resumeCurrentAttempt\?: boolean \} = \{\}/);
-  assert.match(workflow,/Only an incomplete T070 revision attempt can resume without consuming a new attempt/);
+  assert.match(workflow,/Only an incomplete T070 revision\/failed attempt can resume without consuming a new attempt/);
+  assert.match(workflow,/task\.status === "FAILED"/);
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
+});
+
+test("production tail never reports COMPLETE merely because no task is READY",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+  const index=read("cli/vpf/src/index.ts");
+
+  assert.match(tail,/if\(await this\.isProductionFinalized\(projectId,workflow\.tasks\)\)/);
+  assert.match(tail,/Production tail has no runnable task but is not complete/);
+  assert.match(tail,/task\.task_id==="T070"&&task\.status==="FAILED"/);
+  assert.match(tail,/next\.status==="REVISION_REQUIRED"\|\|next\.status==="FAILED"/);
+
+  assert.match(index,/const runComplete = tailResult\.status === "COMPLETE"/);
+  assert.match(index,/Production run reached verified final completion/);
+  assert.match(index,/: runComplete\s*\? "RUN_COMPLETE"\s*:\s*"HANDOFF"/);
 });
 
 test("production run starts or resumes the T070-T100 tail and pauses before consuming T080",()=>{
