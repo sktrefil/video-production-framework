@@ -1230,6 +1230,111 @@ export class ProductionTailRuntimeService{
     }
   }
 
+  private async runT070SceneVisualQc(
+    projectId:string,
+    attempt:number,
+    promptBundleSha256:string,
+    sceneId:string,
+    images:GeneratedImage[],
+    reviewCycle:number
+  ):Promise<T070SceneVisualQcResultRecord>{
+    const status=await this.projects.getStatus(projectId);
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    try{
+      const sceneImageSetSha256=createHash("sha256")
+        .update(
+          promptBundleSha256+"\n"+
+          images.map(image=>image.state_image_id+":"+image.sha256).join("\n"),
+          "utf8"
+        )
+        .digest("hex");
+      const existing=tail.getActive<T070SceneVisualQcArtifact>(
+        projectId,
+        "t070_scene_visual_qc"
+      );
+      const cached=existing?.value.policy_version==="T070_IMAGE_POLICY_V1"&&
+        existing.value.source_prompt_bundle_sha256===promptBundleSha256
+        ?existing.value.scene_results.find(result=>
+          result.scene_id===sceneId&&
+          result.scene_image_set_sha256===sceneImageSetSha256
+        )
+        :undefined;
+      if(cached!==undefined)return cached;
+
+      await this.progress.emit({
+        event:"QC_STARTED",
+        project_id:projectId,
+        task_id:"T070",
+        agent:"CODEX_1_MANAGER",
+        attempt,
+        qc_kind:"SUCCESS",
+        phase:"SCENE_IMAGE_VISUAL_QC",
+        message:"Codex1 is visually inspecting "+sceneId+" before T070 continues."
+      });
+      const review=await this.codexManager.reviewT070FinalVisualScene({
+        projectId,
+        attempt,
+        sceneId,
+        reviewKind:"SCENE",
+        reviewCycle,
+        images:images.map(image=>({
+          stateImageId:image.state_image_id,
+          absolutePath:path.resolve(status.projectRoot,image.relative_path),
+          sha256:image.sha256
+        }))
+      });
+      const result:T070SceneVisualQcResultRecord={
+        scene_id:sceneId,
+        scene_image_set_sha256:sceneImageSetSha256,
+        attempt:reviewCycle,
+        verdict:review.verdict,
+        summary:review.summary,
+        continuity_verdict:review.continuity_verdict,
+        handoff_verdict:review.handoff_verdict,
+        checks:review.checks,
+        revision_instruction:review.revision_instruction,
+        reviewed_at:new Date().toISOString()
+      };
+      const priorResults=
+        existing?.value.policy_version==="T070_IMAGE_POLICY_V1"&&
+        existing.value.source_prompt_bundle_sha256===promptBundleSha256
+          ?existing.value.scene_results.filter(item=>item.scene_id!==sceneId)
+          :[];
+      const artifact:T070SceneVisualQcArtifact={
+        schema_version:"1.0",
+        policy_version:"T070_IMAGE_POLICY_V1",
+        project_id:projectId,
+        source_prompt_bundle_sha256:promptBundleSha256,
+        scene_results:[...priorResults,result],
+        updated_at:result.reviewed_at
+      };
+      tail.save(
+        projectId,
+        "t070_scene_visual_qc",
+        artifact,
+        "T070",
+        result.reviewed_at
+      );
+      await this.progress.emit({
+        event:"QC_COMPLETED",
+        project_id:projectId,
+        task_id:"T070",
+        agent:"CODEX_1_MANAGER",
+        attempt,
+        qc_kind:"SUCCESS",
+        verdict:result.verdict,
+        phase:"SCENE_IMAGE_VISUAL_QC",
+        message:
+          result.verdict==="PASS"
+            ?sceneId+" passed scene-level image QC."
+            :sceneId+" requires targeted image regeneration before T070 continues."
+      });
+      return result;
+    }finally{
+      tail.close();
+    }
+  }
+
   private async runT070FinalVisualQcGate(
     projectId:string,
     attempt:number
