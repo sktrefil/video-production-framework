@@ -283,18 +283,11 @@ test("standalone CLI lifecycle builds storage before loading production-tail",()
   const cliPackage=JSON.parse(read("cli/vpf/package.json")) as {
     scripts?:Record<string,string>;
   };
-  assert.equal(
-    cliPackage.scripts?.prebuild,
-    "npm run build --workspace @vpf/storage"
-  );
-  assert.equal(
-    cliPackage.scripts?.pretypecheck,
-    "npm run build --workspace @vpf/storage"
-  );
-  assert.equal(
-    cliPackage.scripts?.pretest,
-    "npm run build --workspace @vpf/storage"
-  );
+  const expectedCliPrereqBuild=
+    "npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/storage";
+  assert.equal(cliPackage.scripts?.prebuild,expectedCliPrereqBuild);
+  assert.equal(cliPackage.scripts?.pretypecheck,expectedCliPrereqBuild);
+  assert.equal(cliPackage.scripts?.pretest,expectedCliPrereqBuild);
 
   const storagePackage=JSON.parse(read("packages/storage/package.json")) as {
     exports?:Record<string,string>;
