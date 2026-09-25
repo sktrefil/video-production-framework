@@ -1,13 +1,11 @@
 import {
   CAMERA_MOVEMENTS,
   CAMERA_PURPOSES,
+  FANTASY_MODES,
   MOVEMENT_CURVES,
   SHOT_SIZES,
-  STORY_ROLES
-} from "@vpf/production-spec";
-import {
-  FANTASY_MODES,
   STATE_IMAGE_ROLES,
+  STORY_ROLES,
   VISUAL_FACTUALITY_MODES
 } from "@vpf/production-spec";
 
