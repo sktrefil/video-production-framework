@@ -427,10 +427,10 @@ export class CodexManagerRuntimeService {
           ],
           forbidden_visual_claims: scene.forbidden_visual_claims,
           fantasy_mode: scene.fantasy_mode ?? (
-            scene.factuality_mode === "EVIDENCE" ? "RESTRAINED" :
-            scene.factuality_mode === "EDITORIAL_FANTASY_RECONSTRUCTION" ||
-            scene.factuality_mode === "LEGEND_RECONSTRUCTION" ? "EDITORIAL" :
-            "RESTRAINED"
+            scene.factuality_mode === "EVIDENCE" ||
+            scene.factuality_mode === "HISTORICAL_RECONSTRUCTION" ? "RESTRAINED" :
+            scene.factuality_mode === "LEGEND_RECONSTRUCTION" ? "HEIGHTENED" :
+            "EDITORIAL"
           )
         };
       });
@@ -632,10 +632,10 @@ export class CodexManagerRuntimeService {
           ],
           forbidden_visual_claims: scene.forbidden_visual_claims,
           fantasy_mode: scene.fantasy_mode ?? (
-            scene.factuality_mode === "EVIDENCE" ? "RESTRAINED" :
-            scene.factuality_mode === "EDITORIAL_FANTASY_RECONSTRUCTION" ||
-            scene.factuality_mode === "LEGEND_RECONSTRUCTION" ? "EDITORIAL" :
-            "RESTRAINED"
+            scene.factuality_mode === "EVIDENCE" ||
+            scene.factuality_mode === "HISTORICAL_RECONSTRUCTION" ? "RESTRAINED" :
+            scene.factuality_mode === "LEGEND_RECONSTRUCTION" ? "HEIGHTENED" :
+            "EDITORIAL"
           ),
           scene_continuity: scene.continuity,
           scene_handoff: scene.handoff
