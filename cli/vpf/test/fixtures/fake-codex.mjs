@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, stat, writeFile } from "node:fs/promises";
 import * as path from "node:path";
 
 const args = process.argv.slice(2);
@@ -59,6 +59,25 @@ const taskId = taskMatch?.[1]?.trim();
 if (!taskId) {
   process.stderr.write("Task line missing\n");
   process.exit(4);
+}
+
+if (taskId.startsWith("MANAGER_VISUAL:")) {
+  const imageIndex = args.indexOf("--image");
+  const terminatorIndex = args.indexOf("--", imageIndex + 1);
+  if (imageIndex < 0 || terminatorIndex <= imageIndex + 1) {
+    process.stderr.write("MANAGER_VISUAL requires attached --image inputs\n");
+    process.exit(41);
+  }
+  const imagePaths = args.slice(imageIndex + 1, terminatorIndex);
+  for (const imagePath of imagePaths) {
+    try {
+      const info = await stat(imagePath);
+      if (!info.isFile() || info.size <= 0) throw new Error("empty image");
+    } catch (error) {
+      process.stderr.write("MANAGER_VISUAL image unavailable: " + imagePath + "\n");
+      process.exit(42);
+    }
+  }
 }
 
 const fixtureDir = process.env.VPF_FAKE_CODEX_OUTPUT_DIR;
