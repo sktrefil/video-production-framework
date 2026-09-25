@@ -226,7 +226,7 @@ test("T070 seed visual QC inspects actual pixels and only PASS unlocks full gene
   assert.match(manager,/Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone/);
   assert.match(manager,/PASS only when every attached seed is visually suitable/);
   assert.match(runner,/imagePaths\?: string\[\]/);
-  assert.match(runner,/args\.push\("--image", \.\.\.attachedImages\)/);
+  assert.match(runner,/args\.push\("--image", \.\.\.attachedImages, "--"\)/);
   assert.match(runner,/Inspect every attached image directly/);
   assert.match(storage,/\| "t070_seed_visual_qc"/);
 
