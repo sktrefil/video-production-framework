@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import test from "node:test";
@@ -113,6 +113,30 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
     });
     const story = await worker.execute("agent2_sample", "T020", storyFile);
     assert.deepEqual(story.stored_artifacts.map(item => item.artifact_type), ["story_spec", "script"]);
+
+    const scriptDirectory = path.join(created.projectRoot, "02_script");
+    assert.equal(
+      JSON.parse(await readFile(path.join(scriptDirectory, "script.json"), "utf8")).body_ko,
+      scriptText
+    );
+    assert.equal(
+      (await readFile(path.join(scriptDirectory, "script_ko.txt"), "utf8")).trim(),
+      scriptText
+    );
+    assert.equal(
+      JSON.parse(await readFile(path.join(scriptDirectory, "story_spec.json"), "utf8")).project_id,
+      "agent2_sample"
+    );
+
+    await rm(scriptDirectory, { recursive: true, force: true });
+    const rematerialized = await worker.materializeScript("agent2_sample");
+    assert.equal(rematerialized.source, "project.db");
+    assert.equal(rematerialized.files.script_ko_txt, "02_script/script_ko.txt");
+    assert.equal(
+      (await readFile(path.join(created.projectRoot, rematerialized.files.script_ko_txt), "utf8")).trim(),
+      scriptText
+    );
+
     assert.equal((await manager.complete("agent2_sample", "T020")).status, "COMPLETE");
     assert.equal((await manager.next("agent2_sample"))?.task_id, "T030");
 
