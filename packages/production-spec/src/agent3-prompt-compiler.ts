@@ -31,6 +31,30 @@ export const GLOBAL_VISUAL_GRAMMAR_KO = [
   "레퍼런스 정책: 이것은 텍스트 시각 규칙이며 어떤 레퍼런스 이미지의 구도도 복제하거나 재구성하지 않는다. 각 상태 이미지는 해당 대본과 승인된 Scene/State 의도에서 새로 구성한다."
 ].join(" ");
 
+export function effectiveFantasyMode(scene: {
+  factuality_mode: string;
+  fantasy_mode?: "OFF" | "RESTRAINED" | "EDITORIAL" | "HEIGHTENED";
+}): "OFF" | "RESTRAINED" | "EDITORIAL" | "HEIGHTENED" {
+  if (scene.fantasy_mode !== undefined) return scene.fantasy_mode;
+  if (scene.factuality_mode === "EVIDENCE") return "RESTRAINED";
+  if (scene.factuality_mode === "EDITORIAL_FANTASY_RECONSTRUCTION" ||
+      scene.factuality_mode === "LEGEND_RECONSTRUCTION") return "EDITORIAL";
+  return "RESTRAINED";
+}
+
+function fantasyPolicy(mode: ReturnType<typeof effectiveFantasyMode>): string {
+  if (mode === "OFF") {
+    return "Fantasy mode OFF: keep the image observational and materially plausible; no symbolic visual inventions.";
+  }
+  if (mode === "RESTRAINED") {
+    return "Fantasy mode RESTRAINED: cinematic atmosphere, mist, light, texture and subtle symbolic emphasis are allowed, but no invented historical event, artifact or supernatural cause.";
+  }
+  if (mode === "HEIGHTENED") {
+    return "Fantasy mode HEIGHTENED: strong editorial atmosphere and symbolic spatial treatment are allowed, while all visible historical claims remain evidence-compatible and non-literal.";
+  }
+  return "Fantasy mode EDITORIAL: use non-textual symbolic atmosphere and visual metaphor to strengthen mystery, uncertainty or synthesis without changing the historical claim.";
+}
+
 function cameraPhrase(camera: {
   purpose: CameraPurpose;
   movement: CameraMovement;
@@ -57,6 +81,7 @@ export function compileAgent3Prompts(input: {
   const image_prompts: ImagePromptPlan[] = input.states.state_images.map(state => {
     const scene = sceneById.get(state.scene_id);
     if (scene === undefined) throw new Error("Scene Visual missing for " + state.state_image_id + ".");
+    const fantasyMode = effectiveFantasyMode(scene);
     const avoid = [...new Set([
       ...scene.forbidden_visual_claims,
       ...state.avoidances,
@@ -82,6 +107,7 @@ export function compileAgent3Prompts(input: {
       "Continuity: " + state.continuity_refs.join("; ") + ".",
       "Factual constraints: " + [...scene.evidence_constraints, ...state.factual_constraints].join("; ") + ".",
       "Visual Bible: " + input.visualBibleSummary + ".",
+      fantasyPolicy(fantasyMode),
       "Global visual grammar: " + GLOBAL_VISUAL_GRAMMAR_EN,
       "Video-ready keyframe with separable foreground, central action and distant-world layers, complete physical relationships, and one clear continuable motion vector."
     ]);
@@ -97,6 +123,7 @@ export function compileAgent3Prompts(input: {
       "다음 컷 연결점: " + state.handoff_anchor + ".",
       "연속성: " + state.continuity_refs.join("; ") + ".",
       "사실 제약: " + [...scene.evidence_constraints, ...state.factual_constraints].join("; ") + ".",
+      "판타지 모드: " + fantasyMode + ". 판타지는 분위기·빛·안개·질감·비문자 상징을 강화할 수 있으나 역사적 주장이나 사건을 새로 만들면 안 된다.",
       "글로벌 시각 문법: " + GLOBAL_VISUAL_GRAMMAR_KO
     ]);
 
