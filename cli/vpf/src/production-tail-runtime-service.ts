@@ -17,6 +17,7 @@ import {
 import type {
   Agent2SubtitleTimingSpec,
   Agent2TtsManifest,
+  type ClipProductionDocument,
   PromptBundleDocument,
   SceneVisualDocument,
   StateImageDocument
@@ -24,6 +25,7 @@ import type {
 import {Agent2StoryAudioRepository} from "@vpf/storage/agent2-story-audio";
 import {Agent3VisualProductionRepository} from "@vpf/storage/agent3-visual-production";
 import {ProductionTailRepository} from "@vpf/storage/production-tail";
+import {ProductionSpecRepository} from "@vpf/storage/production-spec";
 import {Agent1WorkflowOrchestratorService} from "./workflow-orchestrator-service.js";
 import {CodexManagerRuntimeService} from "./codex-manager-runtime-service.js";
 import {CodexProcessRunner} from "./codex-process-runner.js";
@@ -183,6 +185,9 @@ const T070_ITEM_MAX_ATTEMPTS=3;
 type FlowManifestItem={
   clip_id:string;
   scene_id:string;
+  entry_state_image_id:string;
+  mid_state_image_id:string|null;
+  target_state_image_id:string;
   provider_prompt_en:string;
   editorial_duration_sec:number;
   narrative_deadline_sec:number;
@@ -191,6 +196,27 @@ type FlowManifestItem={
   entry_image_relative_path:string;
   mid_image_relative_path:string|null;
   target_image_relative_path:string;
+  fantasy_mode:"OFF"|"RESTRAINED"|"EDITORIAL"|"HEIGHTENED"|null;
+  camera:{
+    purpose:string;
+    movement:string;
+    shot_size_start:string;
+    shot_size_end:string;
+    movement_curve:string;
+  }|null;
+  transition_in:string|null;
+  transition_out:string|null;
+  continuity:{
+    movement_direction:string;
+    screen_direction:string;
+    camera_energy:string;
+  }|null;
+  handoff:{
+    entry_anchor:string;
+    exit_anchor:string;
+    preserve_elements:string[];
+    next_cut_intent:string;
+  }|null;
   expected_output_relative_path:string;
 };
 
@@ -662,6 +688,8 @@ export function buildFlowManualManifest(input:{
   projectId:string;
   promptBundle:PromptBundleDocument;
   approvedImages:GeneratedImagesArtifact;
+  sceneVisual?:SceneVisualDocument|null;
+  clipProduction?:ClipProductionDocument|null;
   generatedAt?:string;
 }):FlowManualManifest{
   return{
@@ -676,9 +704,18 @@ export function buildFlowManualManifest(input:{
       const mid=prompt.mid_state_image_id===null
         ?null
         :imageByState(input.approvedImages.images,prompt.mid_state_image_id);
+      const scene=input.sceneVisual?.scenes.find(
+        item=>item.scene_id===prompt.scene_id
+      );
+      const clip=input.clipProduction?.clips.find(
+        item=>item.clip_id===prompt.clip_id
+      );
       return{
         clip_id:prompt.clip_id,
         scene_id:prompt.scene_id,
+        entry_state_image_id:prompt.entry_state_image_id,
+        mid_state_image_id:prompt.mid_state_image_id,
+        target_state_image_id:prompt.target_state_image_id,
         provider_prompt_en:prompt.provider_prompt_en,
         editorial_duration_sec:prompt.editorial_duration_sec,
         narrative_deadline_sec:prompt.narrative_deadline_sec,
@@ -687,6 +724,27 @@ export function buildFlowManualManifest(input:{
         entry_image_relative_path:entry.relative_path,
         mid_image_relative_path:mid?.relative_path??null,
         target_image_relative_path:target.relative_path,
+        fantasy_mode:scene===undefined?null:effectiveT070FantasyMode(scene),
+        camera:clip===undefined?null:{
+          purpose:clip.camera.purpose,
+          movement:clip.camera.movement,
+          shot_size_start:clip.camera.shot_size_start,
+          shot_size_end:clip.camera.shot_size_end,
+          movement_curve:clip.camera.movement_curve
+        },
+        transition_in:clip?.transition_in??null,
+        transition_out:clip?.transition_out??null,
+        continuity:scene===undefined?null:{
+          movement_direction:scene.continuity.movement_direction,
+          screen_direction:scene.continuity.screen_direction,
+          camera_energy:scene.continuity.camera_energy
+        },
+        handoff:scene===undefined?null:{
+          entry_anchor:scene.handoff.entry_anchor,
+          exit_anchor:scene.handoff.exit_anchor,
+          preserve_elements:[...scene.handoff.preserve_elements],
+          next_cut_intent:scene.handoff.next_cut_intent
+        },
         expected_output_relative_path:"06_clips/generated/"+safeFileSegment(prompt.clip_id)+".mp4"
       };
     })
@@ -2277,20 +2335,25 @@ export class ProductionTailRuntimeService{
   }>{
     const status=await this.projects.getStatus(projectId);
     const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    const production=new ProductionSpecRepository(status.projectDbPath,{readonly:true});
     const tail=new ProductionTailRepository(status.projectDbPath,{readonly:true});
     try{
       const prompts=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      const sceneVisual=agent3.getActive<SceneVisualDocument>(projectId,"scene_visual_spec");
+      const clipProduction=production.getClipProduction(projectId);
       const approved=tail.getActive<GeneratedImagesArtifact>(projectId,"approved_images");
-      if(prompts===null||approved===null){
+      if(prompts===null||sceneVisual===null||clipProduction===null||approved===null){
         throw new ProductionTailRuntimeError(
           "TAIL_PREREQUISITE",
-          "T080 requires prompt_bundle_spec and approved_images."
+          "T080 requires prompt_bundle_spec, scene_visual_spec, clip_production_spec and approved_images."
         );
       }
       const manifest=buildFlowManualManifest({
         projectId,
         promptBundle:prompts.value,
-        approvedImages:approved.value
+        approvedImages:approved.value,
+        sceneVisual:sceneVisual.value,
+        clipProduction
       });
       const manifestRelativePath="06_clips/google-flow-manifest.json";
       await writeJson(path.resolve(status.projectRoot,manifestRelativePath),manifest);
@@ -2303,6 +2366,7 @@ export class ProductionTailRuntimeService{
       return{ready:missing.length===0,manifestRelativePath,missing};
     }finally{
       tail.close();
+      production.close();
       agent3.close();
     }
   }
