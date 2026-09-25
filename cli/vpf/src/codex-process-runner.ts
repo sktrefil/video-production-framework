@@ -408,7 +408,8 @@ export class CodexProcessRunner {
         request.roleId === "CODEX_1_MANAGER" &&
         (
           request.taskId.startsWith("MANAGER_REVIEW:") ||
-          request.taskId.startsWith("MANAGER_SUCCESS:")
+          request.taskId.startsWith("MANAGER_SUCCESS:") ||
+          request.taskId.startsWith("MANAGER_VISUAL:")
         )
       );
     if (!roleTaskAllowed) {
