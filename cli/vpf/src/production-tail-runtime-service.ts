@@ -187,47 +187,54 @@ async function probeVideo(filename:string):Promise<{
   width:number|null;
   height:number|null;
 }>{
-  const command=process.env.VPF_FFPROBE_PATH?.trim()||"ffprobe";
-  const args=[
-    "-v","error",
-    "-show_entries","format=duration",
-    "-show_entries","stream=codec_type,width,height",
-    "-of","json",
-    filename
-  ];
+  const script=path.join(
+    DEFAULT_REPOSITORY_ROOT,
+    "apps","editor","scripts","probe-tail-video.mjs"
+  );
   const stdout:Buffer[]=[];
   const stderr:Buffer[]=[];
   await new Promise<void>((resolveRun,rejectRun)=>{
-    const child=spawn(command,args,{stdio:["ignore","pipe","pipe"],windowsHide:true,shell:false});
+    const child=spawn(process.execPath,[script,filename],{
+      cwd:DEFAULT_REPOSITORY_ROOT,
+      stdio:["ignore","pipe","pipe"],
+      windowsHide:true,
+      shell:false,
+      env:{...process.env}
+    });
     child.stdout.on("data",chunk=>stdout.push(Buffer.from(chunk)));
     child.stderr.on("data",chunk=>stderr.push(Buffer.from(chunk)));
     child.once("error",error=>rejectRun(new ProductionTailRuntimeError(
       "TAIL_FFPROBE_FAILED",
-      "ffprobe could not start: "+error.message
+      "Tail video probe could not start: "+error.message
     )));
     child.once("exit",code=>{
       if(code===0)resolveRun();
       else rejectRun(new ProductionTailRuntimeError(
         "TAIL_FFPROBE_FAILED",
-        Buffer.concat(stderr).toString("utf8").trim()||"ffprobe failed."
+        Buffer.concat(stderr).toString("utf8").trim()||"Tail video probe failed."
       ));
     });
   });
-  let parsed:{format?:{duration?:string|number};streams?:Array<{codec_type?:string;width?:number;height?:number}>};
+  let parsed:{durationSec?:number;width?:number|null;height?:number|null};
   try{
     parsed=JSON.parse(Buffer.concat(stdout).toString("utf8")) as typeof parsed;
   }catch{
-    throw new ProductionTailRuntimeError("TAIL_FFPROBE_FAILED","ffprobe returned invalid JSON.");
+    throw new ProductionTailRuntimeError(
+      "TAIL_FFPROBE_FAILED",
+      "Tail video probe returned invalid JSON."
+    );
   }
-  const durationSec=Number(parsed.format?.duration??0);
+  const durationSec=Number(parsed.durationSec??0);
   if(!Number.isFinite(durationSec)||durationSec<=0){
-    throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Video duration is missing or invalid: "+filename);
+    throw new ProductionTailRuntimeError(
+      "TAIL_MANUAL_RESULT_INVALID",
+      "Video duration is missing or invalid: "+filename
+    );
   }
-  const video=parsed.streams?.find(stream=>stream.codec_type==="video");
   return{
     durationSec,
-    width:Number.isFinite(video?.width)?Number(video?.width):null,
-    height:Number.isFinite(video?.height)?Number(video?.height):null
+    width:typeof parsed.width==="number"&&Number.isFinite(parsed.width)?parsed.width:null,
+    height:typeof parsed.height==="number"&&Number.isFinite(parsed.height)?parsed.height:null
   };
 }
 
@@ -644,7 +651,10 @@ export class ProductionTailRuntimeService{
     }catch(error){
       if(
         error instanceof ProductionTailRuntimeError&&
-        error.code==="TAIL_MANAGER_QC_REJECTED"
+        (
+          error.code==="TAIL_MANAGER_QC_REJECTED"||
+          error.code==="TAIL_FINAL_QC_REJECTED"
+        )
       )throw error;
       try{
         if(taskId!=="T100"){
