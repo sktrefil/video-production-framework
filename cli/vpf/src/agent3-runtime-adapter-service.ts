@@ -363,6 +363,8 @@ class OpenAiAgent3Runtime {
         "Map factuality conservatively. For mixed fact_refs use the least-certain applicable class in this priority: any LEGEND => LEGEND_RECONSTRUCTION; else any HYPOTHESIS => HYPOTHESIS_RECONSTRUCTION; else any EDITORIAL_RECONSTRUCTION => EDITORIAL_FANTASY_RECONSTRUCTION; else any LIKELY_INTERPRETATION => HISTORICAL_RECONSTRUCTION or HYPOTHESIS_RECONSTRUCTION; otherwise VERIFIED_FACT may be EVIDENCE or HISTORICAL_RECONSTRUCTION.",
         "Visual Bible is the show-level authority. Do not replace it with a new style.",
         "Fantasy visual language may express atmosphere and reconstruction, but must not convert uncertainty into factual evidence.",
+        "Set fantasy_mode for every Scene. Use OFF or RESTRAINED for evidence-heavy scenes; EDITORIAL for symbolic mystery/reconstruction; HEIGHTENED only for clearly editorial or legendary synthesis where atmosphere can intensify without inventing historical claims.",
+        "Fantasy may alter atmosphere, light, mist, texture, spatial symbolism and non-textual motifs. It must not invent documents, artifacts, events, creatures, magical causation, or false historical evidence.",
         "Handoff preserve_elements must contain two to four concrete continuity elements.",
         "English fields may be concise translations, but Korean fields must remain production-usable.",
         "If revision_feedback is present, correct those exact validation failures while preserving approved upstream meaning."
