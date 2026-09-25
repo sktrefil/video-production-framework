@@ -14,6 +14,9 @@ export type VisualFactualityMode = typeof VISUAL_FACTUALITY_MODES[number];
 export const STATE_IMAGE_ROLES = ["ENTRY", "MID", "TARGET"] as const;
 export type StateImageRole = typeof STATE_IMAGE_ROLES[number];
 
+export const FANTASY_MODES = ["OFF", "RESTRAINED", "EDITORIAL", "HEIGHTENED"] as const;
+export type FantasyMode = typeof FANTASY_MODES[number];
+
 export interface VisualBibleRef {
   resource_id: string;
   version: string;
@@ -43,6 +46,11 @@ export interface SceneVisualPlan {
   scene_id: string;
   story_role: StoryRole;
   factuality_mode: VisualFactualityMode;
+  /**
+   * Optional only for legacy persisted artifacts created before the T070 image
+   * policy. New T040 outputs must always provide it.
+   */
+  fantasy_mode?: FantasyMode;
   fact_refs: string[];
   narrative_purpose_ko: string;
   narrative_purpose_en: string;
