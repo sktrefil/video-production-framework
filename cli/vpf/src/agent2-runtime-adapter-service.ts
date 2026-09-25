@@ -1038,7 +1038,8 @@ export class Agent2RuntimeAdapterService {
         .filter(task =>
           task.assigned_agent === "AGENT2_STORY_AUDIO" &&
           ["T010", "T020", "T030"].includes(task.task_id) &&
-          task.status === "BLOCKED"
+          task.status === "BLOCKED" &&
+          (task.attempt ?? 0) > 0
         )
         .map(task => task.task_id);
 
