@@ -180,6 +180,7 @@ function visualResponse(projectId: string, bible: {
       scene_id: "SCENE_01",
       story_role: "HOOK",
       factuality_mode: "HISTORICAL_RECONSTRUCTION",
+      fantasy_mode: "RESTRAINED",
       fact_refs: ["FACT_001"],
       narrative_purpose_ko: "마지막 기록 이후의 불확실성을 제기한다.",
       narrative_purpose_en: "Raise uncertainty after the last record.",
