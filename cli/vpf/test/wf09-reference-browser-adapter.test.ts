@@ -159,6 +159,9 @@ test("ChatGPT Browser worker reuses one managed conversation per exact reference
   const markerBody=worker.slice(markerStart,markerEnd);
   assert.doesNotMatch(markerBody,/promptSha256/);
   assert.doesNotMatch(markerBody,/transmissionText/);
+  assert.doesNotMatch(markerBody,/mediaId/);
+  assert.doesNotMatch(markerBody,/absolutePath/);
+  assert.match(markerBody,/identity\.sort\(key=lambda item: \(item\["role"\], item\["sha256"\]\)\)/);
   assert.match(markerBody,/"references": identity/);
   assert.match(worker, /def generate[\s\S]*?finally:\r?\n        # Keep the worker-managed ChatGPT tab alive[\s\S]*?playwright\.stop\(\)/);
 });
