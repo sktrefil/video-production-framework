@@ -96,7 +96,17 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
         ?"POSSIBLY STALLED · "+s.last_activity_age_sec+"s"
         :s.last_activity_age_sec+"s ago";
     q("current-title").textContent=current ? current.task_id+" "+current.name : (s.final.production_complete?"Production complete":"No active task");
-    q("current-detail").textContent=current ? [current.phase||current.status,current.agent,"attempt "+current.attempt+"/3"].join(" · ") : "—";
+    q("current-detail").textContent=current
+      ? [
+          current.phase||current.status,
+          current.agent,
+          "attempt "+current.attempt+"/3",
+          current.runtime_pid==null ? "" : "PID "+current.runtime_pid,
+          current.runtime_last_activity_age_sec==null
+            ? ""
+            : "Codex output "+current.runtime_last_activity_age_sec+"s ago"
+        ].filter(Boolean).join(" · ")
+      : "—";
     q("current-percent").textContent=current ? current.percent.toFixed(1)+"%" : (s.final.production_complete?"100%":"0%");
     q("tasks").innerHTML=s.tasks.map(t=>"<tr><td><b>"+esc(t.task_id)+"</b><br><span class='muted'>"+esc(t.name)+"</span></td><td class='status "+esc(t.status)+"'>"+esc(t.status)+"</td><td>"+t.percent.toFixed(1)+"%</td><td>"+fmt(t.elapsed_sec)+"</td><td>"+(t.workflow_status==="COMPLETE"?"done":eta(t.eta))+"</td><td>"+t.attempt+"/3</td></tr>").join("");
     q("events").innerHTML=[...s.recent_events].reverse().map(e=>"<div class='event'>"+esc(e.at.slice(11,19))+" <b>"+esc(e.task_id||"RUN")+"</b> "+esc(e.event)+" "+esc(e.verdict||e.phase||"")+"</div>").join("");
