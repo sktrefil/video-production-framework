@@ -131,7 +131,7 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
         ? "<div class='muted' style='margin-top:7px'>Continuity · "+esc(i.continuity.movement_direction)+" · "+esc(i.continuity.screen_direction)+" · "+esc(i.continuity.camera_energy)+"</div>"
         : "";
       return "<details class='clipcard'><summary>"+esc(i.clip_id)+" · "+esc(i.scene_id)+" · "+states+"</summary>"
-        +"<div class='clipmeta'><span>edit "+i.editorial_duration_sec.toFixed(2)+"s</span><span>narrative ≤ "+i.narrative_deadline_sec.toFixed(2)+"s</span><span>target ≤ "+i.target_state_deadline_sec.toFixed(2)+"s</span><span>safe trim ≥ "+i.safe_trim_start_sec.toFixed(2)+"s</span></div>"
+        +"<div class='clipmeta'><span>fantasy "+esc(i.fantasy_mode||"—")+"</span><span>edit "+i.editorial_duration_sec.toFixed(2)+"s</span><span>narrative ≤ "+i.narrative_deadline_sec.toFixed(2)+"s</span><span>target ≤ "+i.target_state_deadline_sec.toFixed(2)+"s</span><span>safe trim ≥ "+i.safe_trim_start_sec.toFixed(2)+"s</span></div>"
         +handoff+continuity
         +"<details style='margin-top:9px'><summary>Korean clip plan</summary><div class='prompt'>"+esc(i.prompt_ko)+"</div></details>"
         +"<details style='margin-top:7px'><summary>Google Flow provider prompt</summary><div class='prompt'>"+esc(i.provider_prompt_en)+"</div></details>"
