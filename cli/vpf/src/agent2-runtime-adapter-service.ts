@@ -30,6 +30,10 @@ import { Agent1WorkflowOrchestratorService } from "./workflow-orchestrator-servi
 import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
 import { CodexManagerRuntimeService } from "./codex-manager-runtime-service.js";
 import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
+import {
+  NOOP_PROGRESS_REPORTER,
+  ProductionProgressReporter
+} from "./production-progress.js";
 
 const DEFAULT_REPOSITORY_ROOT = path.resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
@@ -1005,7 +1009,8 @@ export class Agent2RuntimeAdapterService {
 
   constructor(
     private readonly projects: ProjectBootstrapService,
-    private readonly environment: NodeJS.ProcessEnv = process.env
+    private readonly environment: NodeJS.ProcessEnv = process.env,
+    private readonly progress: ProductionProgressReporter = NOOP_PROGRESS_REPORTER
   ) {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent2StoryAudioWorkerService(projects);
@@ -1060,6 +1065,13 @@ export class Agent2RuntimeAdapterService {
     }
     const taskId = next.task_id as Agent2RuntimeTaskId;
     const dispatch = await this.manager.dispatch(projectId, taskId, "AGENT2_STORY_AUDIO");
+    await this.progress.emit({
+      event: "TASK_STARTED",
+      project_id: projectId,
+      task_id: taskId,
+      agent: "AGENT2_STORY_AUDIO",
+      attempt: dispatch.attempt
+    });
     try {
       const runtime = await this.executeDispatched(projectId, taskId, dispatch.attempt);
 
@@ -1074,6 +1086,15 @@ export class Agent2RuntimeAdapterService {
             `${gate.gate} rejected ${taskId} before Codex1 success QC.`
           );
         }
+        await this.progress.emit({
+          event: "QC_STARTED",
+          project_id: projectId,
+          task_id: taskId,
+          agent: "CODEX_1_MANAGER",
+          attempt: dispatch.attempt,
+          qc_kind: "SUCCESS",
+          phase: "CODEX1_SUCCESS_QC"
+        });
         const review = await this.codexManager.reviewSuccess({
           projectId,
           taskId,
@@ -1082,6 +1103,16 @@ export class Agent2RuntimeAdapterService {
           gateStatus: "PASS",
           gateId: gate.gate,
           warnings: runtime.worker.warnings
+        });
+        await this.progress.emit({
+          event: "QC_COMPLETED",
+          project_id: projectId,
+          task_id: taskId,
+          agent: "CODEX_1_MANAGER",
+          attempt: dispatch.attempt,
+          qc_kind: "SUCCESS",
+          verdict: review.verdict,
+          phase: "CODEX1_SUCCESS_QC"
         });
         if (review.verdict !== "APPROVE") {
           await this.manager.applyManagerVerdict(
@@ -1098,6 +1129,14 @@ export class Agent2RuntimeAdapterService {
       }
 
       const completed = await this.manager.complete(projectId, taskId);
+      await this.progress.emit({
+        event: "TASK_COMPLETED",
+        project_id: projectId,
+        task_id: taskId,
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        message: `${taskId} completed with ${completed.last_gate_status ?? "PASS"}.`
+      });
       return {
         task_id: taskId,
         runtime_provider: runtime.provider,
@@ -1119,6 +1158,15 @@ export class Agent2RuntimeAdapterService {
         !codexFatal(error)
       ) {
         try {
+          await this.progress.emit({
+            event: "QC_STARTED",
+            project_id: projectId,
+            task_id: taskId,
+            agent: "CODEX_1_MANAGER",
+            attempt: dispatch.attempt,
+            qc_kind: "FAILURE",
+            phase: "CODEX1_FAILURE_REVIEW"
+          });
           const review = await this.codexManager.reviewFailure({
             projectId,
             taskId,
@@ -1133,6 +1181,16 @@ export class Agent2RuntimeAdapterService {
                     ? error.code
                     : "AGENT2_RUNTIME_FAILURE",
             errorDetail: error instanceof Error ? error.message : String(error)
+          });
+          await this.progress.emit({
+            event: "QC_COMPLETED",
+            project_id: projectId,
+            task_id: taskId,
+            agent: "CODEX_1_MANAGER",
+            attempt: dispatch.attempt,
+            qc_kind: "FAILURE",
+            verdict: review.verdict,
+            phase: "CODEX1_FAILURE_REVIEW"
           });
           await this.manager.applyManagerVerdict(
             projectId,
@@ -1189,11 +1247,30 @@ export class Agent2RuntimeAdapterService {
               "AGENT2_RUNTIME_PREREQUISITE"
             ].includes(error.code)
           );
-        if (retryable) continue;
+        if (retryable) {
+          await this.progress.emit({
+            event: "TASK_RETRY",
+            project_id: projectId,
+            task_id: next.task_id,
+            agent: "AGENT2_STORY_AUDIO",
+            attempt: task?.attempt ?? undefined,
+            message: error instanceof Error ? error.message : String(error)
+          });
+          continue;
+        }
         throw error;
       }
     }
     const handoff = await this.manager.next(projectId);
+    if (handoff !== null) {
+      await this.progress.emit({
+        event: "HANDOFF",
+        project_id: projectId,
+        next_task: handoff.task_id,
+        next_agent: handoff.assigned_agent,
+        message: `Agent2 handed production to ${handoff.assigned_agent} at ${handoff.task_id}.`
+      });
+    }
     return {
       project_id: projectId,
       steps,
