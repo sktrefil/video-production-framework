@@ -89,7 +89,8 @@ test("ChatGPT Browser adapter uploads visual references and excludes KNF layout 
     width: 864,
     height: 1536,
     aspectRatio: "9:16",
-    references
+    references,
+    sessionKey: "project:T070:lineage"
   });
 
   assert.equal(captured?.action, "generate");
@@ -101,6 +102,7 @@ test("ChatGPT Browser adapter uploads visual references and excludes KNF layout 
   })));
   assert.equal(captured?.width, 864);
   assert.equal(captured?.height, 1536);
+  assert.equal(captured?.sessionKey, "project:T070:lineage");
   const transmission = String(captured?.transmissionText);
   assert.match(transmission, /ATTACHED REFERENCE INVENTORY/u);
   assert.match(transmission, /COMPOSITION_GRAMMAR/u);
@@ -163,5 +165,14 @@ test("ChatGPT Browser worker reuses one managed conversation per exact reference
   assert.doesNotMatch(markerBody,/absolutePath/);
   assert.match(markerBody,/identity\.sort\(key=lambda item: \(item\["role"\], item\["sha256"\]\)\)/);
   assert.match(markerBody,/"references": identity/);
+  const cleanupStart=worker.indexOf("unsafe_reuse_stages = {");
+  const cleanupEnd=worker.indexOf("playwright.stop()",cleanupStart);
+  assert.ok(cleanupStart>=0);
+  assert.ok(cleanupEnd>cleanupStart);
+  const cleanupBody=worker.slice(cleanupStart,cleanupEnd);
+  assert.match(cleanupBody,/"SEND_PROMPT"/);
+  assert.match(cleanupBody,/"WAIT_IMAGE"/);
+  assert.doesNotMatch(cleanupBody,/"FILL_PROMPT"/);
+  assert.doesNotMatch(cleanupBody,/"WAIT_SEND_READY"/);
   assert.match(worker, /def generate[\s\S]*?finally:\r?\n        # Keep the worker-managed ChatGPT tab alive[\s\S]*?playwright\.stop\(\)/);
 });
