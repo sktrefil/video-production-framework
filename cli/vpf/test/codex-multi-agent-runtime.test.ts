@@ -13,6 +13,10 @@ import { Agent3RuntimeAdapterService } from "../src/agent3-runtime-adapter-servi
 import { CodexManagerRuntimeService } from "../src/codex-manager-runtime-service.js";
 import { CodexProcessRunner, CodexRuntimeError } from "../src/codex-process-runner.js";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
+import {
+  ProductionProgressReporter,
+  type ProductionProgressEvent
+} from "../src/production-progress.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const fakeCodex = path.resolve(
@@ -302,6 +306,10 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
       language: "ko"
     });
     const env = runtimeEnv(fixtures);
+    const progressEvents: ProductionProgressEvent[] = [];
+    const progress = new ProductionProgressReporter(event => {
+      progressEvents.push(event);
+    });
 
     const runner = new CodexProcessRunner(env);
     const preflight = await runner.preflight();
@@ -320,7 +328,7 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
       });
     }
 
-    const agent2 = new Agent2RuntimeAdapterService(bootstrap, env);
+    const agent2 = new Agent2RuntimeAdapterService(bootstrap, env, progress);
     const first = await agent2.runNext("codex_multi");
     assert.equal("task_id" in first ? first.task_id : null, "T010");
     assert.equal("runtime_provider" in first ? first.runtime_provider : null, "CODEX_SESSION");
@@ -373,7 +381,7 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
     await writeJson(fixtures, "T050", stateSpec("codex_multi"));
     await writeJson(fixtures, "T060", clipSpec("codex_multi", duration));
 
-    const agent3 = new Agent3RuntimeAdapterService(bootstrap, env);
+    const agent3 = new Agent3RuntimeAdapterService(bootstrap, env, progress);
     const result = await agent3.runAll("codex_multi");
     assert.deepEqual(
       result.steps.map(step => step.task_id),
@@ -381,6 +389,42 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
     );
     assert.ok(result.steps.every(step => step.runtime_provider === "CODEX_SESSION"));
     assert.equal(result.handoff_task, "T070");
+
+    const progressKeys = progressEvents.map(event =>
+      `${event.event}:${event.task_id ?? event.next_task ?? ""}`
+    );
+    for (const expected of [
+      "TASK_STARTED:T010",
+      "QC_STARTED:T010",
+      "QC_COMPLETED:T010",
+      "TASK_COMPLETED:T010",
+      "TASK_STARTED:T020",
+      "QC_STARTED:T020",
+      "QC_COMPLETED:T020",
+      "TASK_COMPLETED:T020",
+      "TASK_STARTED:T030",
+      "TASK_COMPLETED:T030",
+      "HANDOFF:T040",
+      "TASK_STARTED:T040",
+      "QC_STARTED:T040",
+      "QC_COMPLETED:T040",
+      "TASK_COMPLETED:T040",
+      "TASK_STARTED:T050",
+      "QC_STARTED:T050",
+      "QC_COMPLETED:T050",
+      "TASK_COMPLETED:T050",
+      "TASK_STARTED:T060",
+      "QC_STARTED:T060",
+      "QC_COMPLETED:T060",
+      "TASK_COMPLETED:T060",
+      "HANDOFF:T070"
+    ]) {
+      assert.ok(progressKeys.includes(expected), `missing progress event ${expected}`);
+    }
+    assert.deepEqual(
+      progressEvents.map(event => event.sequence),
+      progressEvents.map((_, index) => index + 1)
+    );
 
     const finalState = await workflow.status("codex_multi");
     assert.equal(finalState.tasks.find(task => task.task_id === "T060")?.status, "COMPLETE");
