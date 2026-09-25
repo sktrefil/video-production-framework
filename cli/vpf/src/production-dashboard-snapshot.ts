@@ -176,6 +176,13 @@ export interface ProductionDashboardSnapshot {
   t080: Awaited<ReturnType<typeof inspectFlowManifestFiles>> & {
     action_required: boolean;
   };
+  t090: {
+    render_progress_available: boolean;
+    rendered_frames: number | null;
+    total_frames: number | null;
+    render_fps: number | null;
+    message: string;
+  };
   final: {
     preview_available: boolean;
     final_available: boolean;
@@ -353,6 +360,13 @@ export class ProductionDashboardSnapshotService {
             flow.total > 0 &&
             flow.completed < flow.total &&
             rawTasks.find(task => task.task_id === "T080")?.status !== "COMPLETE"
+        },
+        t090: {
+          render_progress_available: false,
+          rendered_frames: null,
+          total_frames: null,
+          render_fps: null,
+          message: "Render frame progress unavailable; showing task lifecycle progress only."
         },
         final: {
           preview_available: preview !== null,
