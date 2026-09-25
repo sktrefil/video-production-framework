@@ -325,6 +325,8 @@ export class CodexManagerRuntimeService {
     projectId: string;
     attempt: number;
     sceneId: string;
+    reviewKind?: "SCENE" | "FINAL";
+    reviewCycle?: number;
     images: Array<{
       stateImageId: string;
       absolutePath: string;
@@ -438,7 +440,12 @@ export class CodexManagerRuntimeService {
         projectRoot: status.projectRoot,
         dbPath: status.projectDbPath,
         roleId: "CODEX_1_MANAGER",
-        taskId: "MANAGER_VISUAL:T070_FINAL:" + input.sceneId,
+        taskId:
+          "MANAGER_VISUAL:T070_" + (input.reviewKind ?? "FINAL") + ":" +
+          input.sceneId +
+          (input.reviewKind === "SCENE"
+            ? ":Q" + String(input.reviewCycle ?? 1)
+            : ""),
         attempt: input.attempt,
         instructions: [
           "Act as Agent 1 final image-set visual QC for one T070 scene.",
