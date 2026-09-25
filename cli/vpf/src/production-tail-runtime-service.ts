@@ -987,6 +987,69 @@ export class ProductionTailRuntimeService{
         projectAbsoluteRoot:status.projectRoot
       });
 
+      // T070 deliberately pins one exact pair of GLOBAL_VISUAL references for
+      // the whole image batch. Scene-aware reference switching caused the
+      // browser session marker to change between state images, which reopened
+      // ChatGPT and re-uploaded two files for every prompt.
+      const referenceAnchorPrompt=promptRecord.value.image_prompts[0]!;
+      const referenceAnchorScene=visual.value.scenes.find(
+        item=>item.scene_id===referenceAnchorPrompt.scene_id
+      );
+      const referenceAnchorState=states.value.state_images.find(
+        item=>item.state_image_id===referenceAnchorPrompt.state_image_id
+      );
+      if(referenceAnchorScene===undefined||referenceAnchorState===undefined){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 reference anchor scene/state is missing."
+        );
+      }
+      const pinnedRuntimeRefs=(await selector.selectReferences({
+        projectId,
+        scene:{
+          id:referenceAnchorScene.scene_id,
+          scriptSegment:referenceAnchorScene.narrative_purpose_ko,
+          primaryVisualIdea:referenceAnchorScene.visual_intent_ko,
+          mustBeSeen:[
+            ...referenceAnchorScene.evidence_constraints,
+            ...referenceAnchorState.factual_constraints
+          ]
+        }
+      }))
+        .filter(reference=>reference.role.includes("REFERENCE_LIBRARY:GLOBAL_VISUAL:"))
+        .slice(0,2);
+      if(pinnedRuntimeRefs.length!==2){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "T070 requires exactly two pinned GLOBAL_VISUAL references."
+        );
+      }
+      const providerRefs:ImageProviderReference[]=[];
+      for(const reference of pinnedRuntimeRefs){
+        const absolutePath=path.resolve(status.projectRoot,reference.relativePath);
+        const bytes=await readFile(absolutePath);
+        const probe=probeImageBytes(bytes);
+        providerRefs.push({
+          mediaId:reference.mediaId,
+          role:reference.role,
+          absolutePath,
+          sha256:sha256Bytes(bytes),
+          mimeType:probe.mimeType
+        });
+      }
+      const imageSessionKey=
+        projectId+":T070:"+promptRecord.sha256+":PINNED_GLOBAL_VISUAL_2";
+      await this.progress.taskProgress({
+        project_id:projectId,
+        task_id:"T070",
+        agent:"AGENT3_VISUAL_PRODUCTION",
+        attempt,
+        phase:"RUNTIME_EXECUTION",
+        completed:10+Math.round((completedByState.size/total)*60),
+        total:100,
+        message:"Pinned one ChatGPT conversation to 2 GLOBAL_VISUAL references for the remaining T070 batch."
+      });
+
       for(const [index,prompt] of promptRecord.value.image_prompts.entries()){
         const scene=visual.value.scenes.find(item=>item.scene_id===prompt.scene_id);
         const state=states.value.state_images.find(item=>item.state_image_id===prompt.state_image_id);
@@ -995,32 +1058,6 @@ export class ProductionTailRuntimeService{
             "TAIL_PREREQUISITE",
             "T070 prompt references missing scene/state: "+prompt.state_image_id
           );
-        }
-
-        const refs=await selector.selectReferences({
-          projectId,
-          scene:{
-            id:scene.scene_id,
-            scriptSegment:scene.narrative_purpose_ko,
-            primaryVisualIdea:scene.visual_intent_ko,
-            mustBeSeen:[
-              ...scene.evidence_constraints,
-              ...state.factual_constraints
-            ]
-          }
-        });
-        const providerRefs:ImageProviderReference[]=[];
-        for(const reference of refs){
-          const absolutePath=path.resolve(status.projectRoot,reference.relativePath);
-          const bytes=await readFile(absolutePath);
-          const probe=probeImageBytes(bytes);
-          providerRefs.push({
-            mediaId:reference.mediaId,
-            role:reference.role,
-            absolutePath,
-            sha256:sha256Bytes(bytes),
-            mimeType:probe.mimeType
-          });
         }
 
         const reusable=completedByState.get(prompt.state_image_id);
@@ -1050,7 +1087,8 @@ export class ProductionTailRuntimeService{
               width:format.imageGeneration.width,
               height:format.imageGeneration.height,
               aspectRatio:format.aspectRatio,
-              references:providerRefs
+              references:providerRefs,
+              sessionKey:imageSessionKey
             });
             const bytes=Buffer.from(result.bytes);
             const probe=probeImageBytes(bytes);
