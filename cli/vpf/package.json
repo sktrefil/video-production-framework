@@ -25,8 +25,11 @@
     "@vpf/production-spec": "0.1.0"
   },
   "scripts": {
+    "prebuild": "npm run build --workspace @vpf/storage",
     "build": "tsc -p tsconfig.json",
+    "pretypecheck": "npm run build --workspace @vpf/storage",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest": "npm run build --workspace @vpf/storage",
     "test": "tsx --test test/**/*.test.ts"
   }
 }
