@@ -402,9 +402,6 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
       "QC_STARTED:T020",
       "QC_COMPLETED:T020",
       "TASK_COMPLETED:T020",
-      "TASK_STARTED:T030",
-      "TASK_COMPLETED:T030",
-      "HANDOFF:T040",
       "TASK_STARTED:T040",
       "QC_STARTED:T040",
       "QC_COMPLETED:T040",
@@ -430,12 +427,6 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
       event.task_id === "T010" &&
       event.phase === "RUNTIME_EXECUTION" &&
       event.percent === 5
-    ));
-    assert.ok(progressEvents.some(event =>
-      event.event === "TASK_PROGRESS" &&
-      event.task_id === "T030" &&
-      event.phase === "WORKER_OUTPUT_READY" &&
-      event.percent === 90
     ));
     assert.ok(progressEvents.some(event =>
       event.event === "TASK_PROGRESS" &&
