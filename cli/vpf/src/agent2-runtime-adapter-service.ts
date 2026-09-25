@@ -30,10 +30,7 @@ import { Agent1WorkflowOrchestratorService } from "./workflow-orchestrator-servi
 import { CodexProcessRunner, CodexRuntimeError } from "./codex-process-runner.js";
 import { CodexManagerRuntimeService } from "./codex-manager-runtime-service.js";
 import { Agent2StoryAudioWorkerService, Agent2StoryAudioError } from "./agent2-story-audio-service.js";
-import {
-  NOOP_PROGRESS_REPORTER,
-  ProductionProgressReporter
-} from "./production-progress.js";
+import { ProductionProgressReporter } from "./production-progress.js";
 
 const DEFAULT_REPOSITORY_ROOT = path.resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
@@ -1010,7 +1007,7 @@ export class Agent2RuntimeAdapterService {
   constructor(
     private readonly projects: ProjectBootstrapService,
     private readonly environment: NodeJS.ProcessEnv = process.env,
-    private readonly progress: ProductionProgressReporter = NOOP_PROGRESS_REPORTER
+    private readonly progress: ProductionProgressReporter = new ProductionProgressReporter()
   ) {
     this.manager = new Agent1WorkflowOrchestratorService(projects);
     this.worker = new Agent2StoryAudioWorkerService(projects);
