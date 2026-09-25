@@ -1253,7 +1253,7 @@ export class Agent2RuntimeAdapterService {
             project_id: projectId,
             task_id: next.task_id,
             agent: "AGENT2_STORY_AUDIO",
-            attempt: task?.attempt ?? undefined,
+            ...(task === undefined ? {} : { attempt: task.attempt }),
             message: error instanceof Error ? error.message : String(error)
           });
           continue;
