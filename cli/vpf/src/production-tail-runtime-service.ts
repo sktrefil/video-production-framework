@@ -591,17 +591,40 @@ export class ProductionTailRuntimeService{
     while(guard<16){
       guard+=1;
       const workflow=await this.manager.status(projectId);
-      const next=workflow.tasks.find(task=>
+      const ordinaryNext=workflow.tasks.find(task=>
         ["T070","T080","T090","T100"].includes(task.task_id)&&
         (task.status==="READY"||task.status==="REVISION_REQUIRED")
       )??null;
+      const failedT070=workflow.tasks.find(task=>
+        task.task_id==="T070"&&task.status==="FAILED"
+      )??null;
+      const recoverableFailedT070=
+        ordinaryNext===null&&
+        failedT070!==null&&
+        await this.hasT070ResumeEvidence(projectId)
+          ?failedT070
+          :null;
+      const next=ordinaryNext??recoverableFailedT070;
       if(next===null){
-        return{
-          project_id:projectId,
-          status:workflow.next_task===null?"COMPLETE":"HANDOFF",
-          steps,
-          next_task:workflow.next_task?.task_id??null
-        };
+        if(await this.isProductionFinalized(projectId,workflow.tasks)){
+          return{
+            project_id:projectId,
+            status:"COMPLETE",
+            steps,
+            next_task:null
+          };
+        }
+        const incomplete=workflow.tasks
+          .filter(task=>
+            ["T070","T080","T090","T100"].includes(task.task_id)&&
+            task.status!=="COMPLETE"
+          )
+          .map(task=>task.task_id+"="+task.status+"(attempt "+String(task.attempt)+")")
+          .join(", ");
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "Production tail has no runnable task but is not complete: "+(incomplete||"unknown tail state")
+        );
       }
       const taskId=next.task_id as TailTaskId;
       if(taskId==="T080"){
@@ -630,7 +653,7 @@ export class ProductionTailRuntimeService{
       try{
         const resumeCurrentAttempt=
           taskId==="T070"&&
-          next.status==="REVISION_REQUIRED"&&
+          (next.status==="REVISION_REQUIRED"||next.status==="FAILED")&&
           (next.attempt??0)>=3&&
           await this.hasT070ResumeEvidence(projectId);
         const result=await this.runTask(projectId,taskId,resumeCurrentAttempt);
@@ -792,6 +815,23 @@ export class ProductionTailRuntimeService{
 
   private async resolveFormat(status:ProjectStatus):Promise<FormatProfilePayload>{
     return(await this.registry.resolvePinned<FormatProfilePayload>(requireFormatPin(status))).payload;
+  }
+
+  private async isProductionFinalized(
+    projectId:string,
+    tasks:Array<{task_id:string;status:string}>
+  ):Promise<boolean>{
+    const t100=tasks.find(task=>task.task_id==="T100");
+    if(t100?.status!=="COMPLETE")return false;
+    const status=await this.projects.getStatus(projectId);
+    const tail=new ProductionTailRepository(status.projectDbPath,{readonly:true});
+    try{
+      const finalQc=tail.getActive<Record<string,unknown>>(projectId,"final_qc_result");
+      if(finalQc===null)return false;
+      return await readyFile(path.resolve(status.projectRoot,"09_render/final.mp4"));
+    }finally{
+      tail.close();
+    }
   }
 
   private async hasT070ResumeEvidence(projectId:string):Promise<boolean>{
