@@ -188,3 +188,30 @@ test("migration 0024 and workflow resolver persist every tail artifact needed by
     assert.match(storage,new RegExp("\\\""+artifact+"\\\""));
   }
 });
+
+
+test("standalone CLI lifecycle builds storage before loading production-tail",()=>{
+  const cliPackage=JSON.parse(read("cli/vpf/package.json")) as {
+    scripts?:Record<string,string>;
+  };
+  assert.equal(
+    cliPackage.scripts?.prebuild,
+    "npm run build --workspace @vpf/storage"
+  );
+  assert.equal(
+    cliPackage.scripts?.pretypecheck,
+    "npm run build --workspace @vpf/storage"
+  );
+  assert.equal(
+    cliPackage.scripts?.pretest,
+    "npm run build --workspace @vpf/storage"
+  );
+
+  const storagePackage=JSON.parse(read("packages/storage/package.json")) as {
+    exports?:Record<string,string>;
+  };
+  assert.equal(
+    storagePackage.exports?.["./production-tail"],
+    "./dist/production-tail.js"
+  );
+});
