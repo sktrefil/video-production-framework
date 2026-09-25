@@ -595,16 +595,17 @@ export class ProductionTailRuntimeService{
         ["T070","T080","T090","T100"].includes(task.task_id)&&
         (task.status==="READY"||task.status==="REVISION_REQUIRED")
       )??null;
-      const failedT070=workflow.tasks.find(task=>
-        task.task_id==="T070"&&task.status==="FAILED"
+      const interruptedT070=workflow.tasks.find(task=>
+        task.task_id==="T070"&&
+        (task.status==="FAILED"||task.status==="RUNNING")
       )??null;
-      const recoverableFailedT070=
+      const recoverableInterruptedT070=
         ordinaryNext===null&&
-        failedT070!==null&&
+        interruptedT070!==null&&
         await this.hasT070ResumeEvidence(projectId)
-          ?failedT070
+          ?interruptedT070
           :null;
-      const next=ordinaryNext??recoverableFailedT070;
+      const next=ordinaryNext??recoverableInterruptedT070;
       if(next===null){
         if(await this.isProductionFinalized(projectId,workflow.tasks)){
           return{
@@ -653,7 +654,7 @@ export class ProductionTailRuntimeService{
       try{
         const resumeCurrentAttempt=
           taskId==="T070"&&
-          (next.status==="REVISION_REQUIRED"||next.status==="FAILED")&&
+          (next.status==="REVISION_REQUIRED"||next.status==="FAILED"||next.status==="RUNNING")&&
           (next.attempt??0)>=3&&
           await this.hasT070ResumeEvidence(projectId);
         const result=await this.runTask(projectId,taskId,resumeCurrentAttempt);
