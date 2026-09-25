@@ -795,17 +795,15 @@ export class CodexProcessRunner {
         if (settled) return;
         timedOut = true;
         reportActivity();
-        void this.terminateProcessTree(child).finally(() => {
-          if (settled) return;
-          forceSettleTimer = setTimeout(() => {
-            finish({
-              exitCode: 124,
-              stdout,
-              stderr,
-              timedOut: true
-            });
-          }, 2000);
-        });
+        forceSettleTimer = setTimeout(() => {
+          finish({
+            exitCode: 124,
+            stdout,
+            stderr,
+            timedOut: true
+          });
+        }, 2000);
+        void this.terminateProcessTree(child).catch(() => undefined);
       }, timeoutMs);
 
       child.stdout?.setEncoding("utf8");
