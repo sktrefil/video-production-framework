@@ -7,6 +7,7 @@ export type ProductionTailArtifactType =
   | "generated_images"
   | "image_qc_result"
   | "approved_images"
+  | "t070_seed_visual_qc"
   | "generated_clips"
   | "clip_qc_result"
   | "timeline_spec"
