@@ -17,6 +17,20 @@ function sentence(parts: string[]): string {
   return parts.map(part => part.trim()).filter(Boolean).join(" ");
 }
 
+export const GLOBAL_VISUAL_GRAMMAR_EN = [
+  "Composition grammar: use cinematic editorial framing with layered depth, generous negative space, restrained subject scale, and clear foreground/midground/background separation.",
+  "Narrative grammar: let terrain, traces, silhouettes, weather, light and spatial relationships carry the story instead of explanatory graphics or repeated hero compositions.",
+  "Mystery closure grammar: allow ambiguity and partial resolution to coexist; prefer symbolic environmental synthesis over literal spectacle.",
+  "Reference policy: these are text-only visual rules. Do not imitate, reconstruct, or reuse the composition of any reference image; each state must be composed from its own approved script and Scene/State intent."
+].join(" ");
+
+export const GLOBAL_VISUAL_GRAMMAR_KO = [
+  "구도 문법: 시네마틱 편집 구도, 여러 깊이층, 충분한 여백, 절제된 피사체 크기, 전경·중경·배경의 명확한 분리를 사용한다.",
+  "서사 문법: 설명용 그래픽이나 반복되는 대표 구도 대신 지형, 흔적, 실루엣, 날씨, 빛, 공간 관계로 이야기를 전달한다.",
+  "미스터리 종결 문법: 불확실성과 부분적 결론이 동시에 남도록 하며, 과도한 장관보다 상징적인 환경 종합을 우선한다.",
+  "레퍼런스 정책: 이것은 텍스트 시각 규칙이며 어떤 레퍼런스 이미지의 구도도 복제하거나 재구성하지 않는다. 각 상태 이미지는 해당 대본과 승인된 Scene/State 의도에서 새로 구성한다."
+].join(" ");
+
 function cameraPhrase(camera: {
   purpose: CameraPurpose;
   movement: CameraMovement;
@@ -51,7 +65,9 @@ export function compileAgent3Prompts(input: {
       "unsupported heraldry",
       "watermark",
       "UI",
-      "glossy game-render look"
+      "glossy game-render look",
+      "direct imitation of any reference image",
+      "repeated master composition copied across scenes"
     ])];
 
     const promptEn = sentence([
@@ -66,6 +82,7 @@ export function compileAgent3Prompts(input: {
       "Continuity: " + state.continuity_refs.join("; ") + ".",
       "Factual constraints: " + [...scene.evidence_constraints, ...state.factual_constraints].join("; ") + ".",
       "Visual Bible: " + input.visualBibleSummary + ".",
+      "Global visual grammar: " + GLOBAL_VISUAL_GRAMMAR_EN,
       "Video-ready keyframe with separable foreground, central action and distant-world layers, complete physical relationships, and one clear continuable motion vector."
     ]);
 
@@ -79,7 +96,8 @@ export function compileAgent3Prompts(input: {
       "움직임 방향: " + state.motion_vector_ko + ".",
       "다음 컷 연결점: " + state.handoff_anchor + ".",
       "연속성: " + state.continuity_refs.join("; ") + ".",
-      "사실 제약: " + [...scene.evidence_constraints, ...state.factual_constraints].join("; ") + "."
+      "사실 제약: " + [...scene.evidence_constraints, ...state.factual_constraints].join("; ") + ".",
+      "글로벌 시각 문법: " + GLOBAL_VISUAL_GRAMMAR_KO
     ]);
 
     return {
