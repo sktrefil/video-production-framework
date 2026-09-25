@@ -473,6 +473,20 @@ test("T080 manifest carries state, camera, transition, continuity, handoff and f
   assert.match(tail,/entry_anchor:scene\.handoff\.entry_anchor/);
 });
 
+test("T070 materializes image metadata, manifest and visual QC reports",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  assert.match(tail,/"05_images\/metadata\/"\+safeFileSegment\(prompt\.state_image_id\)\+"\.json"/);
+  assert.match(tail,/"05_images\/image-manifest\.json"/);
+  assert.match(tail,/"05_images\/qc\/seed_qc_report\.json"/);
+  assert.match(tail,/"05_images\/qc\/scene_qc_"\+safeFileSegment\(sceneId\)\+"\.json"/);
+  assert.match(tail,/"05_images\/qc\/final_qc_report\.json"/);
+  assert.match(tail,/reference_policy:"TEXT_GRAMMAR_ONLY"/);
+  assert.match(tail,/fantasy_mode:effectiveT070FantasyMode\(scene\)/);
+  assert.match(tail,/motion_vector:state\.motion_vector_en\|\|state\.motion_vector_ko/);
+  assert.match(tail,/handoff_anchor:state\.handoff_anchor/);
+});
+
 test("confirmed regeneration reset removes stale T070 outputs and preserves upstream planning",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
   const index=read("cli/vpf/src/index.ts");
@@ -482,6 +496,9 @@ test("confirmed regeneration reset removes stale T070 outputs and preserves upst
   assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH/);
   assert.match(tail,/"06_clips\/google-flow-manifest\.json"/);
   assert.match(tail,/"09_render\/preview\.mp4"/);
+  assert.match(tail,/"05_images\/metadata"/);
+  assert.match(tail,/"05_images\/qc"/);
+  assert.match(tail,/"05_images\/image-manifest\.json"/);
   assert.match(tail,/tail\.supersedeActive\(projectId,\[/);
   assert.match(tail,/"t070_scene_visual_qc"/);
   assert.match(tail,/status:taskId==="T070"\?"READY":"BLOCKED"/);
