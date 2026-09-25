@@ -27,6 +27,7 @@ h1{font-size:22px;margin:0 0 4px}.muted{color:var(--muted)}.stats{display:grid;g
 table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:600}
 .status{font-weight:700}.COMPLETE{color:var(--ok)}.RUNNING{color:var(--run)}.MANUAL_EXTERNAL{color:var(--warn)}.FAILED,.BLOCKED{color:var(--bad)}
 .images{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;margin-top:10px}.img{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:7px;min-width:0}.img img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:6px;background:#080a0d}.img small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:5px}
+.clipplan{display:grid;gap:9px;margin-top:10px}.clipcard{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:11px}.clipcard summary{cursor:pointer;font-weight:700}.clipmeta{display:flex;gap:8px;flex-wrap:wrap;margin:7px 0}.clipmeta span{padding:2px 6px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-size:12px}.handoff{margin-top:8px;padding:8px;border-left:3px solid var(--run);background:#10151b}.prompt{white-space:pre-wrap;word-break:break-word;background:#0c1014;border:1px solid var(--line);border-radius:7px;padding:9px;max-height:260px;overflow:auto;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}
 .action{border-color:#735f2c;background:#19170f}.complete{border-color:#285a3d;background:#0f1813}.events{max-height:320px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}.event{padding:5px 0;border-bottom:1px solid var(--line)}
 .hidden{display:none!important}.pill{display:inline-block;padding:2px 7px;border:1px solid var(--line);border-radius:999px;font-size:12px}
 @media(max-width:800px){main{padding:14px}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.tablewrap{overflow:auto}table{min-width:700px}}
@@ -49,6 +50,10 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
     <section class="panel"><b>Production stages</b><div class="tablewrap"><table><thead><tr><th>Task</th><th>Status</th><th>Progress</th><th>Elapsed</th><th>Expected / ETA</th><th>Attempt</th></tr></thead><tbody id="tasks"></tbody></table></div></section>
     <section class="panel"><b>Event log</b><div id="events" class="events"></div></section>
   </div>
+  <section id="clip-plan-panel" class="panel hidden" style="margin-top:14px">
+    <div class="rowline"><div><b>T060 VIDEO CLIP PLAN — PREVIEW</b><div class="muted">Available before T080 · approved clip prompts and scene-to-scene handoff contracts</div></div><span id="clip-plan-count"></span></div>
+    <div id="clip-plan" class="clipplan"></div>
+  </section>
   <section id="t070-panel" class="panel hidden" style="margin-top:14px"><div class="rowline"><b>T070 Image Generation</b><span id="t070-count"></span></div><div id="images" class="images"></div></section>
   <section id="t080-panel" class="panel action hidden" style="margin-top:14px"><b>ACTION REQUIRED — GOOGLE FLOW</b><p id="t080-summary"></p><div id="clips"></div></section>
   <section id="t090-panel" class="panel hidden" style="margin-top:14px"><b>T090 Remotion Render</b><p id="t090-summary" class="muted"></p></section>
@@ -110,6 +115,24 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 8px;
     q("current-percent").textContent=current ? current.percent.toFixed(1)+"%" : (s.final.production_complete?"100%":"0%");
     q("tasks").innerHTML=s.tasks.map(t=>"<tr><td><b>"+esc(t.task_id)+"</b><br><span class='muted'>"+esc(t.name)+"</span></td><td class='status "+esc(t.status)+"'>"+esc(t.status)+"</td><td>"+t.percent.toFixed(1)+"%</td><td>"+fmt(t.elapsed_sec)+"</td><td>"+(t.workflow_status==="COMPLETE"?"done":eta(t.eta))+"</td><td>"+t.attempt+"/3</td></tr>").join("");
     q("events").innerHTML=[...s.recent_events].reverse().map(e=>"<div class='event'>"+esc(e.at.slice(11,19))+" <b>"+esc(e.task_id||"RUN")+"</b> "+esc(e.event)+" "+esc(e.verdict||e.phase||"")+"</div>").join("");
+    const clipPlan=s.clip_plan||{available:false,total:0,items:[]};
+    q("clip-plan-panel").classList.toggle("hidden",!clipPlan.available);
+    q("clip-plan-count").textContent=clipPlan.available ? clipPlan.total+" clips" : "";
+    q("clip-plan").innerHTML=clipPlan.available ? clipPlan.items.map(i=>{
+      const states=esc(i.entry_state_image_id)+" → "+(i.mid_state_image_id?esc(i.mid_state_image_id)+" → ":"")+esc(i.target_state_image_id);
+      const handoff=i.handoff
+        ? "<div class='handoff'><b>Scene handoff</b><br>IN: "+esc(i.handoff.entry_anchor)+"<br>OUT: "+esc(i.handoff.exit_anchor)+"<br>NEXT CUT: "+esc(i.handoff.next_cut_intent)+"<br>PRESERVE: "+esc(i.handoff.preserve_elements.join(" · "))+"</div>"
+        : "";
+      const continuity=i.continuity
+        ? "<div class='muted' style='margin-top:7px'>Continuity · "+esc(i.continuity.movement_direction)+" · "+esc(i.continuity.screen_direction)+" · "+esc(i.continuity.camera_energy)+"</div>"
+        : "";
+      return "<details class='clipcard'><summary>"+esc(i.clip_id)+" · "+esc(i.scene_id)+" · "+states+"</summary>"
+        +"<div class='clipmeta'><span>edit "+i.editorial_duration_sec.toFixed(2)+"s</span><span>narrative ≤ "+i.narrative_deadline_sec.toFixed(2)+"s</span><span>target ≤ "+i.target_state_deadline_sec.toFixed(2)+"s</span><span>safe trim ≥ "+i.safe_trim_start_sec.toFixed(2)+"s</span></div>"
+        +handoff+continuity
+        +"<details style='margin-top:9px'><summary>Korean clip plan</summary><div class='prompt'>"+esc(i.prompt_ko)+"</div></details>"
+        +"<details style='margin-top:7px'><summary>Google Flow provider prompt</summary><div class='prompt'>"+esc(i.provider_prompt_en)+"</div></details>"
+        +"</details>";
+    }).join("") : "";
     const showImages=s.t070.total>0;
     q("t070-panel").classList.toggle("hidden",!showImages);
     q("t070-count").textContent=s.t070.completed+" / "+s.t070.total+" images";
