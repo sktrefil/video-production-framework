@@ -188,6 +188,70 @@ function normalizedStateImages(
   };
 }
 
+export function buildT050CodexInput(input: {
+  projectId: string;
+  projectSpec: ProjectSpec;
+  sceneTiming: SceneTimingDocument;
+  sceneVisual: SceneVisualDocument;
+  managerDirective: string | null;
+}): unknown {
+  return {
+    project_id: input.projectId,
+    project_spec: {
+      schema_version: input.projectSpec.schema_version,
+      project_id: input.projectSpec.project_id,
+      topic: input.projectSpec.topic,
+      format: input.projectSpec.format,
+      target_duration_sec: input.projectSpec.target_duration_sec,
+      resolution: input.projectSpec.resolution,
+      language: input.projectSpec.language,
+      generation_policy: {
+        image_engine: input.projectSpec.generation_policy.image_engine
+      }
+    },
+    scene_timing_spec: {
+      schema_version: input.sceneTiming.schema_version,
+      project_id: input.sceneTiming.project_id,
+      scenes: input.sceneTiming.scenes.map(scene => ({
+        scene_id: scene.scene_id,
+        story_role: scene.story_role,
+        narrative_purpose_ko: scene.narrative_purpose_ko,
+        tts: scene.tts === null
+          ? null
+          : { duration_sec: scene.tts.duration_sec },
+        beats: scene.beats.map(beat => ({
+          beat_id: beat.beat_id,
+          purpose_ko: beat.purpose_ko,
+          start_sec: beat.start_sec,
+          end_sec: beat.end_sec
+        }))
+      }))
+    },
+    scene_visual_spec: {
+      schema_version: input.sceneVisual.schema_version,
+      project_id: input.sceneVisual.project_id,
+      visual_bible: input.sceneVisual.visual_bible,
+      scenes: input.sceneVisual.scenes.map(scene => ({
+        scene_id: scene.scene_id,
+        story_role: scene.story_role,
+        factuality_mode: scene.factuality_mode,
+        fact_refs: scene.fact_refs,
+        narrative_purpose_ko: scene.narrative_purpose_ko,
+        visual_intent_ko: scene.visual_intent_ko,
+        environment_ko: scene.environment_ko,
+        subject_ko: scene.subject_ko,
+        action_ko: scene.action_ko,
+        evidence_constraints: scene.evidence_constraints,
+        uncertainty_handling_ko: scene.uncertainty_handling_ko,
+        forbidden_visual_claims: scene.forbidden_visual_claims,
+        continuity: scene.continuity,
+        handoff: scene.handoff
+      }))
+    },
+    manager_revision_instruction: input.managerDirective
+  };
+}
+
 function normalizedClipInput(
   value: Agent3T060Input,
   projectId: string
@@ -1314,14 +1378,13 @@ export class Agent3RuntimeAdapterService {
       }
 
       if (taskId === "T050") {
-        const input = {
-          project_id: projectId,
-          project_spec: projectSpec,
-          scene_timing_spec: sceneTiming,
-          scene_visual_spec: visual.value,
-          provider_profile: codexPin,
-          manager_revision_instruction: managerDirective
-        };
+        const input = buildT050CodexInput({
+          projectId,
+          projectSpec,
+          sceneTiming,
+          sceneVisual: visual.value,
+          managerDirective
+        });
         return this.executeCodexRun(
           status.projectDbPath,
           projectId,
@@ -1454,7 +1517,31 @@ export class Agent3RuntimeAdapterService {
         instructions,
         input,
         outputSchema,
-        webSearchMode: "disabled"
+        webSearchMode: "disabled",
+        onActivity: async activity => {
+          if (activity.elapsedMs < 1000) return;
+          const elapsedSec = Math.max(0, Math.round(activity.elapsedMs / 1000));
+          const quietSec = Math.max(
+            0,
+            Math.round(activity.lastActivityAgeMs / 1000)
+          );
+          await this.progress.taskProgress({
+            project_id: projectId,
+            task_id: taskId,
+            agent: "AGENT3_VISUAL_PRODUCTION",
+            attempt,
+            phase: "RUNTIME_EXECUTION",
+            completed: 5,
+            total: 100,
+            elapsed_sec: elapsedSec,
+            runtime_last_activity_age_sec: quietSec,
+            runtime_pid: activity.runtimePid,
+            message: activity.timedOut
+              ? "Codex timeout reached; terminating runtime process tree."
+              : "Codex runtime active · elapsed " + elapsedSec +
+                "s · last output " + quietSec + "s ago."
+          });
+        }
       });
       const completed = await materialize(generated.output);
       repo.complete({
