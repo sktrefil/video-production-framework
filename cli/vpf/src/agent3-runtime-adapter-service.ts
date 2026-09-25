@@ -870,7 +870,7 @@ export class Agent3RuntimeAdapterService {
             project_id: projectId,
             task_id: next.task_id,
             agent: "AGENT3_VISUAL_PRODUCTION",
-            attempt: task?.attempt ?? undefined,
+            ...(task === undefined ? {} : { attempt: task.attempt }),
             message: errorDetail(error)
           });
           continue;
