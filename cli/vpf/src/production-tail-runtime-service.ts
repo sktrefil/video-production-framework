@@ -56,12 +56,20 @@ type GeneratedImagesArtifact={
   images:GeneratedImage[];
 };
 
+export type T070Phase=
+  |"SEED_GENERATION"
+  |"SEED_QC"
+  |"FULL_GENERATION"
+  |"FINAL_QC";
+
 type T070Checkpoint={
   schema_version:"1.0";
   project_id:string;
   source_prompt_bundle_sha256:string;
   width:number;
   height:number;
+  phase:T070Phase;
+  seed_image_ids:string[];
   images:GeneratedImage[];
   updated_at:string;
 };
@@ -181,6 +189,13 @@ async function fileSha256(filename:string):Promise<string>{
   return sha256Bytes(await readFile(filename));
 }
 
+function isT070Phase(value:unknown):value is T070Phase{
+  return value==="SEED_GENERATION"||
+    value==="SEED_QC"||
+    value==="FULL_GENERATION"||
+    value==="FINAL_QC";
+}
+
 async function readT070Checkpoint(filename:string):Promise<T070CheckpointLoad>{
   try{
     const parsed=JSON.parse(await readFile(filename,"utf8")) as Partial<T070Checkpoint>;
@@ -192,7 +207,25 @@ async function readT070Checkpoint(filename:string):Promise<T070CheckpointLoad>{
       typeof parsed.height==="number"&&
       Array.isArray(parsed.images)&&
       typeof parsed.updated_at==="string";
-    return{exists:true,value:valid?parsed as T070Checkpoint:null};
+    if(!valid)return{exists:true,value:null};
+
+    // Checkpoints written before phased T070 existed are still authoritative
+    // for their generated image set. They resume as FULL_GENERATION so the
+    // migration never discards or regenerates already-produced images.
+    const normalized:T070Checkpoint={
+      schema_version:"1.0",
+      project_id:parsed.project_id!,
+      source_prompt_bundle_sha256:parsed.source_prompt_bundle_sha256!,
+      width:parsed.width!,
+      height:parsed.height!,
+      phase:isT070Phase(parsed.phase)?parsed.phase:"FULL_GENERATION",
+      seed_image_ids:Array.isArray(parsed.seed_image_ids)
+        ?parsed.seed_image_ids.filter((value):value is string=>typeof value==="string")
+        :[],
+      images:parsed.images as GeneratedImage[],
+      updated_at:parsed.updated_at!
+    };
+    return{exists:true,value:normalized};
   }catch(error){
     const code=(error as NodeJS.ErrnoException).code;
     if(code==="ENOENT")return{exists:false,value:null};
@@ -232,6 +265,8 @@ async function writeT070Checkpoint(
     promptBundleSha256:string;
     width:number;
     height:number;
+    phase?:T070Phase;
+    seedImageIds?:string[];
     images:GeneratedImage[];
   }
 ):Promise<void>{
@@ -241,6 +276,8 @@ async function writeT070Checkpoint(
     source_prompt_bundle_sha256:input.promptBundleSha256,
     width:input.width,
     height:input.height,
+    phase:input.phase??"FULL_GENERATION",
+    seed_image_ids:[...new Set(input.seedImageIds??[])],
     images:input.images,
     updated_at:new Date().toISOString()
   };
@@ -364,6 +401,28 @@ function imageByState(images:GeneratedImage[],stateId:string):GeneratedImage{
     "Approved image is missing for state "+stateId+"."
   );
   return image;
+}
+
+export function selectT070SeedImageIds(
+  prompts:Array<{state_image_id:string}>,
+  seedCount=3
+):string[]{
+  if(prompts.length===0||seedCount<=0)return[];
+  const target=Math.min(Math.max(1,Math.floor(seedCount)),prompts.length);
+  if(target===1)return[prompts[0]!.state_image_id];
+
+  const indices=Array.from({length:target},(_,index)=>
+    Math.round((index*(prompts.length-1))/(target-1))
+  );
+  const selected:string[]=[];
+  const seen=new Set<string>();
+  for(const index of indices){
+    const id=prompts[index]!.state_image_id;
+    if(seen.has(id))continue;
+    seen.add(id);
+    selected.push(id);
+  }
+  return selected;
 }
 
 export function buildT070PendingOrdinals(
