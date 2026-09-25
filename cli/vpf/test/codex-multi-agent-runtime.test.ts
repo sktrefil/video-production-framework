@@ -9,7 +9,7 @@ import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
 import { Agent2RuntimeAdapterError, Agent2RuntimeAdapterService } from "../src/agent2-runtime-adapter-service.js";
-import { Agent3RuntimeAdapterService } from "../src/agent3-runtime-adapter-service.js";
+import { buildT050CodexInput, Agent3RuntimeAdapterService } from "../src/agent3-runtime-adapter-service.js";
 import { CodexManagerRuntimeService } from "../src/codex-manager-runtime-service.js";
 import { CodexProcessRunner, CodexRuntimeError } from "../src/codex-process-runner.js";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
@@ -1004,4 +1004,194 @@ test("Codex1 success QC verdicts control deterministic-pass T010 completion", as
       await rm(root, { recursive: true, force: true });
     }
   }
+});
+
+
+test("Codex timeout terminates a nested process tree and records FAILED", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-codex-timeout-"));
+  const fixtures = path.join(root, "fixtures");
+  await import("node:fs/promises").then(fs => fs.mkdir(fixtures, { recursive: true }));
+  try {
+    const bootstrap = new ProjectBootstrapService({
+      repositoryRoot,
+      workspaceRoot: path.join(root, "workspace")
+    });
+    const created = await bootstrap.createProject({
+      projectId: "codex_timeout_fixture",
+      title: "Codex timeout fixture",
+      topic: "timeout fixture",
+      format: "shortform",
+      targetDurationSec: 5,
+      language: "ko"
+    });
+    const activities: Array<{
+      runtimePid: number | null;
+      elapsedMs: number;
+      lastActivityAgeMs: number;
+      timedOut: boolean;
+    }> = [];
+    const runner = new CodexProcessRunner({
+      ...runtimeEnv(fixtures),
+      VPF_FAKE_CODEX_HANG_TASK: "T040",
+      VPF_CODEX_TIMEOUT_MS: "250",
+      VPF_CODEX_HEARTBEAT_MS: "50"
+    });
+    const started = Date.now();
+    await assert.rejects(
+      runner.execute({
+        projectId: "codex_timeout_fixture",
+        projectRoot: created.projectRoot,
+        dbPath: created.projectDbPath,
+        roleId: "CODEX_3_VISUAL_PRODUCTION",
+        taskId: "T040",
+        attempt: 1,
+        instructions: ["timeout regression fixture"],
+        input: { project_id: "codex_timeout_fixture" },
+        outputSchema: {
+          type: "object",
+          additionalProperties: false,
+          required: [],
+          properties: {}
+        },
+        webSearchMode: "disabled",
+        onActivity: activity => {
+          activities.push({
+            runtimePid: activity.runtimePid,
+            elapsedMs: activity.elapsedMs,
+            lastActivityAgeMs: activity.lastActivityAgeMs,
+            timedOut: activity.timedOut
+          });
+        }
+      }),
+      (error: unknown) =>
+        error instanceof CodexRuntimeError &&
+        error.code === "CODEX_EXEC_TIMEOUT" &&
+        /CODEX_TIMEOUT/u.test(error.message)
+    );
+    assert.ok(Date.now() - started < 6000, "timeout must settle instead of hanging");
+    assert.ok(activities.some(item => item.runtimePid !== null));
+    assert.ok(activities.some(item => item.elapsedMs > 0));
+    assert.ok(activities.some(item => item.timedOut));
+
+    const repo = new CodexRuntimeRepository(created.projectDbPath, { readonly: true });
+    try {
+      const run = repo.list("codex_timeout_fixture").find(item => item.task_id === "T040");
+      assert.equal(run?.status, "FAILED");
+      assert.ok(run?.completed_at);
+      assert.match(run?.stderr_excerpt ?? "", /CODEX_TIMEOUT/u);
+    } finally {
+      repo.close();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("T050 Codex input excludes script bodies, provenance, and provider profile", () => {
+  const projectSpec = {
+    schema_version: "1.0",
+    project_id: "compact_t050",
+    topic: "compact context",
+    format: "LONGFORM",
+    target_duration_sec: 600,
+    resolution: { width: 1920, height: 1080 },
+    language: "ko",
+    generation_policy: {
+      image_engine: "chatgpt",
+      video_engine: "FLOW",
+      supported_video_engines: ["FLOW"]
+    },
+    workflow: {
+      agent1_manager_required: true,
+      story_gate_required: true,
+      visual_gate_required: true,
+      clip_gate_required: true,
+      final_gate_required: true
+    }
+  } as const;
+  const timing = {
+    schema_version: "1.0",
+    project_id: "compact_t050",
+    scenes: [{
+      scene_id: "SCENE_01",
+      script_ko: "긴 대본".repeat(2000),
+      script_en: "long script ".repeat(2000),
+      story_role: "HOOK",
+      narrative_purpose_ko: "핵심 장면",
+      narrative_purpose_en: "Core scene",
+      estimated_duration_sec: 20,
+      tts: { start_sec: 0, end_sec: 20, duration_sec: 20 },
+      beats: [{
+        beat_id: "BEAT_01",
+        purpose_ko: "핵심 전환",
+        purpose_en: "Core transition",
+        start_sec: 0,
+        end_sec: 20
+      }],
+      provenance: {
+        script_id: "SCRIPT",
+        script_revision: 1,
+        script_sha256: "a".repeat(64),
+        scene_revision: 1
+      }
+    }]
+  } as const;
+  const visual = {
+    ...visualSpec("compact_t050", {
+      resourceId: "BIBLE",
+      version: "1.0.0",
+      contentHash: "b".repeat(64)
+    }),
+    scenes: visualSpec("compact_t050", {
+      resourceId: "BIBLE",
+      version: "1.0.0",
+      contentHash: "b".repeat(64)
+    }).scenes.map(scene => ({
+      ...scene,
+      narrative_purpose_en: "English duplicate ".repeat(200),
+      visual_intent_en: "English duplicate ".repeat(200),
+      environment_en: "English duplicate ".repeat(200),
+      subject_en: "English duplicate ".repeat(200),
+      action_en: "English duplicate ".repeat(200),
+      uncertainty_handling_en: "English duplicate ".repeat(200)
+    }))
+  };
+
+  const full = JSON.stringify({
+    project_id: "compact_t050",
+    project_spec: projectSpec,
+    scene_timing_spec: timing,
+    scene_visual_spec: visual,
+    provider_profile: { oversized: "provider metadata".repeat(500) },
+    manager_revision_instruction: null
+  });
+  const compact = JSON.stringify(buildT050CodexInput({
+    projectId: "compact_t050",
+    projectSpec: projectSpec as any,
+    sceneTiming: timing as any,
+    sceneVisual: visual as any,
+    managerDirective: null
+  }));
+
+  assert.ok(compact.length < full.length / 2);
+  assert.doesNotMatch(compact, /script_ko|script_en|provenance|provider_profile/u);
+  assert.match(compact, /duration_sec/u);
+  assert.match(compact, /BEAT_01/u);
+  assert.match(compact, /handoff/u);
+  assert.match(compact, /continuity/u);
+});
+
+test("Agent3 fatal Codex failure path restores task to revision-required", async () => {
+  const source = await readFile(
+    path.join(repositoryRoot, "cli", "vpf", "src", "agent3-runtime-adapter-service.ts"),
+    "utf8"
+  );
+  assert.match(
+    source,
+    /if \(!managerVerdictApplied\) \{\s*await this\.manager\.requestRevision\(projectId, taskId\);\s*\}/u
+  );
+  assert.match(
+    source,
+    /!codexFatal\(error\)/u
+  );
 });
