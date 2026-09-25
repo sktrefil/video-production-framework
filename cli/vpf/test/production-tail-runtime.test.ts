@@ -211,9 +211,14 @@ test("production run starts or resumes the T070-T100 tail and pauses before cons
   assert.match(index,/AWAITING_MANUAL_EXTERNAL/);
 
   const prepare=tail.indexOf('if(taskId==="T080")');
-  const dispatch=tail.indexOf("const result=await this.runTask(projectId,taskId)");
+  const resume=tail.indexOf("const resumeCurrentAttempt=",prepare);
+  const dispatch=tail.indexOf(
+    "const result=await this.runTask(projectId,taskId,resumeCurrentAttempt)",
+    resume
+  );
   assert.ok(prepare>=0);
-  assert.ok(dispatch>prepare);
+  assert.ok(resume>prepare);
+  assert.ok(dispatch>resume);
   assert.match(tail,/Google Flow manual-external clips are required before T080 can continue/);
   assert.match(tail,/manifest_relative_path:manual\.manifestRelativePath/);
 });
