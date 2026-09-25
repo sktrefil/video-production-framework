@@ -680,16 +680,19 @@ export async function runCli(
         const finalWorkflow = await workflow.status(projectId);
         const awaitingManual = tailResult.status === "AWAITING_MANUAL_EXTERNAL";
         const awaitingSeedQc = tailResult.status === "AWAITING_SEED_QC";
+        const awaitingFinalImageQc = tailResult.status === "AWAITING_FINAL_IMAGE_QC";
         const runComplete = tailResult.status === "COMPLETE";
         await progress.emit({
           event: "RUN_FINISHED",
           project_id: projectId,
           next_task: finalWorkflow.next_task?.task_id ?? tailResult.next_task ?? null,
           next_agent: finalWorkflow.next_task?.assigned_agent ?? null,
-          message: awaitingSeedQc
-            ? "Production paused at the T070 seed visual-QC gate."
-            : awaitingManual
-              ? "Production paused at the Google Flow manual-external boundary."
+          message: awaitingFinalImageQc
+            ? "Production paused at the T070 final image visual-QC gate."
+            : awaitingSeedQc
+              ? "Production paused at the T070 seed visual-QC gate."
+              : awaitingManual
+                ? "Production paused at the Google Flow manual-external boundary."
               : runComplete
                 ? "Production run reached verified final completion."
                 : finalWorkflow.next_task !== null
@@ -699,10 +702,12 @@ export async function runCli(
         if (!eventsJsonl) {
           printJson(io, {
             project_id: projectId,
-            status: awaitingSeedQc
-              ? "AWAITING_SEED_QC"
-              : awaitingManual
-                ? "AWAITING_MANUAL_EXTERNAL"
+            status: awaitingFinalImageQc
+              ? "AWAITING_FINAL_IMAGE_QC"
+              : awaitingSeedQc
+                ? "AWAITING_SEED_QC"
+                : awaitingManual
+                  ? "AWAITING_MANUAL_EXTERNAL"
                 : runComplete
                   ? "RUN_COMPLETE"
                   : "HANDOFF",
