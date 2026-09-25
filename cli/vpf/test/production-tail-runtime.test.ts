@@ -158,7 +158,7 @@ test("production run starts or resumes the T070-T100 tail and pauses before cons
   assert.match(index,/productionTailRuntime\.runAll\(projectId\)/);
   assert.match(index,/AWAITING_MANUAL_EXTERNAL/);
 
-  const prepare=tail.indexOf('if\(taskId==="T080"\)');
+  const prepare=tail.indexOf('if(taskId==="T080")');
   const dispatch=tail.indexOf("const result=await this.runTask(projectId,taskId)");
   assert.ok(prepare>=0);
   assert.ok(dispatch>prepare);
