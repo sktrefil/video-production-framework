@@ -111,11 +111,14 @@ def open_clean_chatgpt_page(browser):
 
 
 def reference_session_marker(request: dict[str, Any]) -> str:
-    """Return a deterministic marker for one exact reference-image conversation.
+    """Return a deterministic marker for one reusable reference conversation.
 
-    The marker deliberately includes the role as well as the file checksum: an
-    identical image assigned a different semantic role is a different prompt
-    contract and must not silently reuse the earlier conversation.
+    The conversation identity is owned by the exact reference set plus the
+    output format. Prompt text is deliberately excluded: sequential state-image
+    prompts using the same two references must stay in this conversation instead
+    of reopening ChatGPT and re-uploading those references for every image.
+    The semantic reference role remains part of the identity so a genuinely
+    different reference contract still opens a fresh conversation.
     """
     references = request.get("references") or []
     identity = []
@@ -130,7 +133,6 @@ def reference_session_marker(request: dict[str, Any]) -> str:
         })
     encoded = json.dumps({
         "sessionKey": str(request.get("sessionKey") or ""),
-        "promptSha256": hashlib.sha256(str(request.get("transmissionText") or "").encode("utf-8")).hexdigest(),
         "width": int(request.get("width") or 0),
         "height": int(request.get("height") or 0),
         "aspectRatio": str(request.get("aspectRatio") or ""),
@@ -587,9 +589,10 @@ def generate(request: dict[str, Any]) -> dict[str, Any]:
         browser = connect_browser(playwright, cdp_url)
         stage = "OPEN_PAGE"
         status(stage)
-        # One managed tab is retained for one batch. References are attached to
-        # its first request and the subsequent sequential prompts stay in that
-        # exact conversation, avoiding a new tab and four reuploads per cut.
+        # One managed tab is retained for the exact reference set. References
+        # are attached only to the first request. Changing prompt text does not
+        # change the marker, so subsequent state-image prompts continue in this
+        # exact conversation without re-uploading the same reference images.
         page, reused_session = open_or_reuse_chatgpt_page(browser, session_marker)
         page.bring_to_front()
         find_composer(page)
