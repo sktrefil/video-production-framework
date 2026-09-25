@@ -730,12 +730,38 @@ export class ProductionTailRuntimeService{
           };
         }
       }
+      if(taskId==="T070"){
+        const project=await this.projects.getStatus(projectId);
+        const checkpoint=await readT070Checkpoint(
+          path.resolve(project.projectRoot,T070_CHECKPOINT_RELATIVE_PATH)
+        );
+        if(checkpoint.value?.phase==="SEED_QC"){
+          return{
+            project_id:projectId,
+            status:"AWAITING_SEED_QC",
+            steps,
+            next_task:"T070",
+            seed_qc_action:{
+              task_id:"T070",
+              checkpoint_relative_path:T070_CHECKPOINT_RELATIVE_PATH,
+              seed_image_ids:checkpoint.value.seed_image_ids
+            }
+          };
+        }
+      }
       try{
+        const hasResumeEvidence=
+          taskId==="T070"&&await this.hasT070ResumeEvidence(projectId);
         const resumeCurrentAttempt=
           taskId==="T070"&&
-          (next.status==="REVISION_REQUIRED"||next.status==="FAILED"||next.status==="RUNNING")&&
-          (next.attempt??0)>=3&&
-          await this.hasT070ResumeEvidence(projectId);
+          hasResumeEvidence&&
+          (
+            (next.status==="RUNNING"&&(next.attempt??0)>0)||
+            (
+              (next.status==="REVISION_REQUIRED"||next.status==="FAILED")&&
+              (next.attempt??0)>=3
+            )
+          );
         const result=await this.runTask(projectId,taskId,resumeCurrentAttempt);
         steps.push({task_id:taskId,status:result});
         if(taskId==="T070"&&result==="AWAITING_SEED_QC"){
