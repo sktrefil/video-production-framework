@@ -1,5 +1,5 @@
 ﻿import { createHash } from "node:crypto";
-import { spawn } from "node:child_process";
+import { spawn, type ChildProcess } from "node:child_process";
 import {
   copyFile,
   mkdir,
@@ -38,6 +38,15 @@ export interface CodexPreflightResult {
   checks: CodexPreflightCheck[];
 }
 
+export interface CodexExecutionActivity {
+  runtimePid: number | null;
+  elapsedMs: number;
+  lastActivityAgeMs: number;
+  stdoutBytes: number;
+  stderrBytes: number;
+  timedOut: boolean;
+}
+
 export interface CodexExecutionRequest<TInput = unknown> {
   projectId: string;
   projectRoot: string;
@@ -49,6 +58,7 @@ export interface CodexExecutionRequest<TInput = unknown> {
   input: TInput;
   outputSchema: unknown;
   webSearchMode?: CodexWebSearchMode;
+  onActivity?: (activity: CodexExecutionActivity) => void | Promise<void>;
 }
 
 export interface CodexExecutionResult<TOutput = unknown> {
@@ -205,6 +215,7 @@ export class CodexProcessRunner {
   private readonly commandPrefixArgs: string[];
   private readonly timeoutMs: number;
   private readonly t010TimeoutMs: number;
+  private readonly heartbeatMs: number;
   private cachedPreflight: CodexPreflightResult | null = null;
 
   constructor(
@@ -240,17 +251,22 @@ export class CodexProcessRunner {
       this.commandPrefixArgs = configuredPrefix;
     }
     this.timeoutMs = Number(
-      environment.VPF_CODEX_TIMEOUT_MS ?? 300000
+      environment.VPF_CODEX_TIMEOUT_MS ?? 900000
     );
     this.t010TimeoutMs = Number(
-      environment.VPF_CODEX_T010_TIMEOUT_MS ?? 900000
+      environment.VPF_CODEX_T010_TIMEOUT_MS ?? 1200000
+    );
+    this.heartbeatMs = Number(
+      environment.VPF_CODEX_HEARTBEAT_MS ?? 15000
     );
     if (
       !this.command ||
       !Number.isFinite(this.timeoutMs) ||
       this.timeoutMs <= 0 ||
       !Number.isFinite(this.t010TimeoutMs) ||
-      this.t010TimeoutMs <= 0
+      this.t010TimeoutMs <= 0 ||
+      !Number.isFinite(this.heartbeatMs) ||
+      this.heartbeatMs <= 0
     ) {
       throw new CodexRuntimeError(
         "CODEX_CAPABILITY_MISSING",
@@ -520,7 +536,12 @@ export class CodexProcessRunner {
     try {
       const executionTimeoutMs =
         request.taskId === "T010" ? this.t010TimeoutMs : this.timeoutMs;
-      processResult = await this.capture(args, executionTimeoutMs, tempRoot);
+      processResult = await this.capture(
+        args,
+        executionTimeoutMs,
+        tempRoot,
+        request.onActivity
+      );
       trace = processResult.stdout;
       await writeFile(tracePath, trace, "utf8");
       await writeFile(stderrPath, processResult.stderr, "utf8");
@@ -528,8 +549,9 @@ export class CodexProcessRunner {
       if (processResult.timedOut) {
         throw new CodexRuntimeError(
           "CODEX_EXEC_TIMEOUT",
-          "Codex process exceeded " + executionTimeoutMs +
-          " ms for task " + request.taskId + "."
+          "CODEX_TIMEOUT task=" + request.taskId +
+          " elapsed_ms=" + executionTimeoutMs +
+          " limit_ms=" + executionTimeoutMs + "."
         );
       }
 
@@ -662,37 +684,147 @@ export class CodexProcessRunner {
     return env;
   }
 
+  private async terminateProcessTree(child: ChildProcess): Promise<void> {
+    const pid = child.pid;
+    if (pid === undefined) {
+      try { child.kill("SIGKILL"); } catch { /* already gone */ }
+      return;
+    }
+
+    if (process.platform === "win32") {
+      await new Promise<void>(resolve => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          resolve();
+        };
+        try {
+          const killer = spawn(
+            "taskkill",
+            ["/PID", String(pid), "/T", "/F"],
+            {
+              windowsHide: true,
+              shell: false,
+              stdio: "ignore"
+            }
+          );
+          killer.once("error", () => {
+            try { child.kill("SIGKILL"); } catch { /* already gone */ }
+            finish();
+          });
+          killer.once("close", finish);
+        } catch {
+          try { child.kill("SIGKILL"); } catch { /* already gone */ }
+          finish();
+        }
+      });
+      return;
+    }
+
+    try {
+      process.kill(-pid, "SIGTERM");
+    } catch {
+      try { child.kill("SIGTERM"); } catch { /* already gone */ }
+    }
+    await new Promise(resolve => setTimeout(resolve, 250));
+    try {
+      process.kill(-pid, "SIGKILL");
+    } catch {
+      try { child.kill("SIGKILL"); } catch { /* already gone */ }
+    }
+  }
+
   private async capture(
     args: string[],
     timeoutMs: number,
-    cwd?: string
+    cwd?: string,
+    onActivity?: (activity: CodexExecutionActivity) => void | Promise<void>
   ): Promise<ProcessResult> {
     return await new Promise<ProcessResult>((resolve, reject) => {
       let stdout = "";
       let stderr = "";
       let settled = false;
       let timedOut = false;
-     const child = spawn(this.command, [...this.commandPrefixArgs, ...args], {
-  ...(cwd === undefined ? {} : { cwd }),
-  env: this.storedLoginEnvironment(),
-  windowsHide: true,
-  shell: false,
-  stdio: ["ignore", "pipe", "pipe"]
-});
+      let forceSettleTimer: NodeJS.Timeout | null = null;
+      const startedAt = Date.now();
+      let lastActivityAt = startedAt;
+
+      const child = spawn(this.command, [...this.commandPrefixArgs, ...args], {
+        ...(cwd === undefined ? {} : { cwd }),
+        env: this.storedLoginEnvironment(),
+        windowsHide: true,
+        shell: false,
+        stdio: ["ignore", "pipe", "pipe"],
+        detached: process.platform !== "win32"
+      });
+
+      const reportActivity = (): void => {
+        if (onActivity === undefined) return;
+        const now = Date.now();
+        try {
+          const result = onActivity({
+            runtimePid: child.pid ?? null,
+            elapsedMs: Math.max(0, now - startedAt),
+            lastActivityAgeMs: Math.max(0, now - lastActivityAt),
+            stdoutBytes: Buffer.byteLength(stdout, "utf8"),
+            stderrBytes: Buffer.byteLength(stderr, "utf8"),
+            timedOut
+          });
+          if (result instanceof Promise) void result.catch(() => undefined);
+        } catch {
+          // Runtime telemetry is observational and must never stop Codex execution.
+        }
+      };
+
+      const cleanup = (): void => {
+        clearTimeout(timer);
+        clearInterval(heartbeat);
+        if (forceSettleTimer !== null) clearTimeout(forceSettleTimer);
+      };
+
+      const finish = (result: ProcessResult): void => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve(result);
+      };
+
+      const heartbeat = setInterval(reportActivity, this.heartbeatMs);
       const timer = setTimeout(() => {
+        if (settled) return;
         timedOut = true;
-        child.kill();
+        reportActivity();
+        void this.terminateProcessTree(child).finally(() => {
+          if (settled) return;
+          forceSettleTimer = setTimeout(() => {
+            finish({
+              exitCode: 124,
+              stdout,
+              stderr,
+              timedOut: true
+            });
+          }, 2000);
+        });
       }, timeoutMs);
 
       child.stdout?.setEncoding("utf8");
       child.stderr?.setEncoding("utf8");
-      child.stdout?.on("data", chunk => { stdout += String(chunk); });
-      child.stderr?.on("data", chunk => { stderr += String(chunk); });
+      child.stdout?.on("data", chunk => {
+        stdout += String(chunk);
+        lastActivityAt = Date.now();
+      });
+      child.stderr?.on("data", chunk => {
+        stderr += String(chunk);
+        lastActivityAt = Date.now();
+      });
+
+      reportActivity();
 
       child.on("error", error => {
         if (settled) return;
         settled = true;
-        clearTimeout(timer);
+        cleanup();
         if ((error as NodeJS.ErrnoException).code === "ENOENT") {
           reject(new CodexRuntimeError(
             "CODEX_CLI_MISSING",
@@ -704,11 +836,8 @@ export class CodexProcessRunner {
       });
 
       child.on("close", code => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timer);
-        resolve({
-          exitCode: code ?? 1,
+        finish({
+          exitCode: code ?? (timedOut ? 124 : 1),
           stdout,
           stderr,
           timedOut
