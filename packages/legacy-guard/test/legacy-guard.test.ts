@@ -41,7 +41,8 @@ test("resource/media symlinks and sibling-prefix escapes fail before access",asy
   const root=await mkdtemp(join(tmpdir(),"vpf-isolation-"));
   await mkdir(join(root,"canonical")); await mkdir(join(root,"external"));
   await writeFile(join(root,"external","file.json"),"{}");
-  await symlink(join(root,"external"),join(root,"canonical","link"));
+  // Windows directory junctions exercise realpath isolation without symlink privileges.
+  await symlink(join(root,"external"),join(root,"canonical","link"),process.platform === "win32" ? "junction" : "dir");
   assert.throws(()=>assertIsolatedPath(join(root,"canonical"),join(root,"canonical","link","file.json")),{code:"LEGACY_RUNTIME_FORBIDDEN"});
   assert.throws(()=>assertIsolatedPath(join(root,"canonical"),join(root,"canonical-other","file.json")),{code:"LEGACY_RUNTIME_FORBIDDEN"});
   assert.doesNotThrow(()=>assertIsolatedPath(join(root,"canonical"),join(root,"canonical","new.json")));
