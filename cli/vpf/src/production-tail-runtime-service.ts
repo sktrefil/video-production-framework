@@ -2448,7 +2448,9 @@ export class ProductionTailRuntimeService{
                     basePrompt:prompt.provider_prompt_en,
                     scene,
                     state,
-                    revisionFeedback:revisionFeedbackByState[prompt.state_image_id]
+                    ...(revisionFeedbackByState[prompt.state_image_id]!==undefined
+                      ?{revisionFeedback:revisionFeedbackByState[prompt.state_image_id]}
+                      :{})
                   }),
                   negativePrompt:prompt.negative_prompt_en,
                   width:format.imageGeneration.width,
