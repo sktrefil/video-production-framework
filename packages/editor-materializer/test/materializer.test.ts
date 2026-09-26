@@ -28,8 +28,17 @@ test("MIG-11 materializer rejects old renderer references and symlinked media",a
   await assert.rejects(materializeEditorProject(input),{code:"LEGACY_PROJECT_RENDER_PATH"});
   input.assembly=assembly();
   await rm(join(paths.projectRoot,"05_images","frame.svg"));
-  await writeFile(join(paths.root,"external.svg"),svg);
-  await symlink(join(paths.root,"external.svg"),join(paths.projectRoot,"05_images","frame.svg"));
+  if (process.platform !== "win32") {
+    await writeFile(join(paths.root,"external.svg"),svg);
+    await symlink(join(paths.root,"external.svg"),join(paths.projectRoot,"05_images","frame.svg"),"file");
+    await assert.rejects(materializeEditorProject(input),{code:"LEGACY_RUNTIME_FORBIDDEN"});
+  }
+  // Directory links cover Windows without privileges and retain path-escape checks on all OSes.
+  await mkdir(join(paths.root,"external"));
+  await writeFile(join(paths.root,"external","frame.svg"),svg);
+  await symlink(join(paths.root,"external"),join(paths.projectRoot,"05_images","linked"),process.platform === "win32" ? "junction" : "dir");
+  input.mediaArtifacts[0]!.relativePath="05_images/linked/frame.svg";
+  input.assembly.editProject.items[0]!.src="05_images/linked/frame.svg";
   await assert.rejects(materializeEditorProject(input),{code:"LEGACY_RUNTIME_FORBIDDEN"});
 });
 const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="black"/></svg>';

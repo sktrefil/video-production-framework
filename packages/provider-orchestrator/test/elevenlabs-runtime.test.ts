@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {spawnSync} from "node:child_process";
 import {createServer, type IncomingMessage, type ServerResponse} from "node:http";
 import {mkdtemp, readFile, writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
@@ -81,7 +82,18 @@ async function listen(handler:(req:IncomingMessage,res:ServerResponse)=>void|Pro
   return {url:`http://127.0.0.1:${a.port}/v1`,close:async()=>await new Promise<void>((r,j)=>server.close(e=>e?j(e):r()))};
 }
 function alignment(text:string){return {characters:[...text],character_start_times_seconds:[...text].map((_,i)=>i*.02),character_end_times_seconds:[...text].map((_,i)=>(i+1)*.02)};}
-async function fakeFfmpeg(root:string){const p=path.join(root,"fake_ffmpeg.py");await writeFile(p,"import sys\nfrom pathlib import Path\na=sys.argv[1:]\nl=Path(a[a.index('-i')+1])\nout=Path(a[-1])\ndata=b''\nfor line in l.read_text(encoding='utf-8').splitlines():\n p=line.strip()[6:-1]\n data += Path(p).read_bytes()\nout.parent.mkdir(parents=True,exist_ok=True)\nout.write_bytes(data)\n","utf8");return `python3 ${JSON.stringify(p)}`;}
+async function fakeFfmpeg(root:string) {
+  const script=path.join(root,"fake ffmpeg.mjs");
+  await writeFile(script, `import {readFileSync, writeFileSync} from "node:fs";
+const args=process.argv.slice(2);
+const listing=readFileSync(args[args.indexOf("-i")+1],"utf8");
+const chunks=listing.trim().split("\\n").map(line=>readFileSync(line.slice(6,-1)));
+writeFileSync(args.at(-1),Buffer.concat(chunks));
+`,"utf8");
+  // Forward slashes avoid JSON backslash escaping; both executable and script may contain spaces.
+  return [process.execPath,script].map(value=>JSON.stringify(value.replace(/\\/g,"/"))).join(" ");
+}
+
 function orchestrator(job:ProviderJob,tempRoot:string,environment:NodeJS.ProcessEnv){
   const persistence=new FakeRuntimePersistence(job); const registry=new RuntimeExecutorRegistry();
   registerElevenLabsRuntimeExecutor(registry,{repositoryRoot,workspaceOptions:{workspaceRoot:path.join(tempRoot,"workspace")},environment});
@@ -96,7 +108,7 @@ test("ElevenLabs process runtime executes v3 /with-timestamps, combines LONGFORM
     const secret="sk-mig05-test-secret", voiceId="voice-test-123"; const job=providerJob(["첫 번째 청크입니다.","두 번째 청크입니다."],2);
     const {service,persistence}=orchestrator(job,tempRoot,{ELEVENLABS_API_KEY:secret,ELEVENLABS_VOICE_ID_HISTORY_MYSTERY_LONGFORM:voiceId,ELEVENLABS_API_BASE_URL:server.url,ELEVENLABS_REQUEST_RETRIES:"0",VPF_FFMPEG_COMMAND:await fakeFfmpeg(tempRoot)});
     const outcome=await service.executeAutomated("p1",job.id,runtimeOptions());
-    assert.equal(outcome.result.status,"COMPLETE"); assert.equal(outcome.result.attempt,2); assert.deepEqual(outcome.result.providerRequestIds,["req-1","req-2"]); assert.equal(outcome.providerJob.status,"COMPLETE"); assert.equal(requests.length,2);
+    assert.equal(outcome.result.status,"COMPLETE", JSON.stringify(outcome.result.error)); assert.equal(outcome.result.attempt,2); assert.deepEqual(outcome.result.providerRequestIds,["req-1","req-2"]); assert.equal(outcome.providerJob.status,"COMPLETE"); assert.equal(requests.length,2);
     for(const r of requests){assert.match(r.url,/^\/v1\/text-to-speech\/voice-test-123\/with-timestamps\?output_format=mp3_44100_128$/);assert.equal(r.body.model_id,"eleven_v3");assert.deepEqual(r.body.voice_settings,{stability:.62,style:.04});assert.equal(r.apiKey,secret);}
     const narration=outcome.result.outputs.find(x=>x.role==="narration")!, audio=outcome.media.find(x=>x.mediaType==="AUDIO")!; assert.equal(audio.relativePath,"03_tts/narration.mp3");assert.equal(audio.mediaStatus,"AVAILABLE");assert.equal(audio.checksum,narration.sha256);assert.equal(audio.sourceJobId,job.id);assert.ok((audio.durationMs??0)>0);
     const root=path.join(tempRoot,"workspace","projects","p1"); const a=JSON.parse(await readFile(path.join(root,"03_tts/character_alignment.json"),"utf8"));assert.equal(a.characters.join(""),"첫 번째 청크입니다.\n\n두 번째 청크입니다.");
@@ -113,4 +125,28 @@ test("SHORTFORM uses exactly one /with-timestamps request without chunk concaten
 test("provider HTTP failure is mapped to a stable RuntimeResult error without media",async()=>{
   const tempRoot=await mkdtemp(path.join(tmpdir(),"vpf-mig05-fail-"));const server=await listen(async(_req,res)=>{res.statusCode=400;res.end("bad request");});
   try {const job=providerJob(["실패 테스트"],3);const {service}=orchestrator(job,tempRoot,{ELEVENLABS_API_KEY:"failure-secret",ELEVENLABS_VOICE_ID_HISTORY_MYSTERY_LONGFORM:"voice-fail",ELEVENLABS_API_BASE_URL:server.url,ELEVENLABS_REQUEST_RETRIES:"0"});const outcome=await service.executeAutomated("p1",job.id,runtimeOptions());assert.equal(outcome.result.status,"FAILED");assert.equal(outcome.result.error?.code,"PROVIDER_REQUEST_FAILED");assert.equal(outcome.result.attempt,3);assert.equal(outcome.media.length,0);assert.equal(outcome.providerJob.status,"FAILED");} finally {await server.close();}
+});
+
+
+test("ElevenLabs ffmpeg command parsing preserves Windows paths and removes grouping quotes", () => {
+  const python=process.env.VPF_PYTHON ?? (process.platform === "win32" ? "python" : "python3");
+  const result=spawnSync(python,["-c",String.raw`
+import importlib.util
+spec=importlib.util.spec_from_file_location("tts_runtime","runtimes/elevenlabs/runtime.py")
+runtime=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(runtime)
+assert runtime.split_process_command(r'"C:\Program Files\ffmpeg\ffmpeg.exe" -nostdin',windows=True)==[r'C:\Program Files\ffmpeg\ffmpeg.exe','-nostdin']
+assert runtime.split_process_command(r'"C:/Program Files/nodejs/node.exe" "C:/Users/test user/fake ffmpeg.mjs"',windows=True)==['C:/Program Files/nodejs/node.exe','C:/Users/test user/fake ffmpeg.mjs']
+assert runtime.split_process_command(r'python C:\tools\fake.py',windows=True)==['python',r'C:\tools\fake.py']
+assert runtime.split_process_command('"/opt/node bin/node" "/tmp/fake ffmpeg.mjs"',windows=False)==['/opt/node bin/node','/tmp/fake ffmpeg.mjs']
+for windows in (True,False):
+    for invalid in ('', '   ', '""', '"unterminated'):
+        try:
+            runtime.split_process_command(invalid,windows=windows)
+        except runtime.RuntimeFailure as error:
+            assert error.code=='RUNTIME_CONFIG_INVALID'
+        else:
+            raise AssertionError('Invalid command accepted')
+`],{cwd:repositoryRoot,encoding:"utf8"});
+  assert.equal(result.status,0,result.stderr || result.error?.message);
 });

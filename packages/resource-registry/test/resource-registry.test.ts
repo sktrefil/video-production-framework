@@ -44,7 +44,7 @@ test("MIG-11 resource symlink escapes and nested operational references are reje
   const root=await fixtureRoot(), external=await fixtureRoot();
   await writeResource(external,"format-profiles",{schemaVersion:1,resourceType:"FORMAT_PROFILE",resourceId:"FORMAT",version:"1.0.0",payload:formatPayload});
   await mkdir(path.join(root,"format-profiles"));
-  await symlink(path.join(external,"format-profiles","FORMAT"),path.join(root,"format-profiles","FORMAT"));
+  await symlink(path.join(external,"format-profiles","FORMAT"),path.join(root,"format-profiles","FORMAT"),process.platform === "win32" ? "junction" : "dir");
   const registry=new FileSystemResourceRegistry(root);
   await assert.rejects(registry.resolve({resourceType:"FORMAT_PROFILE",resourceId:"FORMAT",version:"1.0.0"}),{code:"LEGACY_RUNTIME_FORBIDDEN"});
   await writeResource(root,"format-profiles",{schemaVersion:1,resourceType:"FORMAT_PROFILE",resourceId:"BAD_FORMAT",version:"1.0.0",payload:{...formatPayload,editorDefaults:{src:"master_library/image.png"}}});

@@ -50,7 +50,7 @@ test("image runtime rejects a symlinked reference before the provider adapter is
   await mkdir(outside, {recursive:true});
   const bytes = png(32, 32);
   await writeFile(join(outside, "reference.png"), bytes);
-  await symlink(outside, join(projectRoot, "04_visual_identity", "linked"));
+  await symlink(outside, join(projectRoot, "04_visual_identity", "linked"), process.platform === "win32" ? "junction" : "dir");
 
   let called = false;
   const executor = new ImageRuntimeExecutor({

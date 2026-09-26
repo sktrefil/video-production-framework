@@ -156,14 +156,25 @@ def aggregate(parts:list[tuple[str,dict[str,Any]]])->dict[str,Any]:
         if "".join(c)!=text: raise RuntimeFailure("PROVIDER_RESULT_INVALID","Alignment aggregation drift.")
     return {"characters":chars,"character_start_times_seconds":starts,"character_end_times_seconds":ends}
 
+def split_process_command(value:str, *, windows:bool)->list[str]:
+    try:
+        args=shlex.split(value,posix=not windows)
+    except ValueError as exc:
+        raise RuntimeFailure("RUNTIME_CONFIG_INVALID","Invalid VPF_FFMPEG_COMMAND quoting.") from exc
+    if windows:
+        # subprocess receives argv, so grouping quotes must not remain literal bytes.
+        args=[arg[1:-1] if len(arg)>=2 and arg[0]==arg[-1] and arg[0] in (chr(34),chr(39)) else arg for arg in args]
+    if not args or not args[0].strip():
+        raise RuntimeFailure("RUNTIME_CONFIG_INVALID","VPF_FFMPEG_COMMAND empty.")
+    return args
+
 def combine(chunks:list[Path],output:Path)->None:
     output.parent.mkdir(parents=True,exist_ok=True)
     if len(chunks)==1: output.write_bytes(chunks[0].read_bytes()); return
     fd,name=tempfile.mkstemp(prefix=".tts_concat.",suffix=".txt",dir=output.parent); os.close(fd); listing=Path(name)
     try:
         listing.write_text("".join(f"file '{p.resolve().as_posix().replace(chr(39),chr(39)+chr(92)+chr(39)+chr(39))}'\n" for p in chunks),encoding="utf-8")
-        cmd=shlex.split(os.environ.get("VPF_FFMPEG_COMMAND","ffmpeg"),posix=os.name!="nt")
-        if not cmd: raise RuntimeFailure("RUNTIME_CONFIG_INVALID","VPF_FFMPEG_COMMAND empty.")
+        cmd=split_process_command(os.environ.get("VPF_FFMPEG_COMMAND","ffmpeg"),windows=os.name=="nt")
         p=subprocess.run(cmd+["-hide_banner","-y","-f","concat","-safe","0","-i",str(listing),"-c:a","libmp3lame","-b:a","128k","-ar","44100",str(output)],capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=600)
         if p.returncode or not output.is_file() or output.stat().st_size<=0: raise RuntimeFailure("ARTIFACT_WRITE_FAILED",f"MP3 combine failed: {(p.stderr or '')[-300:]}")
     except subprocess.TimeoutExpired as exc: raise RuntimeFailure("ARTIFACT_WRITE_FAILED","MP3 combine timed out.") from exc
