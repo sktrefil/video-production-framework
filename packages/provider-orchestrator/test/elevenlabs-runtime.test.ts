@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {spawnSync} from "node:child_process";
 import {createServer, type IncomingMessage, type ServerResponse} from "node:http";
-import {mkdtemp, readFile, writeFile} from "node:fs/promises";
+import {mkdtemp, readFile, rm, writeFile} from "node:fs/promises";
 import {tmpdir} from "node:os";
 import * as path from "node:path";
 import {fileURLToPath} from "node:url";
@@ -87,7 +87,7 @@ async function fakeFfmpeg(root:string) {
   await writeFile(script, `import {readFileSync, writeFileSync} from "node:fs";
 const args=process.argv.slice(2);
 const listing=readFileSync(args[args.indexOf("-i")+1],"utf8");
-const chunks=listing.trim().split("\\n").map(line=>readFileSync(line.slice(6,-1)));
+const chunks=listing.trim().split(/\\r?\\n/).map(line=>readFileSync(line.slice(6,-1)));
 writeFileSync(args.at(-1),Buffer.concat(chunks));
 `,"utf8");
   // Forward slashes avoid JSON backslash escaping; both executable and script may contain spaces.
@@ -149,4 +149,21 @@ for windows in (True,False):
             raise AssertionError('Invalid command accepted')
 `],{cwd:repositoryRoot,encoding:"utf8"});
   assert.equal(result.status,0,result.stderr || result.error?.message);
+});
+
+
+test("ElevenLabs fake ffmpeg reads LF and CRLF concat lists without corrupting paths", async t => {
+  const root=await mkdtemp(path.join(tmpdir(),"vpf-concat-lines-"));
+  t.after(()=>rm(root,{recursive:true,force:true}));
+  await fakeFfmpeg(root);
+  const chunks=[path.join(root,"chunk one.mp3"),path.join(root,"chunk two.mp3")];
+  await writeFile(chunks[0]!,"FIRST");
+  await writeFile(chunks[1]!,"SECOND");
+  const listing=path.join(root,"concat.txt"), output=path.join(root,"combined.mp3");
+  for (const eol of ["\n","\r\n"]) {
+    await writeFile(listing,chunks.map(file=>`file '${file.replace(/\\/g,"/")}'`).join(eol)+eol);
+    const result=spawnSync(process.execPath,[path.join(root,"fake ffmpeg.mjs"),"-i",listing,output],{encoding:"utf8"});
+    assert.equal(result.status,0,`line ending ${JSON.stringify(eol)}: ${result.stderr}`);
+    assert.equal(await readFile(output,"utf8"),"FIRSTSECOND");
+  }
 });
