@@ -395,6 +395,19 @@ test("T070 seed QC regenerates failed calibration images instead of deadlocking"
   assert.match(tail,/seedQcAttempts>=3/);
 });
 
+test("T070 runtime omits undefined revision feedback under exact optional property types",()=>{
+  const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
+
+  assert.match(
+    tail,
+    /\.\.\.\(revisionFeedbackByState\[prompt\.state_image_id\]!==undefined[\s\S]*?\?\{revisionFeedback:revisionFeedbackByState\[prompt\.state_image_id\]\}[\s\S]*?:\{\}\)/
+  );
+  assert.doesNotMatch(
+    tail,
+    /revisionFeedback:revisionFeedbackByState\[prompt\.state_image_id\]\s*\n/
+  );
+});
+
 test("T070 full generation is scene-batched with targeted pixel-QC regeneration",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
   const manager=read("cli/vpf/src/codex-manager-runtime-service.ts");
