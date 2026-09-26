@@ -235,7 +235,9 @@ export function buildT050CodexInput(input: {
         scene_id: scene.scene_id,
         story_role: scene.story_role,
         factuality_mode: scene.factuality_mode,
-        fantasy_mode: scene.fantasy_mode,
+        ...(scene.fantasy_mode !== undefined
+          ? { fantasy_mode: scene.fantasy_mode }
+          : {}),
         fact_refs: scene.fact_refs,
         narrative_purpose_ko: scene.narrative_purpose_ko,
         visual_intent_ko: scene.visual_intent_ko,

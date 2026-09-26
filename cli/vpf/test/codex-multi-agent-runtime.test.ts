@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import * as path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { assertNoSecretValues } from "@vpf/runtime-contracts";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { Agent3RuntimeRepository } from "@vpf/storage/agent3-runtime";
@@ -1231,13 +1232,29 @@ test("T050 Codex input excludes script bodies, provenance, and provider profile"
     provider_profile: { oversized: "provider metadata".repeat(500) },
     manager_revision_instruction: null
   });
-  const compact = JSON.stringify(buildT050CodexInput({
+  const buildInput = (sceneVisual: typeof visual) => buildT050CodexInput({
     projectId: "compact_t050",
     projectSpec: projectSpec as any,
     sceneTiming: timing as any,
-    sceneVisual: visual as any,
+    sceneVisual: sceneVisual as any,
     managerDirective: null
-  }));
+  });
+  const legacyInput = buildInput(visual);
+  assert.doesNotThrow(() => assertNoSecretValues(legacyInput));
+  assert.deepEqual(legacyInput, JSON.parse(JSON.stringify(legacyInput)));
+  const compact = JSON.stringify(legacyInput);
+  assert.doesNotMatch(compact, /fantasy_mode/u);
+
+  for (const mode of ["OFF", "RESTRAINED", "EDITORIAL", "HEIGHTENED"] as const) {
+    const explicitInput = buildInput({
+      ...visual,
+      scenes: visual.scenes.map(scene => ({ ...scene, fantasy_mode: mode }))
+    });
+    assert.doesNotThrow(() => assertNoSecretValues(explicitInput));
+    const serialized = JSON.parse(JSON.stringify(explicitInput));
+    assert.deepEqual(explicitInput, serialized);
+    assert.equal(serialized.scene_visual_spec.scenes[0].fantasy_mode, mode);
+  }
 
   assert.ok(compact.length < full.length / 2);
   assert.doesNotMatch(compact, /script_ko|script_en|provenance|provider_profile/u);
