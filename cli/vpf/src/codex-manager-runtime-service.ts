@@ -262,12 +262,30 @@ export class CodexManagerRuntimeService {
         "Project does not pin CODEX_MANAGER_V1."
       );
     }
+    const reviewCycleRepo = new CodexRuntimeRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+    let failureReviewCycle = 1;
+    try {
+      failureReviewCycle =
+        reviewCycleRepo.listManagerReviews(input.projectId).filter(review =>
+          review.task_id === input.taskId &&
+          review.attempt === input.attempt &&
+          review.review_kind === "FAILURE"
+        ).length + 1;
+    } finally {
+      reviewCycleRepo.close();
+    }
+    const failureReviewSuffix =
+      failureReviewCycle === 1 ? "" : ":R" + failureReviewCycle;
+
     const result = await this.runner.execute<CodexManagerReviewResult>({
       projectId: input.projectId,
       projectRoot: status.projectRoot,
       dbPath: status.projectDbPath,
       roleId: "CODEX_1_MANAGER",
-      taskId: "MANAGER_REVIEW:" + input.taskId,
+      taskId: "MANAGER_REVIEW:" + input.taskId + failureReviewSuffix,
       attempt: input.attempt,
       instructions: [
         "Act as the Agent 1 QC and revision director.",
@@ -304,6 +322,7 @@ export class CodexManagerRuntimeService {
       repo.saveManagerReview({
         review_id:
           input.projectId + ":" + input.taskId + ":A" + input.attempt +
+          (failureReviewCycle === 1 ? "" : ":R" + failureReviewCycle) +
           ":CODEX_1_MANAGER",
         project_id: input.projectId,
         task_id: input.taskId,
@@ -764,12 +783,30 @@ export class CodexManagerRuntimeService {
       input.taskId
     );
 
+    const reviewCycleRepo = new CodexRuntimeRepository(
+      status.projectDbPath,
+      { readonly: true }
+    );
+    let successReviewCycle = 1;
+    try {
+      successReviewCycle =
+        reviewCycleRepo.listManagerReviews(input.projectId).filter(review =>
+          review.task_id === input.taskId &&
+          review.attempt === input.attempt &&
+          review.review_kind === "SUCCESS"
+        ).length + 1;
+    } finally {
+      reviewCycleRepo.close();
+    }
+    const successReviewSuffix =
+      successReviewCycle === 1 ? "" : ":R" + successReviewCycle;
+
     const result = await this.runner.execute<CodexManagerSuccessReviewResult>({
       projectId: input.projectId,
       projectRoot: status.projectRoot,
       dbPath: status.projectDbPath,
       roleId: "CODEX_1_MANAGER",
-      taskId: "MANAGER_SUCCESS:" + input.taskId,
+      taskId: "MANAGER_SUCCESS:" + input.taskId + successReviewSuffix,
       attempt: input.attempt,
       instructions: [
         "Act as Agent 1 final QC after the deterministic completion gate has already passed.",
@@ -834,6 +871,7 @@ export class CodexManagerRuntimeService {
       repo.saveManagerReview({
         review_id:
           input.projectId + ":" + input.taskId + ":A" + input.attempt +
+          (successReviewCycle === 1 ? "" : ":R" + successReviewCycle) +
           ":SUCCESS:CODEX_1_MANAGER",
         project_id: input.projectId,
         task_id: input.taskId,

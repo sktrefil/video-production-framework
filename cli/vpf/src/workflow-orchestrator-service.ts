@@ -110,12 +110,38 @@ export class Agent1WorkflowOrchestratorService {
         : repo.getTask(projectId, taskId);
       if (task === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task not found for ${projectId}: ${taskId ?? "<next>"}.`);
       const resumeCurrentAttempt = options.resumeCurrentAttempt === true;
+      let approvedT020ManagerRetry = false;
+      if (
+        resumeCurrentAttempt &&
+        task.task_id === "T020" &&
+        task.attempt > 0 &&
+        ["REVISION_REQUIRED", "FAILED"].includes(task.status)
+      ) {
+        const codexRepo = new CodexRuntimeRepository(
+          status.projectDbPath,
+          { readonly: true }
+        );
+        try {
+          approvedT020ManagerRetry =
+            codexRepo.latestManagerReview(projectId, "T020")?.verdict === "RETRY";
+        } finally {
+          codexRepo.close();
+        }
+      }
       const resumableApprovedT020 =
         resumeCurrentAttempt &&
         task.task_id === "T020" &&
-        task.status === "REVISION_REQUIRED" &&
         task.attempt > 0 &&
-        task.output_revision_refs.length === 0;
+        (
+          (
+            task.status === "REVISION_REQUIRED" &&
+            task.output_revision_refs.length === 0
+          ) ||
+          (
+            ["REVISION_REQUIRED", "FAILED"].includes(task.status) &&
+            approvedT020ManagerRetry
+          )
+        );
       const resumableInterruptedT070 =
         resumeCurrentAttempt &&
         task.task_id === "T070" &&
@@ -138,7 +164,7 @@ export class Agent1WorkflowOrchestratorService {
         if (!resumableApprovedT020 && !resumableInterruptedT070) {
           throw new WorkflowOrchestratorError(
             "TASK_NOT_READY",
-            "Only an approved-input T020 revision with no outputs or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
+            "Only an approved-input T020 revision with no outputs/latest Codex1 RETRY, or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
           );
         }
       } else if (task.attempt >= definition.retry_policy.max_attempts) {

@@ -18,6 +18,7 @@ import {
 } from "@vpf/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent2RuntimeRepository } from "@vpf/storage/agent2-runtime";
+import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
 import { ElevenLabsProcessRuntimeExecutor } from "@vpf/provider-orchestrator/elevenlabs-runtime";
@@ -1069,20 +1070,51 @@ export class Agent2RuntimeAdapterService {
 
     const workflowState = await this.manager.status(projectId);
     const task = workflowState.tasks.find(item => item.task_id === "T020") ?? null;
+
+    let latestManagerRetry = false;
+    if (task !== null && task.attempt > 0) {
+      const reviewRepo = new CodexRuntimeRepository(
+        projectStatus.projectDbPath,
+        { readonly: true }
+      );
+      try {
+        latestManagerRetry =
+          reviewRepo.latestManagerReview(projectId, "T020")?.verdict === "RETRY";
+      } finally {
+        reviewRepo.close();
+      }
+    }
+
+    const recoverableManagerRetryFailure =
+      task !== null &&
+      task.status === "FAILED" &&
+      latestManagerRetry;
+
     if (
       task === null ||
-      !["READY", "REVISION_REQUIRED"].includes(task.status)
+      (
+        !["READY", "REVISION_REQUIRED"].includes(task.status) &&
+        !recoverableManagerRetryFailure
+      )
     ) {
       throw new Agent2RuntimeAdapterError(
         "AGENT2_RUNTIME_TASK_UNAVAILABLE",
-        "Approved T020 requires T020 to be READY or REVISION_REQUIRED."
+        "Approved T020 requires READY/REVISION_REQUIRED, or FAILED only when the latest Codex1 manager review requested RETRY."
       );
     }
 
     const resumeCurrentAttempt =
-      task.status === "REVISION_REQUIRED" &&
       task.attempt > 0 &&
-      task.output_revision_refs.length === 0;
+      (
+        (
+          task.status === "REVISION_REQUIRED" &&
+          task.output_revision_refs.length === 0
+        ) ||
+        (
+          ["REVISION_REQUIRED", "FAILED"].includes(task.status) &&
+          latestManagerRetry
+        )
+      );
 
     const dispatch = await this.manager.dispatch(
       projectId,
@@ -1113,10 +1145,25 @@ export class Agent2RuntimeAdapterService {
     });
 
     try {
-      const runId = projectId + ":T020:A" + dispatch.attempt + ":APPROVED";
       const runtimeRepo = new Agent2RuntimeRepository(projectStatus.projectDbPath);
       let worker: Agent2TaskExecutionResult;
+      let runId = "";
       try {
+        const runPrefix =
+          projectId + ":T020:A" + dispatch.attempt + ":APPROVED";
+        const priorApprovedCycles = runtimeRepo.list(projectId).filter(run =>
+          run.task_id === "T020" &&
+          run.provider === "APPROVED_INPUT" &&
+          (
+            run.run_id === runPrefix ||
+            run.run_id.startsWith(runPrefix + ":R")
+          )
+        ).length;
+        const approvedCycle = priorApprovedCycles + 1;
+        runId = approvedCycle === 1
+          ? runPrefix
+          : runPrefix + ":R" + approvedCycle;
+
         runtimeRepo.start({
           run_id: runId,
           project_id: projectId,
