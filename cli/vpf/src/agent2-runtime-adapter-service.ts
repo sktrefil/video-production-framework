@@ -6,6 +6,7 @@ import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { FileSystemResourceRegistry, type ProviderProfilePayload, type ResourcePin } from "@vpf/resource-registry";
 import {
   getAgent2TaskInstruction,
+  validateStoryBundle,
   type Agent2FactCheckSpec,
   type Agent2ResearchBundle,
   type Agent2ResearchSpec,
@@ -1013,6 +1014,320 @@ export class Agent2RuntimeAdapterService {
     this.worker = new Agent2StoryAudioWorkerService(projects);
     this.codexManager = new CodexManagerRuntimeService(projects, environment);
     this.codexRunner = new CodexProcessRunner(environment);
+  }
+
+  async runApprovedStory(
+    projectId: string,
+    filename: string
+  ): Promise<RuntimeStepResult> {
+    await this.assertRuntimeProjectCurrent(projectId);
+
+    const projectStatus = await this.projects.getStatus(projectId);
+    const artifactRepo = new Agent2StoryAudioRepository(
+      projectStatus.projectDbPath,
+      { readonly: true }
+    );
+
+    let approvedBundle: Agent2StoryBundle;
+    try {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(await readFile(filename, "utf8")) as unknown;
+      } catch (error) {
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_RUNTIME_RESPONSE_INVALID",
+          "Could not read approved T020 StoryBundle " + filename + ": " +
+            (error instanceof Error ? error.message : String(error))
+        );
+      }
+
+      const facts = artifactRepo.getActive<Agent2FactCheckSpec>(
+        projectId,
+        "fact_check_spec"
+      );
+      if (facts === null) {
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_RUNTIME_PREREQUISITE",
+          "Approved T020 requires the active fact_check_spec from T010."
+        );
+      }
+
+      const validation = validateStoryBundle(parsed, facts.value, projectId);
+      if (!validation.valid) {
+        const detail = validation.errors
+          .map(issue => issue.code + ": " + issue.message)
+          .join("; ");
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_RUNTIME_RESPONSE_INVALID",
+          "Approved T020 StoryBundle failed pre-dispatch validation: " + detail
+        );
+      }
+      approvedBundle = parsed as Agent2StoryBundle;
+    } finally {
+      artifactRepo.close();
+    }
+
+    const workflowState = await this.manager.status(projectId);
+    const task = workflowState.tasks.find(item => item.task_id === "T020") ?? null;
+    if (
+      task === null ||
+      !["READY", "REVISION_REQUIRED"].includes(task.status)
+    ) {
+      throw new Agent2RuntimeAdapterError(
+        "AGENT2_RUNTIME_TASK_UNAVAILABLE",
+        "Approved T020 requires T020 to be READY or REVISION_REQUIRED."
+      );
+    }
+
+    const resumeCurrentAttempt =
+      task.status === "REVISION_REQUIRED" &&
+      task.attempt > 0 &&
+      task.output_revision_refs.length === 0;
+
+    const dispatch = await this.manager.dispatch(
+      projectId,
+      "T020",
+      "AGENT2_STORY_AUDIO",
+      { resumeCurrentAttempt }
+    );
+
+    await this.progress.emit({
+      event: "TASK_STARTED",
+      project_id: projectId,
+      task_id: "T020",
+      agent: "AGENT2_STORY_AUDIO",
+      attempt: dispatch.attempt,
+      message: resumeCurrentAttempt
+        ? "Approved T020 resumed the current attempt without consuming another retry."
+        : "Approved T020 execution started."
+    });
+    await this.progress.taskProgress({
+      project_id: projectId,
+      task_id: "T020",
+      agent: "AGENT2_STORY_AUDIO",
+      attempt: dispatch.attempt,
+      phase: "RUNTIME_EXECUTION",
+      completed: 5,
+      total: 100,
+      message: "Validating and storing the approved StoryBundle."
+    });
+
+    try {
+      const runId = projectId + ":T020:A" + dispatch.attempt + ":APPROVED";
+      const runtimeRepo = new Agent2RuntimeRepository(projectStatus.projectDbPath);
+      let worker: Agent2TaskExecutionResult;
+      try {
+        runtimeRepo.start({
+          run_id: runId,
+          project_id: projectId,
+          task_id: "T020",
+          provider: "APPROVED_INPUT",
+          model_id: "approved-story-bundle",
+          provider_response_id: null,
+          input_sha256: sha256CanonicalJson(approvedBundle),
+          started_at: new Date().toISOString()
+        });
+        try {
+          worker = await this.worker.executePayload(
+            projectId,
+            "T020",
+            approvedBundle
+          );
+          runtimeRepo.complete({
+            runId,
+            providerResponseId: null,
+            outputSha256: sha256CanonicalJson(approvedBundle),
+            completedAt: new Date().toISOString()
+          });
+        } catch (error) {
+          runtimeRepo.fail({
+            runId,
+            errorCode:
+              error instanceof Agent2StoryAudioError
+                ? error.code
+                : "AGENT2_RUNTIME_FAILURE",
+            errorDetail: error instanceof Error ? error.message : String(error),
+            completedAt: new Date().toISOString()
+          });
+          throw error;
+        }
+      } finally {
+        runtimeRepo.close();
+      }
+
+      await this.progress.taskProgress({
+        project_id: projectId,
+        task_id: "T020",
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        phase: "WORKER_OUTPUT_READY",
+        completed: 70,
+        total: 100,
+        message: "Approved StoryBundle is stored and ready for completion-gate validation."
+      });
+
+      const gate = await this.manager.evaluateCompletionGate(projectId, "T020");
+      if (gate.status !== "PASS") {
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_RUNTIME_RESPONSE_INVALID",
+          gate.gate + " rejected approved T020 before Codex1 success QC."
+        );
+      }
+
+      await this.progress.taskProgress({
+        project_id: projectId,
+        task_id: "T020",
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        phase: "DETERMINISTIC_GATE_PASS",
+        completed: 80,
+        total: 100,
+        message: "SCRIPT_GATE passed for the approved StoryBundle."
+      });
+      await this.progress.emit({
+        event: "QC_STARTED",
+        project_id: projectId,
+        task_id: "T020",
+        agent: "CODEX_1_MANAGER",
+        attempt: dispatch.attempt,
+        qc_kind: "SUCCESS",
+        phase: "CODEX1_SUCCESS_QC"
+      });
+
+      const review = await this.codexManager.reviewSuccess({
+        projectId,
+        taskId: "T020",
+        attempt: dispatch.attempt,
+        workerRole: "AGENT2_APPROVED_STORY_INPUT",
+        gateStatus: "PASS",
+        gateId: gate.gate,
+        warnings: worker.warnings
+      });
+
+      await this.progress.emit({
+        event: "QC_COMPLETED",
+        project_id: projectId,
+        task_id: "T020",
+        agent: "CODEX_1_MANAGER",
+        attempt: dispatch.attempt,
+        qc_kind: "SUCCESS",
+        verdict: review.verdict,
+        phase: "CODEX1_SUCCESS_QC"
+      });
+      await this.progress.taskProgress({
+        project_id: projectId,
+        task_id: "T020",
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        phase: "MANAGER_QC_COMPLETE",
+        completed: 95,
+        total: 100,
+        message: "Codex1 QC returned " + review.verdict + "."
+      });
+
+      if (review.verdict !== "APPROVE") {
+        await this.manager.applyManagerVerdict(
+          projectId,
+          "T020",
+          dispatch.attempt,
+          review.verdict
+        );
+        throw new Agent2RuntimeAdapterError(
+          "AGENT2_MANAGER_QC_REJECTED",
+          "Codex1 success QC returned " + review.verdict +
+            " for approved T020: " + review.root_cause
+        );
+      }
+
+      const completed = await this.manager.complete(projectId, "T020");
+      await this.progress.taskProgress({
+        project_id: projectId,
+        task_id: "T020",
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        phase: "COMPLETE",
+        completed: 100,
+        total: 100,
+        message: "Approved T020 completed."
+      });
+      await this.progress.emit({
+        event: "TASK_COMPLETED",
+        project_id: projectId,
+        task_id: "T020",
+        agent: "AGENT2_STORY_AUDIO",
+        attempt: dispatch.attempt,
+        message: "Approved T020 completed with " +
+          (completed.last_gate_status ?? "PASS") + "."
+      });
+
+      return {
+        task_id: "T020",
+        runtime_provider: "APPROVED_INPUT",
+        runtime_model: "approved-story-bundle",
+        worker,
+        gate_status: completed.last_gate_status ?? "PASS"
+      };
+    } catch (error) {
+      if (
+        error instanceof Agent2RuntimeAdapterError &&
+        error.code === "AGENT2_MANAGER_QC_REJECTED"
+      ) {
+        throw error;
+      }
+
+      let managerVerdictApplied = false;
+      if (!codexFatal(error)) {
+        try {
+          await this.progress.emit({
+            event: "QC_STARTED",
+            project_id: projectId,
+            task_id: "T020",
+            agent: "CODEX_1_MANAGER",
+            attempt: dispatch.attempt,
+            qc_kind: "FAILURE",
+            phase: "CODEX1_FAILURE_REVIEW"
+          });
+          const review = await this.codexManager.reviewFailure({
+            projectId,
+            taskId: "T020",
+            attempt: dispatch.attempt,
+            workerRole: "AGENT2_APPROVED_STORY_INPUT",
+            errorCode:
+              error instanceof Agent2RuntimeAdapterError
+                ? error.code
+                : error instanceof Agent2StoryAudioError
+                  ? error.code
+                  : error instanceof CodexRuntimeError
+                    ? error.code
+                    : "AGENT2_RUNTIME_FAILURE",
+            errorDetail: error instanceof Error ? error.message : String(error)
+          });
+          await this.progress.emit({
+            event: "QC_COMPLETED",
+            project_id: projectId,
+            task_id: "T020",
+            agent: "CODEX_1_MANAGER",
+            attempt: dispatch.attempt,
+            qc_kind: "FAILURE",
+            verdict: review.verdict,
+            phase: "CODEX1_FAILURE_REVIEW"
+          });
+          await this.manager.applyManagerVerdict(
+            projectId,
+            "T020",
+            dispatch.attempt,
+            review.verdict
+          );
+          managerVerdictApplied = true;
+        } catch {
+          // Fall back to deterministic revision state if manager review cannot be applied.
+        }
+      }
+      if (!managerVerdictApplied) {
+        await this.manager.requestRevision(projectId, "T020");
+      }
+      throw error;
+    }
   }
 
   async runNext(projectId: string): Promise<

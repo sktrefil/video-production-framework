@@ -82,6 +82,7 @@ Agent 1 workflow operations:
 Agent 2 story/audio operations:
   vpf agent2 instruction <T010|T020|T030>
   vpf agent2 execute <project_id> <T010|T020|T030> --file <json>
+  vpf agent2 run-approved <project_id> T020 --file <json>
   vpf agent2 run <project_id>
   vpf agent2 run-all <project_id>
   vpf agent2 runtime-status <project_id>
@@ -400,6 +401,27 @@ export async function runCli(
         return 2;
       }
       printJson(io, await agent2.execute(projectId, taskId, file));
+      return 0;
+    }
+
+    if (args[0] === "agent2" && args[1] === "run-approved") {
+      const projectId = args[2];
+      const taskId = args[3];
+      const file = requireOption(
+        args,
+        "--file",
+        io,
+        "agent2 run-approved requires --file <json>."
+      );
+      if (projectId === undefined || taskId !== "T020" || file === null) {
+        if (projectId === undefined || taskId !== "T020") {
+          io.error(
+            "[CLI_USAGE] agent2 run-approved requires <project_id> T020 --file <json>."
+          );
+        }
+        return 2;
+      }
+      printJson(io, await agent2Runtime.runApprovedStory(projectId, file));
       return 0;
     }
 

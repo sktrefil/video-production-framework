@@ -736,7 +736,7 @@ export class CodexManagerRuntimeService {
     projectId: string;
     taskId: "T010" | "T020" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090";
     attempt: number;
-    workerRole: "CODEX_2_STORY_AUDIO" | "CODEX_3_VISUAL_PRODUCTION" | "EDITOR_REMOTION";
+    workerRole: "CODEX_2_STORY_AUDIO" | "AGENT2_APPROVED_STORY_INPUT" | "CODEX_3_VISUAL_PRODUCTION" | "EDITOR_REMOTION";
     gateStatus: "PASS";
     gateId: string;
     warnings?: Array<{ code: string; message: string }>;

@@ -110,6 +110,12 @@ export class Agent1WorkflowOrchestratorService {
         : repo.getTask(projectId, taskId);
       if (task === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task not found for ${projectId}: ${taskId ?? "<next>"}.`);
       const resumeCurrentAttempt = options.resumeCurrentAttempt === true;
+      const resumableApprovedT020 =
+        resumeCurrentAttempt &&
+        task.task_id === "T020" &&
+        task.status === "REVISION_REQUIRED" &&
+        task.attempt > 0 &&
+        task.output_revision_refs.length === 0;
       const resumableInterruptedT070 =
         resumeCurrentAttempt &&
         task.task_id === "T070" &&
@@ -118,6 +124,7 @@ export class Agent1WorkflowOrchestratorService {
       if (
         task.status !== "READY" &&
         task.status !== "REVISION_REQUIRED" &&
+        !resumableApprovedT020 &&
         !resumableInterruptedT070
       ) {
         throw new WorkflowOrchestratorError("TASK_NOT_READY", `${task.task_id} is ${task.status}, not dispatchable.`);
@@ -128,14 +135,10 @@ export class Agent1WorkflowOrchestratorService {
       const definition = findTaskDefinition(workflow.definition, task.task_id);
       if (definition === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task definition missing: ${task.task_id}.`);
       if (resumeCurrentAttempt) {
-        if (
-          task.task_id !== "T070" ||
-          !["REVISION_REQUIRED","FAILED","RUNNING"].includes(task.status) ||
-          task.attempt <= 0
-        ) {
+        if (!resumableApprovedT020 && !resumableInterruptedT070) {
           throw new WorkflowOrchestratorError(
             "TASK_NOT_READY",
-            "Only an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
+            "Only an approved-input T020 revision with no outputs or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
           );
         }
       } else if (task.attempt >= definition.retry_policy.max_attempts) {
