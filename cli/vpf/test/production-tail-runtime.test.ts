@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {resolve} from "node:path";
 import test from "node:test";
+import { compileAgent3Prompts, type ClipProductionDocument, type SceneVisualDocument, type StateImageDocument } from "@vpf/production-spec";
+import { clipCameraSchema, AGENT3_CLIP_CAMERA_SCHEMA } from "../src/agent3-runtime-schemas.js";
 import {
   buildFlowManualManifest,
   buildT070GenerationStateIds,
@@ -13,6 +15,25 @@ import {
 
 const root=resolve(import.meta.dirname,"../../..");
 const read=(relative:string)=>readFileSync(resolve(root,relative),"utf8");
+
+test("v2 manual handoff keeps endpoint design without requiring an endpoint image and pins directing hash",()=>{
+  const plan=JSON.parse(read("examples/production-spec/roman_ix_001/clip_production_spec.json")) as ClipProductionDocument;
+  const bundle=compileAgent3Prompts({projectId:plan.project_id,visualBibleSummary:"",clips:plan,
+    sceneVisual:{scenes:[{scene_id:"SCENE_01"}]} as SceneVisualDocument,
+    states:{state_images:[{scene_id:"SCENE_01",state_image_id:"IMG_01_01"},{scene_id:"SCENE_01",state_image_id:"IMG_01_02"}]} as StateImageDocument});
+  const manifest=buildFlowManualManifest({projectId:plan.project_id,promptBundle:bundle,clipProduction:plan,
+    approvedImages:{schema_version:"1.0",project_id:plan.project_id,provider:"fixture",source_prompt_bundle_sha256:"a".repeat(64),
+      images:[{state_image_id:"IMG_01_01",scene_id:"SCENE_01",relative_path:"05_images/start.png",sha256:"b".repeat(64),width:1536,height:864,provider_request_ids:[],reference_roles:[]}]}});
+  const item=manifest.items[0]!;
+  assert.equal(item.target_image_relative_path,null);
+  assert.equal(item.target_state_image_id,"IMG_01_02");
+  assert.equal(item.directing!.source_in_sec,1);
+  assert.match(item.directing_sha256!,/^[a-f0-9]{64}$/);
+  const legacy=clipCameraSchema("SHORTS");
+  assert.equal(legacy,AGENT3_CLIP_CAMERA_SCHEMA);
+  assert.match(JSON.stringify(clipCameraSchema("LONGFORM")),/"directing"/);
+  assert.doesNotMatch(JSON.stringify(legacy),/"directing"/);
+});
 
 test("production tail builds a deterministic Google Flow manual manifest",()=>{
   const manifest=buildFlowManualManifest({
@@ -102,6 +123,7 @@ test("production tail builds V1 A1 T1 edit project from unified artifacts",()=>{
       public_src:"runtime/tail_fixture/clips/CLIP_01.mp4",
       sha256:"4".repeat(64),
       source_duration_sec:8,
+      source_in_sec:1,
       editorial_duration_sec:6,
       width:1920,
       height:1080
@@ -145,9 +167,11 @@ test("production tail builds V1 A1 T1 edit project from unified artifacts",()=>{
   assert.equal(video?.type,"VIDEO");
   assert.equal(video?.timelineStartFrame,0);
   assert.equal(video?.durationInFrames,180);
+  assert.equal(video?.type === "VIDEO" ? video.sourceStartFrame : undefined,30);
   const narration=project.items.find(item=>item.id==="tts-tts-SCENE_01");
   assert.equal(narration?.type,"TTS");
   assert.equal(narration?.trackId,"A1");
+  assert.equal(narration?.timelineStartFrame,0);
   const subtitle=project.items.find(item=>item.id==="subtitle-SUB_01");
   assert.equal(subtitle?.type,"SUBTITLE");
   assert.equal(subtitle?.timelineStartFrame,30);
@@ -215,7 +239,7 @@ test("new T070 execution pauses at SEED_QC before completion gate or full genera
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
   const index=read("cli/vpf/src/index.ts");
 
-  assert.match(tail,/const legacyAdoption=!loadedCheckpoint\.exists&&attempt>1/);
+  assert.match(tail,/const legacyAdoption=promptRecord\.value\.compiler_version!=="DIRECTING_PROMPT_COMPILER_V2"&&!loadedCheckpoint\.exists&&attempt>1/);
   assert.match(tail,/\?"FULL_GENERATION"\s*:\s*"SEED_GENERATION"/);
   assert.match(tail,/selectT070RepresentativeSeedImageIds\(/);
   assert.match(tail,/const sceneOrder:string\[\]=\[\]/);
@@ -341,7 +365,7 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
 
   assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH="05_images\/generated\/t070-checkpoint\.json"/);
   assert.match(tail,/writeT070Checkpoint\(checkpointAbsolute/);
-  assert.match(tail,/const legacyAdoption=!loadedCheckpoint\.exists&&attempt>1/);
+  assert.match(tail,/const legacyAdoption=promptRecord\.value\.compiler_version!=="DIRECTING_PROMPT_COMPILER_V2"&&!loadedCheckpoint\.exists&&attempt>1/);
   assert.match(tail,/const reusable=completedByState\.get\(prompt\.state_image_id\)/);
   assert.match(tail,/T070_ITEM_MAX_ATTEMPTS=3/);
   assert.match(tail,/await this\.hasT070ResumeEvidence\(projectId\)/);
@@ -360,7 +384,7 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
-test("T070 uses text-only GLOBAL visual grammar and attaches no GLOBAL reference image",()=>{
+test("T070 keeps GLOBAL grammar text-only while v2 can attach approved identity references",()=>{
   const tail=read("cli/vpf/src/production-tail-runtime-service.ts");
   const compiler=read("packages/production-spec/src/agent3-prompt-compiler.ts");
   const imageRuntime=read("packages/provider-orchestrator/src/image-runtime.ts");
@@ -369,7 +393,7 @@ test("T070 uses text-only GLOBAL visual grammar and attaches no GLOBAL reference
   assert.doesNotMatch(tail,/REFERENCE_LIBRARY:GLOBAL_VISUAL:/);
   assert.doesNotMatch(tail,/PINNED_GLOBAL_VISUAL_2/);
   assert.match(tail,/TEXT_VISUAL_GRAMMAR_ONLY/);
-  assert.match(tail,/references:\[\]/);
+  assert.match(tail,/references:providerReferences/);
   assert.match(tail,/reference_roles:\[\]/);
   assert.match(tail,/no GLOBAL reference image is attached/);
 
@@ -494,7 +518,7 @@ test("T070 materializes image metadata, manifest and visual QC reports",()=>{
   assert.match(tail,/"05_images\/qc\/seed_qc_report\.json"/);
   assert.match(tail,/"05_images\/qc\/scene_qc_"\+safeFileSegment\(sceneId\)\+"\.json"/);
   assert.match(tail,/"05_images\/qc\/final_qc_report\.json"/);
-  assert.match(tail,/reference_policy:"TEXT_GRAMMAR_ONLY"/);
+  assert.match(tail,/reference_policy:prompt\.directing\?"PINNED_DIRECTING_REFERENCES":"TEXT_GRAMMAR_ONLY"/);
   assert.match(tail,/fantasy_mode:effectiveT070FantasyMode\(scene\)/);
   assert.match(tail,/motion_vector:state\.motion_vector_en\|\|state\.motion_vector_ko/);
   assert.match(tail,/handoff_anchor:state\.handoff_anchor/);

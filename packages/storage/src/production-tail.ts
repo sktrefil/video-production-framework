@@ -4,6 +4,7 @@ import Database from "better-sqlite3";
 export type ProductionTailTaskId = "T070" | "T080" | "T090" | "T100";
 
 export type ProductionTailArtifactType =
+  | "directing_pilot_qc"
   | "generated_images"
   | "image_qc_result"
   | "approved_images"

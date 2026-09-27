@@ -225,6 +225,7 @@ export class WorkflowOrchestratorRepository {
       "t070_seed_visual_qc",
       "t070_scene_visual_qc",
       "t070_final_visual_qc",
+      "directing_pilot_qc",
       "generated_clips",
       "clip_qc_result",
       "timeline_spec",

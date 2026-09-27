@@ -25,6 +25,8 @@ export interface ClipStateImages {
 }
 
 export interface ClipProductionSpec {
+  /** Absent only on legacy/SHORTS plans. Included in canonical revision/hash. */
+  directing?: import("./directing.js").DirectingCard;
   scene_id: string;
   clip_id: string;
   editorial_duration_sec: number;

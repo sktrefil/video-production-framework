@@ -367,7 +367,7 @@ export function validatePromptBundle(
   const errors: ValidationIssue[] = [];
   const warnings: ValidationIssue[] = [];
   if (!record(input)) return output([{ code: "INVALID_PROMPT_BUNDLE", path: "prompt_bundle_spec", message: "Prompt Bundle must be an object." }]);
-  if (input.schema_version !== "1.0" || input.compiler_version !== "AGENT3_PROMPT_COMPILER_V1") {
+  if (input.schema_version !== "1.0" || !["AGENT3_PROMPT_COMPILER_V1", "DIRECTING_PROMPT_COMPILER_V2"].includes(String(input.compiler_version))) {
     errors.push({ code: "INVALID_PROMPT_COMPILER_VERSION", path: "compiler_version", message: "Prompt Bundle must use AGENT3_PROMPT_COMPILER_V1." });
   }
   if (context.projectId !== undefined && input.project_id !== context.projectId) {

@@ -1,4 +1,5 @@
 import {
+  DIRECTING_CARD_SCHEMA,
   CAMERA_MOVEMENTS,
   CAMERA_PURPOSES,
   FANTASY_MODES,
@@ -313,3 +314,20 @@ export const AGENT3_CLIP_CAMERA_SCHEMA = {
     }
   }
 } as const;
+
+/** New LONGFORM authoring requires v2; legacy readers and SHORTS keep their schema. */
+export function clipCameraSchema(format: string): unknown {
+  if (format !== "LONGFORM") return AGENT3_CLIP_CAMERA_SCHEMA;
+  const base = AGENT3_CLIP_CAMERA_SCHEMA;
+  const spec = base.properties.clip_production_spec;
+  const clips = spec.properties.clips;
+  const item = clips.items;
+  return { ...base, properties: { ...base.properties, clip_production_spec: {
+    ...spec, properties: { ...spec.properties, clips: { ...clips, items: {
+      ...item, required: [...item.required, "directing"], properties: {
+        ...item.properties, directing: DIRECTING_CARD_SCHEMA,
+        generation_duration_sec: { type: "number", exclusiveMinimum: 0 }
+      }
+    } } }
+  } } };
+}

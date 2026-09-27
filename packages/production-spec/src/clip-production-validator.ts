@@ -1,11 +1,13 @@
 import { CAMERA_MOVEMENTS, CAMERA_PURPOSES, MOVEMENT_CURVES, SHOT_SIZES } from "./enums.js";
+import { validateDirectingCard } from "./directing.js";
 import type { ValidationIssue, ValidationResult } from "./project-validator.js";
 
 export interface ClipValidationContext {
+  requireDirecting?: boolean;
   sceneIds?: readonly string[];
   sceneTimings?: readonly {
     scene_id: string;
-    tts: { duration_sec: number } | null;
+    tts: { duration_sec: number; start_sec?: number; end_sec?: number } | null;
   }[];
 }
 
@@ -59,6 +61,7 @@ export function validateClipProductionSpec(
     else if (input[key] < 0) fail("NEGATIVE_TIMING", `${key} cannot be negative.`, key);
   }
   const duration = input.editorial_duration_sec;
+  if (context.requireDirecting || input.directing !== undefined) errors.push(...validateDirectingCard(input));
   const narrative = input.narrative_deadline_sec;
   const target = input.target_state_deadline_sec;
   if (finite(duration) && duration <= 0) fail("INVALID_EDITORIAL_DURATION", "Editorial duration must be positive.", "editorial_duration_sec");
@@ -145,13 +148,33 @@ export function validateClipProductionSpecs(input: unknown, context: ClipValidat
     return result(errors, warnings);
   }
   const ids = new Set<string>();
+  if (clips.some(clip => record(clip) && clip.directing !== undefined) && clips.some(clip => !record(clip) || clip.directing === undefined))
+    fail("MIXED_DIRECTING_POLICY", "Migrate a plan consistently; do not mix legacy and v2 clips.", "clips");
   const durations = new Map<string, number>();
+  const sceneEnds = new Map<string, number>();
   clips.forEach((clip: unknown, index: number) => {
     const checked = validateClipProductionSpec(clip, context);
     const prefix = (issue: ValidationIssue): ValidationIssue => ({ ...issue, path: `clips[${index}]${issue.path ? `.${issue.path}` : ""}` });
     errors.push(...checked.errors.map(prefix));
     warnings.push(...checked.warnings.map(prefix));
     if (!record(clip)) return;
+    if (record(clip.directing)) {
+      const d = clip.directing;
+      const previous = clips[index - 1];
+      if (record(previous) && record(previous.directing) && finite(previous.directing.timeline_end_sec) && finite(d.timeline_start_sec) && d.timeline_start_sec < previous.directing.timeline_end_sec - 0.01)
+        fail("DIRECTING_TIMELINE_ORDER_INVALID", "Clips must follow the global TTS timeline without overlap.", `clips[${index}].directing.timeline_start_sec`);
+      if (d.image_mode === "PREVIOUS_END_FRAME" && (!record(previous) || previous.clip_id !== d.previous_clip_id || previous.scene_id !== clip.scene_id))
+        fail("PREVIOUS_CLIP_INVALID", "Continuous footage must reference the immediately preceding clip in the same scene.", `clips[${index}].directing.previous_clip_id`);
+      const timing = context.sceneTimings?.find(scene => scene.scene_id === clip.scene_id)?.tts;
+      const expectedStart = sceneEnds.get(String(clip.scene_id)) ?? timing?.start_sec;
+      if (finite(d.timeline_start_sec) && expectedStart !== undefined && Math.abs(d.timeline_start_sec - expectedStart) > 0.01)
+        fail("DIRECTING_TTS_RANGE_MISMATCH", "Clip timeline must start at measured TTS or the preceding clip end.", `clips[${index}].directing.timeline_start_sec`);
+      if (finite(d.timeline_end_sec)) {
+        sceneEnds.set(String(clip.scene_id), d.timeline_end_sec);
+        if (timing?.end_sec !== undefined && d.timeline_end_sec > timing.end_sec + 0.01)
+          fail("DIRECTING_TTS_RANGE_MISMATCH", "Clip timeline exceeds its measured scene TTS.", `clips[${index}].directing.timeline_end_sec`);
+      }
+    }
     if (nonempty(clip.clip_id)) {
       if (ids.has(clip.clip_id)) fail("DUPLICATE_CLIP_ID", "Clip ids must be unique within a project.", `clips[${index}].clip_id`);
       ids.add(clip.clip_id);

@@ -106,6 +106,8 @@ export interface StateImageDocument {
 }
 
 export interface ImagePromptPlan {
+  references?: Array<{ media_id: string; revision: number; relative_path: string; sha256: string; mime_type: "image/png" | "image/jpeg" | "image/webp" }>;
+  directing?: import("./directing.js").DirectingCard;
   state_image_id: string;
   scene_id: string;
   prompt_ko: string;
@@ -115,6 +117,7 @@ export interface ImagePromptPlan {
 }
 
 export interface VideoPromptPlan {
+  directing?: import("./directing.js").DirectingCard;
   clip_id: string;
   scene_id: string;
   entry_state_image_id: string;
@@ -132,7 +135,7 @@ export interface VideoPromptPlan {
 export interface PromptBundleDocument {
   schema_version: "1.0";
   project_id: string;
-  compiler_version: "AGENT3_PROMPT_COMPILER_V1";
+  compiler_version: "AGENT3_PROMPT_COMPILER_V1" | "DIRECTING_PROMPT_COMPILER_V2";
   image_prompts: ImagePromptPlan[];
   video_prompts: VideoPromptPlan[];
 }

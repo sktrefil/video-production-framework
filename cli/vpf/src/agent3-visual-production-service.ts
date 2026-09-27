@@ -1,3 +1,4 @@
+import { resolveDirectingReferences } from "./directing-references.js";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
@@ -9,6 +10,7 @@ import {
 } from "@vpf/resource-registry";
 import {
   compileAgent3Prompts,
+  requiredImageStateIds,
   validateClipProductionSpecs,
   validateClipStateBindings,
   validatePromptBundle,
@@ -374,9 +376,15 @@ export class Agent3VisualProductionWorkerService {
           error instanceof Error ? error.message : String(error)
         );
       }
+      for (const prompt of prompts.image_prompts) {
+        if (prompt.directing) prompt.references = await resolveDirectingReferences({
+          dbPath: status.projectDbPath, projectRoot: status.projectRoot, projectId,
+          ids: prompt.directing.reference_ids
+        });
+      }
       const promptValidation = validatePromptBundle(prompts, {
         projectId,
-        stateImageIds: states.state_images.map(item => item.state_image_id),
+        stateImageIds: typed.clip_production_spec.clips.some(clip => clip.directing) ? requiredImageStateIds(typed.clip_production_spec) : states.state_images.map(item => item.state_image_id),
         clipIds: typed.clip_production_spec.clips.map(item => item.clip_id)
       });
       if (!promptValidation.valid) {

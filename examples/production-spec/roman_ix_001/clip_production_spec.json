@@ -5,35 +5,28 @@
     {
       "scene_id": "SCENE_01",
       "clip_id": "CLIP_01A",
-      "editorial_duration_sec": 5.0,
-      "generation_duration_sec": 10.0,
+      "editorial_duration_sec": 5,
+      "generation_duration_sec": 10,
       "mandatory_core_points": [
         {
           "id": "CP01",
-          "description_ko": "로마 군단의 존재가 명확히 보여야 한다.",
-          "description_en": "The Roman legion must be clearly visible.",
-          "window_start_sec": 0.4,
-          "window_end_sec": 1.8
-        },
-        {
-          "id": "CP02",
-          "description_ko": "군단 실종의 불길한 단서가 보여야 한다.",
-          "description_en": "An ominous clue to the legion's disappearance must be visible.",
-          "window_start_sec": 1.8,
-          "window_end_sec": 3.6
+          "description_ko": "전경 바위가 시야 밖으로 빠지며 안개 낀 굽은 길과 이어지는 행렬이 새로 드러난다.",
+          "description_en": "The foreground rock exits the view, revealing the misty bend and continuation of the column.",
+          "window_start_sec": 0,
+          "window_end_sec": 3
         }
       ],
-      "narrative_deadline_sec": 4.0,
+      "narrative_deadline_sec": 4,
       "target_state_deadline_sec": 4.3,
-      "start_handle_sec": 0.4,
+      "start_handle_sec": 0,
       "end_hold_sec": 0.7,
-      "safe_trim_start_sec": 5.0,
+      "safe_trim_start_sec": 5,
       "camera": {
         "purpose": "DISCOVER",
-        "movement": "LATERAL_TRACK_WITH_SUBTLE_PUSH",
+        "movement": "LATERAL_TRACK",
         "shot_size_start": "WIDE",
-        "shot_size_end": "MEDIUM_WIDE",
-        "movement_curve": "HOLD_MOVE_SETTLE"
+        "shot_size_end": "WIDE",
+        "movement_curve": "CONTINUOUS_CONTROLLED_MOVE"
       },
       "state_images": {
         "entry": "IMG_01_01",
@@ -42,7 +35,68 @@
       },
       "transition_in": "HARD_CUT",
       "transition_out": "MATCH_CUT",
-      "ready_for_generation": false
+      "ready_for_generation": false,
+      "directing": {
+        "version": "2",
+        "timeline_start_sec": 0,
+        "timeline_end_sec": 5,
+        "source_in_sec": 1,
+        "source_out_sec": 6,
+        "reveal_deadline_sec": 3,
+        "image_mode": "START_ONLY",
+        "previous_clip_id": null,
+        "continuation": null,
+        "reference_ids": [],
+        "precision_physics_required": false,
+        "story": {
+          "ko": "군단의 마지막 흔적이라는 질문을 제기하는 재현이다. 확인된 실종 사건을 묘사하지 않는다.",
+          "en": "A reconstruction posing the question of the legion's last trace, not depicting a verified disappearance."
+        },
+        "action": {
+          "ko": "군단 행렬이 협곡 길을 따라 전진한다.",
+          "en": "A legion column advances along the ravine path."
+        },
+        "space": {
+          "ko": "오른쪽 전경 바위 뒤로 중경 행렬과 협곡 길이 있다. 카메라는 길 앞 평행 통로를 이동할 수 있다.",
+          "en": "A foreground rock on the right occludes the midground column and ravine path. A parallel passage in front is traversable by the camera."
+        },
+        "start": {
+          "ko": "지면 위 1m의 와이드, 길에 직각으로 바라본다. 행렬 선두는 화면 왼쪽 1/3, 오른쪽 전경 바위가 뒤쪽 굽은 길을 가린다.",
+          "en": "Wide at 1m above ground, facing perpendicular to the path. The column's head occupies the left third; the right foreground rock hides the bend behind it."
+        },
+        "subject_motion": {
+          "ko": "병사는 실제 길을 따라 화면 기준 왼쪽에서 오른쪽으로 걷는다. 카메라가 추적해 선두는 화면 왼쪽 1/3에 남는다.",
+          "en": "Soldiers walk along the physical path from screen left to right. Tracking keeps the head of the column in the left third."
+        },
+        "camera_path": {
+          "ko": "시작 위치에서 길과 평행하게 공간 기준 오른쪽으로 4m 측면 이동한다. 높이와 방향을 유지하고 정상 속도로 선두를 추적한다.",
+          "en": "Track 4m to world right parallel to the path from the starting position, maintaining height and facing while following the column's head at normal speed."
+        },
+        "reveal": {
+          "ko": "전경 바위가 시야 밖으로 빠지며 안개 낀 굽은 길과 이어지는 행렬이 새로 드러난다.",
+          "en": "The foreground rock exits the view, revealing the misty bend and continuation of the column."
+        },
+        "end": {
+          "ko": "높이 1m 와이드에서 선두는 왼쪽 1/3, 굽은 길과 뒤 행렬은 오른쪽 중경에 보인다. 행군은 계속된다.",
+          "en": "At 1m height in a wide shot, the head remains in the left third; the bend and trailing column appear in the right midground. Marching continues."
+        },
+        "handoff": {
+          "ko": "다음 컷은 오른쪽 진행 방향과 발걸음 소리를 이어 받는다.",
+          "en": "The next cut inherits rightward travel and footsteps."
+        },
+        "locks": {
+          "ko": "같은 군장·상대 크기·바위 배치·흐린 측광을 유지한다. 이 단독 예시는 반복 인물 레퍼런스가 없다.",
+          "en": "Keep equipment, relative scale, rock placement and overcast side light consistent. This standalone example has no recurring-character reference."
+        },
+        "risk": {
+          "ko": "바위가 굽은 길을 실제로 가리도록 배치한다. 마법 같은 소멸이나 역사적 증거의 창작을 금지한다.",
+          "en": "The rock must physically occlude the bend. No magical disappearance or fabricated historical evidence."
+        },
+        "fallback": {
+          "ko": "가림이나 보행이 반복 실패하면 더 단순한 직선 길과 원경 행렬로 장면을 교체한다.",
+          "en": "If occlusion or walking repeatedly fails, replace the scene with a simpler straight path and distant column."
+        }
+      }
     }
   ]
 }

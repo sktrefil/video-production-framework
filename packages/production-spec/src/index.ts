@@ -15,3 +15,4 @@ export * from "./agent3-types.js";
 export * from "./agent3-validator.js";
 export * from "./agent3-prompt-compiler.js";
 export * from "./agent3-instructions.js";
+export * from "./directing.js";

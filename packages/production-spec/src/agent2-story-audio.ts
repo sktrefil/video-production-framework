@@ -602,6 +602,10 @@ export const AGENT2_TASK_INSTRUCTIONS: Record<"T010" | "T020" | "T030", Agent2Ta
     rules: [
       "Use only fact IDs present in the active fact_check_spec.",
       "A Scene is defined by one narrative purpose, not by a fixed one-or-two-sentence rule.",
+      "For LONGFORM directing guide v2, narrow the story to one central event/person, one question and an ending payoff. Open inside an event or question; introduce background during progress rather than as an information list.",
+      "Co-design narration and screen experience. In each Scene narrative_purpose describe what happens, what changes, why to watch next, and the complementary visible action/discovery; narration supplies factual context, time, causality and meaning.",
+      "Before TTS, preflight key scenes for an achievable camera-led discovery within 3-4 seconds. Record concrete spatial/physical risks and a simpler replacement in narrative_purpose; replace scenes whose meaning depends on tiny contact, friction, adjustment, flame response or weight transfer.",
+      "Separate verified facts, interpretation, reconstruction and visual metaphor through fact_refs and production notes. Never narrate invented action as a verified event. A calm historical narrative may still have brisk purposeful visual progression.",
       "Long Scenes may contain multiple Beats; each Beat must retain its exact script segment.",
       "Scene script segments in order must reconstruct the entire Korean script.",
       "Beat script segments in order must reconstruct their Scene script.",

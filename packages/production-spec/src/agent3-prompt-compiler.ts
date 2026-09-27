@@ -5,6 +5,7 @@ import type {
   ShotSize
 } from "./enums.js";
 import type { ClipProductionDocument } from "./clip-production-spec.js";
+import { requiredImageStateIds } from "./directing.js";
 import type {
   ImagePromptPlan,
   PromptBundleDocument,
@@ -77,10 +78,34 @@ export function compileAgent3Prompts(input: {
 }): PromptBundleDocument {
   const sceneById = new Map(input.sceneVisual.scenes.map(scene => [scene.scene_id, scene]));
   const stateById = new Map(input.states.state_images.map(state => [state.state_image_id, state]));
+  const v2 = input.clips.clips.some(clip => clip.directing !== undefined);
+  if (v2 && input.clips.clips.some(clip => !clip.directing)) throw new Error("Do not mix legacy and v2 directing within one plan.");
+  const requiredStates = new Set(requiredImageStateIds(input.clips));
 
-  const image_prompts: ImagePromptPlan[] = input.states.state_images.map(state => {
+  const image_prompts: ImagePromptPlan[] = input.states.state_images.filter(state => !v2 || requiredStates.has(state.state_image_id)).map(state => {
     const scene = sceneById.get(state.scene_id);
     if (scene === undefined) throw new Error("Scene Visual missing for " + state.state_image_id + ".");
+    if (v2) {
+      const clip = input.clips.clips.find(item => item.directing?.image_mode === "START_END" && item.state_images.target === state.state_image_id)
+        ?? input.clips.clips.find(item => item.state_images.entry === state.state_image_id);
+      const d = clip?.directing;
+      if (!d || !clip) throw new Error("Image lacks a directing card: " + state.state_image_id);
+      const end = clip.state_images.target === state.state_image_id;
+      const prompt = (lang: "ko" | "en") => sentence([
+        lang === "ko" ? "16:9 영상용 " + (end ? "종료" : "시작") + " 프레임." : "16:9 video " + (end ? "end" : "start") + " frame.",
+        (end ? d.end : d.start)[lang], d.space[lang],
+        end ? d.camera_path[lang] : d.subject_motion[lang],
+        d.locks[lang],
+        lang === "ko" ? "레퍼런스: " + d.reference_ids.join(", ") : "References: " + d.reference_ids.join(", "),
+        lang === "ko" ? "위험 제약: " + d.risk.ko : "Risk constraints: " + d.risk.en,
+        end
+          ? (lang === "ko" ? "같은 인물·지형·빛에서 실제 카메라 이동으로 가능한 시점. 피사체를 옮겨 시점 변화를 만들지 않는다." : "Same identity, terrain and light; a physically reachable camera viewpoint. Do not relocate subjects to fake camera translation.")
+          : (lang === "ko" ? "행동을 시작할 수 있는 자세와 이동 공간, 이후 공개 대상의 설계된 가림을 유지한다." : "An action-ready pose, traversable space and the designed occlusion of the later reveal.")
+      ]);
+      return { state_image_id: state.state_image_id, scene_id: state.scene_id, directing: d,
+        prompt_ko: prompt("ko"), prompt_en: prompt("en"), provider_prompt_en: prompt("en"),
+        negative_prompt_en: d.risk.en };
+    }
     const fantasyMode = effectiveFantasyMode(scene);
     const avoid = [...new Set([
       ...scene.forbidden_visual_claims,
@@ -144,6 +169,22 @@ export function compileAgent3Prompts(input: {
     const mid = clip.state_images.mid === null ? null : stateById.get(clip.state_images.mid);
     if (!scene || !entry || !target || (clip.state_images.mid !== null && !mid)) {
       throw new Error("Clip " + clip.clip_id + " references missing Agent3 visual/state inputs.");
+    }
+    if (clip.directing) {
+      const d = clip.directing;
+      const prompt = (lang: "ko" | "en") => sentence([
+        lang === "ko" ? "16:9, 연속 촬영, 정상 속도. 사용 시작부터 카메라가 움직인다." : "16:9, continuous shot, normal speed. Camera motion begins at the start of the used range.",
+        d.action[lang], d.camera_path[lang], d.subject_motion[lang],
+        lang === "ko"
+          ? `원본 ${d.source_in_sec}초부터 사용하는 구간의 ${d.reveal_deadline_sec}초 이내 공개: ${d.reveal.ko}.`
+          : `Within ${d.reveal_deadline_sec}s of the used range starting at source ${d.source_in_sec}s, reveal: ${d.reveal.en}.`,
+        d.end[lang], d.continuation?.[lang] ?? "", d.locks[lang], d.risk[lang]
+      ]);
+      return { clip_id: clip.clip_id, scene_id: clip.scene_id, directing: d,
+        entry_state_image_id: entry.state_image_id, mid_state_image_id: mid?.state_image_id ?? null,
+        target_state_image_id: target.state_image_id, prompt_ko: prompt("ko"), prompt_en: prompt("en"), provider_prompt_en: prompt("en"),
+        editorial_duration_sec: clip.editorial_duration_sec, narrative_deadline_sec: clip.narrative_deadline_sec,
+        target_state_deadline_sec: clip.target_state_deadline_sec, safe_trim_start_sec: clip.safe_trim_start_sec };
     }
 
     const coreKo = clip.mandatory_core_points
@@ -215,7 +256,7 @@ export function compileAgent3Prompts(input: {
   return {
     schema_version: "1.0",
     project_id: input.projectId,
-    compiler_version: "AGENT3_PROMPT_COMPILER_V1",
+    compiler_version: v2 ? "DIRECTING_PROMPT_COMPILER_V2" : "AGENT3_PROMPT_COMPILER_V1",
     image_prompts,
     video_prompts
   };

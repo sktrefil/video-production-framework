@@ -10,6 +10,7 @@ import {
 } from "@vpf/resource-registry";
 import {
   getAgent3TaskInstruction,
+  validateClipProductionSpecs,
   type Agent2FactCheckSpec,
   type Agent2StorySpec,
   type Agent3T060Input,
@@ -35,7 +36,7 @@ import {
 } from "./agent3-visual-production-service.js";
 import { ProductionProgressReporter } from "./production-progress.js";
 import {
-  AGENT3_CLIP_CAMERA_SCHEMA,
+  clipCameraSchema,
   AGENT3_SCENE_VISUAL_SCHEMA,
   AGENT3_STATE_IMAGE_SCHEMA
 } from "./agent3-runtime-schemas.js";
@@ -255,9 +256,21 @@ export function buildT050CodexInput(input: {
   };
 }
 
+export function selectedVideoGenerationDuration(format: string, environment: NodeJS.ProcessEnv): number | null {
+  if (format !== "LONGFORM") return null;
+  const duration = Number(environment.VPF_VIDEO_GENERATION_DURATION_SEC);
+  if (!Number.isFinite(duration) || duration <= 0) throw new Agent3RuntimeAdapterError(
+    "AGENT3_RUNTIME_PREREQUISITE",
+    "Set VPF_VIDEO_GENERATION_DURATION_SEC to the actual selected video tool duration before LONGFORM T060; do not estimate it."
+  );
+  return duration;
+}
+
 function normalizedClipInput(
   value: Agent3T060Input,
-  projectId: string
+  projectId: string,
+  format: string,
+  generationDuration: number | null
 ): Agent3T060Input {
   const clips: ClipProductionDocument = {
     ...value.clip_production_spec,
@@ -265,10 +278,17 @@ function normalizedClipInput(
     project_id: projectId,
     clips: value.clip_production_spec.clips.map(clip => ({
       ...clip,
-      generation_duration_sec: null,
+      generation_duration_sec: clip.directing ? clip.generation_duration_sec : null,
       safe_trim_start_sec: clip.editorial_duration_sec
     }))
   };
+  if (format === "LONGFORM") {
+    if (clips.clips.some(clip => clip.generation_duration_sec !== generationDuration))
+      throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID", "Generation duration must match the selected tool setting.");
+    const validation = validateClipProductionSpecs(clips, { requireDirecting: true });
+    if (!validation.valid) throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID",
+      validation.errors.map(issue => issue.code + ": " + issue.message).join("; "));
+  }
   return {
     schema_version: "1.0",
     project_id: projectId,
@@ -453,9 +473,10 @@ class OpenAiAgent3Runtime {
     value: Agent3T060Input;
   }> {
     const instruction = getAgent3TaskInstruction("T060");
+    const generationDuration = selectedVideoGenerationDuration(input.projectSpec.format, this.environment);
     const response = await this.request({
       name: "agent3_clip_camera_spec",
-      schema: AGENT3_CLIP_CAMERA_SCHEMA,
+      schema: clipCameraSchema(input.projectSpec.format),
       developer: [
         "You are Agent 3 Clip and Camera Planning Worker in a production pipeline.",
         ...instruction.rules,
@@ -465,11 +486,11 @@ class OpenAiAgent3Runtime {
         "Within a Scene, adjacent Clips must form a state chain: previous target state ID must exactly equal next entry state ID.",
         "Use only State Image IDs supplied in state_image_spec.",
         "A Clip entry state must precede its target state by sequence_order; MID, when used, must lie strictly between them.",
-        "Use generation_duration_sec=null because the generation provider is not selected at this planning stage.",
+        "For SHORTS use generation_duration_sec=null. LONGFORM v2 must choose the actual generation duration supported by the configured provider; block if unknown.",
         "Set safe_trim_start_sec equal to editorial_duration_sec.",
         "All mandatory core-point windows are clip-local seconds, non-overlapping, after start_handle_sec, and finish no later than narrative_deadline_sec.",
         "Core-point cap: duration <=3 sec: 1; >3 and <=5 sec: at most 2; >5 and <=10 sec: at most 3.",
-        "narrative_deadline_sec must be before target_state_deadline_sec or equal to it, and target_state_deadline_sec must be before editorial end. Normally place narrative completion around 80–90 percent of editorial duration unless the beat requires an earlier completion.",
+        "narrative_deadline_sec must be before target_state_deadline_sec or equal to it, and target_state_deadline_sec must be before editorial end. For LONGFORM reveal new information within 4 seconds of used-range start; meaningful action can continue afterwards. SHORTS retains its existing timing policy.",
         "end_hold_sec must fit entirely after target_state_deadline_sec.",
         "Camera purpose must explain narrative intent. Avoid four adjacent Clips with the same movement, same shot-size pattern, or same transition.",
         "Use varied transitions such as HARD_CUT, MATCH_CUT, MOTION_MATCH, GRAPHIC_MATCH, FOREGROUND_WIPE, ENVIRONMENT_OCCLUSION, LIGHT_TRANSITION, STATIC_BREAK.",
@@ -482,6 +503,7 @@ class OpenAiAgent3Runtime {
         scene_timing_spec: input.sceneTiming,
         scene_visual_spec: input.sceneVisual,
         state_image_spec: input.states,
+        video_generation_duration_sec: generationDuration,
         revision_feedback: input.revisionFeedback
       }
     });
@@ -489,7 +511,9 @@ class OpenAiAgent3Runtime {
       responseId: typeof response.id === "string" ? response.id : null,
       value: normalizedClipInput(
         parseStructuredJson<Agent3T060Input>(response),
-        input.projectId
+        input.projectId,
+        input.projectSpec.format,
+        generationDuration
       )
     };
   }
@@ -1438,6 +1462,7 @@ export class Agent3RuntimeAdapterService {
         scene_timing_spec: sceneTiming,
         scene_visual_spec: visual.value,
         state_image_spec: states.value,
+        video_generation_duration_sec: selectedVideoGenerationDuration(projectSpec.format, this.environment),
         provider_profile: codexPin,
         manager_revision_instruction: managerDirective
       };
@@ -1448,14 +1473,14 @@ export class Agent3RuntimeAdapterService {
         attempt,
         codex,
         input,
-        AGENT3_CLIP_CAMERA_SCHEMA,
+        clipCameraSchema(projectSpec.format),
         [
           ...getAgent3TaskInstruction("T060").rules,
           "Use measured scene_timing_spec TTS duration, never estimated duration.",
           "For each Scene, Clip editorial durations must sum to measured TTS duration within 0.01 sec.",
           "No Clip may exceed 10 seconds.",
           "Adjacent Clips in one Scene must chain previous target state to next entry state.",
-          "Use generation_duration_sec=null and safe_trim_start_sec=editorial_duration_sec.",
+          "For SHORTS use generation_duration_sec=null; LONGFORM v2 requires the selected provider duration. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
           "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
           "Avoid four adjacent Clips with the same camera movement, shot-size pattern, or transition.",
           "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",
@@ -1464,7 +1489,9 @@ export class Agent3RuntimeAdapterService {
         async output => {
           const value = normalizedClipInput(
             output as Agent3T060Input,
-            projectId
+            projectId,
+            projectSpec.format,
+            input.video_generation_duration_sec
           );
           const worker = await this.worker.executePayload(
             projectId,

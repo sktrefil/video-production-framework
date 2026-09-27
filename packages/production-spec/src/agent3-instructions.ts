@@ -1,3 +1,4 @@
+import { DIRECTING_V2_RULES } from "./directing.js";
 export interface Agent3TaskInstruction {
   instruction_id: string;
   task_id: "T040" | "T050" | "T060";
@@ -27,7 +28,7 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T040" | "T050" | "T060", Agent3Ta
     task_id: "T050",
     purpose: "Plan the minimum video-ready visual states needed for each Scene and its clip handoffs.",
     rules: [
-      "Every Scene requires exactly one ENTRY and one TARGET state; MID is optional.",
+      "Every Scene requires exactly one ENTRY and one TARGET design state; MID is optional. These are design descriptions, not a requirement to generate every state as an image file.",
       "State Images are video-ready keyframes, not posters.",
       "Each State needs depth, a continuable motion vector, physical integrity and a handoff anchor.",
       "A Scene longer than 10 seconds of measured TTS must contain enough sequential states to support multiple Clips of at most 10 seconds.",
@@ -41,6 +42,7 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T040" | "T050" | "T060", Agent3Ta
     task_id: "T060",
     purpose: "Convert measured TTS timing and visual states into clip timing, camera direction, transitions and compiled prompts.",
     rules: [
+      ...DIRECTING_V2_RULES.map(rule => "LONGFORM v2 only: " + rule),
       "Scene is not Clip; split a Scene when timing or state progression requires it.",
       "Clip durations must sum to measured Scene TTS duration.",
       "All mandatory core points finish by narrative deadline.",

@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import {
   validateClipProductionSpecs,
+  requiredImageStateIds,
   validateGenerationReady,
   validateClipStateBindings,
   validatePromptBundle,
@@ -94,6 +95,9 @@ function validatePromptBindings(
   for (const [index, prompt] of prompts.video_prompts.entries()) {
     const clip = clipById.get(prompt.clip_id);
     const base = `video_prompts[${index}]`;
+    if (clip && JSON.stringify(prompt.directing) !== JSON.stringify(clip.directing)) {
+      errors.push(missing("PROMPT_DIRECTING_MISMATCH", "Prompt directing must match the current approved card.", base));
+    }
     if (clip === undefined) {
       errors.push(missing("UNKNOWN_PROMPT_CLIP", "Video prompt references an unknown Clip.", `${base}.clip_id`));
       continue;
@@ -444,7 +448,7 @@ export class Agent1ProductionManagerService {
           : merge(
               validatePromptBundle(prompts.value, {
                 projectId,
-                stateImageIds: states.value.state_images.map(item => item.state_image_id),
+                stateImageIds: clips.clips.some(clip => clip.directing) ? requiredImageStateIds(clips) : states.value.state_images.map(item => item.state_image_id),
                 clipIds: clips.clips.map(item => item.clip_id)
               }),
               validatePromptBindings(prompts.value, states.value, clips)
@@ -550,7 +554,7 @@ export class Agent1ProductionManagerService {
           : merge(
               validatePromptBundle(prompts.value, {
                 projectId,
-                stateImageIds: states.value.state_images.map(item => item.state_image_id),
+                stateImageIds: clips.clips.some(clip => clip.directing) ? requiredImageStateIds(clips) : states.value.state_images.map(item => item.state_image_id),
                 clipIds: clips.clips.map(item => item.clip_id)
               }),
               validatePromptBindings(prompts.value, states.value, clips)

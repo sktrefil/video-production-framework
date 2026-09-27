@@ -1,3 +1,4 @@
+import { resolveDirectingReferences } from "./directing-references.js";
 import {createHash} from "node:crypto";
 import {spawn} from "node:child_process";
 import {copyFile, mkdir, readFile, rename, rm, stat, writeFile} from "node:fs/promises";
@@ -14,6 +15,7 @@ import {
   probeImageBytes,
   type ImageProviderAdapter
 } from "@vpf/provider-orchestrator/image-runtime";
+import { validateDirectingVideoReview, type DirectingCard, type DirectingVideoReview } from "@vpf/production-spec";
 import type {
   Agent2SubtitleTimingSpec,
   Agent2TtsManifest,
@@ -185,6 +187,10 @@ const T070_CHECKPOINT_RELATIVE_PATH="05_images/generated/t070-checkpoint.json";
 const T070_ITEM_MAX_ATTEMPTS=3;
 
 type FlowManifestItem={
+  generation_duration_sec?:number|null;
+  directing?:DirectingCard;
+  directing_sha256?:string;
+  previous_used_end_frame?:{clip_id:string;source_end_sec:number;direction_speed_phase:string};
   clip_id:string;
   scene_id:string;
   entry_state_image_id:string;
@@ -197,7 +203,7 @@ type FlowManifestItem={
   safe_trim_start_sec:number;
   entry_image_relative_path:string;
   mid_image_relative_path:string|null;
-  target_image_relative_path:string;
+  target_image_relative_path:string|null;
   fantasy_mode:"OFF"|"RESTRAINED"|"EDITORIAL"|"HEIGHTENED"|null;
   camera:{
     purpose:string;
@@ -223,6 +229,7 @@ type FlowManifestItem={
 };
 
 export type FlowManualManifest={
+  source_prompt_bundle_sha256?:string;
   schema_version:"1.0";
   project_id:string;
   provider:"GOOGLE_FLOW";
@@ -232,6 +239,9 @@ export type FlowManualManifest={
 };
 
 type GeneratedClip={
+  timeline_start_sec?:number;
+  source_in_sec?:number;
+  source_out_sec?:number;
   clip_id:string;
   scene_id:string;
   relative_path:string;
@@ -705,11 +715,12 @@ export function buildFlowManualManifest(input:{
     project_id:input.projectId,
     provider:"GOOGLE_FLOW",
     execution_mode:"MANUAL_EXTERNAL",
+    source_prompt_bundle_sha256:input.approvedImages.source_prompt_bundle_sha256,
     generated_at:input.generatedAt??new Date().toISOString(),
     items:input.promptBundle.video_prompts.map(prompt=>{
-      const entry=imageByState(input.approvedImages.images,prompt.entry_state_image_id);
-      const target=imageByState(input.approvedImages.images,prompt.target_state_image_id);
-      const mid=prompt.mid_state_image_id===null
+      const entry=prompt.directing?.image_mode==="PREVIOUS_END_FRAME" ? null : imageByState(input.approvedImages.images,prompt.entry_state_image_id);
+      const target=prompt.directing && prompt.directing.image_mode!=="START_END" ? null : imageByState(input.approvedImages.images,prompt.target_state_image_id);
+      const mid=prompt.directing || prompt.mid_state_image_id===null
         ?null
         :imageByState(input.approvedImages.images,prompt.mid_state_image_id);
       const scene=input.sceneVisual?.scenes.find(
@@ -718,7 +729,21 @@ export function buildFlowManualManifest(input:{
       const clip=input.clipProduction?.clips.find(
         item=>item.clip_id===prompt.clip_id
       );
+      if(prompt.directing && !clip) throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","V2 handoff requires its canonical clip production plan.");
+      const previous=prompt.directing?.previous_clip_id
+        ?input.clipProduction?.clips.find(item=>item.clip_id===prompt.directing!.previous_clip_id):undefined;
+      if(prompt.directing?.image_mode==="PREVIOUS_END_FRAME" && !previous?.directing)
+        throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Previous adopted clip directing is required.");
       return{
+        ...(prompt.directing ? {
+          generation_duration_sec:clip?.generation_duration_sec??null,
+          directing:prompt.directing,
+          directing_sha256:createHash("sha256").update(JSON.stringify(prompt.directing)).digest("hex"),
+          ...(previous?.directing ? {previous_used_end_frame:{
+            clip_id:previous.clip_id,source_end_sec:previous.directing.source_out_sec,
+            direction_speed_phase:prompt.directing.continuation!.en
+          }} : {})
+        } : {}),
         clip_id:prompt.clip_id,
         scene_id:prompt.scene_id,
         entry_state_image_id:prompt.entry_state_image_id,
@@ -729,9 +754,9 @@ export function buildFlowManualManifest(input:{
         narrative_deadline_sec:prompt.narrative_deadline_sec,
         target_state_deadline_sec:prompt.target_state_deadline_sec,
         safe_trim_start_sec:prompt.safe_trim_start_sec,
-        entry_image_relative_path:entry.relative_path,
+        entry_image_relative_path:entry?.relative_path??("06_clips/continuity/"+safeFileSegment(prompt.clip_id)+"-entry.png"),
         mid_image_relative_path:mid?.relative_path??null,
-        target_image_relative_path:target.relative_path,
+        target_image_relative_path:target?.relative_path??null,
         fantasy_mode:scene===undefined?null:effectiveT070FantasyMode(scene),
         camera:clip===undefined?null:{
           purpose:clip.camera.purpose,
@@ -783,17 +808,18 @@ export function buildTailEditProject(input:{
   let cursorFrame=0;
   for(const clip of input.clips){
     const durationFrames=frames(clip.editorial_duration_sec,input.fps);
+    const startFrame=clip.timeline_start_sec===undefined?cursorFrame:Math.round(clip.timeline_start_sec*input.fps);
     const sourceFrames=Math.max(durationFrames,frames(clip.source_duration_sec,input.fps));
     items.push({
       id:"video-"+clip.clip_id,
       type:"VIDEO",
       trackId:"V1",
-      timelineStartFrame:cursorFrame,
+      timelineStartFrame:startFrame,
       durationInFrames:durationFrames,
       enabled:true,
       locked:false,
       src:clip.public_src,
-      sourceStartFrame:0,
+      sourceStartFrame:Math.round((clip.source_in_sec??0)*input.fps),
       sourceDurationInFrames:durationFrames,
       sourceAssetDurationInFrames:sourceFrames,
       playbackRate:1,
@@ -805,7 +831,7 @@ export function buildTailEditProject(input:{
       opacity:1,
       fit:"cover"
     });
-    cursorFrame+=durationFrames;
+    cursorFrame=Math.max(cursorFrame,startFrame+durationFrames);
   }
   for(const section of input.tts.sections){
     const src=input.ttsPublicSrc[section.section_id];
@@ -818,7 +844,7 @@ export function buildTailEditProject(input:{
       id:"tts-"+safeFileSegment(section.section_id),
       type:"TTS",
       trackId:"A1",
-      timelineStartFrame:frames(section.timeline_start_sec,input.fps),
+      timelineStartFrame:Math.max(0,Math.round(section.timeline_start_sec*input.fps)),
       durationInFrames:durationFrames,
       enabled:true,
       locked:false,
@@ -841,7 +867,7 @@ export function buildTailEditProject(input:{
       id:"subtitle-"+safeFileSegment(cue.subtitle_id),
       type:"SUBTITLE",
       trackId:"T1",
-      timelineStartFrame:frames(cue.start_sec,input.fps),
+      timelineStartFrame:Math.max(0,Math.round(cue.start_sec*input.fps)),
       durationInFrames:Math.max(1,frames(cue.end_sec-cue.start_sec,input.fps)),
       enabled:true,
       locked:false,
@@ -1174,6 +1200,13 @@ export class ProductionTailRuntimeService{
             Math.max(1,next.attempt??1),
             checkpoint.value
           );
+          const seedPlans=new Agent3VisualProductionRepository(project.projectDbPath,{readonly:true});
+          let directingV2=false;
+          try{directingV2=seedPlans.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec")?.value.compiler_version==="DIRECTING_PROMPT_COMPILER_V2";}
+          finally{seedPlans.close();}
+          if(directingV2 && seedQc.verdict!=="PASS")
+            throw new ProductionTailRuntimeError("TAIL_MANAGER_QC_REJECTED","V2 seed QC failed. Revise and reapprove T050/T060 prompt package; no same-revision creative retries.");
+          if(directingV2 && seedQc.verdict==="PASS") await this.requireDirectingPilot(projectId,checkpoint.value);
           if(seedQc.verdict!=="PASS"){
             const seedQcAttempts=checkpoint.value.seed_qc_attempts+1;
             if(seedQcAttempts>=3){
@@ -1542,6 +1575,8 @@ export class ProductionTailRuntimeService{
         );
       }
 
+      if(prompts.value.compiler_version==="DIRECTING_PROMPT_COMPILER_V2")
+        throw new ProductionTailRuntimeError("TAIL_MANAGER_QC_REJECTED","V2 final image QC failed. Revise the owning directing/state stage with a new prompt revision before regeneration.");
       const failedIds=new Set(qc.failed_image_ids);
       for(const sceneId of qc.failed_scene_ids){
         if(
@@ -2117,6 +2152,47 @@ export class ProductionTailRuntimeService{
     }
   }
 
+  private async requireDirectingPilot(projectId:string,checkpoint:T070Checkpoint):Promise<void>{
+    const status=await this.projects.getStatus(projectId);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
+    const production=new ProductionSpecRepository(status.projectDbPath,{readonly:true});
+    try{
+      const bundle=agent3.getActive<PromptBundleDocument>(projectId,"prompt_bundle_spec");
+      const plan=production.getClipProduction(projectId);
+      if(!bundle || !plan) throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Current pilot directing inputs required.");
+      const selected=bundle.value.video_prompts.slice(0,5);
+      const ids=new Set(selected.map(item=>item.clip_id));
+      const manifest=buildFlowManualManifest({projectId,
+        promptBundle:{...bundle.value,video_prompts:selected},clipProduction:plan,
+        approvedImages:{schema_version:"1.0",project_id:projectId,provider:"CHATGPT_BROWSER",source_prompt_bundle_sha256:bundle.sha256,images:checkpoint.images}
+      });
+      await writeJson(path.resolve(status.projectRoot,"06_clips/directing-pilot-manifest.json"),manifest);
+      const reportPath=path.resolve(status.projectRoot,"06_clips/directing-pilot-review.json");
+      if(!(await readyFile(reportPath))) throw new ProductionTailRuntimeError("TAIL_PREREQUISITE",
+        "Before full generation, review the representative first "+String(selected.length)+" clips using 06_clips/directing-pilot-manifest.json and supply directing-pilot-review.json.");
+      const report=JSON.parse(await readFile(reportPath,"utf8"));
+      if(report.source_prompt_bundle_sha256!==bundle.sha256 || !Array.isArray(report.reviews) || report.reviews.length!==ids.size)
+        throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Pilot review must cover the current selected clips and prompt revision exactly.");
+      for(const key of ["story_connection","camera_variety","image_feasibility"]){
+        if(report[key]?.status!=="PASS" || typeof report[key]?.evidence!=="string" || !report[key].evidence.trim())
+          throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Pilot needs PASS with actual evidence: "+key);
+      }
+      for(const item of manifest.items){
+        const file=path.resolve(status.projectRoot,item.expected_output_relative_path);
+        const probe=await probeVideo(file);
+        if(probe.durationSec+0.05<item.directing!.source_out_sec)
+          throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Pilot footage does not cover the adopted source range.");
+        const matching=report.reviews.filter((review:DirectingVideoReview)=>review.clip_id===item.clip_id);
+        const errors=validateDirectingVideoReview(matching.length===1?matching[0]:null,{
+          clipId:item.clip_id,clipSha256:await fileSha256(file),directingSha256:item.directing_sha256!,card:item.directing!
+        });
+        if(errors.length) throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID",errors.map(error=>error.message).join("; "));
+      }
+      const tail=new ProductionTailRepository(status.projectDbPath);
+      try{tail.save(projectId,"directing_pilot_qc",report,"T070",new Date().toISOString());}finally{tail.close();}
+    }finally{production.close();agent3.close();}
+  }
+
   private async hasT070ResumeEvidence(projectId:string):Promise<boolean>{
     const status=await this.projects.getStatus(projectId);
     const agent3=new Agent3VisualProductionRepository(status.projectDbPath,{readonly:true});
@@ -2184,20 +2260,33 @@ export class ProductionTailRuntimeService{
         loadedCheckpoint.value.source_prompt_bundle_sha256===promptRecord.sha256&&
         loadedCheckpoint.value.width===format.imageGeneration.width&&
         loadedCheckpoint.value.height===format.imageGeneration.height;
-      const legacyAdoption=!loadedCheckpoint.exists&&attempt>1;
+      const legacyAdoption=promptRecord.value.compiler_version!=="DIRECTING_PROMPT_COMPILER_V2"&&!loadedCheckpoint.exists&&attempt>1;
       let phase:T070Phase=checkpointCurrent
         ?loadedCheckpoint.value!.phase
         :legacyAdoption
           ?"FULL_GENERATION"
           :"SEED_GENERATION";
+      if(promptRecord.value.compiler_version==="DIRECTING_PROMPT_COMPILER_V2" && phase!=="SEED_GENERATION" && phase!=="SEED_QC"){
+        const evidence=new ProductionTailRepository(status.projectDbPath,{readonly:true});
+        try{
+          const pilot=evidence.getActive<{source_prompt_bundle_sha256:string}>(projectId,"directing_pilot_qc");
+          if(pilot?.value.source_prompt_bundle_sha256!==promptRecord.sha256)
+            throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Current canonical representative-clip review is required before full v2 generation.");
+        }finally{evidence.close();}
+      }
       const seedImageIds=checkpointCurrent&&loadedCheckpoint.value!.seed_image_ids.length>0
         ?[...loadedCheckpoint.value!.seed_image_ids]
         :phase==="SEED_GENERATION"
-          ?selectT070RepresentativeSeedImageIds(
-            promptRecord.value.image_prompts,
-            states.value.state_images,
-            3
-          )
+          ?promptRecord.value.compiler_version==="DIRECTING_PROMPT_COMPILER_V2"
+            ?[...new Set(promptRecord.value.video_prompts.slice(0,5).flatMap(clip=>
+              [clip.directing?.image_mode==="PREVIOUS_END_FRAME"?null:clip.entry_state_image_id,
+               clip.directing?.image_mode==="START_END"?clip.target_state_image_id:null]
+                .filter((id):id is string=>id!==null)))]
+            :selectT070RepresentativeSeedImageIds(
+              promptRecord.value.image_prompts,
+              states.value.state_images,
+              3
+            )
           :[];
       let seedQcAttempts=
         checkpointCurrent?loadedCheckpoint.value!.seed_qc_attempts:0;
@@ -2403,11 +2492,20 @@ export class ProductionTailRuntimeService{
               );
             }
 
+            const pinnedReferences=prompt.directing ? await resolveDirectingReferences({
+              dbPath:status.projectDbPath,projectRoot:status.projectRoot,projectId,ids:prompt.directing.reference_ids
+            }):[];
+            if(prompt.directing && JSON.stringify(pinnedReferences)!==JSON.stringify(prompt.references??[]))
+              throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Reference revision changed; revise and reapprove the prompt package.");
+            const providerReferences=pinnedReferences.map(reference=>({
+              mediaId:reference.media_id,role:"IDENTITY_REFERENCE",absolutePath:path.resolve(status.projectRoot,reference.relative_path),
+              sha256:reference.sha256,mimeType:reference.mime_type
+            }));
             const reusable=completedByState.get(prompt.state_image_id);
             if(reusable!==undefined){
               const normalizedReusable={
                 ...reusable,
-                reference_roles:[]
+                reference_roles:providerReferences.map(reference=>reference.role)
               };
               completedByState.set(prompt.state_image_id,normalizedReusable);
               await writeJson(
@@ -2427,8 +2525,8 @@ export class ProductionTailRuntimeService{
                   image_relative_path:normalizedReusable.relative_path,
                   image_sha256:normalizedReusable.sha256,
                   prompt_bundle_sha256:promptRecord.sha256,
-                  reference_policy:"TEXT_GRAMMAR_ONLY",
-                  reference_roles:[],
+                  reference_policy:prompt.directing?"PINNED_DIRECTING_REFERENCES":"TEXT_GRAMMAR_ONLY",
+                  reference_roles:providerReferences.map(reference=>reference.role),
                   motion_vector:state.motion_vector_en||state.motion_vector_ko,
                   handoff_anchor:state.handoff_anchor,
                   continuity_refs:[...state.continuity_refs],
@@ -2444,7 +2542,7 @@ export class ProductionTailRuntimeService{
             for(let itemAttempt=1;itemAttempt<=T070_ITEM_MAX_ATTEMPTS;itemAttempt+=1){
               try{
                 const result=await adapter.generate({
-                  prompt:buildT070RuntimeProviderPrompt({
+                  prompt:prompt.directing ? prompt.provider_prompt_en : buildT070RuntimeProviderPrompt({
                     basePrompt:prompt.provider_prompt_en,
                     scene,
                     state,
@@ -2456,7 +2554,7 @@ export class ProductionTailRuntimeService{
                   width:format.imageGeneration.width,
                   height:format.imageGeneration.height,
                   aspectRatio:format.aspectRatio,
-                  references:[],
+                  references:providerReferences,
                   sessionKey:imageSessionKey
                 });
                 const bytes=Buffer.from(result.bytes);
@@ -2484,7 +2582,7 @@ export class ProductionTailRuntimeService{
                   width:probe.width,
                   height:probe.height,
                   provider_request_ids:[...(result.providerRequestIds??[])],
-                  reference_roles:[]
+                  reference_roles:providerReferences.map(reference=>reference.role)
                 };
                 break;
               }catch(error){
@@ -2532,8 +2630,8 @@ export class ProductionTailRuntimeService{
                 image_relative_path:generatedImage.relative_path,
                 image_sha256:generatedImage.sha256,
                 prompt_bundle_sha256:promptRecord.sha256,
-                reference_policy:"TEXT_GRAMMAR_ONLY",
-                reference_roles:[],
+                reference_policy:prompt.directing?"PINNED_DIRECTING_REFERENCES":"TEXT_GRAMMAR_ONLY",
+                reference_roles:providerReferences.map(reference=>reference.role),
                 motion_vector:state.motion_vector_en||state.motion_vector_ko,
                 handoff_anchor:state.handoff_anchor,
                 continuity_refs:[...state.continuity_refs],
@@ -2605,6 +2703,8 @@ export class ProductionTailRuntimeService{
             continue;
           }
 
+          if(promptRecord.value.compiler_version==="DIRECTING_PROMPT_COMPILER_V2")
+            throw new ProductionTailRuntimeError("TAIL_MANAGER_QC_REJECTED","V2 scene QC failed. Return to T060/T050 for a new approved prompt revision or scene redesign; do not silently rewrite the provider prompt.");
           let failedIds=sceneQc.checks
             .filter(check=>
               check.verdict!=="PASS"||
@@ -2751,6 +2851,8 @@ export class ProductionTailRuntimeService{
           "T080 requires prompt_bundle_spec, scene_visual_spec, clip_production_spec and approved_images."
         );
       }
+      if(approved.value.source_prompt_bundle_sha256!==prompts.sha256)
+        throw new ProductionTailRuntimeError("TAIL_PREREQUISITE","Approved images are stale for the current prompt bundle.");
       const manifest=buildFlowManualManifest({
         projectId,
         promptBundle:prompts.value,
@@ -2766,6 +2868,8 @@ export class ProductionTailRuntimeService{
           missing.push(item.expected_output_relative_path);
         }
       }
+      if(manifest.items.some(item=>item.directing) && !(await readyFile(path.resolve(status.projectRoot,"06_clips/directing-review.json"))))
+        missing.push("06_clips/directing-review.json");
       return{ready:missing.length===0,manifestRelativePath,missing};
     }finally{
       tail.close();
@@ -2779,6 +2883,12 @@ export class ProductionTailRuntimeService{
     const manifest=JSON.parse(
       await readFile(path.resolve(status.projectRoot,"06_clips/google-flow-manifest.json"),"utf8")
     ) as FlowManualManifest;
+    const report=manifest.items.some(item=>item.directing)
+      ?JSON.parse(await readFile(path.resolve(status.projectRoot,"06_clips/directing-review.json"),"utf8")):null;
+    if(report && report.source_prompt_bundle_sha256!==manifest.source_prompt_bundle_sha256)
+      throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Footage review is stale for the current prompt bundle.");
+    const reviews:DirectingVideoReview[]=report?.reviews??[];
+    if(!Array.isArray(reviews) || reviews.length!==manifest.items.filter(item=>item.directing).length) throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Directing reviews must cover every v2 clip exactly once.");
     const clips:GeneratedClip[]=[];
     for(const [index,item] of manifest.items.entries()){
       const absolute=path.resolve(status.projectRoot,item.expected_output_relative_path);
@@ -2789,13 +2899,35 @@ export class ProductionTailRuntimeService{
         );
       }
       const probe=await probeVideo(absolute);
-      if(probe.durationSec+0.05<item.editorial_duration_sec){
+      if(probe.durationSec+0.05<(item.directing?.source_out_sec??item.editorial_duration_sec)){
         throw new ProductionTailRuntimeError(
           "TAIL_MANUAL_RESULT_INVALID",
           "Google Flow clip is shorter than its editorial duration: "+item.clip_id
         );
       }
+      const clipHash=await fileSha256(absolute);
+      if(item.directing){
+        const matches=reviews.filter(review=>review.clip_id===item.clip_id);
+        const errors=validateDirectingVideoReview(matches.length===1?matches[0]:null,{
+          clipId:item.clip_id,clipSha256:clipHash,directingSha256:item.directing_sha256!,card:item.directing
+        });
+        if(errors.length) throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID",errors.map(error=>error.message).join("; "));
+        if(item.previous_used_end_frame){
+          const frame=path.resolve(status.projectRoot,item.entry_image_relative_path);
+          const evidencePath=frame+".json";
+          if(!(await readyFile(frame)) || !(await readyFile(evidencePath)))
+            throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Extract the adopted previous clip used-range end frame and supply its provenance before continuing.");
+          const evidence=JSON.parse(await readFile(evidencePath,"utf8"));
+          const previous=clips.find(clip=>clip.clip_id===item.previous_used_end_frame!.clip_id);
+          if(!previous || evidence.source_clip_sha256!==previous.sha256 || evidence.frame_sha256!==await fileSha256(frame) ||
+             typeof evidence.source_time_sec!=="number" || !Number.isFinite(evidence.source_time_sec) ||
+             evidence.source_time_sec>item.previous_used_end_frame.source_end_sec ||
+             evidence.source_time_sec<item.previous_used_end_frame.source_end_sec-0.1)
+            throw new ProductionTailRuntimeError("TAIL_MANUAL_RESULT_INVALID","Previous end-frame provenance is stale or outside the adopted end frame.");
+        }
+      }
       clips.push({
+        ...(item.directing?{timeline_start_sec:item.directing.timeline_start_sec,source_in_sec:item.directing.source_in_sec,source_out_sec:item.directing.source_out_sec}:{}),
         clip_id:item.clip_id,
         scene_id:item.scene_id,
         relative_path:item.expected_output_relative_path,
@@ -2826,7 +2958,8 @@ export class ProductionTailRuntimeService{
       schema_version:"1.0",
       project_id:projectId,
       status:"PASS",
-      qc_scope:"FILE_AND_EDITORIAL_DURATION",
+      qc_scope:manifest.items.some(item=>item.directing)?"DIRECTING_ACTUAL_FOOTAGE_AND_DURATION":"FILE_AND_EDITORIAL_DURATION",
+      directing_reviews:reviews,
       results:clips.map(clip=>({
         clip_id:clip.clip_id,
         status:"PASS",
