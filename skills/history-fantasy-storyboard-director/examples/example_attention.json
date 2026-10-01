@@ -1,0 +1,32 @@
+{
+  "duration": 8,
+  "tension_function": "REVEAL",
+  "attention_events": [
+    {
+      "time": 2.5,
+      "type": "reveal"
+    },
+    {
+      "time": 5.0,
+      "type": "focus_shift"
+    }
+  ],
+  "camera_phases": [
+    {
+      "time": "0-2.5s",
+      "function": "REVEAL"
+    },
+    {
+      "time": "2.5-5s",
+      "function": "PARALLAX"
+    },
+    {
+      "time": "5-8s",
+      "function": "TARGET_EXIT"
+    }
+  ],
+  "primary_camera_move": "track forward-right",
+  "secondary_camera_moves": [
+    "slight deceleration"
+  ]
+}

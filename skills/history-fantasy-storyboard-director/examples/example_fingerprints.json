@@ -1,0 +1,32 @@
+[
+  {
+    "location": "cave",
+    "shot_size": "wide",
+    "camera_move": "track",
+    "primary_subject": "passage",
+    "depth_pattern": "fg-mg-bg",
+    "visual_motif": "limestone",
+    "lighting_state": "cold",
+    "motion_vector": "right"
+  },
+  {
+    "location": "cave",
+    "shot_size": "medium",
+    "camera_move": "push",
+    "primary_subject": "evidence",
+    "depth_pattern": "fg-mg-bg",
+    "visual_motif": "support",
+    "lighting_state": "cold",
+    "motion_vector": "forward"
+  },
+  {
+    "location": "cave",
+    "shot_size": "detail",
+    "camera_move": "locked",
+    "primary_subject": "mandible",
+    "depth_pattern": "shallow",
+    "visual_motif": "bone",
+    "lighting_state": "cold",
+    "motion_vector": "none"
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "duration": 10,
+  "tension_function": "BUILD",
+  "attention_events": [
+    {
+      "time": 2.0,
+      "type": "reveal"
+    }
+  ],
+  "camera_phases": [
+    {
+      "time": "0-2s",
+      "function": "REVEAL"
+    },
+    {
+      "time": "2-4s",
+      "function": "FOLLOW"
+    },
+    {
+      "time": "4-6s",
+      "function": "PARALLAX"
+    },
+    {
+      "time": "6-8s",
+      "function": "FOCUS"
+    },
+    {
+      "time": "8-10s",
+      "function": "EXIT"
+    },
+    {
+      "time": "9-10s",
+      "function": "ZOOM"
+    }
+  ],
+  "primary_camera_move": "pan dolly orbit",
+  "secondary_camera_moves": [
+    "zoom",
+    "tilt"
+  ]
+}

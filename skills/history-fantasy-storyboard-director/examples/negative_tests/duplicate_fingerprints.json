@@ -1,0 +1,22 @@
+[
+  {
+    "location": "cave",
+    "shot_size": "wide",
+    "camera_move": "push",
+    "primary_subject": "group",
+    "depth_pattern": "centered",
+    "visual_motif": "limestone",
+    "lighting_state": "cold",
+    "motion_vector": "forward"
+  },
+  {
+    "location": "cave",
+    "shot_size": "wide",
+    "camera_move": "push",
+    "primary_subject": "group",
+    "depth_pattern": "centered",
+    "visual_motif": "limestone",
+    "lighting_state": "cold",
+    "motion_vector": "forward"
+  }
+]

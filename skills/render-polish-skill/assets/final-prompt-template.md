@@ -1,0 +1,30 @@
+# Final Prompt Template
+
+```text
+LOCKED DIRECTING
+...
+
+MUST PRESERVE
+...
+
+VISUAL HIERARCHY
+...
+
+LIGHTING
+...
+
+MATERIAL / DEPTH
+...
+
+COLOR
+...
+
+MOTION SUPPORT
+...
+
+RENDER FINISH
+...
+
+NEGATIVE CONSTRAINTS
+...
+```

@@ -1,0 +1,156 @@
+{
+  "render_polish_job_id": "RP_SC01_VB04_START",
+  "image_job_id": "SC01_VB04_START",
+  "polish_strength": "STANDARD",
+  "locked_snapshot_before": {
+    "fact_lock": [
+      "no invented inscriptions"
+    ],
+    "story_event": "Reveal the evidence support in the cave.",
+    "clip_structure_mode": "START_TARGET",
+    "tension_function": "REVEAL",
+    "shot_size": "MEDIUM",
+    "camera_height": "LOW",
+    "camera_angle": "LEVEL",
+    "camera_path": "FORWARD_RIGHT",
+    "camera_speed_profile": "MEDIUM_TO_SLOW",
+    "entry_state": "evidence partly hidden",
+    "target_state": "evidence readable",
+    "exit_state": "evidence right-center",
+    "continuity_mode": "EXIT_MATCH",
+    "primary_action": "visual reveal",
+    "motion_vector": "FORWARD_RIGHT",
+    "next_handoff": "detail shot receives evidence",
+    "reference_priority": [
+      "CONTINUITY_EXIT",
+      "WORLD_LOCK",
+      "COMPOSITION_REFERENCE",
+      "STYLE_ANCHOR"
+    ]
+  },
+  "locked_snapshot_after": {
+    "fact_lock": [
+      "no invented inscriptions"
+    ],
+    "story_event": "Reveal the evidence support in the cave.",
+    "clip_structure_mode": "START_TARGET",
+    "tension_function": "REVEAL",
+    "shot_size": "MEDIUM",
+    "camera_height": "LOW",
+    "camera_angle": "LEVEL",
+    "camera_path": "FORWARD_RIGHT",
+    "camera_speed_profile": "MEDIUM_TO_SLOW",
+    "entry_state": "evidence partly hidden",
+    "target_state": "evidence readable",
+    "exit_state": "evidence right-center",
+    "continuity_mode": "EXIT_MATCH",
+    "primary_action": "visual reveal",
+    "motion_vector": "FORWARD_RIGHT",
+    "next_handoff": "detail shot receives evidence",
+    "reference_priority": [
+      "CONTINUITY_EXIT",
+      "WORLD_LOCK",
+      "COMPOSITION_REFERENCE",
+      "STYLE_ANCHOR"
+    ]
+  },
+  "polish_delta": {
+    "reduced": [
+      "background micro-detail",
+      "secondary hotspots"
+    ],
+    "enhanced": [
+      "subject/background separation",
+      "bone/stone material distinction"
+    ],
+    "preserved": [
+      "camera corridor",
+      "subject position",
+      "exit opening",
+      "foreground parallax source"
+    ]
+  },
+  "visual_hierarchy": {
+    "focal_subject": "supported mandible",
+    "secondary_read": "cave passage",
+    "background_role": "recessive depth"
+  },
+  "lighting_polish": {
+    "key_light": "preserve cold diffuse left-biased source",
+    "fill_behavior": "restrained",
+    "contrast_control": "local subject separation only",
+    "separation_goal": "subject from cave wall",
+    "delta_limit": {
+      "exposure_change": "LOW",
+      "contrast_change": "LOW",
+      "direction_change": "PROHIBITED",
+      "color_temperature_shift": "MINIMAL"
+    }
+  },
+  "material_polish": {
+    "subject_materials": [
+      "bone",
+      "support surface"
+    ],
+    "environment_materials": [
+      "limestone"
+    ],
+    "separation_notes": [
+      "keep bone matte and distinct from rock"
+    ]
+  },
+  "clutter_control": {
+    "remove_or_reduce": [
+      "background texture noise"
+    ],
+    "preserve": [
+      "foreground parallax rock"
+    ]
+  },
+  "color_discipline": {
+    "dominant_palette": [
+      "cold neutral stone",
+      "muted bone"
+    ],
+    "accent_policy": "minimal",
+    "saturation_policy": "restrained",
+    "continuity_mode": "STRICT"
+  },
+  "motion_support": {
+    "camera_corridor_clear": true,
+    "parallax_source_preserved": true,
+    "negative_space_preserved": true,
+    "exit_readability_preserved": true
+  },
+  "anatomy_readability": {
+    "face_readability": "n/a",
+    "hand_readability": "n/a",
+    "silhouette_readability": "clear",
+    "identity_preserved": true,
+    "pose_preserved": true
+  },
+  "style_alignment": {
+    "visual_bible_match": "PASS",
+    "style_anchor_match": "clean restrained cinematic animation",
+    "forbidden_style_drift": [
+      "no glossy fantasy finish"
+    ]
+  },
+  "prompt_budget": {
+    "base_prompt_chars": 120,
+    "polish_added_chars": 36,
+    "added_ratio": 0.3,
+    "max_added_ratio": 0.35,
+    "duplicate_instruction_count": 0
+  },
+  "base_prompt_en": "LOCKED DIRECTING\nMedium shot, low camera height, forward-right camera path, preserve subject position and exit opening.\n",
+  "final_prompt_en": "LOCKED DIRECTING\nOnly this section exists.",
+  "pre_render_qc": {
+    "status": "PASS",
+    "warnings": []
+  },
+  "post_render_qc": {
+    "status": "PASS",
+    "warnings": []
+  }
+}
