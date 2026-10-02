@@ -6,17 +6,14 @@ PASS_FIELDS = [
     "sequence_qc_status", "fact_status"
 ]
 
-
 def fail(msg):
     print(f"BLOCKED: {msg}")
     sys.exit(1)
-
 
 def req(obj, key):
     if key not in obj or obj[key] in (None, "", []):
         fail(f"missing/non-empty required field: {key}")
     return obj[key]
-
 
 def main(path):
     with open(path, encoding="utf-8") as f:
@@ -24,10 +21,20 @@ def main(path):
 
     for key in [
         "lock_id", "project_id", "script_revision", "script_hash",
-        "preflight_revision", "visual_skeleton_revision", "narrative_spine",
-        "locked_unit_ids", "fact_guardrail_ids"
+        "preflight_revision", "preflight_script_revision", "preflight_input_script_hash",
+        "visual_skeleton_revision", "visual_skeleton_hash",
+        "visual_skeleton_script_revision", "visual_skeleton_input_script_hash",
+        "narrative_spine", "locked_unit_ids", "preflight_unit_ids",
+        "visual_skeleton_unit_ids", "fact_guardrail_ids"
     ]:
         req(data, key)
+
+    if not (data["script_revision"] == data["preflight_script_revision"] == data["visual_skeleton_script_revision"]):
+        fail("script revision mismatch across lock/preflight/visual skeleton")
+    if not (data["script_hash"] == data["preflight_input_script_hash"] == data["visual_skeleton_input_script_hash"]):
+        fail("script hash mismatch across lock/preflight/visual skeleton")
+    if not (data["locked_unit_ids"] == data["preflight_unit_ids"] == data["visual_skeleton_unit_ids"]):
+        fail("unit order/set mismatch across lock/preflight/visual skeleton")
 
     for key in PASS_FIELDS:
         if req(data, key) != "PASS":
@@ -42,8 +49,7 @@ def main(path):
     if data.get("canonical_manager_story_gate") not in {"PENDING", "PASS"}:
         fail("canonical_manager_story_gate must be PENDING or PASS")
 
-    print(f"PASS: script-directing lock {data['lock_id']}")
-
+    print(f"PASS: script-directing lock {data['lock_id']} provenance-consistent")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

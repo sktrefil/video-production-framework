@@ -1,12 +1,16 @@
 {
-  "preflight_revision": "PF01",
-  "script_revision": "R01",
+  "preflight_revision": "PF03",
+  "script_revision": "R04",
+  "input_script_hash": "sha256-demo-r04",
   "narrative_spine": "Example spine",
   "overall_status": "PASS",
   "unit_reviews": [
     {
       "unit_id": "NU001",
+      "story_event": "dense abstract explanation",
       "estimated_tts_duration_sec": 14.0,
+      "information_unit_count": 4,
+      "visual_event_budget": 1,
       "visual_feasibility": "FAIL",
       "attention_feasibility": "FAIL",
       "duration_fit": "FAIL",
@@ -15,10 +19,27 @@
       "abstraction_risk": "HIGH",
       "camera_reason": "no strong reason",
       "visual_mode_candidate": "DOCUMENTED_DIAGRAM",
-      "attention_event_candidate": "none",
+      "attention_event": {"type": "HOLD", "target_time_sec": 5.0},
+      "attention_timing_exception": "",
+      "secondary_attention_event": {"required": false, "type": "", "target_time_sec": null, "exception_reason": ""},
       "revision_required": true,
       "revision_route": "WRITER",
       "revision_reason": "split the abstract narration before TTS"
+    }
+  ],
+  "sequence_reviews": [
+    {
+      "block_id": "B01",
+      "duration_sec": 25,
+      "consecutive_same_explanatory_motif_max": 3,
+      "consecutive_same_scale_intent_max": 3,
+      "max_static_information_run_sec": 14,
+      "max_consecutive_abstract_units": 2,
+      "has_meaningful_attention_change": false,
+      "exception_justification": "",
+      "revision_required": true,
+      "revision_route": "WRITER",
+      "revision_reason": "sequence repeats one explanatory grammar too long"
     }
   ]
 }

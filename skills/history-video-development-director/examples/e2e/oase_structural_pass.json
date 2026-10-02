@@ -1,0 +1,18 @@
+{
+  "project_id":"oase-structural-e2e",
+  "topic_class":"history-mystery",
+  "workflow_authority":"history-video-development-director",
+  "approval_authority":"Agent1",
+  "research_lock_status":"PASS",
+  "script":{"status":"CANDIDATE_READY_FOR_LOCK_REVIEW","revision":"r04","hash":"sha256-oase-r04","final_tts_generated":false,"final_quarter_qc":{"theme_spine_recovered":true,"meaning_expansion_present":true,"result_listing_only":false}},
+  "preflight":{"status":"PASS","sequence_qc_status":"PASS","revision":"pf03","input_script_revision":"r04","input_script_hash":"sha256-oase-r04"},
+  "visual_skeleton":{"status":"PASS","revision":"vs03","hash":"sha256-vs03","input_script_revision":"r04","input_script_hash":"sha256-oase-r04"},
+  "script_directing_lock":{"status":"PASS","lock_id":"SDL-oase-r04","script_revision":"r04","script_hash":"sha256-oase-r04"},
+  "manager_story_gate":{"status":"PASS","approved_script_revision":"r04","approved_script_hash":"sha256-oase-r04","scene_graph_revision":"sg03","scene_graph_hash":"sha256-sg03"},
+  "final_tts_gate":{"status":"PASS","gate_id":"FTG-oase-r04","script_revision":"r04","script_hash":"sha256-oase-r04"},
+  "revision_history":[
+    {"round":1,"issues":["DENSE_ABSTRACTION","WEAK_EVIDENCE_BRIDGE"],"status":"RESOLVED"},
+    {"round":2,"issues":["SEQUENCE_REPETITION_RISK"],"status":"RESOLVED"}
+  ],
+  "next_allowed_action":"FINAL_TTS"
+}

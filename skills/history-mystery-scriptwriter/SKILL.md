@@ -45,6 +45,9 @@ This skill may not:
 7. **TTS rhythm** — alternate sentence lengths; use short judgment lines strategically; avoid report prose.
 8. **Directing feedback is upstream feedback** — if the video cannot express a passage cleanly, revise the script before TTS rather than forcing the visual stage to rescue it.
 9. **No premature finalization** — a polished script that has not passed directing preflight is still a draft.
+10. **Visual event budget** — do not compress several independent information units into one weak visual event merely to preserve prose.
+11. **Timed attention** — identify when the first meaningful visual/attention change can occur, not only what it is.
+12. **Final-quarter synthesis** — the last quarter must recover the Narrative Spine and expand meaning; it may not collapse into a list of late research results.
 
 ## Required Reading
 
@@ -132,7 +135,10 @@ At minimum describe:
 - the preferred attention event;
 - abstraction risk;
 - transition intent;
-- estimated TTS duration band.
+- estimated TTS duration band;
+- information-unit count and visual-event budget;
+- first attention-event type and target time;
+- a secondary attention event for >=8s units, or an explicit exception.
 
 This is **not** a final shot list. Camera and keyframe decisions belong to the storyboard director.
 
@@ -152,7 +158,9 @@ Typical revision triggers:
 - a location/research jump without narrative bridge;
 - no reason for camera or focus change;
 - payoff is spoken before the visual can reveal it;
-- TTS duration and event duration are incompatible.
+- TTS duration and event duration are incompatible;
+- information-unit count materially exceeds the visual-event budget;
+- first meaningful attention change cannot occur by about 4 seconds without an explicit narrative exception.
 
 ### Pass 7 — TTS Rhythm Polish
 Apply only after the structure is stable.
@@ -173,7 +181,8 @@ A script candidate may be sent for lock review only when:
 - major transitions have bridge logic;
 - all high-risk abstraction units have directing handoff;
 - no preflight-required revision remains unresolved;
-- ending pays off the original question without overclaiming.
+- ending pays off the original question without overclaiming;
+- final-quarter QC confirms Theme Spine recovery, meaning expansion, and no result-list collapse.
 
 ## Directability Rules
 
@@ -210,6 +219,40 @@ Use:
 
 Do not rely on "meanwhile", "next", or "another study" alone.
 
+### Attention Timing Contract
+Each production-worthy narrative unit must carry:
+
+```yaml
+attention_event:
+  type: REVEAL | ACTION | PARALLAX | FOCUS_SHIFT | SPATIAL_DISCOVERY | QUESTION | REORIENTATION | HOLD
+  target_time_sec: 0.0
+```
+
+Default:
+- target the first meaningful attention change at <=4.0s;
+- for units >=8s, define a second meaningful change around 4.0-6.5s when the story supports it;
+- a deliberate HOLD may exceed the default only with `attention_timing_exception` explaining the narrative purpose.
+
+The writer proposes timing; the storyboard director validates executability.
+
+### Visual Event Budget
+For every unit record:
+- `information_unit_count`
+- `visual_event_budget`
+
+Do not hide four facts inside one generic diagram or slow push.
+As a default, if information units exceed visual-event budget by more than one, split the unit or provide a concrete compression justification that preflight can test.
+
+### Final-Quarter Rule
+The final 20-25% must:
+- recover the original Narrative Spine;
+- synthesize, not merely enumerate, late evidence;
+- distinguish what is known from what remains unresolved;
+- expand the meaning of the opening question;
+- avoid introducing a new unrelated major mystery in the final seconds.
+
+A candidate cannot pass if `final_quarter_qc.result_listing_only=true` or if Theme Spine recovery/meaning expansion is absent.
+
 ### Evidence Distance
 Classify supporting material:
 - CORE — central evidence, full development allowed;
@@ -243,7 +286,7 @@ Do **not** output `FINAL_TTS_READY` from this skill alone.
 
 ## Quality Gate
 
-Internal target: >=95/100 before candidate handoff.
+Internal script-candidate target: >=96/100. The integrated skill-package validation target is >=98/100.
 
 - Factual integrity 20
 - Narrative causality 15
@@ -260,7 +303,9 @@ Hard block:
 - unsupported causal claim;
 - unresolved directing-preflight revision;
 - final quarter collapses into research-result listing;
-- script marked final before lock review.
+- script marked final before lock review;
+- attention timing or visual-event density unresolved at candidate status;
+- final quarter fails Theme Spine recovery or meaning expansion.
 
 ## Validation
 

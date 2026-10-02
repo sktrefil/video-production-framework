@@ -3,6 +3,7 @@
 ## Production authority
 - `docs/LONGFORM_MULTI_AGENT_PRODUCTION_MASTER_DESIGN.md` is the architecture authority for LONGFORM production.
 - The main Codex thread is Agent1, the Production Manager and final gate.
+- For history/mystery LONGFORM script development, `skills/history-video-development-director/SKILL.md` is the required development-workflow authority. Agent1 may override or BLOCK it, but must not silently skip its Script Draft -> Directing Preflight -> Revision -> Lock sequence.
 - Delegate story/audio work to `story_audio` and visual/clip work to `visual_image` when those tasks can proceed independently.
 - Agent1 is the only agent allowed to advance canonical project approvals or mutate production gate state in `project.db`.
 - Worker agents may create or revise source artifacts and reports, but they must not self-approve final stage gates.
@@ -23,7 +24,8 @@
 ## Quality gates
 - During LONGFORM development, a draft script may be reviewed by the visual worker in `DIRECTING_PREFLIGHT` mode before FINAL TTS. This preflight is advisory and must not advance canonical production state.
 - When the integrated history-video development skills are used, require a structurally valid `SCRIPT_DIRECTING_LOCK` candidate before requesting the manager Story Gate; the lock does not replace the manager Story Gate.
-- Do not generate FINAL segmented TTS until the `SCRIPT_DIRECTING_LOCK` development conditions are satisfied **and** Agent1 has approved the FINAL script and Scene graph. If the approved script later changes in meaning, unit order, evidence mapping, or timing assumptions, invalidate the development lock and follow the existing downstream invalidation rules.
+- Do not generate FINAL segmented TTS until the `SCRIPT_DIRECTING_LOCK` development conditions are satisfied **and** Agent1 has approved the FINAL script and Scene graph. Immediately before FINAL TTS, run `skills/history-video-development-director/scripts/validate_final_tts_gate.py` against current script/preflight/visual-skeleton/manager provenance. Any mismatch blocks TTS and invalidates stale downstream assumptions.
+- If the approved script later changes in meaning, unit order, evidence mapping, or timing assumptions, invalidate the development lock and follow the existing downstream invalidation rules.
 - Workers perform self-QC; Agent1 independently performs cross-artifact QC before a stage advances.
 - Image review must cover scene requirements and sequence continuity.
 - Creative image regeneration is limited to prompt revisions v1/v2/v3 by default; after three failed creative attempts Agent1 must BLOCK and reassess instead of looping.

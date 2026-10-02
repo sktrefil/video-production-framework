@@ -10,12 +10,24 @@ story_event: ""
 viewer_question: ""
 evidence_ids: []
 
+information_unit_count: 1
+visual_event_budget: 1
+compression_justification: ""
+
 visualizable_event:
   type: OBJECT | PLACE | ACTION | COMPARISON | CHANGE | ABSENCE | DOCUMENTED_DIAGRAM | BRIDGE_ONLY
   description: ""
 
 attention_priority: LOW | MEDIUM | HIGH
-attention_event_candidate: ""
+attention_event:
+  type: REVEAL | ACTION | PARALLAX | FOCUS_SHIFT | SPATIAL_DISCOVERY | QUESTION | REORIENTATION | HOLD
+  target_time_sec: 0.0
+attention_timing_exception: ""
+secondary_attention_event:
+  required: false
+  type: ""
+  target_time_sec: null
+  exception_reason: ""
 
 entry_knowledge: "what the viewer knows at entry"
 hold_back: "what must not be revealed too early"

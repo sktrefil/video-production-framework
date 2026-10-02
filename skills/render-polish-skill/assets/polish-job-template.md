@@ -3,12 +3,15 @@
 ```yaml
 render_polish_job_id: ""
 image_job_id: ""
+workflow_mode: LEGACY | INTEGRATED
 script_directing_lock_id: ""
 visual_beat_lock_id: ""
 
 polish_strength: LIGHT | STANDARD | STRONG
 
 locked_snapshot_before:
+  script_directing_lock_id: ""
+  visual_beat_lock_id: ""
   fact_lock: []
   story_event: ""
   clip_structure_mode: ""

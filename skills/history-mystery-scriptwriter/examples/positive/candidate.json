@@ -1,8 +1,15 @@
 {
-  "script_revision": "r03",
+  "script_revision": "r04",
+  "script_hash": "sha256-demo-r04",
   "narrative_spine": "Population disappearance and ancestry survival are different questions.",
+  "fact_guardrail_ids": ["FG01"],
   "status": "CANDIDATE_READY_FOR_LOCK_REVIEW",
   "final_tts_generated": false,
+  "final_quarter_qc": {
+    "theme_spine_recovered": true,
+    "meaning_expansion_present": true,
+    "result_listing_only": false
+  },
   "units": [
     {
       "unit_id": "NU001",
@@ -10,9 +17,14 @@
       "evidence_ids": ["E01"],
       "tts_text": "물속 통로 끝에서 사람의 턱뼈가 나타납니다.",
       "estimated_duration_sec": 4.2,
+      "information_unit_count": 1,
+      "visual_event_budget": 1,
+      "compression_justification": "",
       "visualizable_event": {"type": "OBJECT", "description": "cave floor reveal to a human mandible"},
       "directing_intent": "withhold identity until the object is readable",
-      "attention_event": "mandible reveal",
+      "attention_event": {"type": "REVEAL", "target_time_sec": 2.8},
+      "attention_timing_exception": "",
+      "secondary_attention_event": {"required": false, "type": "", "target_time_sec": null, "exception_reason": ""},
       "reveal_policy": "identity follows visual reveal",
       "transition_intent": "move from discovery to what the bone can tell us",
       "abstraction_risk": "LOW",

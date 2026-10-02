@@ -54,11 +54,23 @@ Evaluate each unit for:
 - whether a camera/focus change has a narrative reason
 - transition/handoff feasibility
 - sequence-level repetition risk
+- first/secondary attention-event timing
+- information-unit density versus visual-event budget
 
 Use `assets/directing-preflight-template.md`.
 
 Preflight may return `PASS`, `REVISION_REQUIRED`, or `BLOCKED` and must route a revision to WRITER, DIRECTOR, or RESEARCH.
+
+Preflight must also review 20-30 second sequence blocks. Default revision triggers:
+- the same explanatory motif appears 3 times consecutively;
+- the same scale intent appears 3 times consecutively without a concrete continuity reason;
+- static information runs exceed about 12 seconds without a deliberate HOLD justification;
+- 2 or more abstract units run consecutively without an Abstraction Breaker;
+- a block has no evidence reveal, scale change, subject/location change, or other meaningful attention change.
+
+A sequence exception must be explicit, narrative, and testable. "smooth", "same scene", or "cinematic" are not valid exceptions.
 In this mode do **not** create final image prompts, START/TARGET image jobs, final I2V prompts, or FINAL TTS.
+This prohibition applies recursively to the entire preflight payload, not only top-level fields.
 A preflight PASS is advisory development evidence only; it does not approve project.db gates.
 
 ### `FULL_PRODUCTION`
@@ -367,7 +379,7 @@ If the repository uses different task numbers, prefer task names and use this as
 ## Validation
 
 Use:
-- `scripts/validate_directing_preflight.py` for `DIRECTING_PREFLIGHT`
+- `scripts/validate_directing_preflight.py` for `DIRECTING_PREFLIGHT` including recursive prohibited-output, attention-timing, and sequence-block gates
 - `scripts/validate_storyboard_contract.py` for `FULL_PRODUCTION`
 - `scripts/validate_shot_fingerprint.py`
 - `scripts/validate_attention_gate.py`

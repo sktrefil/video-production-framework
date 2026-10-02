@@ -1,0 +1,44 @@
+{
+  "gate_id": "FTG-demo-r04",
+  "script_directing_lock_id": "SDL-demo-r04",
+  "lock": {
+    "script_revision": "r04",
+    "script_hash": "sha256-demo-r04",
+    "preflight_revision": "pf03",
+    "preflight_script_revision": "r04",
+    "preflight_input_script_hash": "sha256-demo-r04",
+    "visual_skeleton_revision": "vs03",
+    "visual_skeleton_hash": "sha256-vs03",
+    "visual_skeleton_script_revision": "r04",
+    "visual_skeleton_input_script_hash": "sha256-demo-r04",
+    "locked_unit_ids": ["NU001"],
+    "fact_guardrail_ids": ["FG01"]
+  },
+  "current_script": {
+    "revision": "r04",
+    "hash": "sha256-demo-r04",
+    "unit_ids": ["NU001"],
+    "fact_guardrail_ids": ["FG01"]
+  },
+  "current_preflight": {
+    "revision": "pf03",
+    "input_script_revision": "r04",
+    "input_script_hash": "sha256-demo-r04",
+    "status": "PASS"
+  },
+  "current_visual_skeleton": {
+    "revision": "vs03",
+    "hash": "sha256-vs03",
+    "input_script_revision": "r04",
+    "input_script_hash": "sha256-demo-r04",
+    "status": "PASS"
+  },
+  "manager_story_gate": {
+    "status": "PASS",
+    "approved_script_revision": "r04",
+    "approved_script_hash": "sha256-demo-r04",
+    "approved_scene_graph_revision": "sg03",
+    "approved_scene_graph_hash": "sha256-sg03"
+  },
+  "final_tts_generated": false
+}

@@ -107,6 +107,14 @@ When supplied by the main director, preserve:
 These identifiers are provenance fields. Render polish may not rewrite, drop, or silently substitute them.
 If the input script/directing lock has been invalidated upstream, output `BLOCKED` instead of polishing a stale image job.
 
+### Workflow Mode
+Use `workflow_mode: LEGACY | INTEGRATED`.
+
+- `LEGACY`: lock IDs are optional for backward compatibility. If present, they are immutable.
+- `INTEGRATED`: both `script_directing_lock_id` and `visual_beat_lock_id` are required, must appear in both locked snapshots, must equal their top-level values, and must remain byte-for-byte unchanged.
+
+An INTEGRATED job missing either ID is P0 `BLOCKED`.
+
 ## Locked Snapshot Rule
 
 Before polish:
@@ -387,6 +395,7 @@ P9 can hard-fail when the budget is substantially exceeded.
 Before image generation validate:
 - required fields
 - locked snapshot diff
+- integrated lock-ID presence/equality when workflow_mode=INTEGRATED
 - reference priority
 - polish strength
 - prompt budget

@@ -11,6 +11,9 @@ evidence_distance: CORE | SUPPORT | CONTEXT
 viewer_question: ""
 tts_text: ""
 estimated_duration_sec: 0
+information_unit_count: 1
+visual_event_budget: 1
+compression_justification: ""
 
 claim_types: []
 fact_guardrails: []
@@ -20,7 +23,16 @@ visualizable_event:
   description: ""
 
 directing_intent: ""
-attention_event: ""
+attention_event:
+  type: REVEAL | ACTION | PARALLAX | FOCUS_SHIFT | SPATIAL_DISCOVERY | QUESTION | REORIENTATION | HOLD
+  target_time_sec: 0.0
+attention_timing_exception: ""
+secondary_attention_event:
+  required: false
+  type: ""
+  target_time_sec: null
+  exception_reason: ""
+
 reveal_policy: ""
 payoff: ""
 transition_intent: ""

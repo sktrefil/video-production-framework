@@ -1,0 +1,155 @@
+{
+  "render_polish_job_id": "RP_INT_01",
+  "image_job_id": "IMG_INT_01",
+  "workflow_mode": "INTEGRATED",
+  "script_directing_lock_id": "SDL-demo-r04",
+  "visual_beat_lock_id": "VBL-demo-NU001",
+  "polish_strength": "STANDARD",
+  "locked_snapshot_before": {
+    "script_directing_lock_id": "SDL-demo-r04",
+    "visual_beat_lock_id": "VBL-demo-NU001",
+    "fact_lock": [
+      "no invented inscription"
+    ],
+    "story_event": "reveal evidence",
+    "clip_structure_mode": "START_TARGET",
+    "tension_function": "REVEAL",
+    "shot_size": "MEDIUM",
+    "camera_height": "LOW",
+    "camera_angle": "LEVEL",
+    "camera_path": "FORWARD_RIGHT",
+    "camera_speed_profile": "MEDIUM_TO_SLOW",
+    "entry_state": "partly hidden",
+    "target_state": "readable",
+    "exit_state": "right center",
+    "continuity_mode": "EXIT_MATCH",
+    "primary_action": "visual reveal",
+    "motion_vector": "FORWARD_RIGHT",
+    "next_handoff": "detail receives evidence",
+    "reference_priority": [
+      "CONTINUITY_EXIT",
+      "WORLD_LOCK",
+      "STYLE_ANCHOR"
+    ]
+  },
+  "locked_snapshot_after": {
+    "script_directing_lock_id": "SDL-demo-r04",
+    "visual_beat_lock_id": "VBL-CHANGED",
+    "fact_lock": [
+      "no invented inscription"
+    ],
+    "story_event": "reveal evidence",
+    "clip_structure_mode": "START_TARGET",
+    "tension_function": "REVEAL",
+    "shot_size": "MEDIUM",
+    "camera_height": "LOW",
+    "camera_angle": "LEVEL",
+    "camera_path": "FORWARD_RIGHT",
+    "camera_speed_profile": "MEDIUM_TO_SLOW",
+    "entry_state": "partly hidden",
+    "target_state": "readable",
+    "exit_state": "right center",
+    "continuity_mode": "EXIT_MATCH",
+    "primary_action": "visual reveal",
+    "motion_vector": "FORWARD_RIGHT",
+    "next_handoff": "detail receives evidence",
+    "reference_priority": [
+      "CONTINUITY_EXIT",
+      "WORLD_LOCK",
+      "STYLE_ANCHOR"
+    ]
+  },
+  "polish_delta": {
+    "reduced": [
+      "clutter"
+    ],
+    "enhanced": [
+      "separation"
+    ],
+    "preserved": [
+      "camera corridor",
+      "lock lineage"
+    ]
+  },
+  "visual_hierarchy": {
+    "focal_subject": "evidence",
+    "secondary_read": "passage",
+    "background_role": "depth"
+  },
+  "lighting_polish": {
+    "key_light": "preserve",
+    "fill_behavior": "restrained",
+    "contrast_control": "local",
+    "separation_goal": "clear",
+    "delta_limit": {
+      "exposure_change": "LOW",
+      "contrast_change": "LOW",
+      "direction_change": "PROHIBITED",
+      "color_temperature_shift": "MINIMAL"
+    }
+  },
+  "material_polish": {
+    "subject_materials": [
+      "bone"
+    ],
+    "environment_materials": [
+      "stone"
+    ],
+    "separation_notes": [
+      "matte distinction"
+    ]
+  },
+  "clutter_control": {
+    "remove_or_reduce": [
+      "noise"
+    ],
+    "preserve": [
+      "parallax"
+    ]
+  },
+  "color_discipline": {
+    "dominant_palette": [
+      "cold neutral"
+    ],
+    "accent_policy": "minimal",
+    "saturation_policy": "restrained",
+    "continuity_mode": "STRICT"
+  },
+  "motion_support": {
+    "camera_corridor_clear": true,
+    "parallax_source_preserved": true,
+    "negative_space_preserved": true,
+    "exit_readability_preserved": true
+  },
+  "anatomy_readability": {
+    "face_readability": "n/a",
+    "hand_readability": "n/a",
+    "silhouette_readability": "clear",
+    "identity_preserved": true,
+    "pose_preserved": true
+  },
+  "style_alignment": {
+    "visual_bible_match": "PASS",
+    "style_anchor_match": "PASS",
+    "forbidden_style_drift": [
+      "none"
+    ]
+  },
+  "prompt_budget": {
+    "base_prompt_chars": 100,
+    "polish_added_chars": 5,
+    "added_ratio": 0.05,
+    "max_added_ratio": 0.35,
+    "duplicate_instruction_count": 0
+  },
+  "base_prompt_en": "LOCKED DIRECTING base prompt with enough directing context for the approved shot and camera path.",
+  "final_prompt_en": "LOCKED DIRECTING\nbase\nMUST PRESERVE\nlocks\nVISUAL HIERARCHY\nclear\nLIGHTING\nrestrained\nMATERIAL / DEPTH\nclear\nCOLOR\nneutral\nMOTION SUPPORT\nopen\nRENDER FINISH\nclean\nNEGATIVE CONSTRAINTS\nno drift",
+  "pre_render_qc": {
+    "status": "PASS",
+    "warnings": []
+  },
+  "post_render_qc": {
+    "status": "PASS",
+    "warnings": []
+  }
+}

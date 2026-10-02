@@ -14,11 +14,12 @@ This skill is an orchestrator. It does not compete with the writer, storyboard d
 
 Primary flow:
 
-`RESEARCH_LOCK -> SCRIPT_DRAFT -> DIRECTING_PREFLIGHT -> SCRIPT_REVISION -> VISUAL_SKELETON -> SEQUENCE_QC -> SCRIPT_DIRECTING_LOCK -> MANAGER_STORY_GATE -> FINAL_TTS -> FULL_STORYBOARD -> RENDER_POLISH`
+`RESEARCH_LOCK -> SCRIPT_DRAFT -> DIRECTING_PREFLIGHT -> SCRIPT_REVISION -> VISUAL_SKELETON -> SEQUENCE_QC -> SCRIPT_DIRECTING_LOCK -> MANAGER_STORY_GATE -> FINAL_TTS_GATE -> FINAL_TTS -> FULL_STORYBOARD -> RENDER_POLISH`
 
 ## Authority Boundary
 
-- Agent1 remains the only canonical approval authority.
+- For history/mystery LONGFORM script development, this skill is the **workflow authority** for the development sequence and may not be silently skipped.
+- Agent1 remains the only **canonical approval authority**.
 - `SCRIPT_DIRECTING_LOCK` is a development lock, not a project.db Story Gate.
 - Worker skills may recommend PASS/REVISE/BLOCKED but may not self-approve canonical production state.
 - Existing LONGFORM requirements for manager-approved FINAL script and Scene graph remain in force.
@@ -81,11 +82,12 @@ Use exactly these development states:
 6. `SEQUENCE_QC`
 7. `SCRIPT_DIRECTING_LOCKED`
 8. `WAITING_MANAGER_STORY_GATE`
-9. `FINAL_TTS_ALLOWED`
-10. `FULL_STORYBOARD`
-11. `RENDER_POLISH`
-12. `PRODUCTION_QC`
-13. `BLOCKED`
+9. `FINAL_TTS_GATE`
+10. `FINAL_TTS_ALLOWED`
+11. `FULL_STORYBOARD`
+12. `RENDER_POLISH`
+13. `PRODUCTION_QC`
+14. `BLOCKED`
 
 Do not skip directly from `SCRIPT_DRAFT` to `FINAL_TTS_ALLOWED`.
 
@@ -168,15 +170,31 @@ Wait for the repository-defined manager approval of FINAL script and Scene graph
 
 The development lock does not bypass this gate.
 
-### Step 9 — Final TTS
-Only now may the story/audio worker create final segmented TTS.
+### Step 9 — FINAL_TTS_GATE
+Before any final audio generation, create `assets/final-tts-gate-template.md` and run `scripts/validate_final_tts_gate.py`.
+
+The gate must cross-check:
+- current script revision/hash against the development lock;
+- preflight revision and its input script revision/hash;
+- visual-skeleton revision/hash and its input script revision/hash;
+- current narrative-unit IDs;
+- current fact-guardrail IDs;
+- Agent1 Story Gate = PASS;
+- Agent1-approved script revision/hash equal the current locked script;
+- an approved Scene graph revision/hash is present;
+- FINAL TTS does not already exist.
+
+Any mismatch is `BLOCKED_STALE_PROVENANCE`. Do not "refresh" one field to make it pass; return to the owning stage and rebuild the lock.
+
+### Step 10 — Final TTS
+Only after `FINAL_TTS_GATE=PASS` may the story/audio worker create final segmented TTS.
 
 If the approved script changes afterward:
 - invalidate the development lock;
 - invalidate dependent TTS planning according to repository architecture;
 - return to the appropriate development state.
 
-### Step 10 — Full Storyboard
+### Step 11 — Full Storyboard
 Run the storyboard director in `FULL_PRODUCTION` mode using:
 - locked script revision
 - `SCRIPT_DIRECTING_LOCK_ID`
@@ -184,7 +202,7 @@ Run the storyboard director in `FULL_PRODUCTION` mode using:
 - segmented TTS timings
 - Visual Bible / continuity locks
 
-### Step 11 — Render Polish
+### Step 12 — Render Polish
 Run only on director-approved image contracts. Preserve both script/directing and visual-beat lock identifiers.
 
 ## Feedback Routing
@@ -218,6 +236,8 @@ Use when the underlying evidence package is insufficient or contradictory.
 ## Lock Invalidation
 
 `SCRIPT_DIRECTING_LOCK` is invalidated by:
+- any script revision/hash mismatch against Preflight or Visual Skeleton input provenance;
+- any locked-unit set mismatch against the current Script Development Package;
 - script text change that affects meaning or timing;
 - narrative unit split/merge/reorder;
 - evidence ID or fact-guardrail change;
@@ -247,5 +267,6 @@ Use `assets/development-state-template.md`.
 
 Use:
 - `scripts/validate_script_directing_lock.py`
+- `scripts/validate_final_tts_gate.py` before FINAL TTS
 
 A validator PASS is structural only. Agent1 approval is still required.
