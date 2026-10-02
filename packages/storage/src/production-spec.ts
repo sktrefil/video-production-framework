@@ -41,6 +41,14 @@ export class ProductionSpecRepository {
     return this.getSpec<ClipProductionDocument>("production_clip_specs", projectId);
   }
 
+  supersedeClipProduction(projectId: string): number {
+    const result = this.db.prepare(
+      "UPDATE production_clip_specs SET lifecycle_status='SUPERSEDED' " +
+      "WHERE project_id=? AND lifecycle_status='ACTIVE'"
+    ).run(projectId);
+    return Number(result.changes);
+  }
+
   saveGateEvaluation(evaluation: ProductionGateEvaluation, input: unknown): number {
     const save = this.db.transaction(() => {
       const row = this.db.prepare("SELECT COALESCE(MAX(revision), 0) revision FROM production_gate_evaluations WHERE project_id = ? AND gate_id = ?")

@@ -65,6 +65,20 @@ export class Agent3VisualProductionRepository {
     };
   }
 
+  supersedeActive(
+    projectId: string,
+    artifactTypes: readonly Agent3VisualArtifactType[]
+  ): number {
+    if (artifactTypes.length === 0) return 0;
+    const placeholders = artifactTypes.map(() => "?").join(",");
+    const result = this.db.prepare(
+      "UPDATE agent3_visual_artifacts SET lifecycle_status='SUPERSEDED' " +
+      "WHERE project_id=? AND lifecycle_status='ACTIVE' AND artifact_type IN (" +
+      placeholders + ")"
+    ).run(projectId, ...artifactTypes);
+    return Number(result.changes);
+  }
+
   getActive<T>(
     projectId: string,
     artifactType: Agent3VisualArtifactType

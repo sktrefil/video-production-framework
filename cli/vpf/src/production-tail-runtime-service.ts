@@ -942,6 +942,101 @@ export class ProductionTailRuntimeService{
     this.codexRunner=new CodexProcessRunner(environment);
   }
 
+  async resetVisualPlanning(projectId:string):Promise<{
+    project_id:string;
+    status:"RESET_FOR_VISUAL_PLANNING";
+    superseded_agent3_artifacts:number;
+    superseded_clip_specs:number;
+    superseded_tail_artifacts:number;
+    reset_tasks:string[];
+    preserved_upstream_tasks:string[];
+  }>{
+    const status=await this.projects.getStatus(projectId);
+    const workflow=new WorkflowOrchestratorRepository(status.projectDbPath);
+    const agent3=new Agent3VisualProductionRepository(status.projectDbPath);
+    const production=new ProductionSpecRepository(status.projectDbPath);
+    const tail=new ProductionTailRepository(status.projectDbPath);
+    try{
+      const requiredUpstream=["T010","T020","T030"] as const;
+      const incompleteUpstream=requiredUpstream.filter(taskId=>
+        workflow.getTask(projectId,taskId)?.status!=="COMPLETE"
+      );
+      if(incompleteUpstream.length>0){
+        throw new ProductionTailRuntimeError(
+          "TAIL_PREREQUISITE",
+          "Visual-planning reset requires completed upstream tasks T010-T030; incomplete: "+
+            incompleteUpstream.join(", ")+"."
+        );
+      }
+
+      const supersededAgent3=agent3.supersedeActive(projectId,[
+        "scene_visual_spec",
+        "state_image_spec",
+        "prompt_bundle_spec"
+      ]);
+      const supersededClipSpecs=production.supersedeClipProduction(projectId);
+      const supersededTail=tail.supersedeActive(projectId,[
+        "directing_pilot_qc",
+        "generated_images",
+        "image_qc_result",
+        "approved_images",
+        "t070_seed_visual_qc",
+        "t070_scene_visual_qc",
+        "t070_final_visual_qc",
+        "generated_clips",
+        "clip_qc_result",
+        "timeline_spec",
+        "preview_render",
+        "final_qc_result"
+      ]);
+
+      // Remove only transient checkpoint/manifests. Generated media files are preserved;
+      // new prompt/state lineage is authoritative and stale DB artifacts remain queryable by revision.
+      await rm(path.resolve(status.projectRoot,T070_CHECKPOINT_RELATIVE_PATH),{force:true});
+      await rm(path.resolve(status.projectRoot,"05_images/image-manifest.json"),{force:true});
+      await rm(path.resolve(status.projectRoot,"06_clips/google-flow-manifest.json"),{force:true});
+      await rm(path.resolve(status.projectRoot,"08_editor/edit_project.json"),{force:true});
+      await rm(path.resolve(status.projectRoot,"09_render/preview.mp4"),{force:true});
+      await rm(path.resolve(status.projectRoot,"09_render/final.mp4"),{force:true});
+
+      const at=new Date().toISOString();
+      const resetTasks:string[]=[];
+      for(const taskId of ["T040","T050","T060","T070","T080","T090","T100"] as const){
+        const task=workflow.getTask(projectId,taskId);
+        if(task===null)continue;
+        workflow.updateTask({
+          projectId,
+          taskId,
+          status:taskId==="T040"?"READY":"BLOCKED",
+          attempt:0,
+          inputRefs:[],
+          outputRefs:[],
+          lastGateId:null,
+          lastGateStatus:null,
+          startedAt:null,
+          completedAt:null,
+          updatedAt:at
+        });
+        resetTasks.push(taskId);
+      }
+
+      return{
+        project_id:projectId,
+        status:"RESET_FOR_VISUAL_PLANNING",
+        superseded_agent3_artifacts:supersededAgent3,
+        superseded_clip_specs:supersededClipSpecs,
+        superseded_tail_artifacts:supersededTail,
+        reset_tasks:resetTasks,
+        preserved_upstream_tasks:["T010","T020","T030"]
+      };
+    }finally{
+      tail.close();
+      production.close();
+      agent3.close();
+      workflow.close();
+    }
+  }
+
   async resetT070ForRegeneration(projectId:string):Promise<{
     project_id:string;
     status:"RESET_FOR_T070_REGENERATION";

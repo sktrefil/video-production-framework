@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
@@ -83,6 +84,53 @@ export class Agent3RuntimeAdapterError extends Error {
 
 const sha256Text = (value: string): string =>
   createHash("sha256").update(value, "utf8").digest("hex");
+
+type ActiveVisualDevelopmentPointer = {
+  package_path: string;
+  visual_skeleton_file: string;
+  visual_beat_index_file: string;
+  sequence_qc_file?: string;
+  metrics_file?: string;
+};
+
+async function loadActiveVisualDevelopment(projectRoot: string): Promise<unknown | null> {
+  const pointerPath = path.resolve(projectRoot, "development/active_visual_development.json");
+  let pointerRaw: string;
+  try {
+    pointerRaw = await readFile(pointerPath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+  const pointer = JSON.parse(pointerRaw) as Partial<ActiveVisualDevelopmentPointer>;
+  if (
+    typeof pointer.package_path !== "string" ||
+    typeof pointer.visual_skeleton_file !== "string" ||
+    typeof pointer.visual_beat_index_file !== "string"
+  ) {
+    throw new Error("active_visual_development.json is missing required package/file fields.");
+  }
+  const packageRoot = path.resolve(projectRoot, pointer.package_path);
+  const developmentRoot = path.resolve(projectRoot, "development");
+  if (!packageRoot.startsWith(developmentRoot + path.sep)) {
+    throw new Error("active visual development package must stay under project development/.");
+  }
+  const load = async (filename: string | undefined): Promise<unknown | null> => {
+    if (filename === undefined) return null;
+    const absolute = path.resolve(packageRoot, filename);
+    if (!absolute.startsWith(packageRoot + path.sep)) {
+      throw new Error("active visual development file escaped its package directory.");
+    }
+    return JSON.parse(await readFile(absolute, "utf8")) as unknown;
+  };
+  return {
+    pointer,
+    visual_skeleton: await load(pointer.visual_skeleton_file),
+    visual_beat_index: await load(pointer.visual_beat_index_file),
+    sequence_qc: await load(pointer.sequence_qc_file),
+    metrics: await load(pointer.metrics_file)
+  };
+}
 
 type Agent3AiRuntimeMode = "CODEX_SESSION" | "OPENAI_API";
 
@@ -369,6 +417,7 @@ class OpenAiAgent3Runtime {
       content_hash: string;
     };
     visualBible: ChannelVisualBiblePayload;
+    developmentVisualReference: unknown | null;
     revisionFeedback: string | null;
   }): Promise<{
     responseId: string | null;
@@ -385,6 +434,7 @@ class OpenAiAgent3Runtime {
         "Copy each Story Scene fact_refs exactly. Never invent or remove a fact reference.",
         "Map factuality conservatively. For mixed fact_refs use the least-certain applicable class in this priority: any LEGEND => LEGEND_RECONSTRUCTION; else any HYPOTHESIS => HYPOTHESIS_RECONSTRUCTION; else any EDITORIAL_RECONSTRUCTION => EDITORIAL_FANTASY_RECONSTRUCTION; else any LIKELY_INTERPRETATION => HISTORICAL_RECONSTRUCTION or HYPOTHESIS_RECONSTRUCTION; otherwise VERIFIED_FACT may be EVIDENCE or HISTORICAL_RECONSTRUCTION.",
         "Visual Bible is the show-level authority. Do not replace it with a new style.",
+        "When development_visual_reference is present, treat it as approved pre-TTS directing evidence: preserve its unit order, NON_REALISTIC_STYLIZED style lock, motif/camera intent and sequence-QC constraints while adapting them to measured Scene Timing. Do not use it to rewrite Story facts or narration.",
         "Fantasy visual language may express atmosphere and reconstruction, but must not convert uncertainty into factual evidence.",
         "Set fantasy_mode for every Scene. Use OFF or RESTRAINED for evidence-heavy scenes; EDITORIAL for symbolic mystery/reconstruction; HEIGHTENED only for clearly editorial or legendary synthesis where atmosphere can intensify without inventing historical claims.",
         "Fantasy may alter atmosphere, light, mist, texture, spatial symbolism and non-textual motifs. It must not invent documents, artifacts, events, creatures, magical causation, or false historical evidence.",
@@ -400,6 +450,7 @@ class OpenAiAgent3Runtime {
         fact_check_spec: input.facts,
         visual_bible_pin: input.visualBiblePin,
         visual_bible_payload: input.visualBible,
+        development_visual_reference: input.developmentVisualReference,
         revision_feedback: input.revisionFeedback
       }
     });
@@ -1186,6 +1237,7 @@ export class Agent3RuntimeAdapterService {
           facts: facts.value,
           visualBiblePin: bible.pin,
           visualBible: bible.payload,
+          developmentVisualReference: await loadActiveVisualDevelopment(status.projectRoot),
           revisionFeedback: feedback
         };
         return this.executeOpenAiRun(
@@ -1360,6 +1412,7 @@ export class Agent3RuntimeAdapterService {
           fact_check_spec: facts.value,
           visual_bible_pin: bible.pin,
           visual_bible_payload: bible.payload,
+          development_visual_reference: await loadActiveVisualDevelopment(status.projectRoot),
           provider_profile: codexPin,
           manager_revision_instruction: managerDirective
         };
@@ -1377,6 +1430,7 @@ export class Agent3RuntimeAdapterService {
             "Copy Story Scene fact_refs exactly; never add or remove fact references.",
             "Use the least-certain factuality mode required by the referenced fact classifications.",
             "Visual Bible is the show-level authority; do not invent a replacement visual style.",
+            "When development_visual_reference is present, treat it as approved pre-TTS directing evidence: preserve its unit order, NON_REALISTIC_STYLIZED style lock, motif/camera intent and sequence-QC constraints while adapting them to measured Scene Timing. Do not rewrite Story facts or narration.",
             "Do not turn missing records or uncertainty into literal magical disappearance.",
             "If manager_revision_instruction is present, repair that exact failure while preserving approved story, facts, timing, and Visual Bible."
           ],

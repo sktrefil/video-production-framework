@@ -650,3 +650,21 @@ test("standalone CLI lifecycle builds storage before loading production-tail",()
     "./dist/production-tail.js"
   );
 });
+
+
+test("visual planning reset preserves T010-T030 and invalidates T040 downstream without deleting revision history",()=>{
+  const tail=readFileSync(path.join(repoRoot,"cli/vpf/src/production-tail-runtime-service.ts"),"utf8");
+  const agent3=readFileSync(path.join(repoRoot,"packages/storage/src/agent3-visual-production.ts"),"utf8");
+  const production=readFileSync(path.join(repoRoot,"packages/storage/src/production-spec.ts"),"utf8");
+  const index=readFileSync(path.join(repoRoot,"cli/vpf/src/index.ts"),"utf8");
+  assert.match(tail,/async resetVisualPlanning/);
+  assert.match(tail,/requiredUpstream=\["T010","T020","T030"\]/);
+  assert.match(tail,/agent3\.supersedeActive\(projectId,\[/);
+  assert.match(tail,/production\.supersedeClipProduction\(projectId\)/);
+  assert.match(tail,/status:taskId==="T040"\?"READY":"BLOCKED"/);
+  assert.match(tail,/attempt:0/);
+  assert.match(agent3,/supersedeActive\(/);
+  assert.match(production,/supersedeClipProduction\(/);
+  assert.match(index,/production reset-visual-planning <project_id> --confirm/);
+  assert.match(index,/resetVisualPlanning\(projectId\)/);
+});

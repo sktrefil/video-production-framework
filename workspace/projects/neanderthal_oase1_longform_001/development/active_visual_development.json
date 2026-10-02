@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "status": "ACTIVE_PRE_TTS_VISUAL_REFERENCE",
+  "package_path": "development/oase_visual_v3_1_nonrealistic",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "visual_skeleton_file": "visual_skeleton_v3_1.json",
+  "visual_beat_index_file": "visual_beat_index_v3_1.json",
+  "sequence_qc_file": "sequence_qc_v3_1.json",
+  "metrics_file": "metrics_v3_1.json",
+  "script_mutation_allowed": false,
+  "narrative_unit_structure_mutation_allowed": false
+}
