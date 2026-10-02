@@ -564,7 +564,7 @@ test("T070 checkpoint resume accepts an orphaned RUNNING attempt without increme
   assert.match(tail,/recoverableInterruptedT070/);
   assert.match(tail,/next\.status==="RUNNING"&&\(next\.attempt\?\?0\)>0/);
   assert.match(tail,/checkpoint\.value\?\.phase==="SEED_QC"/);
-  assert.match(workflow,/\["REVISION_REQUIRED","FAILED","RUNNING"\]\.includes\(task\.status\)/);
+  assert.match(workflow,/\["REVISION_REQUIRED",\s*"FAILED",\s*"RUNNING"\]\.includes\(task\.status\)/);
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
