@@ -995,9 +995,6 @@ export class ProductionTailRuntimeService{
       await rm(path.resolve(status.projectRoot,T070_CHECKPOINT_RELATIVE_PATH),{force:true});
       await rm(path.resolve(status.projectRoot,"05_images/image-manifest.json"),{force:true});
       await rm(path.resolve(status.projectRoot,"06_clips/google-flow-manifest.json"),{force:true});
-      await rm(path.resolve(status.projectRoot,"08_editor/edit_project.json"),{force:true});
-      await rm(path.resolve(status.projectRoot,"09_render/preview.mp4"),{force:true});
-      await rm(path.resolve(status.projectRoot,"09_render/final.mp4"),{force:true});
 
       const at=new Date().toISOString();
       const resetTasks:string[]=[];
