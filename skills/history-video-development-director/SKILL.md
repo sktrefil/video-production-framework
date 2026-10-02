@@ -14,7 +14,7 @@ This skill is an orchestrator. It does not compete with the writer, storyboard d
 
 Primary flow:
 
-`RESEARCH_LOCK -> SCRIPT_DRAFT -> DIRECTING_PREFLIGHT -> SCRIPT_REVISION -> VISUAL_SKELETON -> SEQUENCE_QC -> SCRIPT_DIRECTING_LOCK -> MANAGER_STORY_GATE -> FINAL_TTS_GATE -> FINAL_TTS -> FULL_STORYBOARD -> RENDER_POLISH`
+`STYLE_START_NOTICE -> RESEARCH_LOCK -> SCRIPT_DRAFT -> DIRECTING_PREFLIGHT -> SCRIPT_REVISION -> VISUAL_SKELETON -> SEQUENCE_QC -> SCRIPT_DIRECTING_LOCK -> MANAGER_STORY_GATE -> FINAL_TTS_GATE -> FINAL_TTS -> FULL_STORYBOARD -> RENDER_POLISH`
 
 ## Authority Boundary
 
@@ -74,24 +74,65 @@ Runs only after director-approved image contracts exist.
 
 Use exactly these development states:
 
-1. `RESEARCH_LOCKED`
-2. `SCRIPT_DRAFT`
-3. `DIRECTING_PREFLIGHT`
-4. `SCRIPT_REVISION`
-5. `VISUAL_SKELETON`
-6. `SEQUENCE_QC`
-7. `SCRIPT_DIRECTING_LOCKED`
-8. `WAITING_MANAGER_STORY_GATE`
-9. `FINAL_TTS_GATE`
-10. `FINAL_TTS_ALLOWED`
-11. `FULL_STORYBOARD`
-12. `RENDER_POLISH`
-13. `PRODUCTION_QC`
-14. `BLOCKED`
+1. `STYLE_START_NOTICE`
+2. `RESEARCH_LOCKED`
+3. `SCRIPT_DRAFT`
+4. `DIRECTING_PREFLIGHT`
+5. `SCRIPT_REVISION`
+6. `VISUAL_SKELETON`
+7. `SEQUENCE_QC`
+8. `SCRIPT_DIRECTING_LOCKED`
+9. `WAITING_MANAGER_STORY_GATE`
+10. `FINAL_TTS_GATE`
+11. `FINAL_TTS_ALLOWED`
+12. `FULL_STORYBOARD`
+13. `RENDER_POLISH`
+14. `PRODUCTION_QC`
+15. `BLOCKED`
 
 Do not skip directly from `SCRIPT_DRAFT` to `FINAL_TTS_ALLOWED`.
 
+## Mandatory New-Video Style Start Notice
+
+Before any **new HISTORY_MYSTERY video** begins substantive research, script development, Visual Skeleton work, or image planning, surface a user-visible `STYLE_START_NOTICE`.
+
+This notice is mandatory even when the style is unchanged from the previous project. Its purpose is to prevent silent regression.
+
+Required notice content:
+- `style_mode: NON_REALISTIC_STYLIZED`
+- visual language: stylized history-fantasy / graphic animation
+- directing language: strong kinetic camera motion, parallax, scale shifts, spatial traversal, arc/orbit, graphic match, speed contrast
+- prohibited: photorealistic, live-action, documentary reenactment, hyperreal, realistic cinematic reconstruction
+- evidence policy: facts/evidence remain accurate; unknown details are stylized, abstracted, silhouetted, omitted, or separated into editorial space
+- a clear Korean user-facing sentence stating that the video will **not** use a realistic/live-action look
+
+Use `assets/style-start-notice-template.md`.
+
+Rules:
+- The notice must be shown to the user in the conversation; storing it only in a file, DB, log, or internal note does not satisfy the gate.
+- When the notice matches the canonical lock, it is informational: continue work without asking for confirmation.
+- If any planned style conflicts with `NON_REALISTIC_STYLE_LOCK`, do not start production. Return `BLOCKED_STYLE_CONFLICT`.
+- A resumed legacy/sample project with no valid current notice must emit the notice before new visual development resumes.
+- Any style change would require an explicit architecture/user decision; a worker may never silently change the style.
+
+Validate structured notices with `scripts/validate_style_start_notice.py`.
+
+### Existing / Legacy Visual Plan Invalidation
+
+When an existing sample or project was designed under a realistic, photorealistic, documentary-reenactment, or faux-reconstruction assumption:
+- preserve valid research, evidence mapping, Narrative Units, and information-flow structure;
+- invalidate prior Visual Skeleton / Visual Beat / image-style approvals that depended on realism;
+- rebuild and re-QC those visual artifacts under `NON_REALISTIC_STYLE_LOCK`;
+- do not reuse a prior visual PASS merely because its narrative structure remains useful.
+
+For `oase_visual_development_v2`, the 37 Narrative Unit information structure may be reused, but the previous realistic-assumption Visual Skeleton / Visual Beat approval is **withdrawn**. Oase visual development must restart with the user-visible Style Start Notice and be revalidated as **non-realistic + strong fantasy/graphic direction + kinetic camera motion** before image production.
+
 ## Standard Workflow
+
+### Step 0 — STYLE_START_NOTICE
+Render the mandatory user-visible style notice and validate its structured companion artifact.
+
+Do not proceed to Research Lock if the notice is absent or conflicts with the canonical style.
 
 ### Step 1 — Research Lock
 Confirm the source/evidence package is sufficiently fact-checked for writing.
@@ -253,23 +294,25 @@ Minor punctuation or pronunciation notes may be handled only if they do not alte
 ## Output Contract
 
 Produce:
-1. development state
-2. current revisions/hashes
-3. unresolved issues
-4. revision round count
-5. writer status
-6. preflight status
-7. visual-skeleton status
-8. sequence-QC status
-9. lock status / lock ID
-10. next allowed action
-11. invalidated downstream artifacts, if any
+1. latest STYLE_START_NOTICE id/status for new or resumed projects
+2. development state
+3. current revisions/hashes
+4. unresolved issues
+5. revision round count
+6. writer status
+7. preflight status
+8. visual-skeleton status
+9. sequence-QC status
+10. lock status / lock ID
+11. next allowed action
+12. invalidated downstream artifacts, if any
 
 Use `assets/development-state-template.md`.
 
 ## Validation
 
 Use:
+- `scripts/validate_style_start_notice.py` at new-video/resumed-visual start
 - `scripts/validate_script_directing_lock.py`
 - `scripts/validate_final_tts_gate.py` before FINAL TTS
 

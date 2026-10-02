@@ -36,6 +36,12 @@ Never reverse this into `script -> pretty image -> add camera later`.
 9. **Renderer separation** — Chrome ChatGPT executes the locked image design; it must not re-direct the scene.
 10. **Render-polish separation** — this skill decides whether an image can work as a moving shot. A separate polish skill may improve finish later but cannot alter directing locks.
 
+## New-Video Style Notice Dependency
+
+For a new or resumed HISTORY_MYSTERY visual-development run, do not create a Visual Skeleton, Visual Beat, Image Job, or I2V plan unless the upstream development workflow has already surfaced a valid user-visible `STYLE_START_NOTICE`.
+
+If missing, return upstream with `BLOCKED_STYLE_NOTICE_MISSING`. The storyboard director does not silently infer that the user remembers the style lock.
+
 ## Operating Modes
 
 ### `DIRECTING_PREFLIGHT`

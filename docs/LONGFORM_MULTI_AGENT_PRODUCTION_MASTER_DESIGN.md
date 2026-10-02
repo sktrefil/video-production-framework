@@ -95,6 +95,21 @@ Browser adapter는 다음을 해서는 안 된다.
 
 이 invariant 위반은 이미지 품질 취향 문제가 아니라 Production Gate BLOCK 사유다.
 
+#### STYLE_START_NOTICE
+
+새 `HISTORY_MYSTERY_V1` 영상은 Research/Script/Visual 작업에 들어가기 전에 메인 Agent1 thread가 사용자에게 현재 스타일을 먼저 고지한다.
+
+고지 내용은 최소 다음을 포함한다.
+- `NON_REALISTIC_STYLIZED`
+- 강한 판타지/그래픽 애니메이션 언어
+- 빠르고 목적 있는 kinetic camera motion
+- photorealistic/live-action/documentary-reenactment 금지
+- 사실/증거는 유지하고 불확실한 부분은 스타일화·상징화·에디토리얼 처리
+
+이 고지는 **사용자에게 실제로 보여야** 하며 내부 DB/로그/파일만으로 대체할 수 없다. canonical style과 일치하는 고지는 확인 대기 없이 작업을 계속한다. 고지가 없으면 새 영상의 substantive production을 시작하지 않는다.
+
+기존 실사 전제 샘플을 재개하는 경우 정보/팩트 구조는 보존할 수 있지만 실사 전제의 Visual Skeleton/Visual Beat 승인은 무효화하고 비실사 기준으로 재검증한다.
+
 ### 2.4 project.db가 유일한 canonical production state다
 
 `project.db`가 프로젝트 상태의 진실의 원본이다.

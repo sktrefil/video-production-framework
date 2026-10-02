@@ -10,6 +10,7 @@
 - For LONGFORM, do not fan out TTS/Subtitle and Visual/Image production until the current FINAL script and Scene graph have passed the manager Story Gate; after that Agent2 and Agent3 may proceed concurrently.
 
 ## LONGFORM invariants
+- **STYLE_START_NOTICE:** Before substantive work starts on every new HISTORY_MYSTERY video, the main thread must tell the user the active style: `NON_REALISTIC_STYLIZED`, strong fantasy/graphic direction, kinetic camera motion, and explicit prohibition of photoreal/live-action/documentary-reenactment output. This notice must be user-visible; an internal artifact alone is insufficient. A matching notice does not require a confirmation pause.
 - **NON_REALISTIC_STYLE_LOCK:** HISTORY_MYSTERY LONGFORM final visuals must be explicitly non-photorealistic and stylized. Photorealistic, live-action, documentary-reenactment, hyperreal, or "realistic cinematic reconstruction" output is prohibited.
 - Real photographs, scans, excavation images, or museum references may be used as FACT/SHAPE references only. They may not become final style targets; final frames must visibly transform them into the approved stylized visual language.
 - Unknown faces, clothing, behavior, interiors, and daily-life details must not be "filled in" through faux-realistic reconstruction. Use stylization, silhouette, abstraction, symbolic space, or editorial treatment to express uncertainty.
