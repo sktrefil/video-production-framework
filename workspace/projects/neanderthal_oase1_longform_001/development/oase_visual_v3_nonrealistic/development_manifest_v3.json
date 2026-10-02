@@ -1,0 +1,22 @@
+{
+  "project_id": "neanderthal_oase1_longform_001",
+  "package_id": "oase_visual_development_v3_nonrealistic",
+  "stage": "PRE_TTS_VISUAL_DEVELOPMENT",
+  "status": "PASS",
+  "canonical_project_state_mutated": false,
+  "source_script_path": "workspace/projects/neanderthal_oase1_longform_001/02_script/script_ko.txt",
+  "source_script_git_blob_sha": "1bfeb628b2c51fc62f5b2a9e5fa2e888908de35a",
+  "script_changed": false,
+  "narrative_unit_count": 37,
+  "narrative_unit_structure_changed": false,
+  "style_notice_id": "STYLE-neanderthal_oase1_longform_001-v3",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "visual_skeleton_count": 37,
+  "visual_beat_count": 37,
+  "sequence_qc_pass": "12/12",
+  "structural_interest_score": 99,
+  "final_tts_generated": false,
+  "image_jobs_generated": false,
+  "i2v_prompts_generated": false,
+  "next_required_gate": "CANONICAL_INTEGRATION_AND_AGENT1_STORY_GATE"
+}
