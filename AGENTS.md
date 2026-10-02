@@ -21,6 +21,9 @@
 - Technical retry reuses the exact prompt/reference package. Creative regeneration requires a new prompt revision. Redesign returns to the owning scene/visual stage.
 
 ## Quality gates
+- During LONGFORM development, a draft script may be reviewed by the visual worker in `DIRECTING_PREFLIGHT` mode before FINAL TTS. This preflight is advisory and must not advance canonical production state.
+- When the integrated history-video development skills are used, require a structurally valid `SCRIPT_DIRECTING_LOCK` candidate before requesting the manager Story Gate; the lock does not replace the manager Story Gate.
+- Do not generate FINAL segmented TTS until the `SCRIPT_DIRECTING_LOCK` development conditions are satisfied **and** Agent1 has approved the FINAL script and Scene graph. If the approved script later changes in meaning, unit order, evidence mapping, or timing assumptions, invalidate the development lock and follow the existing downstream invalidation rules.
 - Workers perform self-QC; Agent1 independently performs cross-artifact QC before a stage advances.
 - Image review must cover scene requirements and sequence continuity.
 - Creative image regeneration is limited to prompt revisions v1/v2/v3 by default; after three failed creative attempts Agent1 must BLOCK and reassess instead of looping.

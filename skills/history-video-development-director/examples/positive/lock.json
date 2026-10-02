@@ -1,0 +1,20 @@
+{
+  "lock_id": "SDL-demo-r03",
+  "project_id": "demo",
+  "script_revision": "r03",
+  "script_hash": "abc123",
+  "preflight_revision": "pf02",
+  "visual_skeleton_revision": "vs02",
+  "narrative_spine": "A population ending and ancestry survival are different questions.",
+  "locked_unit_ids": ["NU001"],
+  "fact_guardrail_ids": ["FG01"],
+  "script_qc_status": "PASS",
+  "directing_preflight_status": "PASS",
+  "visual_skeleton_status": "PASS",
+  "sequence_qc_status": "PASS",
+  "fact_status": "PASS",
+  "unresolved_revision_count": 0,
+  "final_tts_generated": false,
+  "development_tts_permission": "GRANTED",
+  "canonical_manager_story_gate": "PENDING"
+}

@@ -1,7 +1,7 @@
 ---
 name: history-fantasy-storyboard-director
 description: >
-  Direct long-form history-fantasy and cinematic animation projects from script/TTS
+  Direct long-form history-fantasy and cinematic animation projects from script-development preflight or locked script/TTS
   into Visual Beats, clip directing contracts, camera choreography, START/TARGET/EXIT
   keyframe plans, Chrome ChatGPT image-generation jobs, I2V motion prompts, and
   continuity handoffs. Prioritize viewer attention, camera tension, readable
@@ -33,6 +33,39 @@ Never reverse this into `script -> pretty image -> add camera later`.
 6. **History/Fantasy boundary** — cinematic fantasy is allowed only where it does not rewrite historical claims.
 7. **Renderer separation** — Chrome ChatGPT executes the locked image design; it must not re-direct the scene.
 8. **Render-polish separation** — this skill decides whether an image can work as a moving shot. A separate polish skill may improve finish later but cannot alter directing locks.
+
+## Operating Modes
+
+### `DIRECTING_PREFLIGHT`
+Use before FINAL TTS to test whether a Script Development Package can become an engaging, executable video.
+
+Input:
+- narrative spine
+- script-development units
+- writer DIRECTING_HANDOFF
+- evidence/fact guardrails
+- estimated TTS duration per unit
+
+Evaluate each unit for:
+- visual feasibility
+- attention feasibility, including whether a meaningful change can occur within the first 3-4 seconds when appropriate
+- TTS duration versus visible event density
+- abstraction and explanatory-motif repetition
+- whether a camera/focus change has a narrative reason
+- transition/handoff feasibility
+- sequence-level repetition risk
+
+Use `assets/directing-preflight-template.md`.
+
+Preflight may return `PASS`, `REVISION_REQUIRED`, or `BLOCKED` and must route a revision to WRITER, DIRECTOR, or RESEARCH.
+In this mode do **not** create final image prompts, START/TARGET image jobs, final I2V prompts, or FINAL TTS.
+A preflight PASS is advisory development evidence only; it does not approve project.db gates.
+
+### `FULL_PRODUCTION`
+Use the existing Standard Workflow only after a stable script is available.
+For LONGFORM, require the repository-defined manager-approved FINAL script and Scene graph. When the project uses the integrated development loop, also carry `SCRIPT_DIRECTING_LOCK_ID` into downstream directing provenance.
+
+If the locked script changes in meaning, unit order, evidence mapping, or timing assumptions, stop and return upstream for lock invalidation/review before regenerating dependent production artifacts.
 
 ## Required Reading
 
@@ -334,7 +367,8 @@ If the repository uses different task numbers, prefer task names and use this as
 ## Validation
 
 Use:
-- `scripts/validate_storyboard_contract.py`
+- `scripts/validate_directing_preflight.py` for `DIRECTING_PREFLIGHT`
+- `scripts/validate_storyboard_contract.py` for `FULL_PRODUCTION`
 - `scripts/validate_shot_fingerprint.py`
 - `scripts/validate_attention_gate.py`
 

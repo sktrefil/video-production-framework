@@ -1,0 +1,23 @@
+{
+  "script_revision": "r03",
+  "narrative_spine": "Population disappearance and ancestry survival are different questions.",
+  "status": "CANDIDATE_READY_FOR_LOCK_REVIEW",
+  "final_tts_generated": false,
+  "units": [
+    {
+      "unit_id": "NU001",
+      "story_function": "HOOK",
+      "evidence_ids": ["E01"],
+      "tts_text": "물속 통로 끝에서 사람의 턱뼈가 나타납니다.",
+      "estimated_duration_sec": 4.2,
+      "visualizable_event": {"type": "OBJECT", "description": "cave floor reveal to a human mandible"},
+      "directing_intent": "withhold identity until the object is readable",
+      "attention_event": "mandible reveal",
+      "reveal_policy": "identity follows visual reveal",
+      "transition_intent": "move from discovery to what the bone can tell us",
+      "abstraction_risk": "LOW",
+      "preflight_status": "PASS",
+      "revision_reason": ""
+    }
+  ]
+}

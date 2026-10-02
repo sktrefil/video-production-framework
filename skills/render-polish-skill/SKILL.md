@@ -77,6 +77,8 @@ Use templates from `assets/`.
 
 Never alter:
 - FACT_LOCK
+- SCRIPT_DIRECTING_LOCK_ID
+- VISUAL_BEAT_LOCK_ID
 - story_event
 - clip_structure_mode
 - tension_function
@@ -95,6 +97,15 @@ Never alter:
 - reference_priority
 
 If polish requires changing any locked field, output `BLOCKED`.
+
+## Development Lock Lineage
+
+When supplied by the main director, preserve:
+- `SCRIPT_DIRECTING_LOCK_ID` — identifies the script/directing development lock used for the production package.
+- `VISUAL_BEAT_LOCK_ID` — identifies the approved beat/directing contract revision.
+
+These identifiers are provenance fields. Render polish may not rewrite, drop, or silently substitute them.
+If the input script/directing lock has been invalidated upstream, output `BLOCKED` instead of polishing a stale image job.
 
 ## Locked Snapshot Rule
 

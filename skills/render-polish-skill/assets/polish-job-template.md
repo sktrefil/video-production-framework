@@ -3,6 +3,8 @@
 ```yaml
 render_polish_job_id: ""
 image_job_id: ""
+script_directing_lock_id: ""
+visual_beat_lock_id: ""
 
 polish_strength: LIGHT | STANDARD | STRONG
 

@@ -1,0 +1,24 @@
+{
+  "preflight_revision": "PF01",
+  "script_revision": "R01",
+  "narrative_spine": "Example spine",
+  "overall_status": "PASS",
+  "unit_reviews": [
+    {
+      "unit_id": "NU001",
+      "estimated_tts_duration_sec": 14.0,
+      "visual_feasibility": "FAIL",
+      "attention_feasibility": "FAIL",
+      "duration_fit": "FAIL",
+      "transition_fit": "PASS",
+      "repetition_risk": "HIGH",
+      "abstraction_risk": "HIGH",
+      "camera_reason": "no strong reason",
+      "visual_mode_candidate": "DOCUMENTED_DIAGRAM",
+      "attention_event_candidate": "none",
+      "revision_required": true,
+      "revision_route": "WRITER",
+      "revision_reason": "split the abstract narration before TTS"
+    }
+  ]
+}

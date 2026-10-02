@@ -1,0 +1,24 @@
+{
+  "preflight_revision": "PF02",
+  "script_revision": "R03",
+  "narrative_spine": "Example spine",
+  "overall_status": "PASS",
+  "unit_reviews": [
+    {
+      "unit_id": "NU001",
+      "estimated_tts_duration_sec": 5.0,
+      "visual_feasibility": "PASS",
+      "attention_feasibility": "PASS",
+      "duration_fit": "PASS",
+      "transition_fit": "PASS",
+      "repetition_risk": "LOW",
+      "abstraction_risk": "LOW",
+      "camera_reason": "reveal the physical clue and redirect attention",
+      "visual_mode_candidate": "OBJECT",
+      "attention_event_candidate": "object reveal",
+      "revision_required": false,
+      "revision_route": "NONE",
+      "revision_reason": ""
+    }
+  ]
+}

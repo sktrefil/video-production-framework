@@ -1,0 +1,23 @@
+{
+  "script_revision": "r01",
+  "narrative_spine": "Example",
+  "status": "DRAFT_READY_FOR_PREFLIGHT",
+  "final_tts_generated": true,
+  "units": [
+    {
+      "unit_id": "NU001",
+      "story_function": "HOOK",
+      "evidence_ids": ["E01"],
+      "tts_text": "Example narration.",
+      "estimated_duration_sec": 3.0,
+      "visualizable_event": {"type": "OBJECT", "description": "object reveal"},
+      "directing_intent": "reveal object",
+      "attention_event": "reveal",
+      "reveal_policy": "delayed",
+      "transition_intent": "continue",
+      "abstraction_risk": "LOW",
+      "preflight_status": "NOT_REVIEWED",
+      "revision_reason": ""
+    }
+  ]
+}
