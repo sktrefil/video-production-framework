@@ -5,6 +5,10 @@ vb_id: SC01_VB01
 story_event: ""
 duration_target: ""
 
+style_mode: NON_REALISTIC_STYLIZED
+style_energy: HIGH
+stylization_notes: ""
+
 fact_lock: []
 fantasy_allowed: []
 invention_prohibited: []

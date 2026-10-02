@@ -4,6 +4,13 @@
 image_job_id: SC01_VB01_START
 renderer: CHROME_CHATGPT
 aspect_ratio: "16:9"
+style_mode: NON_REALISTIC_STYLIZED
+style_lock:
+  photorealistic: PROHIBITED
+  live_action: PROHIBITED
+  documentary_reenactment: PROHIBITED
+  realistic_cinematic_reconstruction: PROHIBITED
+  real_reference_usage: FACT_SHAPE_ONLY
 
 purpose: ""
 story_event: ""
@@ -43,6 +50,8 @@ canonical_prompt_en: |
   ...
 
   RENDER QUALITY:
+  Visibly stylized non-photorealistic history-fantasy animation frame.
+  Use bold designed depth, graphic material separation, expressive lighting, and motion-ready composition.
   ...
 
   NEGATIVE CONSTRAINTS:

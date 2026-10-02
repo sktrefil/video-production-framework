@@ -31,8 +31,10 @@ Never reverse this into `script -> pretty image -> add camera later`.
 4. **Readability over excess detail** — preserve clean focal hierarchy and camera-readable depth.
 5. **Continuity by design** — connect clips through space, motion, focus, sound, and energy; do not ask the video model to invent continuity.
 6. **History/Fantasy boundary** — cinematic fantasy is allowed only where it does not rewrite historical claims.
-7. **Renderer separation** — Chrome ChatGPT executes the locked image design; it must not re-direct the scene.
-8. **Render-polish separation** — this skill decides whether an image can work as a moving shot. A separate polish skill may improve finish later but cannot alter directing locks.
+7. **NON_REALISTIC_STYLE_LOCK** — the final image/video language is always visibly stylized; never default to photorealistic, live-action, documentary reenactment, or faux-exact historical reconstruction.
+8. **Kinetic spectacle over realism** — fast retention comes from bold camera travel, parallax, scale changes, spatial reveal, graphic transformation, and motion contrast rather than photographic detail.
+9. **Renderer separation** — Chrome ChatGPT executes the locked image design; it must not re-direct the scene.
+10. **Render-polish separation** — this skill decides whether an image can work as a moving shot. A separate polish skill may improve finish later but cannot alter directing locks.
 
 ## Operating Modes
 
@@ -84,6 +86,7 @@ If the locked script changes in meaning, unit order, evidence mapping, or timing
 Load these references when relevant:
 
 - `references/history-fantasy-boundary.md`
+- `references/non-realistic-style-lock.md`
 - `references/camera-tension-grammar.md`
 - `references/horizon-directing-grammar.md`
 - `references/motion-readiness.md`
@@ -100,13 +103,14 @@ Use templates from `assets/` rather than inventing incompatible schemas.
 If rules conflict, obey:
 
 1. FACT_LOCK
-2. PROJECT_VISUAL_BIBLE
-3. CAMERA_FIRST_DIRECTING
-4. ATTENTION_TENSION
-5. CONTINUITY
-6. VISUAL_BEAT_STORY_EVENT
-7. RENDER_POLISH
-8. GENERATOR_SPECIFIC_OPTIMIZATION
+2. NON_REALISTIC_STYLE_LOCK
+3. PROJECT_VISUAL_BIBLE
+4. CAMERA_FIRST_DIRECTING
+5. ATTENTION_TENSION
+6. CONTINUITY
+7. VISUAL_BEAT_STORY_EVENT
+8. RENDER_POLISH
+9. GENERATOR_SPECIFIC_OPTIMIZATION
 
 Lower layers may not override higher layers.
 
@@ -164,6 +168,7 @@ Run H0-H9.
 
 Hard failures:
 - H0 FACT
+- NON_REALISTIC_STYLE_LOCK violation
 - H1 BIBLE
 - physically impossible camera path
 - unresolved START/TARGET contradiction
@@ -224,6 +229,22 @@ Review:
 Feed block-QC findings into the next beats.
 
 ## Camera Rules
+
+### Kinetic camera is the default visual engine
+For this project, the camera is not trying to imitate conservative live-action coverage. Use the freedom of stylized animation-space to create immediate visual energy.
+
+Prefer, when narratively useful:
+- aggressive but readable foreground parallax;
+- low-to-high or high-to-low scale expansion;
+- tunnel/spatial dive into evidence;
+- arc/orbit around an object or symbolic structure;
+- rapid axial travel followed by a precise settle;
+- graphic-match transitions between artifact, diagram, landscape, and symbolic space;
+- foreground wipes and occlusion reveals;
+- strong speed contrast: accelerate -> reveal -> decelerate;
+- perspective reorientation and layered 2.5D/3D motion.
+
+Do not turn every beat into the same trick. Sequence-level variety remains mandatory. A spectacular move still needs one clear story purpose and a readable exit.
 
 ### Camera motion is a narrative device
 Every move must answer at least one:
@@ -288,6 +309,31 @@ Repeated `WIDE + PUSH + CENTERED` or equivalent composition without a story reas
 6. STYLE_ANCHOR
 
 A lower-priority reference may not overwrite a higher-priority lock.
+
+## NON_REALISTIC_STYLE_LOCK
+
+Every Visual Beat and Image Job must carry `style_mode: NON_REALISTIC_STYLIZED`.
+
+Final output must be visibly illustrated/animated/stylized even when source references are photographs or scans.
+
+Allowed directions include:
+- graphic historical fantasy illustration;
+- painterly cinematic animation;
+- stylized 2.5D/3D hybrid;
+- sculptural/ink/charcoal/bronze visual language;
+- editorial-symbolic environments;
+- deliberately designed non-photographic anatomy and material treatment.
+
+Forbidden final-style directions include:
+- photorealistic / photo-realistic;
+- hyperreal / ultra-realistic;
+- live-action;
+- documentary reenactment;
+- realistic cinematic reconstruction;
+- "looks like a real photograph";
+- skin-pore / photographic-lens realism as a quality goal.
+
+Historical accuracy applies to the **claim and evidence anchor**, not to inventing a faux-exact documentary image for unknown details.
 
 ## Image Prompt Order
 
@@ -383,6 +429,7 @@ Use:
 - `scripts/validate_storyboard_contract.py` for `FULL_PRODUCTION`
 - `scripts/validate_shot_fingerprint.py`
 - `scripts/validate_attention_gate.py`
+- `scripts/validate_non_realistic_style.py` for image/prompt artifacts
 
 These scripts are structural validators. They do not replace human/director judgment.
 

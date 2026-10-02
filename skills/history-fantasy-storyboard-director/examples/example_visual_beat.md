@@ -4,6 +4,9 @@
 vb_id: SC01_VB01
 story_event: "A cave passage gradually reveals the evidence display."
 duration_target: "6s"
+style_mode: NON_REALISTIC_STYLIZED
+style_energy: HIGH
+stylization_notes: "graphic bronze-charcoal history-fantasy animation; no photographic realism"
 fact_lock: ["Do not invent inscriptions or excavation context."]
 fantasy_allowed: ["restrained fog", "cinematic light"]
 invention_prohibited: ["text labels in-scene", "DNA graphics"]

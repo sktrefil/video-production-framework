@@ -10,6 +10,10 @@
 - For LONGFORM, do not fan out TTS/Subtitle and Visual/Image production until the current FINAL script and Scene graph have passed the manager Story Gate; after that Agent2 and Agent3 may proceed concurrently.
 
 ## LONGFORM invariants
+- **NON_REALISTIC_STYLE_LOCK:** HISTORY_MYSTERY LONGFORM final visuals must be explicitly non-photorealistic and stylized. Photorealistic, live-action, documentary-reenactment, hyperreal, or "realistic cinematic reconstruction" output is prohibited.
+- Real photographs, scans, excavation images, or museum references may be used as FACT/SHAPE references only. They may not become final style targets; final frames must visibly transform them into the approved stylized visual language.
+- Unknown faces, clothing, behavior, interiors, and daily-life details must not be "filled in" through faux-realistic reconstruction. Use stylization, silhouette, abstraction, symbolic space, or editorial treatment to express uncertainty.
+- Viewer interest should come primarily from bold readable animation-space directing: rapid reveal, scale change, parallax, spatial traversal, orbit/arc, focus redirection, graphic match, and controlled speed contrast—not from photographic realism.
 - LONGFORM is horizontal 16:9 only.
 - Canonical editor/render delivery is 1920x1080. Canonical image-generation dimensions come from `LONGFORM_16X9_V1` (currently 1536x864).
 - Do not apply SHORTFORM 9:16 central-band, persistent-header, subtitle, or crop assumptions to LONGFORM.

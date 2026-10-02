@@ -131,6 +131,7 @@ After round 3, unresolved structural conflicts return `BLOCKED` to Agent1 rather
 When unit preflight passes, build a lightweight sequence skeleton.
 
 For each unit capture only:
+- `style_mode: NON_REALISTIC_STYLIZED` (mandatory for HISTORY_MYSTERY)
 - story event
 - expected duration band
 - visual mode
@@ -143,6 +144,8 @@ Do not generate final START/TARGET/EXIT prompts here.
 
 ### Step 6 — Sequence QC
 Review 20-30 second blocks for:
+- any drift toward photorealistic/live-action/documentary-reenactment visual grammar;
+- whether retention is being carried by kinetic stylized directing rather than faux realism;
 - repeated shot-scale intent
 - repeated explanatory motif
 - long static information runs
@@ -158,6 +161,7 @@ Create `assets/script-directing-lock-template.md` only when:
 - script candidate QC PASS;
 - directing preflight PASS;
 - visual skeleton PASS;
+- NON_REALISTIC_STYLE_LOCK PASS;
 - sequence QC PASS;
 - fact guardrails unchanged;
 - no unresolved revision request;

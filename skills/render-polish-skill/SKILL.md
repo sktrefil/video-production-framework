@@ -3,7 +3,7 @@ name: render-polish-skill
 description: >
   Polish motion-ready history-fantasy keyframe prompts after directing is locked.
   Improve visual hierarchy, lighting separation, material readability, clutter control,
-  color discipline, anatomy readability, and cinematic finish without altering the
+  color discipline, anatomy readability, and stylized cinematic finish without altering the
   director-approved story, camera, continuity, motion path, START/TARGET/EXIT states,
   factual locks, or reference priority. Use after history-fantasy-storyboard-director
   produces a locked image contract and before Chrome ChatGPT image generation.
@@ -43,6 +43,18 @@ Pipeline:
 
 > Do not make a prettier image by breaking the shot.
 
+## NON_REALISTIC STYLE PRESERVATION
+
+Render polish must never "improve quality" by increasing photographic realism.
+
+For INTEGRATED history/mystery work:
+- `style_mode` must remain `NON_REALISTIC_STYLIZED`;
+- preserve designed/illustrated materials instead of skin-pore or lens realism;
+- real evidence references remain FACT/SHAPE anchors only;
+- do not add photographic depth-of-field language as a realism target;
+- do not convert stylized anatomy, faces, terrain, or artifacts into live-action appearance;
+- if a prompt asks for photorealism, hyperrealism, live-action, documentary reenactment, or realistic cinematic reconstruction, output `BLOCKED`.
+
 Prefer:
 - readability
 - clean focal hierarchy
@@ -77,6 +89,7 @@ Use templates from `assets/`.
 
 Never alter:
 - FACT_LOCK
+- NON_REALISTIC_STYLE_LOCK
 - SCRIPT_DIRECTING_LOCK_ID
 - VISUAL_BEAT_LOCK_ID
 - story_event

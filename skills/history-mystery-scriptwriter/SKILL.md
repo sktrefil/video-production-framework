@@ -48,6 +48,7 @@ This skill may not:
 10. **Visual event budget** — do not compress several independent information units into one weak visual event merely to preserve prose.
 11. **Timed attention** — identify when the first meaningful visual/attention change can occur, not only what it is.
 12. **Final-quarter synthesis** — the last quarter must recover the Narrative Spine and expand meaning; it may not collapse into a list of late research results.
+13. **Stylization-ready writing** — do not make narrative comprehension depend on photorealistic reenactment of unknown people, clothing, interiors, meetings, or daily-life behavior. Prefer evidence, transformation, comparison, symbolic space, silhouette, editorial visualization, and other non-realistic visual events that can move quickly.
 
 ## Required Reading
 
@@ -187,7 +188,7 @@ A script candidate may be sent for lock review only when:
 ## Directability Rules
 
 ### Evidence-to-Image Contract
-Every important unit should primarily resolve to at least one:
+Every important unit should primarily resolve to at least one non-photorealistic, stylization-ready visual event:
 - OBJECT
 - PLACE
 - ACTION

@@ -1,5 +1,5 @@
 {
-  "render_polish_job_id": "RP_INT_01",
+  "render_polish_job_id": "RP_STYLE_FAIL_01",
   "image_job_id": "IMG_INT_01",
   "workflow_mode": "INTEGRATED",
   "script_directing_lock_id": "SDL-demo-r04",
@@ -143,7 +143,7 @@
     "duplicate_instruction_count": 0
   },
   "base_prompt_en": "LOCKED DIRECTING base prompt with enough directing context for the approved shot and camera path.",
-  "final_prompt_en": "LOCKED DIRECTING\nbase\nMUST PRESERVE\nlocks\nVISUAL HIERARCHY\nclear\nLIGHTING\nrestrained\nMATERIAL / DEPTH\nclear\nCOLOR\nneutral\nMOTION SUPPORT\nopen\nRENDER FINISH\nclean\nNEGATIVE CONSTRAINTS\nno drift",
+  "final_prompt_en": "LOCKED DIRECTING\nbase\nMUST PRESERVE\nlocks\nVISUAL HIERARCHY\nclear\nLIGHTING\nrestrained\nMATERIAL / DEPTH\nclear\nCOLOR\nneutral\nMOTION SUPPORT\nopen\nRENDER FINISH\nphotorealistic live-action documentary reenactment\nNEGATIVE CONSTRAINTS\nno drift",
   "pre_render_qc": {
     "status": "PASS",
     "warnings": []

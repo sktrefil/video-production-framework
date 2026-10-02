@@ -1,0 +1,4 @@
+style_mode: NON_REALISTIC_STYLIZED
+render_quality: "graphic bronze-charcoal history-fantasy animation, layered 2.5D depth"
+negative_constraints:
+  - "no photorealistic or live-action output"

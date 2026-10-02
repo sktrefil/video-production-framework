@@ -4,6 +4,7 @@
 render_polish_job_id: ""
 image_job_id: ""
 workflow_mode: LEGACY | INTEGRATED
+style_mode: NON_REALISTIC_STYLIZED
 script_directing_lock_id: ""
 visual_beat_lock_id: ""
 

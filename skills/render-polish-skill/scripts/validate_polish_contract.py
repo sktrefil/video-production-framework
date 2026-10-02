@@ -32,6 +32,24 @@ def main():
     errors=[]; warnings=[]
 
     mode=str(d.get("workflow_mode","LEGACY")).upper()
+    style_mode=str(d.get("style_mode","")).upper()
+    if mode=="INTEGRATED" and style_mode!="NON_REALISTIC_STYLIZED":
+        errors.append("style_mode: INTEGRATED workflow requires NON_REALISTIC_STYLIZED")
+    forbidden_style_terms=[
+        "photorealistic","photo-realistic","hyperrealistic","hyper-realistic",
+        "ultra-realistic","live-action","documentary reenactment",
+        "realistic cinematic reconstruction","looks like a real photograph"
+    ]
+    negation_markers=[
+        "no ","not ","non-photoreal","non realistic","non-realistic",
+        "prohibited","forbidden","avoid ","negative constraints"
+    ]
+    prompt_lines=[]
+    for k in ["base_prompt_en","final_prompt_en"]:
+        prompt_lines.extend(str(d.get(k,"")).lower().splitlines())
+    for line in prompt_lines:
+        if any(term in line for term in forbidden_style_terms) and not any(mark in line for mark in negation_markers):
+            errors.append(f"NON_REALISTIC_STYLE_LOCK violation: {line.strip()}")
     if mode not in {"LEGACY","INTEGRATED"}:
         errors.append("workflow_mode: invalid")
     if mode=="INTEGRATED":

@@ -5,6 +5,7 @@ REQUIRED_NONEMPTY = [
     "vb_id",
     "story_event",
     "duration_target",
+    "style_mode",
     "clip_structure_mode",
     "tension_function",
     "camera_intent",
@@ -16,6 +17,7 @@ REQUIRED_NONEMPTY = [
 ]
 
 ENUMS = {
+    "style_mode": {"NON_REALISTIC_STYLIZED"},
     "clip_structure_mode": {"SINGLE_IMAGE", "START_TARGET", "CONTINUATION"},
     "tension_function": {"BUILD", "HOLD", "RELEASE", "REVEAL", "REDIRECT", "HANDOFF"},
     "continuity_mode": {"BIBLE_MATCH", "EXIT_MATCH", "CONTINUATION", "STORY_CUT"},

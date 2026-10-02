@@ -77,7 +77,25 @@ Browser adapter는 다음을 해서는 안 된다.
 - Prompt 의미 변경
 - Reference 의미 재해석
 
-### 2.3 project.db가 유일한 canonical production state다
+### 2.3 HISTORY_MYSTERY 비실사 스타일 절대 원칙
+
+`HISTORY_MYSTERY_V1` LONGFORM의 최종 이미지·영상은 `NON_REALISTIC_STYLIZED`를 canonical visual-style invariant로 사용한다.
+
+금지:
+- photorealistic / photo-realistic
+- hyperreal / ultra-realistic
+- live-action look
+- documentary reenactment look
+- realistic cinematic reconstruction
+- 알 수 없는 역사 디테일을 실제 기록처럼 채워 넣는 faux-exact reconstruction
+
+실제 사진·스캔·발굴·박물관 자료는 FACT/SHAPE/PROPORTION reference로 사용할 수 있으나 최종 Style Anchor가 될 수 없다. 최종 프레임은 명확히 비실사·스타일라이즈드여야 한다.
+
+빠른 전개의 주된 흥미 장치는 실사 디테일이 아니라 animation-space directing이다. 전경 패럴랙스, 공간 관통, 대담한 스케일 변화, arc/orbit, perspective reorientation, graphic match, occlusion transition, speed contrast를 활용하되 사실·의미를 왜곡하지 않는다.
+
+이 invariant 위반은 이미지 품질 취향 문제가 아니라 Production Gate BLOCK 사유다.
+
+### 2.4 project.db가 유일한 canonical production state다
 
 `project.db`가 프로젝트 상태의 진실의 원본이다.
 
@@ -91,7 +109,7 @@ Browser adapter는 다음을 해서는 안 된다.
 
 이들은 Work Order, 실행 증빙, 결과 보고, 디버깅 로그로만 사용한다.
 
-### 2.4 Worker는 자기 작업을 최종 승인하지 않는다
+### 2.5 Worker는 자기 작업을 최종 승인하지 않는다
 
 - Agent2: self-QC 가능, 최종 Gate 승인 불가
 - Agent3: self-QC 가능, 최종 Asset/Stage 승인 불가

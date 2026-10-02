@@ -1,0 +1,2 @@
+style_mode: NON_REALISTIC_STYLIZED
+render_quality: "photorealistic live-action documentary reenactment with photo quality"
