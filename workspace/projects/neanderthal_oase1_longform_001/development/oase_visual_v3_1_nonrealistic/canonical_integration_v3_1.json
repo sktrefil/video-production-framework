@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "project_id": "neanderthal_oase1_longform_001",
+  "package_id": "oase_visual_development_v3_1_nonrealistic",
+  "source_script": {
+    "path": "workspace/projects/neanderthal_oase1_longform_001/02_script/script_ko.txt",
+    "git_blob_sha": "1bfeb628b2c51fc62f5b2a9e5fa2e888908de35a",
+    "expected_unchanged": true
+  },
+  "canonical_mapping": {
+    "current_role": "PRE_TTS_DEVELOPMENT_EVIDENCE",
+    "target_gate": "T020_STORY_SCRIPT_MANAGER_REVIEW",
+    "canonical_db_write_owner": "AGENT1_MANAGER",
+    "direct_T040_write_before_T030": false,
+    "reason": "VPF task graph requires T020 approval before T030 timing and T040 scene visual planning."
+  },
+  "required_checks": [
+    "script/current DB script meaning unchanged",
+    "37 unit order/set preserved",
+    "STYLE_START_NOTICE PASS",
+    "NON_REALISTIC_STYLE_LOCK PASS",
+    "v3.1 structural revalidation PASS",
+    "no FINAL TTS/image/I2V artifacts exist from this package"
+  ],
+  "status": "READY_FOR_LOCAL_AGENT1_DB_BINDING",
+  "branch": "review/video-directing-20261002"
+}
