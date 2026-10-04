@@ -15,7 +15,8 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T025" | "T040" | "T050" | "T060",
     rules: [
       "Preserve approved story scene and beat IDs, order, facts and script meaning.",
       "Provide a visual plan, beat treatment and directing direction without assigning precise shot seconds.",
-      "Use the pinned Visual Bible. For HISTORY_MYSTERY, use visibly non-realistic stylization and expressive camera motion; no photoreal reenactment.",
+      "Use the pinned Visual Bible. For HISTORY_MYSTERY, pre_tts_visual_direction_spec.style_direction MUST contain the exact literal token NON_REALISTIC_STYLIZED; recommended form: \"NON_REALISTIC_STYLIZED — <specific style description>\".",
+      "For HISTORY_MYSTERY, descriptive synonyms such as non-realistic, stylized or illustrative are not substitutes for the exact NON_REALISTIC_STYLIZED token. Preserve visibly non-photorealistic, evidence-first visual language, expressive camera motion and no photoreal reenactment.",
       "Mark uncertainty through silhouette, abstraction or symbolic space; do not invent factual details.",
       "T030 measures narration and timing; T040 refines this direction against those measurements."
     ],

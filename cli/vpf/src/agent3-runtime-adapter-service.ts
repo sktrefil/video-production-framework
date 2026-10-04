@@ -809,7 +809,8 @@ export class Agent3RuntimeAdapterService {
   }
 
   async runNext(
-    projectId: string
+    projectId: string,
+    options: { resumeCurrentAttempt?: boolean } = {}
   ): Promise<
     RuntimeStepResult |
     {
@@ -838,7 +839,8 @@ export class Agent3RuntimeAdapterService {
     const dispatch = await this.manager.dispatch(
       projectId,
       taskId,
-      "AGENT3_VISUAL_PRODUCTION"
+      "AGENT3_VISUAL_PRODUCTION",
+      { resumeCurrentAttempt: options.resumeCurrentAttempt === true }
     );
     await this.progress.emit({
       event: "TASK_STARTED",

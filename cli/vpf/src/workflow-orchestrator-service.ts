@@ -148,11 +148,18 @@ export class Agent1WorkflowOrchestratorService {
         task.task_id === "T070" &&
         (task.status === "FAILED" || task.status === "RUNNING") &&
         task.attempt > 0;
+      const resumablePreTtsVisual =
+        resumeCurrentAttempt &&
+        task.task_id === "T025" &&
+        task.status === "REVISION_REQUIRED" &&
+        task.attempt > 0 &&
+        task.output_revision_refs.length === 0;
       if (
         task.status !== "READY" &&
         task.status !== "REVISION_REQUIRED" &&
         !resumableApprovedT020 &&
-        !resumableInterruptedT070
+        !resumableInterruptedT070 &&
+        !resumablePreTtsVisual
       ) {
         throw new WorkflowOrchestratorError("TASK_NOT_READY", `${task.task_id} is ${task.status}, not dispatchable.`);
       }
@@ -162,10 +169,10 @@ export class Agent1WorkflowOrchestratorService {
       const definition = findTaskDefinition(workflow.definition, task.task_id);
       if (definition === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task definition missing: ${task.task_id}.`);
       if (resumeCurrentAttempt) {
-        if (!resumableApprovedT020 && !resumableInterruptedT070) {
+        if (!resumableApprovedT020 && !resumableInterruptedT070 && !resumablePreTtsVisual) {
           throw new WorkflowOrchestratorError(
             "TASK_NOT_READY",
-            "Only an approved-input T020 revision with no outputs/latest Codex1 RETRY, or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
+            "Only an approved-input T020 revision with no outputs/latest Codex1 RETRY, a T025 REVISION_REQUIRED attempt with no outputs, or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
           );
         }
       } else if (task.attempt >= definition.retry_policy.max_attempts) {

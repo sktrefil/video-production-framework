@@ -92,7 +92,7 @@ Agent 2 story/audio operations:
 Agent 3 visual/production operations:
   vpf agent3 instruction <T025|T040|T050|T060>
   vpf agent3 execute <project_id> <T025|T040|T050|T060> --file <json>
-  vpf agent3 run <project_id>
+  vpf agent3 run <project_id> [--resume-current-attempt]
   vpf agent3 run-all <project_id>
   vpf agent3 runtime-status <project_id>
 
@@ -496,7 +496,9 @@ export async function runCli(
         io.error("[CLI_USAGE] agent3 run requires <project_id>.");
         return 2;
       }
-      printJson(io, await agent3Runtime.runNext(projectId));
+      printJson(io, await agent3Runtime.runNext(projectId, {
+        resumeCurrentAttempt: args.includes("--resume-current-attempt")
+      }));
       return 0;
     }
 

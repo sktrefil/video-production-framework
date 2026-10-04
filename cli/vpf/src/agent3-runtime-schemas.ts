@@ -48,7 +48,7 @@ export const AGENT3_PRE_TTS_VISUAL_SCHEMA = {
       required: ["schema_version", "project_id", "style_direction", "camera_direction", "continuity_direction"],
       properties: {
         schema_version: { type: "string", enum: ["1.0"] }, project_id: { type: "string" },
-        style_direction: { type: "string" }, camera_direction: { type: "string" }, continuity_direction: { type: "string" }
+        style_direction: { type: "string", description: "For HISTORY_MYSTERY projects this value must explicitly contain the exact literal token NON_REALISTIC_STYLIZED; descriptive synonyms alone are insufficient." }, camera_direction: { type: "string" }, continuity_direction: { type: "string" }
       }
     }
   }
