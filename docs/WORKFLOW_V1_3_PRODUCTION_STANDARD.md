@@ -204,6 +204,21 @@ T080 policy includes VIDEO_GENERATION_CAPABILITY_POLICY_V1
 
 Doctor 또는 회귀 테스트에서 하나라도 불일치하면 신규 생산을 시작하지 않는다.
 
+## 7.1 Exhausted T060 resume policy
+
+T060은 provider/reference/camera-rhythm 등 deterministic Core Gate에서 수정이 반복될 수 있다. 최대 3 attempt를 모두 사용했더라도 아직 `clip_production_spec` 또는 `prompt_bundle_spec` 출력이 저장되지 않은 `REVISION_REQUIRED` T060은 명시적 `--resume-current-attempt`으로 현재 attempt를 재사용할 수 있다.
+
+이 방식은 attempt 4를 생성하지 않는다. 기존 attempt 번호와 runtime history를 보존하면서 수정된 코드·정책으로 같은 T060 attempt를 재실행한다.
+
+운영 순서:
+
+```text
+workflow revise <project> T060
+agent3 run <project> --resume-current-attempt
+```
+
+출력이 이미 저장된 T060은 이 예외를 사용할 수 없다.
+
 ## 8. Regression requirements
 
 `npm run check:workflow-v13`은 Workflow 1.3의 구조적 기준을 보호한다.

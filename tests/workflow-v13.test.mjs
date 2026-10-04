@@ -154,6 +154,71 @@ test("Agent3 OpenAI runtime dispatches T025 before measured scene timing exists"
 });
 
 
+test("Workflow v1.3 resumes exhausted T060 without consuming a fourth attempt when no outputs were stored", async () => {
+  const workspaceRoot = await mkdtemp(path.join(tmpdir(), "vpf-v13-t060-resume-"));
+  const projectId = "v13_t060_resume_fixture";
+  try {
+    const bootstrap = new ProjectBootstrapService({ repositoryRoot, workspaceRoot });
+    const created = await bootstrap.createProject({
+      projectId,
+      title: "T060 Resume Fixture",
+      topic: "History",
+      format: "longform",
+      targetDurationSec: 60
+    });
+    const workflow = new WorkflowOrchestratorRepository(created.projectDbPath);
+    try {
+      const at = new Date().toISOString();
+      for (const id of ["T010", "T020", "T025", "T030", "T040", "T050"]) {
+        workflow.updateTask({
+          projectId,
+          taskId: id,
+          status: "COMPLETE",
+          attempt: 1,
+          lastGateStatus: "PASS",
+          updatedAt: at
+        });
+      }
+      workflow.updateTask({
+        projectId,
+        taskId: "T060",
+        status: "REVISION_REQUIRED",
+        attempt: 3,
+        outputRefs: [],
+        updatedAt: at
+      });
+    } finally {
+      workflow.close();
+    }
+
+    const manager = new Agent1WorkflowOrchestratorService(bootstrap);
+
+    await assert.rejects(
+      manager.dispatch(projectId, "T060", "AGENT3_VISUAL_PRODUCTION"),
+      error => error?.code === "TASK_RETRY_EXHAUSTED"
+    );
+
+    await manager.requestRevision(projectId, "T060");
+
+    const resumed = await manager.dispatch(
+      projectId,
+      "T060",
+      "AGENT3_VISUAL_PRODUCTION",
+      { resumeCurrentAttempt: true }
+    );
+
+    assert.equal(resumed.task_id, "T060");
+    assert.equal(resumed.attempt, 3);
+
+    const state = await manager.status(projectId);
+    const t060 = state.tasks.find(task => task.task_id === "T060");
+    assert.equal(t060.status, "RUNNING");
+    assert.equal(t060.attempt, 3);
+  } finally {
+    await rm(workspaceRoot, { recursive: true, force: true });
+  }
+});
+
 test("Workflow v1.3 explicitly resumes exhausted T025 without consuming a new attempt and preserves runtime history", async () => {
   const workspaceRoot = await mkdtemp(path.join(tmpdir(), "vpf-v13-resume-"));
   const projectId = "v13_resume_fixture";
