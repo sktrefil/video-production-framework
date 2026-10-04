@@ -34,6 +34,25 @@ test("v2 distinguishes measured timeline, source trim, generation length and ear
   assert.equal(validateClipProductionSpecs(legacy).valid, true);
 });
 
+test("START_END selects a Flow-capable target instead of direct Gemini", () => {
+  const gemini = fixture();
+  gemini.clips[0]!.directing!.image_mode = "START_END";
+  assert.ok(validateClipProductionSpecs(gemini, {
+    ...context,
+    requireGenerationTarget: true
+  }).errors.some(issue => issue.code === "UNSUPPORTED_GENERATION_IMAGE_MODE"));
+
+  const flow = fixture();
+  flow.clips[0]!.directing!.image_mode = "START_END";
+  flow.clips[0]!.generation_provider = "GOOGLE_FLOW";
+  flow.clips[0]!.generation_model = "VEO_3_1_FAST";
+  flow.clips[0]!.generation_duration_sec = 6;
+  assert.equal(validateClipProductionSpecs(flow, {
+    ...context,
+    requireGenerationTarget: true
+  }).valid, true);
+});
+
 test("end state design survives START_ONLY without requiring an end image file", () => {
   const doc = fixture();
   assert.deepEqual(requiredImageStateIds(doc), ["IMG_01_01"]);
