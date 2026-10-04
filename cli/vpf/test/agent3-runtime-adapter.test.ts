@@ -323,7 +323,7 @@ function stateResponse(projectId: string) {
   };
 }
 
-function clipResponse(projectId: string, duration: number) {
+function clipResponse(projectId: string, duration: number, longform = false) {
   const startHandle = Number(Math.min(0.2, duration * 0.05).toFixed(3));
   const coreStart = Number((startHandle + 0.05).toFixed(3));
   const coreEnd = Number((duration * 0.5).toFixed(3));
@@ -340,7 +340,9 @@ function clipResponse(projectId: string, duration: number) {
         scene_id: "SCENE_01",
         clip_id: "SCENE_01_CLIP_01",
         editorial_duration_sec: duration,
-        generation_duration_sec: null,
+        generation_provider: longform ? "GOOGLE_FLOW" : null,
+        generation_model: longform ? "VEO_3_1_FAST" : null,
+        generation_duration_sec: longform ? 8 : null,
         mandatory_core_points: [{
           id: "CP_01",
           description_ko: "행렬이 비안개에 점차 가려진다.",

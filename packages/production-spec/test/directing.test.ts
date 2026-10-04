@@ -14,6 +14,8 @@ test("v2 distinguishes measured timeline, source trim, generation length and ear
   const doc = fixture();
   assert.equal(validateClipProductionSpecs(doc, context).valid, true);
   assert.equal(doc.clips[0]!.directing!.source_in_sec, 1);
+  assert.equal(doc.clips[0]!.generation_provider, "GEMINI");
+  assert.equal(doc.clips[0]!.generation_model, "GEMINI_I2V_10S");
   assert.equal(doc.clips[0]!.generation_duration_sec, 10);
   for (const change of [
     (c:any) => { c.directing.reveal_deadline_sec = 4.1; },
@@ -49,6 +51,9 @@ test("v2 compiles concise parallel-language direction and planned image coverage
   assert.equal(bundle.compiler_version, "DIRECTING_PROMPT_COMPILER_V2");
   assert.equal(bundle.image_prompts.length, 1);
   assert.equal(bundle.video_prompts[0]!.target_state_image_id, "IMG_01_02");
+  assert.equal(bundle.video_prompts[0]!.generation_provider, "GEMINI");
+  assert.equal(bundle.video_prompts[0]!.generation_model, "GEMINI_I2V_10S");
+  assert.equal(bundle.video_prompts[0]!.generation_duration_sec, 10);
   assert.match(bundle.video_prompts[0]!.provider_prompt_en, /Within 3s.*source 1s/);
   assert.ok(bundle.video_prompts[0]!.prompt_ko.includes(clips.clips[0]!.directing!.camera_path.ko));
   assert.doesNotMatch(bundle.image_prompts[0]!.provider_prompt_en, /Global visual grammar|Narrative grammar|STORY/);

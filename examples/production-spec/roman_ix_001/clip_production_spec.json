@@ -96,7 +96,9 @@
           "ko": "가림이나 보행이 반복 실패하면 더 단순한 직선 길과 원경 행렬로 장면을 교체한다.",
           "en": "If occlusion or walking repeatedly fails, replace the scene with a simpler straight path and distant column."
         }
-      }
+      },
+      "generation_provider": "GEMINI",
+      "generation_model": "GEMINI_I2V_10S"
     }
   ]
 }

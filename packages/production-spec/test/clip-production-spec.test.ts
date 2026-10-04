@@ -29,6 +29,34 @@ test("five second clip with two points is ready independent of caller's false fl
   assert.deepEqual(input, before);
 });
 
+test("LONGFORM mixed provider targets validate against capability-specific durations", () => {
+  const gemini = {
+    ...clip(),
+    generation_provider: "GEMINI",
+    generation_model: "GEMINI_I2V_10S",
+    generation_duration_sec: 10
+  } as ClipProductionSpec;
+  assert.equal(validateClipProductionSpec(gemini, { requireGenerationTarget: true }).valid, true);
+
+  const flow = {
+    ...clip(),
+    generation_provider: "GOOGLE_FLOW",
+    generation_model: "VEO_3_1_FAST",
+    generation_duration_sec: 6
+  } as ClipProductionSpec;
+  assert.equal(validateClipProductionSpec(flow, { requireGenerationTarget: true }).valid, true);
+
+  const unsupported = { ...flow, generation_duration_sec: 10 };
+  assert.ok(validateClipProductionSpec(unsupported, { requireGenerationTarget: true }).errors.some(
+    issue => issue.code === "UNSUPPORTED_GENERATION_DURATION"
+  ));
+
+  const mismatched = { ...flow, generation_provider: "GEMINI" };
+  assert.ok(validateClipProductionSpec(mismatched, { requireGenerationTarget: true }).errors.some(
+    issue => issue.code === "GENERATION_TARGET_MISMATCH"
+  ));
+});
+
 test("generation duration never expands the editorial narrative budget", () => {
   const input = { ...clip(), generation_duration_sec: 10 };
   assert.equal(validateClipProductionSpec(input).valid, true);

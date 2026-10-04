@@ -188,6 +188,9 @@ test("Agent3 prompt compiler preserves clip timing and state references", () => 
   assert.equal(prompts.video_prompts[0]?.target_state_image_id, "IMG_01_TARGET");
   assert.equal(prompts.video_prompts[0]?.narrative_deadline_sec, 2.6);
   assert.equal(prompts.video_prompts[0]?.safe_trim_start_sec, 4);
+  assert.equal(prompts.video_prompts[0]?.generation_provider, null);
+  assert.equal(prompts.video_prompts[0]?.generation_model, null);
+  assert.equal(prompts.video_prompts[0]?.generation_duration_sec, null);
   assert.match(prompts.video_prompts[0]?.provider_prompt_en ?? "", /safe disposable continuation/);
   assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Fantasy mode RESTRAINED:/);
   assert.match(prompts.image_prompts[0]?.provider_prompt_en ?? "", /Global visual grammar:/);
