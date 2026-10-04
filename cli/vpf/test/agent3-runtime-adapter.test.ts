@@ -517,7 +517,7 @@ test("Agent3 run-all retries Core rejection with revision feedback", async () =>
       let value;
       if (calls === 1) {
         value = visualResponse("agent3_retry", bible!);
-        value.scenes[0].factuality_mode = "HYPOTHESIS_RECONSTRUCTION";
+        value.scenes[0].handoff.preserve_elements = ["only-one"];
       } else if (calls === 2) {
         value = visualResponse("agent3_retry", bible!);
       } else if (calls === 3) {
@@ -582,7 +582,7 @@ test("Agent3 run-all retries Core rejection with revision feedback", async () =>
     assert.deepEqual(result.steps.map(step => step.task_id), ["T040", "T050", "T060"]);
     assert.equal(calls, 4);
     assert.equal(feedbackInputs[0], null);
-    assert.match(feedbackInputs[1] ?? "", /VISUAL_FACTUALITY_CLASSIFICATION_MISMATCH/);
+    assert.match(feedbackInputs[1] ?? "", /HANDOFF_UNDERSPECIFIED/);
 
     const runs = new Agent3RuntimeRepository(created.projectDbPath, { readonly: true });
     try {
