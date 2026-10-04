@@ -62,13 +62,21 @@ if (!taskId) {
 }
 
 if (taskId.startsWith("MANAGER_VISUAL:")) {
-  const imageIndex = args.indexOf("--image");
-  const terminatorIndex = args.indexOf("--", imageIndex + 1);
-  if (imageIndex < 0 || terminatorIndex <= imageIndex + 1) {
+  const imageEquals = args.find(arg => arg.startsWith("--image="));
+  let imagePaths = [];
+  if (imageEquals) {
+    imagePaths = imageEquals.slice("--image=".length).split(",").filter(Boolean);
+  } else {
+    const imageIndex = args.indexOf("--image");
+    const terminatorIndex = args.indexOf("--", imageIndex + 1);
+    if (imageIndex >= 0 && terminatorIndex > imageIndex + 1) {
+      imagePaths = args.slice(imageIndex + 1, terminatorIndex);
+    }
+  }
+  if (imagePaths.length === 0) {
     process.stderr.write("MANAGER_VISUAL requires attached --image inputs\n");
     process.exit(41);
   }
-  const imagePaths = args.slice(imageIndex + 1, terminatorIndex);
   for (const imagePath of imagePaths) {
     try {
       const info = await stat(imagePath);

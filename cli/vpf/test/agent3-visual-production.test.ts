@@ -103,6 +103,20 @@ test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () =>
       }
     });
     await manager.complete("agent3_sample", "T020");
+    assert.equal((await manager.next("agent3_sample"))?.task_id, "T025");
+    await manager.dispatch("agent3_sample", "T025", "AGENT3_VISUAL_PRODUCTION");
+    await agent3.executePayload("agent3_sample", "T025", {
+      schema_version: "1.0", project_id: "agent3_sample",
+      pre_tts_visual_plan: { schema_version: "1.0", project_id: "agent3_sample",
+        scenes: [{ scene_id: "SCENE_01", visual_intent: "Stylized last-trace reveal", uncertainty_handling: "Silhouette and abstraction" }] },
+      pre_tts_visual_beat_spec: { schema_version: "1.0", project_id: "agent3_sample",
+        beats: [{ scene_id: "SCENE_01", beat_id: "BEAT_01", visual_action: "Parallax reveal through mist" }] },
+      pre_tts_visual_direction_spec: { schema_version: "1.0", project_id: "agent3_sample",
+        style_direction: "NON_REALISTIC_STYLIZED — cinematic evidence-first reconstruction",
+        camera_direction: "Controlled push and lateral parallax", continuity_direction: "Preserve road, mist and travel axis" }
+    });
+    await manager.complete("agent3_sample", "T025");
+    assert.equal((await manager.next("agent3_sample"))?.task_id, "T030");
 
     const chars = Array.from(scriptText);
     const starts = chars.map((_, i) => Number((i * 0.2).toFixed(3)));

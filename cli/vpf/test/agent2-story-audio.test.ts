@@ -9,6 +9,7 @@ import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
+import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 
@@ -138,6 +139,20 @@ test("Agent2 executes T010-T030 and hands measured timing to Agent3", async () =
     );
 
     assert.equal((await manager.complete("agent2_sample", "T020")).status, "COMPLETE");
+    assert.equal((await manager.next("agent2_sample"))?.task_id, "T025");
+
+    await manager.dispatch("agent2_sample", "T025", "AGENT3_VISUAL_PRODUCTION");
+    await new Agent3VisualProductionWorkerService(bootstrap).executePayload("agent2_sample", "T025", {
+      schema_version: "1.0", project_id: "agent2_sample",
+      pre_tts_visual_plan: { schema_version: "1.0", project_id: "agent2_sample",
+        scenes: [{ scene_id: "SCENE_01", visual_intent: "Stylized evidence-first reveal", uncertainty_handling: "Silhouette and symbolic space" }] },
+      pre_tts_visual_beat_spec: { schema_version: "1.0", project_id: "agent2_sample",
+        beats: [{ scene_id: "SCENE_01", beat_id: "BEAT_01", visual_action: "Parallax reveal of the last trace" }] },
+      pre_tts_visual_direction_spec: { schema_version: "1.0", project_id: "agent2_sample",
+        style_direction: "NON_REALISTIC_STYLIZED — cinematic evidence-first reconstruction",
+        camera_direction: "Controlled orbit and push", continuity_direction: "Preserve the final-trace motif" }
+    });
+    assert.equal((await manager.complete("agent2_sample", "T025")).status, "COMPLETE");
     assert.equal((await manager.next("agent2_sample"))?.task_id, "T030");
 
     await manager.dispatch("agent2_sample", "T030");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
@@ -1330,6 +1331,20 @@ test("T050 timeout restores workflow to REVISION_REQUIRED for a later production
 
     const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
     const worker = new Agent2StoryAudioWorkerService(bootstrap);
+    assert.equal((await workflow.next(projectId))?.task_id, "T025");
+    await workflow.dispatch(projectId, "T025", "AGENT3_VISUAL_PRODUCTION");
+    await new Agent3VisualProductionWorkerService(bootstrap).executePayload(projectId, "T025", {
+      schema_version: "1.0", project_id: projectId,
+      pre_tts_visual_plan: { schema_version: "1.0", project_id: projectId,
+        scenes: [{ scene_id: "SCENE_01", visual_intent: "Stylized last-record reveal", uncertainty_handling: "Silhouette and symbolic space" }] },
+      pre_tts_visual_beat_spec: { schema_version: "1.0", project_id: projectId,
+        beats: [{ scene_id: "SCENE_01", beat_id: "BEAT_01", visual_action: "Parallax reveal of uncertain continuation" }] },
+      pre_tts_visual_direction_spec: { schema_version: "1.0", project_id: projectId,
+        style_direction: "NON_REALISTIC_STYLIZED — cinematic evidence-first reconstruction",
+        camera_direction: "Controlled push and orbit", continuity_direction: "Preserve road, mist and last-record motif" }
+    });
+    await workflow.complete(projectId, "T025");
+    assert.equal((await workflow.next(projectId))?.task_id, "T030");
     const characters = Array.from(scriptText);
     const starts = characters.map((_, index) => Number((index * 0.2).toFixed(3)));
     const ends = characters.map((_, index) => Number(((index + 1) * 0.2).toFixed(3)));
