@@ -1,4 +1,5 @@
 import type { CameraMovement, CameraPurpose, MovementCurve, ShotSize } from "./enums.js";
+import type { VideoGenerationModel, VideoGenerationProvider } from "./video-generation-capabilities.js";
 
 export interface MandatoryCorePoint {
   id: string;
@@ -30,6 +31,10 @@ export interface ClipProductionSpec {
   scene_id: string;
   clip_id: string;
   editorial_duration_sec: number;
+  /** Required for LONGFORM v2; absent/null only for legacy or SHORTS plans. */
+  generation_provider?: VideoGenerationProvider | null;
+  /** Required for LONGFORM v2; provider/model pairing is capability-validated. */
+  generation_model?: VideoGenerationModel | null;
   generation_duration_sec: number | null;
   mandatory_core_points: MandatoryCorePoint[];
   narrative_deadline_sec: number;

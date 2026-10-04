@@ -1,9 +1,15 @@
 import { CAMERA_MOVEMENTS, CAMERA_PURPOSES, MOVEMENT_CURVES, SHOT_SIZES } from "./enums.js";
 import { validateDirectingCard } from "./directing.js";
+import {
+  resolveVideoGenerationCapability,
+  VIDEO_GENERATION_MODELS,
+  VIDEO_GENERATION_PROVIDERS
+} from "./video-generation-capabilities.js";
 import type { ValidationIssue, ValidationResult } from "./project-validator.js";
 
 export interface ClipValidationContext {
   requireDirecting?: boolean;
+  requireGenerationTarget?: boolean;
   sceneIds?: readonly string[];
   sceneTimings?: readonly {
     scene_id: string;
@@ -67,9 +73,45 @@ export function validateClipProductionSpec(
   if (finite(duration) && duration <= 0) fail("INVALID_EDITORIAL_DURATION", "Editorial duration must be positive.", "editorial_duration_sec");
   if (finite(duration) && duration > 10) fail("CLIP_SPLIT_REQUIRED", "Clips longer than 10 seconds require splitting before generation.", "editorial_duration_sec");
   if (finite(duration) && duration > 8 && duration <= 10) warnings.push({ code: "BEAT_SPLIT_RECOMMENDED", message: "Consider splitting this 8–10 second clip into beats.", path: "editorial_duration_sec" });
+  const generationProvider = input.generation_provider;
+  const generationModel = input.generation_model;
+  const providerPresent = generationProvider !== undefined && generationProvider !== null;
+  const modelPresent = generationModel !== undefined && generationModel !== null;
+  if (context.requireGenerationTarget && (!providerPresent || !modelPresent)) {
+    fail("GENERATION_TARGET_REQUIRED", "LONGFORM generation requires generation_provider and generation_model.", "generation_provider");
+  }
+  if (providerPresent !== modelPresent) {
+    fail("GENERATION_TARGET_INCOMPLETE", "generation_provider and generation_model must be supplied together.", providerPresent ? "generation_model" : "generation_provider");
+  }
+  if (providerPresent && !VIDEO_GENERATION_PROVIDERS.includes(generationProvider as any)) {
+    fail("INVALID_GENERATION_PROVIDER", "Unsupported generation provider.", "generation_provider");
+  }
+  if (modelPresent && !VIDEO_GENERATION_MODELS.includes(generationModel as any)) {
+    fail("INVALID_GENERATION_MODEL", "Unsupported generation model.", "generation_model");
+  }
+  const generationCapability = resolveVideoGenerationCapability(generationProvider, generationModel);
+  if (providerPresent && modelPresent && generationCapability === null) {
+    fail("GENERATION_TARGET_MISMATCH", "generation_provider and generation_model are not a supported pair.", "generation_model");
+  }
   if (input.generation_duration_sec !== undefined && input.generation_duration_sec !== null) {
-    if (!finite(input.generation_duration_sec) || input.generation_duration_sec <= 0) fail("INVALID_GENERATION_DURATION", "Generation duration must be null or a positive finite number.", "generation_duration_sec");
-    else if (finite(duration) && input.generation_duration_sec < duration) fail("GENERATION_DURATION_TOO_SHORT", "Generated footage cannot be shorter than editorial duration.", "generation_duration_sec");
+    if (!finite(input.generation_duration_sec) || input.generation_duration_sec <= 0) {
+      fail("INVALID_GENERATION_DURATION", "Generation duration must be null or a positive finite number.", "generation_duration_sec");
+    } else {
+      if (finite(duration) && input.generation_duration_sec < duration) fail("GENERATION_DURATION_TOO_SHORT", "Generated footage cannot be shorter than editorial duration.", "generation_duration_sec");
+      if (generationCapability !== null && !generationCapability.supported_durations_sec.includes(input.generation_duration_sec)) {
+        fail("UNSUPPORTED_GENERATION_DURATION", generationCapability.provider + "/" + generationCapability.model + " does not support " + input.generation_duration_sec + " seconds.", "generation_duration_sec");
+      }
+    }
+  } else if (context.requireGenerationTarget) {
+    fail("GENERATION_DURATION_REQUIRED", "LONGFORM generation requires a concrete provider-supported generation duration.", "generation_duration_sec");
+  }
+  if (
+    generationCapability !== null &&
+    record(input.directing) &&
+    typeof input.directing.image_mode === "string" &&
+    !generationCapability.image_modes.includes(input.directing.image_mode as any)
+  ) {
+    fail("UNSUPPORTED_GENERATION_IMAGE_MODE", generationCapability.provider + "/" + generationCapability.model + " does not support directing image_mode " + input.directing.image_mode + ".", "directing.image_mode");
   }
   if (finite(duration)) {
     if (finite(narrative) && narrative >= duration) fail("NARRATIVE_DEADLINE_OUT_OF_RANGE", "Narrative deadline must precede editorial end.", "narrative_deadline_sec");

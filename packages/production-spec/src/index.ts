@@ -2,6 +2,7 @@ export * from "./enums.js";
 export * from "./project-spec.js";
 export * from "./scene-timing-spec.js";
 export * from "./clip-production-spec.js";
+export * from "./video-generation-capabilities.js";
 export * from "./project-validator.js";
 export * from "./scene-timing-validator.js";
 export * from "./clip-production-validator.js";
