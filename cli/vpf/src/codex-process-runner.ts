@@ -537,6 +537,13 @@ export class CodexProcessRunner {
       "Perform only the requested VPF role task. " +
       "Return the final structured JSON matching output.schema.json."
     );
+    // Codex exec currently attempts to read additional stdin in non-TTY Windows
+    // automation even when the prompt is provided positionally. Because VPF invokes
+    // codex.cmd through cmd.exe, explicitly redirect stdin from NUL for role-task
+    // executions. This preserves the positional prompt while guaranteeing immediate EOF.
+    if (process.platform === "win32") {
+      args.push("<", "NUL");
+    }
 
     const auditDirectory = path.join(
       request.projectRoot,

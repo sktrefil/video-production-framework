@@ -1418,3 +1418,15 @@ test("T050 timeout restores workflow to REVISION_REQUIRED for a later production
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test("Codex role execution closes stdin explicitly on Windows automation",()=>{
+  const runner=readFileSync(path.join(repositoryRoot,"cli/vpf/src/codex-process-runner.ts"),"utf8");
+  assert.match(runner,/if \(process\.platform === "win32"\) \{[\s\S]*?args\.push\("<", "NUL"\);[\s\S]*?\}/);
+  const promptIndex=runner.indexOf('"Return the final structured JSON matching output.schema.json."');
+  const nulIndex=runner.indexOf('args.push("<", "NUL")',promptIndex);
+  const captureIndex=runner.indexOf("this.capture(",nulIndex);
+  assert.ok(promptIndex>=0);
+  assert.ok(nulIndex>promptIndex);
+  assert.ok(captureIndex>nulIndex);
+});
