@@ -6,13 +6,22 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { resolveDirectingReferences } from "../src/directing-references.js";
-import { selectedVideoGenerationDuration } from "../src/agent3-runtime-adapter-service.js";
+import { videoGenerationCapabilitiesForT060 } from "@vpf/production-spec";
 
-test("new LONGFORM requires an explicit tool duration while SHORTS remains compatible", () => {
-  assert.equal(selectedVideoGenerationDuration("SHORTS", {}), null);
-  assert.equal(selectedVideoGenerationDuration("LONGFORM", {VPF_VIDEO_GENERATION_DURATION_SEC:"10"}), 10);
-  assert.throws(() => selectedVideoGenerationDuration("LONGFORM", {}), /actual selected video tool duration/);
-  assert.throws(() => selectedVideoGenerationDuration("LONGFORM", {VPF_VIDEO_GENERATION_DURATION_SEC:"NaN"}));
+test("LONGFORM T060 exposes mixed Gemini and Google Flow duration capabilities", () => {
+  const capabilities = videoGenerationCapabilitiesForT060();
+  const gemini = capabilities.find(item =>
+    item.provider === "GEMINI" && item.model === "GEMINI_I2V_10S"
+  );
+  const flowFast = capabilities.find(item =>
+    item.provider === "GOOGLE_FLOW" && item.model === "VEO_3_1_FAST"
+  );
+  const flowOmni = capabilities.find(item =>
+    item.provider === "GOOGLE_FLOW" && item.model === "GEMINI_OMNI_FLASH"
+  );
+  assert.deepEqual(gemini?.supported_durations_sec, [10]);
+  assert.deepEqual(flowFast?.supported_durations_sec, [4, 6, 8]);
+  assert.deepEqual(flowOmni?.supported_durations_sec, [4, 6, 8, 10]);
 });
 
 test("directing references require canonical approval, pin revision/hash and reject changed bytes", async () => {
