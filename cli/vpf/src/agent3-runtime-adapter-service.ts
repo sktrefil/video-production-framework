@@ -373,17 +373,51 @@ export function buildT050CodexInput(input: {
   };
 }
 
-function normalizedClipInput(
+export function approvedDirectingReferenceIds(
+  production: ProductionSpecRepository,
+  projectId: string
+): string[] {
+  const rows = production.db.prepare(`
+    SELECT DISTINCT m.id
+    FROM media_artifacts m
+    WHERE m.project_id=?
+      AND m.lifecycle_status='ACTIVE'
+      AND m.media_status='AVAILABLE'
+      AND m.mime_type IN ('image/png','image/jpeg','image/webp')
+      AND EXISTS (
+        SELECT 1
+        FROM production_assets a
+        WHERE a.project_id=m.project_id
+          AND a.approved_media_id=m.id
+          AND a.lifecycle_status='ACTIVE'
+          AND a.asset_class='REFERENCE'
+          AND a.asset_status='APPROVED'
+          AND a.stale=0
+      )
+    ORDER BY m.id
+  `).all(projectId) as Array<{ id: string }>;
+  return rows.map(row => row.id);
+}
+
+export function normalizedClipInput(
   value: Agent3T060Input,
   projectId: string,
-  format: string
+  format: string,
+  approvedReferenceIds: readonly string[] = []
 ): Agent3T060Input {
+  const approved = new Set(approvedReferenceIds);
   const clips: ClipProductionDocument = {
     ...value.clip_production_spec,
     schema_version: "1.0",
     project_id: projectId,
     clips: value.clip_production_spec.clips.map(clip => ({
       ...clip,
+      ...(clip.directing === undefined ? {} : {
+        directing: {
+          ...clip.directing,
+          reference_ids: clip.directing.reference_ids.filter(id => approved.has(id))
+        }
+      }),
       generation_duration_sec: clip.directing ? clip.generation_duration_sec : null,
       safe_trim_start_sec: clip.editorial_duration_sec
     }))
@@ -594,6 +628,7 @@ class OpenAiAgent3Runtime {
     sceneTiming: SceneTimingDocument;
     sceneVisual: SceneVisualDocument;
     states: StateImageDocument;
+    approvedDirectingReferenceIds: string[];
     revisionFeedback: string | null;
   }): Promise<{
     responseId: string | null;
@@ -603,7 +638,10 @@ class OpenAiAgent3Runtime {
     const generationCapabilities = videoGenerationCapabilitiesForT060();
     const response = await this.request({
       name: "agent3_clip_camera_spec",
-      schema: clipCameraSchema(input.projectSpec.format),
+      schema: clipCameraSchema(
+        input.projectSpec.format,
+        input.approvedDirectingReferenceIds
+      ),
       developer: [
         "You are Agent 3 Clip and Camera Planning Worker in a production pipeline.",
         ...instruction.rules,
@@ -617,6 +655,7 @@ class OpenAiAgent3Runtime {
         "For LONGFORM v2 choose generation_provider, generation_model and generation_duration_sec independently for every Clip from video_generation_capabilities. Do not use a single global duration.",
         "Choose a supported generation duration that contains directing.source_out_sec. Prefer the shortest supported duration that safely contains the used source range; do not invent unsupported durations.",
         "START_END requires a capability whose image_modes includes START_END. GEMINI/GEMINI_I2V_10S is fixed 10s and does not support START_END in this project contract; use a compatible GOOGLE_FLOW model when an explicit end frame is required.",
+        "directing.reference_ids may contain ONLY IDs from approved_directing_reference_ids. Never put Scene IDs, State Image IDs, Beat IDs, Clip IDs, filenames or invented IDs there. If no approved canonical reference applies, use an empty array.",
         "Set safe_trim_start_sec equal to editorial_duration_sec.",
         "All mandatory core-point windows are clip-local seconds, non-overlapping, after start_handle_sec, and finish no later than narrative_deadline_sec.",
         "Core-point cap: duration <=3 sec: 1; >3 and <=5 sec: at most 2; >5 and <=10 sec: at most 3.",
@@ -633,6 +672,7 @@ class OpenAiAgent3Runtime {
         scene_timing_spec: input.sceneTiming,
         scene_visual_spec: input.sceneVisual,
         state_image_spec: input.states,
+        approved_directing_reference_ids: input.approvedDirectingReferenceIds,
         video_generation_capabilities: generationCapabilities,
         revision_feedback: input.revisionFeedback
       }
@@ -642,7 +682,8 @@ class OpenAiAgent3Runtime {
       value: normalizedClipInput(
         parseStructuredJson<Agent3T060Input>(response),
         input.projectId,
-        input.projectSpec.format
+        input.projectSpec.format,
+        input.approvedDirectingReferenceIds
       )
     };
   }
@@ -1420,6 +1461,10 @@ export class Agent3RuntimeAdapterService {
         sceneTiming,
         sceneVisual: visual.value,
         states: states.value,
+        approvedDirectingReferenceIds: approvedDirectingReferenceIds(
+          production,
+          projectId
+        ),
         revisionFeedback: feedback
       };
       return this.executeOpenAiRun(
@@ -1633,12 +1678,14 @@ export class Agent3RuntimeAdapterService {
           "T060 requires active state_image_spec."
         );
       }
+      const referenceIds = approvedDirectingReferenceIds(production, projectId);
       const input = {
         project_id: projectId,
         project_spec: projectSpec,
         scene_timing_spec: sceneTiming,
         scene_visual_spec: visual.value,
         state_image_spec: states.value,
+        approved_directing_reference_ids: referenceIds,
         video_generation_capabilities: videoGenerationCapabilitiesForT060(),
         provider_profile: codexPin,
         manager_revision_instruction: managerDirective
@@ -1650,7 +1697,7 @@ export class Agent3RuntimeAdapterService {
         attempt,
         codex,
         input,
-        clipCameraSchema(projectSpec.format),
+        clipCameraSchema(projectSpec.format, referenceIds),
         [
           ...getAgent3TaskInstruction("T060").rules,
           "Use measured scene_timing_spec TTS duration, never estimated duration.",
@@ -1661,6 +1708,7 @@ export class Agent3RuntimeAdapterService {
           "For LONGFORM v2 choose generation_provider, generation_model and generation_duration_sec per Clip from video_generation_capabilities; mixed GEMINI and GOOGLE_FLOW plans are allowed.",
           "Choose a supported duration that contains directing.source_out_sec, preferably the shortest supported duration that safely contains the used range. START_END must use a capability that supports START_END.",
           "GEMINI/GEMINI_I2V_10S is the direct Gemini fixed-10s workflow. GOOGLE_FLOW models provide their listed selectable durations. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
+          "directing.reference_ids may contain ONLY IDs from approved_directing_reference_ids. Never use Scene IDs, State Image IDs, Beat IDs, Clip IDs, filenames or invented IDs; use [] when no approved canonical reference applies.",
           "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
           "Avoid four adjacent Clips with the same camera movement, shot-size pattern, or transition.",
           "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",
@@ -1670,7 +1718,8 @@ export class Agent3RuntimeAdapterService {
           const value = normalizedClipInput(
             output as Agent3T060Input,
             projectId,
-            projectSpec.format
+            projectSpec.format,
+            referenceIds
           );
           const worker = await this.worker.executePayload(
             projectId,

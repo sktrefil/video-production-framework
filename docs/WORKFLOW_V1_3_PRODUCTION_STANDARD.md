@@ -129,6 +129,23 @@ generation_duration_sec = 10
 editorial_duration_sec  = 7.2
 ```
 
+### 4.4 Directing reference ID contract
+
+`directing.reference_ids`는 T050의 State Image ID나 Scene/Beat/Clip ID를 의미하지 않는다. 프로젝트 DB에 이미 canonical REFERENCE 자산으로 등록되고 `APPROVED`, `ACTIVE`, `stale=0`인 실제 이미지 media ID만 허용한다.
+
+T060 런타임은 승인 reference inventory를 `approved_directing_reference_ids`로 입력한다. 목록에 없는 ID를 모델이 생성하면 저장 전 제거하고, T060 JSON schema도 승인 목록 밖 ID를 허용하지 않는다. 승인 reference가 하나도 없으면 반드시 `reference_ids=[]`를 사용한다.
+
+금지 예:
+
+```text
+reference_ids = ["SC01-S01"]       # State ID를 reference로 오인
+reference_ids = ["SC01"]           # Scene ID
+reference_ids = ["CLIP_01"]        # Clip ID
+reference_ids = ["some-file.png"]  # media ID가 아닌 filename
+```
+
+이 규칙은 T070에서 생성할 State Image와 별개다. T050/T060의 State 연결은 `state_images.entry/mid/target` 필드로 관리하고, `reference_ids`는 이미 승인된 재사용 reference 자산만 고정한다.
+
 ### 4.4 T060 output authority
 
 `clip_production_spec`와 `prompt_bundle_spec.video_prompts[]`는 동일한 provider/model/duration을 유지해야 한다.

@@ -369,19 +369,32 @@ export const AGENT3_CLIP_CAMERA_SCHEMA = {
 } as const;
 
 /** New LONGFORM authoring requires v2; legacy readers and SHORTS keep their schema. */
-export function clipCameraSchema(format: string): unknown {
+export function clipCameraSchema(
+  format: string,
+  approvedDirectingReferenceIds: readonly string[] = []
+): unknown {
   if (format !== "LONGFORM") return AGENT3_CLIP_CAMERA_SCHEMA;
   const base = AGENT3_CLIP_CAMERA_SCHEMA;
   const spec = base.properties.clip_production_spec;
   const clips = spec.properties.clips;
   const item = clips.items;
+  const approved = [...new Set(approvedDirectingReferenceIds)].filter(id => id.trim().length > 0);
+  const directingSchema = {
+    ...DIRECTING_CARD_SCHEMA,
+    properties: {
+      ...DIRECTING_CARD_SCHEMA.properties,
+      reference_ids: approved.length === 0
+        ? { type: "array", maxItems: 0, items: { type: "string" } }
+        : { type: "array", items: { type: "string", enum: approved } }
+    }
+  };
   return { ...base, properties: { ...base.properties, clip_production_spec: {
     ...spec, properties: { ...spec.properties, clips: { ...clips, items: {
       ...item, required: [...item.required, "generation_provider", "generation_model", "directing"], properties: {
         ...item.properties,
         generation_provider: { type: "string", enum: VIDEO_GENERATION_PROVIDERS },
         generation_model: { type: "string", enum: VIDEO_GENERATION_MODELS },
-        directing: DIRECTING_CARD_SCHEMA,
+        directing: directingSchema,
         generation_duration_sec: { type: "number", enum: [4, 6, 8, 10] }
       }
     } } }

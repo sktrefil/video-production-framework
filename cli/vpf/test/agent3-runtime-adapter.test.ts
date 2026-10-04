@@ -13,7 +13,8 @@ import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service
 import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
 import {
   Agent3RuntimeAdapterError,
-  Agent3RuntimeAdapterService
+  Agent3RuntimeAdapterService,
+  normalizedClipInput
 } from "../src/agent3-runtime-adapter-service.js";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 
@@ -373,6 +374,46 @@ function clipResponse(projectId: string, duration: number, longform = false) {
     }
   };
 }
+
+test("T060 strips invented Scene/State reference IDs and preserves approved canonical references", () => {
+  const raw = clipResponse("ref_fixture", 5, true);
+  const clip = raw.clip_production_spec.clips[0];
+  clip.directing = {
+    version: "2",
+    timeline_start_sec: 0,
+    timeline_end_sec: 5,
+    source_in_sec: 0,
+    source_out_sec: 5,
+    reveal_deadline_sec: 3,
+    image_mode: "START_ONLY",
+    previous_clip_id: null,
+    continuation: null,
+    reference_ids: ["SC01-S01", "REF_APPROVED"],
+    precision_physics_required: false,
+    story: { ko: "이야기", en: "Story" },
+    action: { ko: "행동", en: "Action" },
+    space: { ko: "공간", en: "Space" },
+    start: { ko: "시작", en: "Start" },
+    subject_motion: { ko: "피사체 이동", en: "Subject motion" },
+    camera_path: { ko: "카메라 경로", en: "Camera path" },
+    reveal: { ko: "공개", en: "Reveal" },
+    end: { ko: "종료", en: "End" },
+    handoff: { ko: "연결", en: "Handoff" },
+    locks: { ko: "고정", en: "Locks" },
+    risk: { ko: "위험", en: "Risk" },
+    fallback: { ko: "대체", en: "Fallback" }
+  };
+  const normalized = normalizedClipInput(
+    raw,
+    "ref_fixture",
+    "LONGFORM",
+    ["REF_APPROVED"]
+  );
+  assert.deepEqual(
+    normalized.clip_production_spec.clips[0]!.directing!.reference_ids,
+    ["REF_APPROVED"]
+  );
+});
 
 test("Agent3 runtime automatically runs T040-T060 and hands off T070", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-agent3-runtime-"));
