@@ -820,6 +820,9 @@ export class CodexManagerRuntimeService {
         "For non-APPROVE verdicts, revision_instruction must state exactly what to change and what to preserve.",
         "For LONGFORM T020, check a narrow central question and payoff, action/change/next reason per scene, complementary narration/screen design, factual distinctions and a precision-physics risk alternative before TTS.",
         "For v2 T060, independently approve concrete SPACE/START/CAMERA/REVEAL/END, separate subject/world/screen motion, Korean/English equivalence, reference locks, timing and image mode. Vague cinematic adjectives cannot pass. T050 states are provisional; contradictions require redesign before T070.",
+        "For T060, an empty directing.reference_ids list is valid when no approved canonical reference is available or required. Never demand a new map, label, diagram or other reference asset merely to make a T060 plan pass.",
+        "Generated readable maps, labels, inscriptions or fabricated geographic evidence remain forbidden. When geography can be preserved with non-cartographic environmental, cave, terrain or spatial cues, require the worker to redesign the T060 clip/prompt and return RETRY rather than BLOCK.",
+        "Use BLOCK for missing references only when an approved upstream fact/scene explicitly requires that exact external asset and the T060 worker cannot preserve approved meaning by removing the reference dependency. A missing optional map/reference that T060 can design around is not an upstream blocker.",
         "For v2 T080, file/duration success is insufficient: require current hash-bound actual-footage directing reviews with observed reveal and camera onset. For T090/T100 check camera/shot/location variety, TTS/sound/cut rhythm and central-question payoff. Record guide checklist PASS/REVISE/NA and evidence in the assessment; never offset a critical defect with an average score.",
         "For all production, validate a representative 3-5 clip segment with varied subject travel, spatial reveal and scale expansion before recommending full generation.",
         "Review only the evidence supplied in request.json. Web search is disabled."
@@ -834,6 +837,13 @@ export class CodexManagerRuntimeService {
           status: input.gateStatus
         },
         warnings: input.warnings ?? [],
+        t060_reference_policy: input.taskId === "T060" ? {
+          empty_reference_ids_valid: true,
+          unapproved_map_or_label_generation_forbidden: true,
+          prefer_non_cartographic_geography_when_no_approved_map_exists: true,
+          retry_when_worker_can_remove_reference_dependency: true,
+          block_only_for_non_substitutable_upstream_asset_requirement: true
+        } : null,
         output_artifacts: outputSummary
       },
       outputSchema: MANAGER_SUCCESS_SCHEMA,

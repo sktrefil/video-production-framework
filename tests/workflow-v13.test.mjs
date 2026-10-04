@@ -184,7 +184,10 @@ test("Workflow v1.3 resumes exhausted T060 without consuming a fourth attempt wh
         taskId: "T060",
         status: "REVISION_REQUIRED",
         attempt: 3,
-        outputRefs: [],
+        outputRefs: [
+          { artifact_type: "clip_production_spec", revision: 1, sha256: "prior-clip-sha" },
+          { artifact_type: "prompt_bundle_spec", revision: 1, sha256: "prior-prompt-sha" }
+        ],
         updatedAt: at
       });
     } finally {

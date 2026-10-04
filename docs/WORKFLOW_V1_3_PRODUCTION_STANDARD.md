@@ -135,6 +135,10 @@ editorial_duration_sec  = 7.2
 
 T060 런타임은 승인 reference inventory를 `approved_directing_reference_ids`로 입력한다. 목록에 없는 ID를 모델이 생성하면 저장 전 제거하고, T060 JSON schema도 승인 목록 밖 ID를 허용하지 않는다. 승인 reference가 하나도 없으면 반드시 `reference_ids=[]`를 사용한다.
 
+빈 `reference_ids`는 오류가 아니다. 승인된 지도·라벨·도식 자산이 없다는 이유만으로 T060을 BLOCK하지 않는다. 지리 정보가 필요하면 승인 사실을 유지하면서 동굴·지형·환경·공간 관계 같은 비지도형 단서로 재설계한다. 읽을 수 있는 생성 지도, 라벨, 비문 또는 근거 없는 지리 도식은 금지한다.
+
+Codex1 Success QC는 T060 worker가 같은 upstream 사실·타이밍을 보존한 채 reference 의존성을 제거할 수 있으면 `RETRY`를 사용한다. 정확한 외부 자산이 upstream에서 명시적으로 필수이고 대체 설계가 승인 의미를 바꾸는 경우에만 `BLOCK`한다.
+
 금지 예:
 
 ```text
@@ -206,7 +210,7 @@ Doctor 또는 회귀 테스트에서 하나라도 불일치하면 신규 생산�
 
 ## 7.1 Exhausted T060 resume policy
 
-T060은 provider/reference/camera-rhythm 등 deterministic Core Gate에서 수정이 반복될 수 있다. 최대 3 attempt를 모두 사용했더라도 아직 `clip_production_spec` 또는 `prompt_bundle_spec` 출력이 저장되지 않은 `REVISION_REQUIRED` T060은 명시적 `--resume-current-attempt`으로 현재 attempt를 재사용할 수 있다.
+T060은 provider/reference/camera-rhythm 또는 Codex1 Success QC에서 수정이 반복될 수 있다. 최대 3 attempt를 모두 사용했더라도 `REVISION_REQUIRED` T060은 명시적 `--resume-current-attempt`으로 현재 attempt를 재사용할 수 있다. 이전 T060 산출물이 이미 저장되어 있어도, 운영자가 명시적으로 `workflow revise ... T060` 후 resume을 선택한 경우 새 결과가 성공적으로 저장될 때까지 이전 revision을 보존한 채 같은 attempt를 재실행한다.
 
 이 방식은 attempt 4를 생성하지 않는다. 기존 attempt 번호와 runtime history를 보존하면서 수정된 코드·정책으로 같은 T060 attempt를 재실행한다.
 
@@ -217,7 +221,7 @@ workflow revise <project> T060
 agent3 run <project> --resume-current-attempt
 ```
 
-출력이 이미 저장된 T060은 이 예외를 사용할 수 없다.
+이 예외는 자동으로 attempt를 늘리거나 기존 revision을 삭제하지 않는다. 명시적 operator revision + resume 조합에서만 동작한다.
 
 ## 8. Regression requirements
 

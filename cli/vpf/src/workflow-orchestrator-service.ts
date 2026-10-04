@@ -158,8 +158,7 @@ export class Agent1WorkflowOrchestratorService {
         resumeCurrentAttempt &&
         task.task_id === "T060" &&
         task.status === "REVISION_REQUIRED" &&
-        task.attempt > 0 &&
-        task.output_revision_refs.length === 0;
+        task.attempt > 0;
       if (
         task.status !== "READY" &&
         task.status !== "REVISION_REQUIRED" &&
