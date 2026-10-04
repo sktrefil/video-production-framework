@@ -11,7 +11,12 @@ import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
 import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
-import { normalizedSceneVisual } from "../src/agent3-runtime-adapter-service.js";
+import {
+  buildT050CodexInput,
+  minimumStateCountForSceneDuration,
+  normalizedSceneVisual,
+  stateCapacityRequirements
+} from "../src/agent3-runtime-adapter-service.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 
@@ -150,6 +155,83 @@ test("T040 normalization repairs factuality modes from approved fact classificat
   assert.equal(normalized.scenes[1]!.factuality_mode, "EDITORIAL_FANTASY_RECONSTRUCTION");
   assert.equal(normalized.scenes[1]!.fantasy_mode, "EDITORIAL");
   assert.equal(normalized.scenes[2]!.factuality_mode, "HISTORICAL_RECONSTRUCTION");
+});
+
+test("T050 derives minimum state capacity from measured TTS", () => {
+  assert.equal(minimumStateCountForSceneDuration(16.72), 3);
+  assert.equal(minimumStateCountForSceneDuration(21.84), 4);
+  assert.equal(minimumStateCountForSceneDuration(26.4), 4);
+  assert.equal(minimumStateCountForSceneDuration(9.9), 2);
+  assert.equal(minimumStateCountForSceneDuration(null), 2);
+
+  const timing = {
+    schema_version: "1.0",
+    project_id: "p1",
+    scenes: [
+      {
+        scene_id: "SC01",
+        script_ko: "a",
+        script_en: "",
+        story_role: "HOOK",
+        narrative_purpose_ko: "a",
+        narrative_purpose_en: "",
+        estimated_duration_sec: 16.72,
+        tts: { start_sec: 0, end_sec: 16.72, duration_sec: 16.72 },
+        beats: [],
+        provenance: { script_id: "s", script_revision: 1, script_sha256: "x", scene_revision: 1, audio_sha256: "y", alignment_sha256: "z" }
+      },
+      {
+        scene_id: "SC03",
+        script_ko: "b",
+        script_en: "",
+        story_role: "EVIDENCE",
+        narrative_purpose_ko: "b",
+        narrative_purpose_en: "",
+        estimated_duration_sec: 21.84,
+        tts: { start_sec: 16.72, end_sec: 38.56, duration_sec: 21.84 },
+        beats: [],
+        provenance: { script_id: "s", script_revision: 1, script_sha256: "x", scene_revision: 1, audio_sha256: "y", alignment_sha256: "z" }
+      }
+    ]
+  } as any;
+
+  assert.deepEqual(
+    stateCapacityRequirements(timing).map(item => [item.scene_id, item.minimum_state_count]),
+    [["SC01", 3], ["SC03", 4]]
+  );
+
+  const input = buildT050CodexInput({
+    projectId: "p1",
+    projectSpec: {
+      schema_version: "1.0",
+      project_id: "p1",
+      topic: "test",
+      format: "LONGFORM",
+      target_duration_sec: 60,
+      resolution: { width: 1920, height: 1080, fps: 30 },
+      language: "ko",
+      generation_policy: { image_engine: "OPENAI" }
+    } as any,
+    sceneTiming: timing,
+    sceneVisual: {
+      schema_version: "1.0",
+      project_id: "p1",
+      visual_bible: {
+        resource_id: "HISTORY_MYSTERY_VISUAL_BIBLE",
+        version: "1.2.0",
+        content_hash: "sha256:test"
+      },
+      scenes: []
+    },
+    managerDirective: null
+  }) as any;
+
+  assert.equal(input.scene_timing_spec.scenes[0].minimum_state_count, 3);
+  assert.equal(input.scene_timing_spec.scenes[1].minimum_state_count, 4);
+  assert.deepEqual(
+    input.state_capacity_requirements.map((item: any) => item.minimum_state_count),
+    [3, 4]
+  );
 });
 
 test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () => {

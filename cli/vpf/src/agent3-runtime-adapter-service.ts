@@ -267,6 +267,28 @@ export function normalizedSceneVisual(
   };
 }
 
+export function minimumStateCountForSceneDuration(durationSec: number | null): number {
+  if (durationSec === null || !Number.isFinite(durationSec) || durationSec <= 0) return 2;
+  return Math.max(2, Math.ceil(durationSec / 10) + 1);
+}
+
+export function stateCapacityRequirements(sceneTiming: SceneTimingDocument): Array<{
+  scene_id: string;
+  measured_tts_duration_sec: number | null;
+  minimum_state_count: number;
+  required_roles: "ONE_ENTRY_ONE_TARGET_WITH_ORDERED_MIDS";
+}> {
+  return sceneTiming.scenes.map(scene => {
+    const duration = scene.tts?.duration_sec ?? null;
+    return {
+      scene_id: scene.scene_id,
+      measured_tts_duration_sec: duration,
+      minimum_state_count: minimumStateCountForSceneDuration(duration),
+      required_roles: "ONE_ENTRY_ONE_TARGET_WITH_ORDERED_MIDS"
+    };
+  });
+}
+
 function normalizedStateImages(
   value: StateImageDocument,
   projectId: string
@@ -310,6 +332,9 @@ export function buildT050CodexInput(input: {
         tts: scene.tts === null
           ? null
           : { duration_sec: scene.tts.duration_sec },
+        minimum_state_count: minimumStateCountForSceneDuration(
+          scene.tts?.duration_sec ?? null
+        ),
         beats: scene.beats.map(beat => ({
           beat_id: beat.beat_id,
           purpose_ko: beat.purpose_ko,
@@ -318,6 +343,7 @@ export function buildT050CodexInput(input: {
         }))
       }))
     },
+    state_capacity_requirements: stateCapacityRequirements(input.sceneTiming),
     scene_visual_spec: {
       schema_version: input.sceneVisual.schema_version,
       project_id: input.sceneVisual.project_id,
@@ -544,7 +570,9 @@ class OpenAiAgent3Runtime {
         "MID handoff anchors should be concrete visual states that can become the previous Clip target and next Clip entry.",
         "For SHORTS, design enough states to support roughly 4–5 second editorial Clips when useful.",
         "For LONGFORM, design enough states to support roughly 5–8 second editorial Clips when useful.",
-        "Any Scene longer than 10 seconds must have enough sequential states to permit multiple Clips of at most 10 seconds.",
+        "For every Scene, obey state_capacity_requirements[].minimum_state_count as a hard lower bound.",
+        "The minimum is max(2, ceil(measured_tts_duration_sec / 10) + 1). Use exactly one ENTRY and exactly one TARGET, then add enough ordered MID states to meet or exceed that count.",
+        "Never return only ENTRY/TARGET when minimum_state_count is 3 or greater.",
         "Prefer the minimum number of states that can carry the narrative clearly. Do not add novelty-only states.",
         "Every State Image must be video-ready: layered depth, complete physical relationships, and one continuable motion vector.",
         "Respect each Scene fantasy_mode when designing states: fantasy may affect atmosphere, light, mist, texture, symbolic space and non-textual motifs, but never invent historical evidence or events.",
@@ -555,6 +583,7 @@ class OpenAiAgent3Runtime {
         project_id: input.projectId,
         project_spec: input.projectSpec,
         scene_timing_spec: input.sceneTiming,
+        state_capacity_requirements: stateCapacityRequirements(input.sceneTiming),
         scene_visual_spec: input.sceneVisual,
         revision_feedback: input.revisionFeedback
       }
@@ -1578,10 +1607,12 @@ export class Agent3RuntimeAdapterService {
           AGENT3_STATE_IMAGE_SCHEMA,
           [
             ...getAgent3TaskInstruction("T050").rules,
-            "Create an ordered state ladder for every Scene with exactly one ENTRY and one TARGET; MID is optional.",
+            "Create an ordered state ladder for every Scene with exactly one ENTRY and one TARGET.",
             "ENTRY handoff_anchor must exactly match Scene handoff.entry_anchor and TARGET must exactly match Scene handoff.exit_anchor.",
             "Use only current Beat IDs or null.",
-            "A Scene longer than 10 seconds measured TTS must have enough sequential states to support multiple Clips of at most 10 seconds.",
+            "For every Scene, obey scene_timing_spec.scenes[].minimum_state_count and state_capacity_requirements[].minimum_state_count as a hard lower bound.",
+            "Use ordered MID states until each Scene reaches at least its required minimum_state_count. Never return only ENTRY/TARGET when the required count is 3 or greater.",
+            "The minimum is max(2, ceil(measured TTS duration / 10) + 1).",
             "If manager_revision_instruction is present, repair that exact failure without changing approved Scene Visual meaning."
           ],
           async output => {
