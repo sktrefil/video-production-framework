@@ -7,7 +7,9 @@ import {
   SHOT_SIZES,
   STATE_IMAGE_ROLES,
   STORY_ROLES,
-  VISUAL_FACTUALITY_MODES
+  VISUAL_FACTUALITY_MODES,
+  VIDEO_GENERATION_MODELS,
+  VIDEO_GENERATION_PROVIDERS
 } from "@vpf/production-spec";
 
 const strings = {
@@ -282,6 +284,18 @@ export const AGENT3_CLIP_CAMERA_SCHEMA = {
                 exclusiveMinimum: 0,
                 maximum: 10
               },
+              generation_provider: {
+                anyOf: [
+                  { type: "string", enum: VIDEO_GENERATION_PROVIDERS },
+                  { type: "null" }
+                ]
+              },
+              generation_model: {
+                anyOf: [
+                  { type: "string", enum: VIDEO_GENERATION_MODELS },
+                  { type: "null" }
+                ]
+              },
               generation_duration_sec: {
                 anyOf: [
                   { type: "number", exclusiveMinimum: 0 },
@@ -363,9 +377,12 @@ export function clipCameraSchema(format: string): unknown {
   const item = clips.items;
   return { ...base, properties: { ...base.properties, clip_production_spec: {
     ...spec, properties: { ...spec.properties, clips: { ...clips, items: {
-      ...item, required: [...item.required, "directing"], properties: {
-        ...item.properties, directing: DIRECTING_CARD_SCHEMA,
-        generation_duration_sec: { type: "number", exclusiveMinimum: 0 }
+      ...item, required: [...item.required, "generation_provider", "generation_model", "directing"], properties: {
+        ...item.properties,
+        generation_provider: { type: "string", enum: VIDEO_GENERATION_PROVIDERS },
+        generation_model: { type: "string", enum: VIDEO_GENERATION_MODELS },
+        directing: DIRECTING_CARD_SCHEMA,
+        generation_duration_sec: { type: "number", enum: [4, 6, 8, 10] }
       }
     } } }
   } } };

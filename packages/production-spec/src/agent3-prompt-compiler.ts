@@ -183,6 +183,9 @@ export function compileAgent3Prompts(input: {
       return { clip_id: clip.clip_id, scene_id: clip.scene_id, directing: d,
         entry_state_image_id: entry.state_image_id, mid_state_image_id: mid?.state_image_id ?? null,
         target_state_image_id: target.state_image_id, prompt_ko: prompt("ko"), prompt_en: prompt("en"), provider_prompt_en: prompt("en"),
+        generation_provider: clip.generation_provider ?? null,
+        generation_model: clip.generation_model ?? null,
+        generation_duration_sec: clip.generation_duration_sec,
         editorial_duration_sec: clip.editorial_duration_sec, narrative_deadline_sec: clip.narrative_deadline_sec,
         target_state_deadline_sec: clip.target_state_deadline_sec, safe_trim_start_sec: clip.safe_trim_start_sec };
     }
@@ -196,6 +199,9 @@ export function compileAgent3Prompts(input: {
 
     const provider = sentence([
       "Image-to-video clip for Scene " + clip.scene_id + ", Clip " + clip.clip_id + ".",
+      "Generation target: " + String(clip.generation_provider ?? "UNSPECIFIED") + "/" +
+        String(clip.generation_model ?? "UNSPECIFIED") + ", " +
+        String(clip.generation_duration_sec ?? "UNSPECIFIED") + " sec source generation.",
       "Use " + entry.state_image_id + " as the entry state" +
         (mid ? ", pass through " + mid.state_image_id : "") +
         ", and reach " + target.state_image_id + " by " + clip.target_state_deadline_sec.toFixed(2) + " sec.",
@@ -246,6 +252,9 @@ export function compileAgent3Prompts(input: {
       prompt_ko: promptKo,
       prompt_en: provider,
       provider_prompt_en: provider,
+      generation_provider: clip.generation_provider ?? null,
+      generation_model: clip.generation_model ?? null,
+      generation_duration_sec: clip.generation_duration_sec,
       editorial_duration_sec: clip.editorial_duration_sec,
       narrative_deadline_sec: clip.narrative_deadline_sec,
       target_state_deadline_sec: clip.target_state_deadline_sec,

@@ -1,5 +1,6 @@
 import type { StoryRole } from "./enums.js";
 import type { ClipProductionDocument } from "./clip-production-spec.js";
+import type { VideoGenerationModel, VideoGenerationProvider } from "./video-generation-capabilities.js";
 
 export const VISUAL_FACTUALITY_MODES = [
   "EVIDENCE",
@@ -126,6 +127,9 @@ export interface VideoPromptPlan {
   prompt_ko: string;
   prompt_en: string;
   provider_prompt_en: string;
+  generation_provider: VideoGenerationProvider | null;
+  generation_model: VideoGenerationModel | null;
+  generation_duration_sec: number | null;
   editorial_duration_sec: number;
   narrative_deadline_sec: number;
   target_state_deadline_sec: number;

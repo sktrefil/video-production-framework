@@ -13,6 +13,7 @@ import {
   getAgent3TaskInstruction,
   permittedFactualityModes,
   validateClipProductionSpecs,
+  videoGenerationCapabilitiesForT060,
   type Agent2FactCheckSpec,
   type Agent2StorySpec,
   type Agent3T060Input,
@@ -372,21 +373,10 @@ export function buildT050CodexInput(input: {
   };
 }
 
-export function selectedVideoGenerationDuration(format: string, environment: NodeJS.ProcessEnv): number | null {
-  if (format !== "LONGFORM") return null;
-  const duration = Number(environment.VPF_VIDEO_GENERATION_DURATION_SEC);
-  if (!Number.isFinite(duration) || duration <= 0) throw new Agent3RuntimeAdapterError(
-    "AGENT3_RUNTIME_PREREQUISITE",
-    "Set VPF_VIDEO_GENERATION_DURATION_SEC to the actual selected video tool duration before LONGFORM T060; do not estimate it."
-  );
-  return duration;
-}
-
 function normalizedClipInput(
   value: Agent3T060Input,
   projectId: string,
-  format: string,
-  generationDuration: number | null
+  format: string
 ): Agent3T060Input {
   const clips: ClipProductionDocument = {
     ...value.clip_production_spec,
@@ -399,9 +389,10 @@ function normalizedClipInput(
     }))
   };
   if (format === "LONGFORM") {
-    if (clips.clips.some(clip => clip.generation_duration_sec !== generationDuration))
-      throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID", "Generation duration must match the selected tool setting.");
-    const validation = validateClipProductionSpecs(clips, { requireDirecting: true });
+    const validation = validateClipProductionSpecs(clips, {
+      requireDirecting: true,
+      requireGenerationTarget: true
+    });
     if (!validation.valid) throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID",
       validation.errors.map(issue => issue.code + ": " + issue.message).join("; "));
   }
@@ -609,7 +600,7 @@ class OpenAiAgent3Runtime {
     value: Agent3T060Input;
   }> {
     const instruction = getAgent3TaskInstruction("T060");
-    const generationDuration = selectedVideoGenerationDuration(input.projectSpec.format, this.environment);
+    const generationCapabilities = videoGenerationCapabilitiesForT060();
     const response = await this.request({
       name: "agent3_clip_camera_spec",
       schema: clipCameraSchema(input.projectSpec.format),
@@ -622,7 +613,10 @@ class OpenAiAgent3Runtime {
         "Within a Scene, adjacent Clips must form a state chain: previous target state ID must exactly equal next entry state ID.",
         "Use only State Image IDs supplied in state_image_spec.",
         "A Clip entry state must precede its target state by sequence_order; MID, when used, must lie strictly between them.",
-        "For SHORTS use generation_duration_sec=null. LONGFORM v2 must choose the actual generation duration supported by the configured provider; block if unknown.",
+        "For SHORTS use generation_provider=null, generation_model=null and generation_duration_sec=null.",
+        "For LONGFORM v2 choose generation_provider, generation_model and generation_duration_sec independently for every Clip from video_generation_capabilities. Do not use a single global duration.",
+        "Choose a supported generation duration that contains directing.source_out_sec. Prefer the shortest supported duration that safely contains the used source range; do not invent unsupported durations.",
+        "START_END requires a capability whose image_modes includes START_END. GEMINI/GEMINI_I2V_10S is fixed 10s and does not support START_END in this project contract; use a compatible GOOGLE_FLOW model when an explicit end frame is required.",
         "Set safe_trim_start_sec equal to editorial_duration_sec.",
         "All mandatory core-point windows are clip-local seconds, non-overlapping, after start_handle_sec, and finish no later than narrative_deadline_sec.",
         "Core-point cap: duration <=3 sec: 1; >3 and <=5 sec: at most 2; >5 and <=10 sec: at most 3.",
@@ -639,7 +633,7 @@ class OpenAiAgent3Runtime {
         scene_timing_spec: input.sceneTiming,
         scene_visual_spec: input.sceneVisual,
         state_image_spec: input.states,
-        video_generation_duration_sec: generationDuration,
+        video_generation_capabilities: generationCapabilities,
         revision_feedback: input.revisionFeedback
       }
     });
@@ -648,8 +642,7 @@ class OpenAiAgent3Runtime {
       value: normalizedClipInput(
         parseStructuredJson<Agent3T060Input>(response),
         input.projectId,
-        input.projectSpec.format,
-        generationDuration
+        input.projectSpec.format
       )
     };
   }
@@ -1646,7 +1639,7 @@ export class Agent3RuntimeAdapterService {
         scene_timing_spec: sceneTiming,
         scene_visual_spec: visual.value,
         state_image_spec: states.value,
-        video_generation_duration_sec: selectedVideoGenerationDuration(projectSpec.format, this.environment),
+        video_generation_capabilities: videoGenerationCapabilitiesForT060(),
         provider_profile: codexPin,
         manager_revision_instruction: managerDirective
       };
@@ -1664,7 +1657,10 @@ export class Agent3RuntimeAdapterService {
           "For each Scene, Clip editorial durations must sum to measured TTS duration within 0.01 sec.",
           "No Clip may exceed 10 seconds.",
           "Adjacent Clips in one Scene must chain previous target state to next entry state.",
-          "For SHORTS use generation_duration_sec=null; LONGFORM v2 requires the selected provider duration. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
+          "For SHORTS use generation_provider=null, generation_model=null and generation_duration_sec=null.",
+          "For LONGFORM v2 choose generation_provider, generation_model and generation_duration_sec per Clip from video_generation_capabilities; mixed GEMINI and GOOGLE_FLOW plans are allowed.",
+          "Choose a supported duration that contains directing.source_out_sec, preferably the shortest supported duration that safely contains the used range. START_END must use a capability that supports START_END.",
+          "GEMINI/GEMINI_I2V_10S is the direct Gemini fixed-10s workflow. GOOGLE_FLOW models provide their listed selectable durations. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
           "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
           "Avoid four adjacent Clips with the same camera movement, shot-size pattern, or transition.",
           "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",
@@ -1674,8 +1670,7 @@ export class Agent3RuntimeAdapterService {
           const value = normalizedClipInput(
             output as Agent3T060Input,
             projectId,
-            projectSpec.format,
-            input.video_generation_duration_sec
+            projectSpec.format
           );
           const worker = await this.worker.executePayload(
             projectId,

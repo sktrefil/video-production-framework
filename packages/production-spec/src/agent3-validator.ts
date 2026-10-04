@@ -389,11 +389,21 @@ export function validatePromptBundle(
     }
   });
 
+  const v2Prompts = input.compiler_version === "DIRECTING_PROMPT_COMPILER_V2";
   videoPrompts.forEach((raw, index) => {
     const base = "video_prompts[" + index + "]";
     if (!record(raw)) return errors.push({ code: "INVALID_VIDEO_PROMPT", path: base, message: "Video prompt must be an object." });
     for (const key of ["clip_id","scene_id","entry_state_image_id","target_state_image_id","prompt_ko","prompt_en","provider_prompt_en"] as const) required(raw[key], base + "." + key, errors);
     if (raw.mid_state_image_id !== null && !nonempty(raw.mid_state_image_id)) errors.push({ code: "INVALID_MID_STATE_REF", path: base + ".mid_state_image_id", message: "mid_state_image_id must be null or non-empty." });
+    if (v2Prompts) {
+      required(raw.generation_provider, base + ".generation_provider", errors);
+      required(raw.generation_model, base + ".generation_model", errors);
+      if (!finite(raw.generation_duration_sec)) errors.push({
+        code: "INVALID_PROMPT_GENERATION_DURATION",
+        path: base + ".generation_duration_sec",
+        message: "v2 video prompt requires finite generation_duration_sec."
+      });
+    }
     for (const key of ["editorial_duration_sec","narrative_deadline_sec","target_state_deadline_sec","safe_trim_start_sec"] as const) {
       if (!finite(raw[key])) errors.push({ code: "INVALID_PROMPT_TIMING", path: base + "." + key, message: key + " must be finite." });
     }

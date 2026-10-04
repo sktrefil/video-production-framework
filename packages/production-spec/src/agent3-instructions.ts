@@ -62,6 +62,7 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T025" | "T040" | "T050" | "T060",
       "Clip durations must sum to measured Scene TTS duration.",
       "All mandatory core points finish by narrative deadline.",
       "Target state arrives before final hold; later footage is safe disposable continuation.",
+      "For LONGFORM v2 choose generation_provider, generation_model and generation_duration_sec independently per Clip from the supplied capability matrix; mixed Gemini + Google Flow plans are allowed.",
       "Camera purpose, movement, shot sizes and movement curve are mandatory.",
       "Avoid repetitive camera and transition patterns.",
       "Compile timing, state, camera, continuity and factual constraints into provider-ready prompts."
