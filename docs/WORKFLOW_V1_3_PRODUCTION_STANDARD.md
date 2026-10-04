@@ -158,6 +158,21 @@ LONGFORM Clip은 measured TTS timeline start/end, editorial duration, generation
 
 핵심 공개는 used-range 시작 후 4초 이내를 목표로 하되, 사실·공간·행동의 자연스러움을 깨면서 맞추지 않는다. START/END는 전체 카메라 경로에서 추출한 상태이며 독립적인 장식 이미지가 아니다.
 
+### 5.1 Camera rhythm normalization
+
+Workflow 1.3은 동일한 `camera.movement`가 4개 이상 연속되는 T060 계획을 허용하지 않는다. T060 생성기는 모든 sliding 4-Clip window를 자체 점검해야 하며, 앞 3개와 동일한 movement가 네 번째에 반복되면 narrative purpose와 경로 의미를 보존하는 가까운 대체 movement로 교정한다.
+
+현재 deterministic repair는 의미가 가까운 movement pair만 사용한다.
+
+```text
+LATERAL_TRACK <-> LATERAL_TRACK_WITH_SUBTLE_PUSH
+SLOW_PUSH <-> SUBJECT_FOLLOW
+SLOW_PULL_BACK <-> SUBTLE_CRANE
+FOREGROUND_REVEAL -> LATERAL_TRACK_WITH_SUBTLE_PUSH
+```
+
+이 보정은 `CAMERA_RHYTHM_REPETITION` gate를 약화하지 않는다. 보정 후에도 validator가 동일 규칙으로 최종 검사한다. shot-size pattern과 transition repetition은 별도 gate를 그대로 유지한다.
+
 ## 6. Gate rules
 
 `CLIP_PLAN_GATE`는 최소한 다음을 차단한다.

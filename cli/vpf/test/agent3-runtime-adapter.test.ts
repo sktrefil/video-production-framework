@@ -14,7 +14,8 @@ import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-produc
 import {
   Agent3RuntimeAdapterError,
   Agent3RuntimeAdapterService,
-  normalizedClipInput
+  normalizedClipInput,
+  repairLongformCameraRhythm
 } from "../src/agent3-runtime-adapter-service.js";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 
@@ -374,6 +375,29 @@ function clipResponse(projectId: string, duration: number, longform = false) {
     }
   };
 }
+
+test("T060 repairs a fourth identical camera movement without weakening the rhythm gate", () => {
+  const raw = clipResponse("rhythm_fixture", 5, true).clip_production_spec;
+  raw.clips = Array.from({ length: 5 }, (_, index) => ({
+    ...structuredClone(raw.clips[0]),
+    clip_id: "CLIP_" + String(index + 1).padStart(2, "0"),
+    camera: {
+      ...structuredClone(raw.clips[0].camera),
+      movement: "LATERAL_TRACK"
+    }
+  }));
+  const repaired = repairLongformCameraRhythm(raw);
+  assert.deepEqual(
+    repaired.clips.map(clip => clip.camera.movement),
+    [
+      "LATERAL_TRACK",
+      "LATERAL_TRACK",
+      "LATERAL_TRACK",
+      "LATERAL_TRACK_WITH_SUBTLE_PUSH",
+      "LATERAL_TRACK"
+    ]
+  );
+});
 
 test("T060 strips invented Scene/State reference IDs and preserves approved canonical references", () => {
   const raw = clipResponse("ref_fixture", 5, true);

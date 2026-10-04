@@ -399,6 +399,42 @@ export function approvedDirectingReferenceIds(
   return rows.map(row => row.id);
 }
 
+const CAMERA_RHYTHM_ALTERNATES: Partial<Record<
+  ClipProductionDocument["clips"][number]["camera"]["movement"],
+  ClipProductionDocument["clips"][number]["camera"]["movement"]
+>> = {
+  LATERAL_TRACK: "LATERAL_TRACK_WITH_SUBTLE_PUSH",
+  LATERAL_TRACK_WITH_SUBTLE_PUSH: "LATERAL_TRACK",
+  SLOW_PUSH: "SUBJECT_FOLLOW",
+  SUBJECT_FOLLOW: "SLOW_PUSH",
+  SLOW_PULL_BACK: "SUBTLE_CRANE",
+  SUBTLE_CRANE: "SLOW_PULL_BACK",
+  FOREGROUND_REVEAL: "LATERAL_TRACK_WITH_SUBTLE_PUSH"
+};
+
+export function repairLongformCameraRhythm(
+  input: ClipProductionDocument
+): ClipProductionDocument {
+  const repaired = structuredClone(input);
+  let previousMovement = "";
+  let movementRun = 0;
+  for (const clip of repaired.clips) {
+    const movement = clip.camera.movement;
+    if (movement === previousMovement) movementRun += 1;
+    else {
+      previousMovement = movement;
+      movementRun = 1;
+    }
+    if (movementRun < 4) continue;
+    const alternate = CAMERA_RHYTHM_ALTERNATES[movement];
+    if (alternate === undefined || alternate === movement) continue;
+    clip.camera.movement = alternate;
+    previousMovement = alternate;
+    movementRun = 1;
+  }
+  return repaired;
+}
+
 export function normalizedClipInput(
   value: Agent3T060Input,
   projectId: string,
@@ -406,7 +442,7 @@ export function normalizedClipInput(
   approvedReferenceIds: readonly string[] = []
 ): Agent3T060Input {
   const approved = new Set(approvedReferenceIds);
-  const clips: ClipProductionDocument = {
+  const normalized: ClipProductionDocument = {
     ...value.clip_production_spec,
     schema_version: "1.0",
     project_id: projectId,
@@ -422,6 +458,9 @@ export function normalizedClipInput(
       safe_trim_start_sec: clip.editorial_duration_sec
     }))
   };
+  const clips = format === "LONGFORM"
+    ? repairLongformCameraRhythm(normalized)
+    : normalized;
   if (format === "LONGFORM") {
     const validation = validateClipProductionSpecs(clips, {
       requireDirecting: true,
@@ -661,7 +700,7 @@ class OpenAiAgent3Runtime {
         "Core-point cap: duration <=3 sec: 1; >3 and <=5 sec: at most 2; >5 and <=10 sec: at most 3.",
         "narrative_deadline_sec must be before target_state_deadline_sec or equal to it, and target_state_deadline_sec must be before editorial end. For LONGFORM reveal new information within 4 seconds of used-range start; meaningful action can continue afterwards. SHORTS retains its existing timing policy.",
         "end_hold_sec must fit entirely after target_state_deadline_sec.",
-        "Camera purpose must explain narrative intent. Avoid four adjacent Clips with the same movement, same shot-size pattern, or same transition.",
+        "Camera purpose must explain narrative intent. In every sliding four-Clip window, camera.movement must not be identical across all four; proactively vary the fourth movement while preserving the same narrative purpose and path semantics. Also avoid four adjacent Clips with the same shot-size pattern or same transition.",
         "Use varied transitions such as HARD_CUT, MATCH_CUT, MOTION_MATCH, GRAPHIC_MATCH, FOREGROUND_WIPE, ENVIRONMENT_OCCLUSION, LIGHT_TRANSITION, STATIC_BREAK.",
         "Do not output prompts. The deterministic Prompt Compiler runs after this plan passes Core validation.",
         "If revision_feedback is present, correct those exact validation failures while preserving approved timing and visual meaning."
@@ -1710,7 +1749,7 @@ export class Agent3RuntimeAdapterService {
           "GEMINI/GEMINI_I2V_10S is the direct Gemini fixed-10s workflow. GOOGLE_FLOW models provide their listed selectable durations. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
           "directing.reference_ids may contain ONLY IDs from approved_directing_reference_ids. Never use Scene IDs, State Image IDs, Beat IDs, Clip IDs, filenames or invented IDs; use [] when no approved canonical reference applies.",
           "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
-          "Avoid four adjacent Clips with the same camera movement, shot-size pattern, or transition.",
+          "Before returning, self-check every sliding four-Clip window. The fourth Clip must not repeat the same camera movement as the previous three; vary movement while preserving narrative purpose and path semantics. Also avoid four repeated shot-size patterns or transitions.",
           "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",
           "If manager_revision_instruction is present, repair that exact failure while preserving measured timing and approved visual states."
         ],
