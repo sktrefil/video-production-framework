@@ -22,6 +22,7 @@ jobs:
       - run: npm test --workspace @vpf/editor-app
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run check:workflow-v13
       - run: npm test
 
   e2e:
