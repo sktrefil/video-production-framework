@@ -10,8 +10,146 @@ import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
 import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
+import { normalizedSceneVisual } from "../src/agent3-runtime-adapter-service.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
+
+test("T040 normalization repairs factuality modes from approved fact classifications", () => {
+  const bible = {
+    resource_id: "HISTORY_MYSTERY_VISUAL_BIBLE",
+    version: "1.2.0",
+    content_hash: "sha256:test"
+  };
+  const scene = {
+    scene_id: "SC01",
+    story_role: "HOOK",
+    factuality_mode: "EVIDENCE",
+    fantasy_mode: "EDITORIAL",
+    fact_refs: ["WRONG_REF"],
+    narrative_purpose_ko: "질문을 연다.",
+    narrative_purpose_en: "Open the question.",
+    visual_intent_ko: "증거와 추정을 구분한다.",
+    visual_intent_en: "Separate evidence from inference.",
+    environment_ko: "추상적 편집 공간",
+    environment_en: "Abstract editorial space",
+    subject_ko: "고고학 단서",
+    subject_en: "Archaeological clue",
+    action_ko: "단서가 비교된다.",
+    action_en: "Clues are compared.",
+    evidence_constraints: [],
+    uncertainty_handling_ko: "추정을 사실처럼 보이지 않는다.",
+    uncertainty_handling_en: "Do not present inference as fact.",
+    forbidden_visual_claims: ["fabricated evidence"],
+    continuity: {
+      character_identity: [],
+      environment_identity: ["editorial plane"],
+      lighting_direction: "soft side light",
+      color_language: "muted stone tones",
+      weather: "none",
+      movement_direction: "forward",
+      screen_direction: "NEUTRAL",
+      camera_energy: "RESTRAINED",
+      visual_motif: ["stone"]
+    },
+    handoff: {
+      entry_anchor: "stone clue",
+      exit_anchor: "lineage cue",
+      preserve_elements: ["stone clue", "lineage cue"],
+      next_cut_intent: "carry the clue forward"
+    }
+  };
+
+  const normalized = normalizedSceneVisual(
+    {
+      schema_version: "1.0",
+      project_id: "wrong",
+      visual_bible: bible,
+      scenes: [
+        { ...scene },
+        {
+          ...scene,
+          scene_id: "SC02",
+          factuality_mode: "EVIDENCE",
+          fact_refs: ["FACT_VERIFIED"]
+        },
+        {
+          ...scene,
+          scene_id: "SC03",
+          factuality_mode: "HISTORICAL_RECONSTRUCTION",
+          fact_refs: ["FACT_VERIFIED"]
+        }
+      ]
+    },
+    "oase",
+    bible,
+    {
+      schema_version: "1.0",
+      project_id: "oase",
+      central_question: "What does the evidence support?",
+      sections: [],
+      scenes: [
+        {
+          scene_id: "SC01",
+          story_role: "HOOK",
+          narrative_purpose_ko: "질문을 연다.",
+          fact_refs: ["FACT_HYP"],
+          script_ko: "가설을 구분한다.",
+          beats: [{ beat_id: "B1", purpose_ko: "가설", script_ko: "가설을 구분한다." }]
+        },
+        {
+          scene_id: "SC02",
+          story_role: "HOOK",
+          narrative_purpose_ko: "편집 재구성을 구분한다.",
+          fact_refs: ["FACT_EDITORIAL"],
+          script_ko: "편집 재구성이다.",
+          beats: [{ beat_id: "B2", purpose_ko: "편집", script_ko: "편집 재구성이다." }]
+        },
+        {
+          scene_id: "SC03",
+          story_role: "HOOK",
+          narrative_purpose_ko: "검증 사실을 제시한다.",
+          fact_refs: ["FACT_VERIFIED"],
+          script_ko: "검증 사실이다.",
+          beats: [{ beat_id: "B3", purpose_ko: "사실", script_ko: "검증 사실이다." }]
+        }
+      ]
+    },
+    {
+      schema_version: "1.0",
+      project_id: "oase",
+      facts: [
+        {
+          fact_id: "FACT_HYP",
+          statement_ko: "가설",
+          classification: "HYPOTHESIS",
+          confidence: "LOW",
+          source_refs: []
+        },
+        {
+          fact_id: "FACT_EDITORIAL",
+          statement_ko: "편집 재구성",
+          classification: "EDITORIAL_RECONSTRUCTION",
+          confidence: "LOW",
+          source_refs: []
+        },
+        {
+          fact_id: "FACT_VERIFIED",
+          statement_ko: "검증 사실",
+          classification: "VERIFIED_FACT",
+          confidence: "HIGH",
+          source_refs: []
+        }
+      ]
+    }
+  );
+
+  assert.deepEqual(normalized.scenes[0]!.fact_refs, ["FACT_HYP"]);
+  assert.equal(normalized.scenes[0]!.factuality_mode, "HYPOTHESIS_RECONSTRUCTION");
+  assert.deepEqual(normalized.scenes[1]!.fact_refs, ["FACT_EDITORIAL"]);
+  assert.equal(normalized.scenes[1]!.factuality_mode, "EDITORIAL_FANTASY_RECONSTRUCTION");
+  assert.equal(normalized.scenes[1]!.fantasy_mode, "EDITORIAL");
+  assert.equal(normalized.scenes[2]!.factuality_mode, "HISTORICAL_RECONSTRUCTION");
+});
 
 test("Agent3 executes T040-T060, compiles prompts and unlocks T070", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-agent3-worker-"));

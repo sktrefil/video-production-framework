@@ -39,7 +39,7 @@ function strings(value: unknown, path: string, errors: ValidationIssue[], allowE
 }
 
 
-function permittedFactualityModes(
+export function permittedFactualityModes(
   refs: readonly string[],
   classifications: ReadonlyMap<string, Agent2FactClassification> | undefined
 ): readonly VisualFactualityMode[] {

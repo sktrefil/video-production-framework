@@ -31,7 +31,7 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T025" | "T040" | "T050" | "T060",
       "Inherit the pinned Channel Visual Bible; do not invent a replacement show style.",
       "Fantasy reconstruction is allowed only when factuality mode and editorial role are explicit.",
       "Scene Visual fact_refs must exactly match the approved Story Scene fact_refs.",
-      "VERIFIED_FACT may use EVIDENCE or HISTORICAL_RECONSTRUCTION; HYPOTHESIS, LEGEND and EDITORIAL_RECONSTRUCTION must keep their corresponding reconstruction modes.",
+      "Apply factuality_mode deterministically from approved fact classifications using this priority for mixed refs: any LEGEND => LEGEND_RECONSTRUCTION; else any HYPOTHESIS => HYPOTHESIS_RECONSTRUCTION; else any EDITORIAL_RECONSTRUCTION => EDITORIAL_FANTASY_RECONSTRUCTION; else any LIKELY_INTERPRETATION => HISTORICAL_RECONSTRUCTION or HYPOTHESIS_RECONSTRUCTION; otherwise all VERIFIED_FACT => EVIDENCE or HISTORICAL_RECONSTRUCTION.",
       "Do not turn record disappearance into literal magical disappearance.",
       "Each Scene has one continuity contract and one next-cut handoff contract.",
       "Generated readable historical text, unsupported inscriptions, maps, labels, heraldry and fabricated evidence are forbidden."

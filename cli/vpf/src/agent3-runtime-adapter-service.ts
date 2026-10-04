@@ -11,6 +11,7 @@ import {
 } from "@vpf/resource-registry";
 import {
   getAgent3TaskInstruction,
+  permittedFactualityModes,
   validateClipProductionSpecs,
   type Agent2FactCheckSpec,
   type Agent2StorySpec,
@@ -21,7 +22,8 @@ import {
   type ProjectSpec,
   type SceneTimingDocument,
   type SceneVisualDocument,
-  type StateImageDocument
+  type StateImageDocument,
+  type VisualFactualityMode
 } from "@vpf/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
 import { Agent3RuntimeRepository } from "@vpf/storage/agent3-runtime";
@@ -206,24 +208,62 @@ function errorDetail(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function normalizedSceneVisual(
+export function normalizedSceneVisual(
   value: SceneVisualDocument,
   projectId: string,
   visualBible: {
     resource_id: string;
     version: string;
     content_hash: string;
-  }
+  },
+  story?: Agent2StorySpec,
+  facts?: Agent2FactCheckSpec
 ): SceneVisualDocument {
+  const approvedRefs = new Map(
+    (story?.scenes ?? []).map(scene => [scene.scene_id, scene.fact_refs] as const)
+  );
+  const classifications = facts === undefined
+    ? undefined
+    : new Map(facts.facts.map(fact => [fact.fact_id, fact.classification] as const));
+
   return {
     ...value,
     schema_version: "1.0",
     project_id: projectId,
     visual_bible: visualBible,
-    scenes: value.scenes.map(scene => ({
-      ...scene,
-      fact_refs: [...scene.fact_refs]
-    }))
+    scenes: value.scenes.map(scene => {
+      const factRefs = [...(approvedRefs.get(scene.scene_id) ?? scene.fact_refs)];
+      const allowed = permittedFactualityModes(factRefs, classifications);
+      const factualityMode: VisualFactualityMode =
+        allowed.includes(scene.factuality_mode)
+          ? scene.factuality_mode
+          : allowed.includes("HISTORICAL_RECONSTRUCTION")
+            ? "HISTORICAL_RECONSTRUCTION"
+            : allowed[0] ?? "UNKNOWN";
+
+      let fantasyMode = scene.fantasy_mode;
+      if (
+        factualityMode === "EVIDENCE" &&
+        fantasyMode !== "OFF" &&
+        fantasyMode !== "RESTRAINED"
+      ) {
+        fantasyMode = "RESTRAINED";
+      }
+      if (
+        factualityMode === "EDITORIAL_FANTASY_RECONSTRUCTION" &&
+        fantasyMode !== "EDITORIAL" &&
+        fantasyMode !== "HEIGHTENED"
+      ) {
+        fantasyMode = "EDITORIAL";
+      }
+
+      return {
+        ...scene,
+        factuality_mode: factualityMode,
+        ...(fantasyMode === undefined ? {} : { fantasy_mode: fantasyMode }),
+        fact_refs: factRefs
+      };
+    })
   };
 }
 
@@ -473,7 +513,9 @@ class OpenAiAgent3Runtime {
       value: normalizedSceneVisual(
         parseStructuredJson<SceneVisualDocument>(response),
         input.projectId,
-        input.visualBiblePin
+        input.visualBiblePin,
+        input.story,
+        input.facts
       )
     };
   }
@@ -1483,7 +1525,7 @@ export class Agent3RuntimeAdapterService {
             ...getAgent3TaskInstruction("T040").rules,
             "Return one Scene Visual plan for every current Scene, in order.",
             "Copy Story Scene fact_refs exactly; never add or remove fact references.",
-            "Use the least-certain factuality mode required by the referenced fact classifications.",
+            "Apply factuality_mode exactly from approved classifications. Mixed-ref priority: LEGEND => LEGEND_RECONSTRUCTION; else HYPOTHESIS => HYPOTHESIS_RECONSTRUCTION; else EDITORIAL_RECONSTRUCTION => EDITORIAL_FANTASY_RECONSTRUCTION; else LIKELY_INTERPRETATION => HISTORICAL_RECONSTRUCTION or HYPOTHESIS_RECONSTRUCTION; otherwise VERIFIED_FACT => EVIDENCE or HISTORICAL_RECONSTRUCTION.",
             "Visual Bible is the show-level authority; do not invent a replacement visual style.",
             "When development_visual_reference is present, treat it as approved pre-TTS directing evidence: preserve its unit order, NON_REALISTIC_STYLIZED style lock, motif/camera intent and sequence-QC constraints while adapting them to measured Scene Timing. Do not rewrite Story facts or narration.",
             "Do not turn missing records or uncertainty into literal magical disappearance.",
@@ -1493,7 +1535,9 @@ export class Agent3RuntimeAdapterService {
             const value = normalizedSceneVisual(
               output as SceneVisualDocument,
               projectId,
-              bible.pin
+              bible.pin,
+              story.value,
+              facts.value
             );
             const worker = await this.worker.executePayload(
               projectId,
