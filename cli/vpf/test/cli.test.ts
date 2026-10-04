@@ -56,6 +56,12 @@ test("CLI creates SHORTFORM and reports status from project.db", async () => {
   assert.equal(status.legacyAllowed, false);
 });
 
+test("CLI help exposes explicit Agent3 current-attempt resume opt-in", async () => {
+  const f = await fixture();
+  assert.equal(await runCli(["--help"], f.io, f.service), 0);
+  assert.match(f.output.join("\n"), /agent3 run <project_id> \[--resume-current-attempt\]/);
+});
+
 test("CLI exposes Agent3 T025 instruction and execute usage", async () => {
   const f = await fixture();
   assert.equal(await runCli(["agent3", "instruction", "T025"], f.io, f.service), 0);
