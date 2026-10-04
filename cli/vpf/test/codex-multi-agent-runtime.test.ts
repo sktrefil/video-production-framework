@@ -1420,13 +1420,16 @@ test("T050 timeout restores workflow to REVISION_REQUIRED for a later production
 });
 
 
-test("Codex role execution closes stdin explicitly on Windows automation",()=>{
+test("Codex role execution forces the primary prompt through stdin and closes it",()=>{
   const runner=readFileSync(path.join(repositoryRoot,"cli/vpf/src/codex-process-runner.ts"),"utf8");
-  assert.match(runner,/if \(process\.platform === "win32"\) \{[\s\S]*?args\.push\("<", "NUL"\);[\s\S]*?\}/);
-  const promptIndex=runner.indexOf('"Return the final structured JSON matching output.schema.json."');
-  const nulIndex=runner.indexOf('args.push("<", "NUL")',promptIndex);
-  const captureIndex=runner.indexOf("this.capture(",nulIndex);
-  assert.ok(promptIndex>=0);
-  assert.ok(nulIndex>promptIndex);
-  assert.ok(captureIndex>nulIndex);
+  assert.match(runner,/args\.push\("-"\);/);
+  assert.match(runner,/stdinText === undefined \? "ignore" : "pipe"/);
+  assert.match(runner,/child\.stdin\.end\(stdinText, "utf8"\)/);
+  assert.match(runner,/args\.push\("--image=" \+ attachedImages\.join\(","\)\)/);
+  const sentinelIndex=runner.indexOf('args.push("-")');
+  const captureIndex=runner.indexOf("this.capture(",sentinelIndex);
+  const stdinIndex=runner.indexOf("stdinPrompt",captureIndex);
+  assert.ok(sentinelIndex>=0);
+  assert.ok(captureIndex>sentinelIndex);
+  assert.ok(stdinIndex>captureIndex);
 });

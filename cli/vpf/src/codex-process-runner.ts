@@ -527,23 +527,20 @@ export class CodexProcessRunner {
     const model = (this.environment.VPF_CODEX_MODEL ?? "").trim();
     if (model) args.push("--model", model);
     if (attachedImages.length > 0) {
-      args.push("--image", ...attachedImages, "--");
+      // Keep --image values in a single option token so the variadic option cannot
+      // consume the explicit stdin prompt sentinel that follows.
+      args.push("--image=" + attachedImages.join(","));
     }
-    args.push(
+    const stdinPrompt =
       "Read instructions.md and parse request.json as JSON in the current directory. " +
       (attachedImages.length > 0
         ? "Inspect every attached image directly; do not infer image content from filenames or metadata. "
         : "") +
       "Perform only the requested VPF role task. " +
-      "Return the final structured JSON matching output.schema.json."
-    );
-    // Codex exec currently attempts to read additional stdin in non-TTY Windows
-    // automation even when the prompt is provided positionally. Because VPF invokes
-    // codex.cmd through cmd.exe, explicitly redirect stdin from NUL for role-task
-    // executions. This preserves the positional prompt while guaranteeing immediate EOF.
-    if (process.platform === "win32") {
-      args.push("<", "NUL");
-    }
+      "Return the final structured JSON matching output.schema.json.";
+    // Force Codex to use stdin as the primary prompt. A positional prompt in a
+    // non-TTY child process can trigger Codex's optional 'additional stdin' read.
+    args.push("-");
 
     const auditDirectory = path.join(
       request.projectRoot,
@@ -580,7 +577,8 @@ export class CodexProcessRunner {
         args,
         executionTimeoutMs,
         tempRoot,
-        request.onActivity
+        request.onActivity,
+        stdinPrompt
       );
       trace = processResult.stdout;
       await writeFile(tracePath, trace, "utf8");
@@ -797,7 +795,8 @@ export class CodexProcessRunner {
     args: string[],
     timeoutMs: number,
     cwd?: string,
-    onActivity?: (activity: CodexExecutionActivity) => void | Promise<void>
+    onActivity?: (activity: CodexExecutionActivity) => void | Promise<void>,
+    stdinText?: string
   ): Promise<ProcessResult> {
     return await new Promise<ProcessResult>((resolve, reject) => {
       let stdout = "";
@@ -813,9 +812,16 @@ export class CodexProcessRunner {
         env: this.storedLoginEnvironment(),
         windowsHide: true,
         shell: false,
-        stdio: ["ignore", "pipe", "pipe"],
+        stdio: [stdinText === undefined ? "ignore" : "pipe", "pipe", "pipe"],
         detached: process.platform !== "win32"
       });
+
+      if (stdinText !== undefined && child.stdin !== null) {
+        // The forced '-' prompt mode requires a complete UTF-8 stdin stream and EOF.
+        // Ignore a late EPIPE if Codex exits before consuming the full prompt.
+        child.stdin.on("error", () => undefined);
+        child.stdin.end(stdinText, "utf8");
+      }
 
       const reportActivity = (): void => {
         if (onActivity === undefined) return;
