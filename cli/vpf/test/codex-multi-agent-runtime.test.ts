@@ -592,6 +592,68 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
   }
 });
 
+test("Codex repeated executions on the same task attempt preserve distinct runtime rows", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-codex-run-nonce-"));
+  const fixtures = path.join(root, "fixtures");
+  await import("node:fs/promises").then(fs => fs.mkdir(fixtures, { recursive: true }));
+  try {
+    const bootstrap = new ProjectBootstrapService({
+      repositoryRoot,
+      workspaceRoot: path.join(root, "workspace")
+    });
+    const projectId = "codex_run_nonce";
+    const created = await bootstrap.createProject({
+      projectId,
+      title: "Codex Run Nonce",
+      topic: "History",
+      format: "shortform",
+      targetDurationSec: 5,
+      language: "ko"
+    });
+    await writeJson(fixtures, "T025", { schema_version: "1.0" });
+    const runner = new CodexProcessRunner(runtimeEnv(fixtures));
+    const request = {
+      projectId,
+      projectRoot: created.projectRoot,
+      dbPath: created.projectDbPath,
+      roleId: "CODEX_3_VISUAL_PRODUCTION" as const,
+      taskId: "T025",
+      attempt: 3,
+      instructions: ["Return the fixture payload."],
+      input: { project_id: projectId },
+      outputSchema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["schema_version"],
+        properties: {
+          schema_version: { type: "string", enum: ["1.0"] }
+        }
+      },
+      webSearchMode: "disabled" as const
+    };
+
+    const first = await runner.execute<{schema_version:"1.0"}>(request);
+    const second = await runner.execute<{schema_version:"1.0"}>(request);
+    assert.notEqual(first.runId, second.runId);
+
+    const repo = new CodexRuntimeRepository(created.projectDbPath, { readonly: true });
+    try {
+      const rows = repo.list(projectId).filter(row =>
+        row.role_id === "CODEX_3_VISUAL_PRODUCTION" &&
+        row.task_id === "T025" &&
+        row.attempt === 3
+      );
+      assert.equal(rows.length, 2);
+      assert.equal(new Set(rows.map(row => row.run_id)).size, 2);
+      assert.ok(rows.every(row => row.status === "COMPLETE"));
+    } finally {
+      repo.close();
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("Codex visual review attaches actual local images to the initial exec message", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "vpf-codex-visual-input-"));
   const fixtures = path.join(root, "fixtures");

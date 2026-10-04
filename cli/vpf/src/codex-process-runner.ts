@@ -1,4 +1,4 @@
-﻿import { createHash } from "node:crypto";
+﻿import { createHash, randomUUID } from "node:crypto";
 import { spawn, type ChildProcess } from "node:child_process";
 import {
   copyFile,
@@ -454,7 +454,8 @@ export class CodexProcessRunner {
       request.projectId,
       request.roleId,
       request.taskId,
-      "A" + request.attempt
+      "A" + request.attempt,
+      randomUUID()
     ].map(safeSegment).join(":");
     const tempRoot = await mkdtemp(
       path.join(tmpdir(), "vpf-codex-runtime-")
