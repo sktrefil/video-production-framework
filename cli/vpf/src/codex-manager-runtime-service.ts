@@ -821,6 +821,8 @@ export class CodexManagerRuntimeService {
         "For LONGFORM T020, check a narrow central question and payoff, action/change/next reason per scene, complementary narration/screen design, factual distinctions and a precision-physics risk alternative before TTS.",
         "For v2 T060, independently approve concrete SPACE/START/CAMERA/REVEAL/END, separate subject/world/screen motion, Korean/English equivalence, reference locks, timing and image mode. Vague cinematic adjectives cannot pass. T050 states are provisional; contradictions require redesign before T070.",
         "For T060, an empty directing.reference_ids list is valid when no approved canonical reference is available or required. Never demand a new map, label, diagram or other reference asset merely to make a T060 plan pass.",
+        "For LONGFORM v2 T060, T050 State prose is provisional design context while the current directing cards plus DIRECTING_PROMPT_COMPILER_V2 prompt bundle are the generation authority. Do not RETRY/BLOCK solely because an older T050 visual_goal/composition mentions a map or site marker when the current directing and compiled provider prompts have removed it, State IDs/order/handoffs remain valid, and generation no longer depends on it.",
+        "If the current directing or provider prompts still instruct readable names, dates, years, labels, captions, maps or site/location markers, return RETRY; those are current T060 defects.",
         "Generated readable maps, labels, inscriptions or fabricated geographic evidence remain forbidden. When geography can be preserved with non-cartographic environmental, cave, terrain or spatial cues, require the worker to redesign the T060 clip/prompt and return RETRY rather than BLOCK.",
         "Use BLOCK for missing references only when an approved upstream fact/scene explicitly requires that exact external asset and the T060 worker cannot preserve approved meaning by removing the reference dependency. A missing optional map/reference that T060 can design around is not an upstream blocker.",
         "For v2 T080, file/duration success is insufficient: require current hash-bound actual-footage directing reviews with observed reveal and camera onset. For T090/T100 check camera/shot/location variety, TTS/sound/cut rhythm and central-question payoff. Record guide checklist PASS/REVISE/NA and evidence in the assessment; never offset a critical defect with an average score.",
@@ -998,6 +1000,7 @@ export class CodexManagerRuntimeService {
       if (review === null || review.verdict !== "RETRY") return null;
       if (
         currentAttempt !== undefined &&
+        review.attempt !== currentAttempt &&
         review.attempt !== currentAttempt - 1
       ) {
         return null;

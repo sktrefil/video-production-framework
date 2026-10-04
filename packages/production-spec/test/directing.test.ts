@@ -34,6 +34,21 @@ test("v2 distinguishes measured timeline, source trim, generation length and ear
   assert.equal(validateClipProductionSpecs(legacy).valid, true);
 });
 
+test("v2 rejects positive instructions to render readable labels, dates or maps", () => {
+  for (const mutation of [
+    (c:any) => { c.directing.reveal.en = "Display a readable site name label as the cave appears."; },
+    (c:any) => { c.directing.start.en = "Show a map with site markers for the two locations."; },
+    (c:any) => { c.directing.end.ko = "화면에 지명과 날짜를 읽히게 표시한다."; }
+  ]) {
+    const invalid = fixture();
+    mutation(invalid.clips[0]);
+    const checked = validateClipProductionSpecs(invalid, context);
+    assert.ok(
+      checked.errors.some(issue => issue.code === "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN")
+    );
+  }
+});
+
 test("START_END selects a Flow-capable target instead of direct Gemini", () => {
   const gemini = fixture();
   gemini.clips[0]!.directing!.image_mode = "START_END";

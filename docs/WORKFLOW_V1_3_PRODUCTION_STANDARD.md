@@ -162,6 +162,26 @@ LONGFORM Clip은 measured TTS timeline start/end, editorial duration, generation
 
 핵심 공개는 used-range 시작 후 4초 이내를 목표로 하되, 사실·공간·행동의 자연스러움을 깨면서 맞추지 않는다. START/END는 전체 카메라 경로에서 추출한 상태이며 독립적인 장식 이미지가 아니다.
 
+### 5.1 T050 provisional state / T060 production authority
+
+LONGFORM v2에서 T050 State Image 문장은 **provisional design context**다. 실제 생성용 START/END/video prompt의 권위는 T060 `directing`과 `DIRECTING_PROMPT_COMPILER_V2` 결과다.
+
+따라서 과거 T050 State에 지도·site marker 같은 요소가 남아 있더라도 T060이 이를 실제 directing/prompt에서 제거하고 State ID·순서·handoff 의미만 보존했다면 그 옛 문구만으로 T060을 RETRY/BLOCK하지 않는다.
+
+반대로 현재 T060 directing/provider prompt가 다음을 실제 생성하라고 지시하면 deterministic validation에서 실패한다.
+
+```text
+readable place/person names
+dates / years
+labels / captions
+maps
+site markers / location markers
+읽히는 지명·이름·날짜·연도·라벨·캡션
+지도·사이트 마커·위치 마커
+```
+
+지리는 승인된 cartographic reference가 없으면 동굴·지형·환경·공간 관계 같은 비지도형 단서로 표현한다. 이 금지 규칙은 T050 신규 State 설계에도 동일하게 적용한다.
+
 ### 5.1 Camera rhythm normalization
 
 Workflow 1.3은 동일한 `camera.movement`가 4개 이상 연속되는 T060 계획을 허용하지 않는다. T060 생성기는 모든 sliding 4-Clip window를 자체 점검해야 하며, 앞 3개와 동일한 movement가 네 번째에 반복되면 narrative purpose와 경로 의미를 보존하는 가까운 대체 movement로 교정한다.

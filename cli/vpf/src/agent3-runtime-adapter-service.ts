@@ -640,6 +640,7 @@ class OpenAiAgent3Runtime {
         "Prefer the minimum number of states that can carry the narrative clearly. Do not add novelty-only states.",
         "Every State Image must be video-ready: layered depth, complete physical relationships, and one continuable motion vector.",
         "Respect each Scene fantasy_mode when designing states: fantasy may affect atmosphere, light, mist, texture, symbolic space and non-textual motifs, but never invent historical evidence or events.",
+        "Do not design generated readable names, dates, years, labels, captions, maps, site markers or location markers into State Images. Use non-cartographic terrain, cave, environmental and spatial cues unless an approved canonical reference explicitly authorizes otherwise.",
         "Use only Beat IDs that exist in the Scene Timing input, or null when the state is scene-level.",
         "If revision_feedback is present, correct those exact validation failures without changing approved Scene Visual meaning."
       ],
@@ -1750,6 +1751,8 @@ export class Agent3RuntimeAdapterService {
           "GEMINI/GEMINI_I2V_10S is the direct Gemini fixed-10s workflow. GOOGLE_FLOW models provide their listed selectable durations. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
           "directing.reference_ids may contain ONLY IDs from approved_directing_reference_ids. Never use Scene IDs, State Image IDs, Beat IDs, Clip IDs, filenames or invented IDs; use [] when no approved canonical reference applies.",
           "Do not make a map, label, diagram, inscription or other unavailable reference a prerequisite for a Clip. If geography matters and no approved canonical map exists, preserve approved facts through non-cartographic cave, terrain, environment or spatial cues and keep reference_ids empty.",
+          "T050 State prose is provisional design context. For LONGFORM v2, the current T060 directing card is the production authority for generated START/END/video prompts. If an old State description mentions a superseded map or marker, do not carry that element forward; preserve only the State ID/order/handoff meaning and redesign the visible composition in directing.",
+          "Never instruct the generator to typeset/render readable place names, personal names, dates, years, labels, captions or map/site markers.",
           "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
           "Before returning, self-check every sliding four-Clip window. The fourth Clip must not repeat the same camera movement as the previous three; vary movement while preserving narrative purpose and path semantics. Also avoid four repeated shot-size patterns or transitions.",
           "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",

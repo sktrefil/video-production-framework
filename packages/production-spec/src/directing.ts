@@ -47,6 +47,21 @@ const object = (value: unknown): value is Record<string, unknown> =>
 const text = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
 const number = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
+const PRODUCTION_DIRECTIVE_FIELDS = [
+  "story", "action", "space", "start", "subject_motion",
+  "camera_path", "reveal", "end", "handoff"
+] as const;
+
+function instructsReadableTextOrCartography(value: string): boolean {
+  const normalized = value.replace(/\s+/gu, " ").trim();
+  if (!normalized) return false;
+  const english = /\b(?:typeset|write|render|display|show|label|add|include|overlay|place)\b.{0,80}\b(?:readable|legible\s+)?(?:name|names|date|dates|year|years|label|labels|caption|captions|title|titles|text|map|maps|site marker|site markers|location marker|location markers)\b/iu;
+  const readable = /\b(?:readable|legible)\s+(?:name|names|date|dates|year|years|label|labels|caption|captions|title|titles|text)\b/iu;
+  const korean = /(?:지도|사이트\s*마커|지점\s*마커|위치\s*마커|이름|지명|날짜|연도|라벨|캡션|텍스트|명칭).{0,30}(?:표시|표기|기입|작성|써|넣|삽입|보이|읽히게)/u;
+  const koreanReverse = /(?:표시|표기|기입|작성|써|넣|삽입|보이|읽히게).{0,30}(?:지도|사이트\s*마커|지점\s*마커|위치\s*마커|이름|지명|날짜|연도|라벨|캡션|텍스트|명칭)/u;
+  return english.test(normalized) || readable.test(normalized) || korean.test(normalized) || koreanReverse.test(normalized);
+}
+
 /** Structural checks complement, never replace, manager spatial/semantic review. */
 export function validateDirectingCard(clip: Record<string, unknown>): ValidationIssue[] {
   const errors: ValidationIssue[] = [];
@@ -58,6 +73,22 @@ export function validateDirectingCard(clip: Record<string, unknown>): Validation
     const value = d[field];
     if (!object(value) || !text(value.ko) || !text(value.en))
       fail("DIRECTING_BILINGUAL_REQUIRED", "Concrete Korean and equivalent English direction required: " + field, "directing." + field);
+  }
+  for (const field of PRODUCTION_DIRECTIVE_FIELDS) {
+    const value = d[field];
+    if (
+      object(value) &&
+      (
+        (text(value.ko) && instructsReadableTextOrCartography(value.ko)) ||
+        (text(value.en) && instructsReadableTextOrCartography(value.en))
+      )
+    ) {
+      fail(
+        "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+        "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+        "directing." + field
+      );
+    }
   }
   for (const field of ["timeline_start_sec", "timeline_end_sec", "source_in_sec", "source_out_sec", "reveal_deadline_sec"]) {
     if (!number(d[field]) || d[field] < 0) fail("DIRECTING_TIME_INVALID", "Finite nonnegative time required.", "directing." + field);
@@ -106,6 +137,7 @@ export const DIRECTING_V2_RULES = [
   "In START and END specify camera position, height, facing, shot size, subject screen/world position and occlusion. SPACE specifies foreground/midground/background and traversable camera/subject paths. CAMERA_PATH specifies departure, arrival, direction coordinate system, speed and tracked subject, separately from SUBJECT_MOTION.",
   "END is always designed. START_ONLY generates only a start; START_END requires provider endpoint support; PREVIOUS_END_FRAME uses the adopted previous clip's used-range end frame and records previous_clip_id plus direction, speed and action phase in continuation. An angle-change cut gets a fresh start image.",
   "LOCKS and reference_ids pin identity, costume, props, spatial relationships and lighting without copying a static reference pose. Resolve reference/path conflicts before image generation.",
+  "Do not instruct the generator to typeset or render readable names, dates, years, labels, captions, maps, site markers or location markers. When geography matters and no approved cartographic reference exists, use non-cartographic terrain, cave, environmental and spatial cues.",
   "RISK and FALLBACK give concrete spatial/historical/physical risks and a replacement scene. After one clear correction repeats a structural failure, return to scene selection instead of endless regeneration.",
   "Korean and English fields must express identical direction; no extra English-only creative instructions. Camera pans/tilts rotate, trucks/dollies translate; zoom or rack focus cannot replace a translation path."
 ];
