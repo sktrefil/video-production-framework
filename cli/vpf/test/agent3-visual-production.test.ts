@@ -5,6 +5,7 @@ import * as path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
+import type { SceneVisualPlan } from "@vpf/production-spec";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
@@ -20,7 +21,7 @@ test("T040 normalization repairs factuality modes from approved fact classificat
     version: "1.2.0",
     content_hash: "sha256:test"
   };
-  const scene = {
+  const scene: SceneVisualPlan = {
     scene_id: "SC01",
     story_role: "HOOK",
     factuality_mode: "EVIDENCE",
