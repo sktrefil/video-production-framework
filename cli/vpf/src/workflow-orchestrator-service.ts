@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import {
   findTaskDefinition,
@@ -177,10 +178,9 @@ export class Agent1WorkflowOrchestratorService {
       const attempt = resumeCurrentAttempt ? task.attempt : task.attempt + 1;
       const at = nowIso();
       const inputRefs = this.resolveRefs(projectId, definition.required_inputs, repo);
+      const dispatchNonce = randomUUID();
       const dispatch: TaskDispatchPackage = {
-        dispatch_id: resumeCurrentAttempt
-          ? `${projectId}:${task.task_id}:A${attempt}:RESUME:${Date.now()}`
-          : `${projectId}:${task.task_id}:A${attempt}`,
+        dispatch_id: `${projectId}:${task.task_id}:A${attempt}:${resumeCurrentAttempt ? "RESUME" : "RUN"}:${dispatchNonce}`,
         project_id: projectId,
         task_instance_id: task.task_instance_id,
         task_id: task.task_id,

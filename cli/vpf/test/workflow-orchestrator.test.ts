@@ -40,6 +40,7 @@ test("Agent1 workflow instantiates T010-T100, enforces assignment and revision s
     const dispatch = await workflow.dispatch("workflow_sample", "T010", "AGENT2_STORY_AUDIO");
     assert.equal(dispatch.task_id, "T010");
     assert.equal(dispatch.attempt, 1);
+    assert.match(dispatch.dispatch_id, /^workflow_sample:T010:A1:RUN:[0-9a-f-]{36}$/);
     assert.deepEqual(
       dispatch.input_revision_refs.map(ref => ref.artifact_type).sort(),
       ["project_spec", "project_topic"]
@@ -58,6 +59,8 @@ test("Agent1 workflow instantiates T010-T100, enforces assignment and revision s
 
     const retry = await workflow.dispatch("workflow_sample", "T010");
     assert.equal(retry.attempt, 2);
+    assert.match(retry.dispatch_id, /^workflow_sample:T010:A2:RUN:[0-9a-f-]{36}$/);
+    assert.notEqual(retry.dispatch_id, dispatch.dispatch_id);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
