@@ -378,6 +378,8 @@ function clipResponse(projectId: string, duration: number, longform = false) {
 test("T060 strips invented Scene/State reference IDs and preserves approved canonical references", () => {
   const raw = clipResponse("ref_fixture", 5, true);
   const clip = raw.clip_production_spec.clips[0];
+  clip.start_handle_sec = 0;
+  clip.camera.movement_curve = "CONTINUOUS_CONTROLLED_MOVE";
   clip.directing = {
     version: "2",
     timeline_start_sec: 0,
