@@ -6,6 +6,7 @@ import type { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { FileSystemResourceRegistry, type ProviderProfilePayload, type ResourcePin } from "@vpf/resource-registry";
 import {
   getAgent2TaskInstruction,
+  preTtsVisualMatchesStory,
   validateStoryBundle,
   type Agent2FactCheckSpec,
   type Agent2ResearchBundle,
@@ -17,6 +18,7 @@ import {
   type Agent2TtsCompletionInput
 } from "@vpf/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
+import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { Agent2RuntimeRepository } from "@vpf/storage/agent2-runtime";
 import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
@@ -2045,6 +2047,26 @@ export class Agent2RuntimeAdapterService {
       const story = artifacts.getActive<Agent2StorySpec>(projectId, "story_spec");
       const script = artifacts.getActive<Agent2ScriptSpec>(projectId, "script");
       if (!story || !script) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "T030 requires active story_spec and script.");
+      const visualRepo = new Agent3VisualProductionRepository(status.projectDbPath, { readonly: true });
+      let visualRefs: Array<{ artifact_type: string; revision: number; sha256: string }>;
+      let visualPlan: unknown = null;
+      let visualBeats: unknown = null;
+      try {
+        visualPlan = visualRepo.getActive(projectId, "pre_tts_visual_plan")?.value ?? null;
+        visualBeats = visualRepo.getActive(projectId, "pre_tts_visual_beat_spec")?.value ?? null;
+        visualRefs = (["pre_tts_visual_plan", "pre_tts_visual_beat_spec", "pre_tts_visual_direction_spec"] as const)
+          .map(type => visualRepo.getActive(projectId, type))
+          .filter((item): item is NonNullable<typeof item> => item !== null)
+          .map(item => ({ artifact_type: item.artifact_type, revision: item.revision, sha256: item.sha256 }));
+      } finally { visualRepo.close(); }
+      const workflowRepo = new WorkflowOrchestratorRepository(status.projectDbPath, { readonly: true });
+      let requiresPreTts = false;
+      try { requiresPreTts = workflowRepo.getWorkflow(projectId)?.definition.tasks.some(task => task.task_id === "T025") ?? false; }
+      finally { workflowRepo.close(); }
+      if (requiresPreTts && visualRefs.length !== 3) throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "T030 requires all three active T025 visual artifacts.");
+      if (requiresPreTts && !preTtsVisualMatchesStory(visualPlan, visualBeats, story.value)) {
+        throw new Agent2RuntimeAdapterError("AGENT2_RUNTIME_PREREQUISITE", "T030 pre-TTS visual scene and beat IDs must match the approved Story.");
+      }
       const pin = status.resourcePins.find(item =>
         item.resourceType === "PROVIDER_PROFILE" && item.resourceId === "ELEVENLABS_V3_HISTORY_V1"
       );
@@ -2062,6 +2084,7 @@ export class Agent2RuntimeAdapterService {
         input_sha256: sha256Text(JSON.stringify({
           script_revision: script.revision,
           story_revision: story.revision,
+          pre_tts_visual_revisions: visualRefs,
           format: spec.format,
           provider_profile: pin
         })),

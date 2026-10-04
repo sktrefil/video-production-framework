@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,6 +16,7 @@ import {
   type Agent2StorySpec,
   type Agent3T060Input,
   type Agent3TaskExecutionResult,
+  type PreTtsVisualInput,
   type ClipProductionDocument,
   type ProjectSpec,
   type SceneTimingDocument,
@@ -38,6 +39,7 @@ import {
 import { ProductionProgressReporter } from "./production-progress.js";
 import {
   clipCameraSchema,
+  AGENT3_PRE_TTS_VISUAL_SCHEMA,
   AGENT3_SCENE_VISUAL_SCHEMA,
   AGENT3_STATE_IMAGE_SCHEMA
 } from "./agent3-runtime-schemas.js";
@@ -46,7 +48,7 @@ const DEFAULT_REPOSITORY_ROOT = path.resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
 );
 
-type Agent3RuntimeTaskId = "T040" | "T050" | "T060";
+type Agent3RuntimeTaskId = "T025" | "T040" | "T050" | "T060";
 
 interface OpenAiResponseEnvelope {
   id?: string;
@@ -378,7 +380,7 @@ class OpenAiAgent3Runtime {
     if (!this.apiKey) {
       throw new Agent3RuntimeAdapterError(
         "AGENT3_RUNTIME_SECRET_MISSING",
-        "OPENAI_API_KEY is required for Agent3 T040/T050/T060."
+        "OPENAI_API_KEY is required for Agent3 T025/T040/T050/T060."
       );
     }
     if (!this.model) {
@@ -405,6 +407,16 @@ class OpenAiAgent3Runtime {
     return this.model;
   }
 
+  async preTtsVisual(input: { projectId: string; projectSpec: ProjectSpec; story: Agent2StorySpec; script: unknown; visualBible: ChannelVisualBiblePayload; revisionFeedback: string | null }): Promise<{ responseId: string | null; value: PreTtsVisualInput }> {
+    const response = await this.request({
+      name: "agent3_pre_tts_visual_development",
+      schema: AGENT3_PRE_TTS_VISUAL_SCHEMA,
+      developer: ["You are Agent 3 producing pre-TTS visual development for the approved script.", ...getAgent3TaskInstruction("T025").rules],
+      user: { project_id: input.projectId, project_spec: input.projectSpec, story_spec: input.story, script: input.script, visual_bible: input.visualBible, revision_feedback: input.revisionFeedback }
+    });
+    return { responseId: typeof response.id === "string" ? response.id : null, value: parseStructuredJson<PreTtsVisualInput>(response) };
+  }
+
   async sceneVisual(input: {
     projectId: string;
     projectSpec: ProjectSpec;
@@ -418,6 +430,7 @@ class OpenAiAgent3Runtime {
     };
     visualBible: ChannelVisualBiblePayload;
     developmentVisualReference: unknown | null;
+    preTtsVisual: unknown | null;
     revisionFeedback: string | null;
   }): Promise<{
     responseId: string | null;
@@ -451,6 +464,7 @@ class OpenAiAgent3Runtime {
         visual_bible_pin: input.visualBiblePin,
         visual_bible_payload: input.visualBible,
         development_visual_reference: input.developmentVisualReference,
+        pre_tts_visual_development: input.preTtsVisual,
         revision_feedback: input.revisionFeedback
       }
     });
@@ -809,7 +823,7 @@ export class Agent3RuntimeAdapterService {
     const next = state.tasks.find(task =>
       task.assigned_agent === "AGENT3_VISUAL_PRODUCTION" &&
       (task.status === "READY" || task.status === "REVISION_REQUIRED") &&
-      ["T040", "T050", "T060"].includes(task.task_id)
+      ["T025", "T040", "T050", "T060"].includes(task.task_id)
     ) ?? null;
 
     if (next === null) {
@@ -1037,7 +1051,7 @@ export class Agent3RuntimeAdapterService {
       const next = state.tasks.find(task =>
         task.assigned_agent === "AGENT3_VISUAL_PRODUCTION" &&
         (task.status === "READY" || task.status === "REVISION_REQUIRED") &&
-        ["T040", "T050", "T060"].includes(task.task_id)
+        ["T025", "T040", "T050", "T060"].includes(task.task_id)
       ) ?? null;
 
       if (next === null) break;
@@ -1200,7 +1214,7 @@ export class Agent3RuntimeAdapterService {
     try {
       const projectSpec = production.getProjectSpec(projectId);
       const sceneTiming = production.getSceneTiming(projectId);
-      if (projectSpec === null || sceneTiming === null) {
+      if (projectSpec === null || (taskId !== "T025" && sceneTiming === null)) {
         throw new Agent3RuntimeAdapterError(
           "AGENT3_RUNTIME_PREREQUISITE",
           "Project Spec and measured Scene Timing are required."
@@ -1212,6 +1226,20 @@ export class Agent3RuntimeAdapterService {
         projectId,
         taskId
       );
+
+      if (taskId === "T025") {
+        const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+        const script = agent2.getActive(projectId, "script");
+        if (!story || !script) throw new Agent3RuntimeAdapterError("AGENT3_RUNTIME_PREREQUISITE", "T025 requires approved story_spec and script.");
+        const bible = await resolvePinnedVisualBible(status.resourcePins);
+        const input = { projectId, projectSpec: projectSpec!, story: story.value, script: script.value, visualBible: bible.payload, revisionFeedback: feedback };
+        return this.executeOpenAiRun(status.projectDbPath, projectId, taskId, attempt, openai.modelId, input, async () => {
+          const generated = await openai.preTtsVisual(input);
+          const worker = await this.worker.executePayload(projectId, "T025", generated.value);
+          return { responseId: generated.responseId, value: generated.value, worker };
+        });
+      }
+      if (sceneTiming === null) throw new Agent3RuntimeAdapterError("AGENT3_RUNTIME_PREREQUISITE", "Measured Scene Timing is required.");
 
       if (taskId === "T040") {
         const story = agent2.getActive<Agent2StorySpec>(
@@ -1238,6 +1266,11 @@ export class Agent3RuntimeAdapterService {
           visualBiblePin: bible.pin,
           visualBible: bible.payload,
           developmentVisualReference: await loadActiveVisualDevelopment(status.projectRoot),
+          preTtsVisual: {
+            plan: agent3.getActive(projectId, "pre_tts_visual_plan")?.value ?? null,
+            beats: agent3.getActive(projectId, "pre_tts_visual_beat_spec")?.value ?? null,
+            direction: agent3.getActive(projectId, "pre_tts_visual_direction_spec")?.value ?? null
+          },
           revisionFeedback: feedback
         };
         return this.executeOpenAiRun(
@@ -1379,7 +1412,7 @@ export class Agent3RuntimeAdapterService {
     try {
       const projectSpec = production.getProjectSpec(projectId);
       const sceneTiming = production.getSceneTiming(projectId);
-      if (projectSpec === null || sceneTiming === null) {
+      if (projectSpec === null || (taskId !== "T025" && sceneTiming === null)) {
         throw new Agent3RuntimeAdapterError(
           "AGENT3_RUNTIME_PREREQUISITE",
           "Project Spec and measured Scene Timing are required."
@@ -1387,6 +1420,21 @@ export class Agent3RuntimeAdapterService {
       }
       const managerDirective =
         await this.codexManager.latestDirective(projectId, taskId, attempt);
+
+      if (taskId === "T025") {
+        const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
+        const script = agent2.getActive(projectId, "script");
+        if (!story || !script) throw new Agent3RuntimeAdapterError("AGENT3_RUNTIME_PREREQUISITE", "T025 requires approved story_spec and script.");
+        const bible = await resolvePinnedVisualBible(status.resourcePins);
+        const input = { project_id: projectId, project_spec: projectSpec, story_spec: story.value, script: script.value,
+          visual_bible_pin: bible.pin, visual_bible_payload: bible.payload, manager_revision_instruction: managerDirective };
+        return this.executeCodexRun(status.projectDbPath, projectId, taskId, attempt, codex, input,
+          AGENT3_PRE_TTS_VISUAL_SCHEMA, getAgent3TaskInstruction("T025").rules,
+          async output => { const value = output as PreTtsVisualInput;
+            const worker = await this.worker.executePayload(projectId, "T025", value);
+            return { value, worker }; });
+      }
+      if (sceneTiming === null) throw new Agent3RuntimeAdapterError("AGENT3_RUNTIME_PREREQUISITE", "Measured Scene Timing is required.");
 
       if (taskId === "T040") {
         const story = agent2.getActive<Agent2StorySpec>(
@@ -1413,6 +1461,11 @@ export class Agent3RuntimeAdapterService {
           visual_bible_pin: bible.pin,
           visual_bible_payload: bible.payload,
           development_visual_reference: await loadActiveVisualDevelopment(status.projectRoot),
+          pre_tts_visual_development: {
+            plan: agent3.getActive(projectId, "pre_tts_visual_plan")?.value ?? null,
+            beats: agent3.getActive(projectId, "pre_tts_visual_beat_spec")?.value ?? null,
+            direction: agent3.getActive(projectId, "pre_tts_visual_direction_spec")?.value ?? null
+          },
           provider_profile: codexPin,
           manager_revision_instruction: managerDirective
         };
@@ -1581,7 +1634,9 @@ export class Agent3RuntimeAdapterService {
     worker: Agent3TaskExecutionResult;
   }> {
     const status = await this.projects.getStatus(projectId);
-    const runId = projectId + ":" + taskId + ":A" + attempt + ":CODEX";
+    // Workflow attempts can be reused after upstream invalidation or a restart.
+    // Each execution needs its own identity so prior runtime evidence is preserved.
+    const runId = projectId + ":" + taskId + ":A" + attempt + ":CODEX:" + randomUUID();
     const repo = new Agent3RuntimeRepository(dbPath);
     repo.start({
       run_id: runId,
@@ -1688,7 +1743,7 @@ export class Agent3RuntimeAdapterService {
     worker: Agent3TaskExecutionResult;
   }> {
     const runId = projectId + ":" + taskId +
-      ":A" + attempt + ":OPENAI";
+      ":A" + attempt + ":OPENAI:" + randomUUID();
     const repo = new Agent3RuntimeRepository(dbPath);
     repo.start({
       run_id: runId,

@@ -1315,15 +1315,17 @@ export class ProjectBootstrapService {
           FROM production_task_instances
           WHERE project_id = ?
         `).get(projectId) as { count: number };
-        if (workflow.count === 1 && tasks.count === 10) {
+        const storedWorkflow = db.prepare(`SELECT workflow_json FROM production_workflow_instances WHERE project_id = ?`).get(projectId) as { workflow_json: string } | undefined;
+        const expectedTasks = storedWorkflow === undefined ? getStandardProductionWorkflow().tasks.length : (JSON.parse(storedWorkflow.workflow_json) as { tasks: unknown[] }).tasks.length;
+        if (workflow.count === 1 && tasks.count === expectedTasks) {
           pass(
             "PRODUCTION_WORKFLOW",
-            "Production Workflow instance and all 10 standard task instances are present."
+            `Production Workflow instance and all ${expectedTasks} standard task instances are present.`
           );
         } else {
           fail(
             "PRODUCTION_WORKFLOW",
-            `Expected 1 workflow + 10 tasks but found ${workflow.count} workflow + ${tasks.count} tasks.`
+            `Expected 1 workflow + ${expectedTasks} tasks but found ${workflow.count} workflow + ${tasks.count} tasks.`
           );
         }
       } finally {

@@ -957,7 +957,8 @@ export class ProductionTailRuntimeService{
     const production=new ProductionSpecRepository(status.projectDbPath);
     const tail=new ProductionTailRepository(status.projectDbPath);
     try{
-      const requiredUpstream=["T010","T020","T030"] as const;
+      const hasT025=workflow.getTask(projectId,"T025")!==null;
+      const requiredUpstream=hasT025?["T010","T020","T025","T030"]:["T010","T020","T030"];
       const incompleteUpstream=requiredUpstream.filter(taskId=>
         workflow.getTask(projectId,taskId)?.status!=="COMPLETE"
       );
@@ -1024,7 +1025,7 @@ export class ProductionTailRuntimeService{
         superseded_clip_specs:supersededClipSpecs,
         superseded_tail_artifacts:supersededTail,
         reset_tasks:resetTasks,
-        preserved_upstream_tasks:["T010","T020","T030"]
+        preserved_upstream_tasks:requiredUpstream
       };
     }finally{
       tail.close();
@@ -1046,7 +1047,9 @@ export class ProductionTailRuntimeService{
     const tail=new ProductionTailRepository(status.projectDbPath);
     const workflow=new WorkflowOrchestratorRepository(status.projectDbPath);
     try{
-      const upstreamTaskIds=["T010","T020","T030","T040","T050","T060"] as const;
+      const upstreamTaskIds=workflow.getTask(projectId,"T025")!==null
+        ?["T010","T020","T025","T030","T040","T050","T060"]
+        :["T010","T020","T030","T040","T050","T060"];
       const incompleteUpstream=upstreamTaskIds.filter(taskId=>
         workflow.getTask(projectId,taskId)?.status!=="COMPLETE"
       );

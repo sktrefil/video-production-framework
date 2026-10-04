@@ -39,7 +39,7 @@ export const CODEX_ROLE_PROFILES: Record<CodexRoleId, CodexRoleProfile> = {
     roleId: "CODEX_3_VISUAL_PRODUCTION",
     slug: "codex3-visual-production",
     displayName: "Codex 3 Visual + Production",
-    allowedTasks: ["T040", "T050", "T060"],
+    allowedTasks: ["T025", "T040", "T050", "T060"],
     webSearchTasks: [],
     writePolicy: "OUTPUT_ONLY",
     databasePolicy: "NO_DIRECT_DB_ACCESS",

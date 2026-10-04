@@ -201,6 +201,9 @@ export class WorkflowOrchestratorRepository {
     }
 
     const agent3Types = new Set([
+      "pre_tts_visual_plan",
+      "pre_tts_visual_beat_spec",
+      "pre_tts_visual_direction_spec",
       "scene_visual_spec",
       "state_image_spec",
       "prompt_bundle_spec"

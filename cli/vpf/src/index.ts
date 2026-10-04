@@ -90,8 +90,8 @@ Agent 2 story/audio operations:
   vpf agent2 materialize-script <project_id>
 
 Agent 3 visual/production operations:
-  vpf agent3 instruction <T040|T050|T060>
-  vpf agent3 execute <project_id> <T040|T050|T060> --file <json>
+  vpf agent3 instruction <T025|T040|T050|T060>
+  vpf agent3 execute <project_id> <T025|T040|T050|T060> --file <json>
   vpf agent3 run <project_id>
   vpf agent3 run-all <project_id>
   vpf agent3 runtime-status <project_id>
@@ -468,8 +468,8 @@ export async function runCli(
 
     if (args[0] === "agent3" && args[1] === "instruction") {
       const taskId = args[2];
-      if (taskId !== "T040" && taskId !== "T050" && taskId !== "T060") {
-        io.error("[CLI_USAGE] agent3 instruction requires <T040|T050|T060>.");
+      if (taskId !== "T025" && taskId !== "T040" && taskId !== "T050" && taskId !== "T060") {
+        io.error("[CLI_USAGE] agent3 instruction requires <T025|T040|T050|T060>.");
         return 2;
       }
       printJson(io, getAgent3TaskInstruction(taskId));
@@ -480,9 +480,9 @@ export async function runCli(
       const projectId = args[2];
       const taskId = args[3];
       const file = requireOption(args, "--file", io, "agent3 execute requires --file <json>.");
-      if (projectId === undefined || file === null || (taskId !== "T040" && taskId !== "T050" && taskId !== "T060")) {
-        if (projectId === undefined || (taskId !== "T040" && taskId !== "T050" && taskId !== "T060")) {
-          io.error("[CLI_USAGE] agent3 execute requires <project_id> <T040|T050|T060>.");
+      if (projectId === undefined || file === null || (taskId !== "T025" && taskId !== "T040" && taskId !== "T050" && taskId !== "T060")) {
+        if (projectId === undefined || (taskId !== "T025" && taskId !== "T040" && taskId !== "T050" && taskId !== "T060")) {
+          io.error("[CLI_USAGE] agent3 execute requires <project_id> <T025|T040|T050|T060>.");
         }
         return 2;
       }

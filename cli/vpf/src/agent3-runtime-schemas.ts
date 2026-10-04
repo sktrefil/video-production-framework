@@ -15,6 +15,45 @@ const strings = {
   items: { type: "string" }
 } as const;
 
+export const AGENT3_PRE_TTS_VISUAL_SCHEMA = {
+  type: "object", additionalProperties: false,
+  required: ["schema_version", "project_id", "pre_tts_visual_plan", "pre_tts_visual_beat_spec", "pre_tts_visual_direction_spec"],
+  properties: {
+    schema_version: { type: "string", enum: ["1.0"] },
+    project_id: { type: "string" },
+    pre_tts_visual_plan: {
+      type: "object", additionalProperties: false,
+      required: ["schema_version", "project_id", "scenes"],
+      properties: {
+        schema_version: { type: "string", enum: ["1.0"] }, project_id: { type: "string" },
+        scenes: { type: "array", items: { type: "object", additionalProperties: false,
+          required: ["scene_id", "visual_intent", "uncertainty_handling"],
+          properties: { scene_id: { type: "string" }, visual_intent: { type: "string" }, uncertainty_handling: { type: "string" } }
+        } }
+      }
+    },
+    pre_tts_visual_beat_spec: {
+      type: "object", additionalProperties: false,
+      required: ["schema_version", "project_id", "beats"],
+      properties: {
+        schema_version: { type: "string", enum: ["1.0"] }, project_id: { type: "string" },
+        beats: { type: "array", items: { type: "object", additionalProperties: false,
+          required: ["scene_id", "beat_id", "visual_action"],
+          properties: { scene_id: { type: "string" }, beat_id: { type: "string" }, visual_action: { type: "string" } }
+        } }
+      }
+    },
+    pre_tts_visual_direction_spec: {
+      type: "object", additionalProperties: false,
+      required: ["schema_version", "project_id", "style_direction", "camera_direction", "continuity_direction"],
+      properties: {
+        schema_version: { type: "string", enum: ["1.0"] }, project_id: { type: "string" },
+        style_direction: { type: "string" }, camera_direction: { type: "string" }, continuity_direction: { type: "string" }
+      }
+    }
+  }
+} as const;
+
 const TRANSITIONS = [
   "HARD_CUT",
   "MATCH_CUT",

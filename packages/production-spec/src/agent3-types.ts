@@ -149,7 +149,7 @@ export interface Agent3T060Input {
 
 export interface Agent3TaskExecutionResult {
   project_id: string;
-  task_id: "T040" | "T050" | "T060";
+  task_id: "T025" | "T040" | "T050" | "T060";
   assigned_agent: "AGENT3_VISUAL_PRODUCTION";
   stored_artifacts: Array<{
     artifact_type: string;

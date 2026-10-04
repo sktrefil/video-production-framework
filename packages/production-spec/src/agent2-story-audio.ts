@@ -618,6 +618,7 @@ export const AGENT2_TASK_INSTRUCTIONS: Record<"T010" | "T020" | "T030", Agent2Ta
     task_id: "T030",
     purpose: "Convert the approved script into measured narration timing, Scene/Beat timing and subtitle timing.",
     rules: [
+      "In Workflow v1.3, use the approved T025 visual plan, beat spec and direction as pre-TTS structure; preserve approved scene and beat order while deriving exact seconds from measured narration.",
       "Estimated narration duration is planning metadata only.",
       "Actual provider character alignment is authoritative for production timing.",
       "The TTS project timeline starts at 0 seconds and sections may not overlap.",

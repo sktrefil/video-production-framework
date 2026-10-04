@@ -10,6 +10,7 @@ import { Agent3RuntimeRepository } from "@vpf/storage/agent3-runtime";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
+import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
 import {
   Agent3RuntimeAdapterError,
   Agent3RuntimeAdapterService
@@ -17,6 +18,47 @@ import {
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
+
+test("Agent3 repeated executions preserve runtime history when an attempt is reused", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "vpf-agent3-run-identity-"));
+  try {
+    const bootstrap = new ProjectBootstrapService({ repositoryRoot, workspaceRoot: root });
+    const projectId = "agent3_run_identity";
+    const created = await bootstrap.createProject({
+      projectId, title: "Run identity", topic: "History", format: "shortform",
+      targetDurationSec: 5, language: "en"
+    });
+    const runtime = new Agent3RuntimeAdapterService(bootstrap);
+    const repo = new Agent3RuntimeRepository(created.projectDbPath);
+    try {
+      for (const provider of ["CODEX", "OPENAI"] as const) {
+        const legacyId = `${projectId}:T040:A1:${provider}`;
+        repo.start({ run_id: legacyId, project_id: projectId, task_id: "T040",
+          provider, model_id: "fixture", provider_response_id: null,
+          input_sha256: "legacy-input", started_at: new Date().toISOString() });
+        const legacy = repo.list(projectId).find(row => row.run_id === legacyId);
+        // Exercise the execution boundary without invoking a provider or production gates.
+        for (let execution = 0; execution < 2; execution++) {
+          const failure = new Error("fixture provider failure");
+          const fail = async () => { throw failure; };
+          const promise = provider === "CODEX"
+            ? Reflect.get(runtime, "executeCodexRun").call(runtime,
+              created.projectDbPath, projectId, "T040", 1,
+              { modelId: "fixture", execute: fail }, {}, {}, [], fail)
+            : Reflect.get(runtime, "executeOpenAiRun").call(runtime,
+              created.projectDbPath, projectId, "T040", 1, "fixture", {}, fail);
+          await assert.rejects(promise, error => error === failure);
+        }
+        const rows = repo.list(projectId).filter(row => row.run_id.startsWith(legacyId));
+        assert.equal(rows.length, 3);
+        assert.equal(new Set(rows.map(row => row.run_id)).size, 3);
+        assert.deepEqual(rows.find(row => row.run_id === legacyId), legacy);
+        assert.ok(rows.filter(row => row.run_id !== legacyId)
+          .every(row => row.status === "FAILED" && row.error_detail?.includes("fixture provider failure")));
+      }
+    } finally { repo.close(); }
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
 
 async function readBody(req: IncomingMessage): Promise<string> {
   let body = "";
@@ -131,6 +173,19 @@ async function prepareAgent2(
     }
   });
   await manager.complete(projectId, "T020");
+
+  await manager.dispatch(projectId, "T025", "AGENT3_VISUAL_PRODUCTION");
+  await new Agent3VisualProductionWorkerService(bootstrap).executePayload(projectId, "T025", {
+    schema_version: "1.0", project_id: projectId,
+    pre_tts_visual_plan: { schema_version: "1.0", project_id: projectId,
+      scenes: [{ scene_id: "SCENE_01", visual_intent: "Graphic historical reveal", uncertainty_handling: "Silhouette" }] },
+    pre_tts_visual_beat_spec: { schema_version: "1.0", project_id: projectId,
+      beats: [{ scene_id: "SCENE_01", beat_id: "BEAT_01", visual_action: "Parallax traversal" }] },
+    pre_tts_visual_direction_spec: { schema_version: "1.0", project_id: projectId,
+      style_direction: "NON_REALISTIC_STYLIZED", camera_direction: "Arc and scale change", continuity_direction: "Preserve graphic motif" }
+  });
+  await manager.recordGate(projectId, "T025", true);
+  await manager.complete(projectId, "T025");
 
   const characters = Array.from(scriptText);
   const step = 0.2;

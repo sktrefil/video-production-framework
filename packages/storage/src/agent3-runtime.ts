@@ -3,7 +3,7 @@ import Database from "better-sqlite3";
 export interface Agent3RuntimeRun {
   run_id: string;
   project_id: string;
-  task_id: "T040" | "T050" | "T060";
+  task_id: "T025" | "T040" | "T050" | "T060";
   provider: string;
   model_id: string;
   provider_response_id: string | null;

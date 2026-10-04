@@ -10,6 +10,7 @@ import {
   type Agent2ResearchBundle,
   type Agent2StoryBundle,
   type Agent2StorySpec,
+  preTtsVisualMatchesStory,
   type Agent2ScriptSpec,
   type Agent2SubtitleCue,
   type Agent2SubtitleTimingSpec,
@@ -20,6 +21,7 @@ import {
   type SceneTimingSpec
 } from "@vpf/production-spec";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
+import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrator";
 
@@ -550,6 +552,7 @@ export class Agent2StoryAudioWorkerService {
     if (!inputValidation.valid) throw new Agent2StoryAudioError("AGENT2_INPUT_INVALID", validationMessage(inputValidation));
 
     const agent2 = new Agent2StoryAudioRepository(dbPath);
+    const agent3 = new Agent3VisualProductionRepository(dbPath, { readonly: true });
     const production = new ProductionSpecRepository(dbPath);
     try {
       const story = agent2.getActive<Agent2StorySpec>(projectId, "story_spec");
@@ -557,6 +560,19 @@ export class Agent2StoryAudioWorkerService {
       const project = production.getProjectSpec(projectId);
       if (story === null || script === null || project === null) {
         throw new Agent2StoryAudioError("AGENT2_PREREQUISITE_MISSING", "T030 requires active story_spec, script and project_spec.");
+      }
+      const visualPlan = agent3.getActive(projectId, "pre_tts_visual_plan");
+      const visualBeats = agent3.getActive(projectId, "pre_tts_visual_beat_spec");
+      const visualDirection = agent3.getActive(projectId, "pre_tts_visual_direction_spec");
+      const workflow = new WorkflowOrchestratorRepository(dbPath, { readonly: true });
+      let requiresPreTts = false;
+      try { requiresPreTts = workflow.getWorkflow(projectId)?.definition.tasks.some(task => task.task_id === "T025") ?? false; }
+      finally { workflow.close(); }
+      if (requiresPreTts && (!visualPlan || !visualBeats || !visualDirection)) {
+        throw new Agent2StoryAudioError("AGENT2_PREREQUISITE_MISSING", "T030 requires approved active pre-TTS visual plan, beat spec and direction spec.");
+      }
+      if (requiresPreTts && !preTtsVisualMatchesStory(visualPlan!.value, visualBeats!.value, story.value)) {
+        throw new Agent2StoryAudioError("AGENT2_PREREQUISITE_MISSING", "T030 pre-TTS visual scene and beat IDs must match the approved Story.");
       }
       const compiled = compileMeasuredTiming({
         projectId,
@@ -584,6 +600,7 @@ export class Agent2StoryAudioWorkerService {
         warnings: compiled.warnings
       };
     } finally {
+      agent3.close();
       production.close();
       agent2.close();
     }

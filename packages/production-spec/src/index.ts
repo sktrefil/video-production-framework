@@ -12,6 +12,7 @@ export * from "./workflow-orchestrator.js";
 export * from "./agent2-story-audio.js";
 
 export * from "./agent3-types.js";
+export * from "./pre-tts-visual.js";
 export * from "./agent3-validator.js";
 export * from "./agent3-prompt-compiler.js";
 export * from "./agent3-instructions.js";

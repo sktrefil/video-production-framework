@@ -278,7 +278,7 @@ test("T070 seed visual QC inspects actual pixels and only PASS unlocks full gene
   assert.match(manager,/Do not approve from prompt text, metadata, filenames, dimensions, or hashes alone/);
   assert.match(manager,/PASS only when every attached seed is visually suitable/);
   assert.match(runner,/imagePaths\?: string\[\]/);
-  assert.match(runner,/args\.push\("--image", \.\.\.attachedImages, "--"\)/);
+  assert.match(runner,/args\.push\("--image=" \+ attachedImages\.join\(","\)\)/);
   assert.match(runner,/Inspect every attached image directly/);
   assert.match(storage,/\| "t070_seed_visual_qc"/);
 
@@ -379,7 +379,7 @@ test("T070 runtime persists item checkpoints, skips completed states and can res
   assert.ok(generateIndex>continueIndex);
 
   assert.match(workflow,/options: \{ resumeCurrentAttempt\?: boolean \} = \{\}/);
-  assert.match(workflow,/Only an incomplete T070 revision\/failed\/running attempt can resume without consuming a new attempt/);
+  assert.match(workflow,/an incomplete T070 revision\/failed\/running attempt can resume without consuming a new attempt/);
   assert.match(workflow,/task\.status === "FAILED" \|\| task\.status === "RUNNING"/);
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
@@ -530,7 +530,7 @@ test("confirmed regeneration reset removes stale T070 outputs and preserves upst
   const storage=read("packages/storage/src/production-tail.ts");
 
   assert.match(tail,/async resetT070ForRegeneration/);
-  assert.match(tail,/const upstreamTaskIds=\["T010","T020","T030","T040","T050","T060"\] as const/);
+  assert.match(tail,/"T010","T020","T025","T030","T040","T050","T060"/);
   assert.match(tail,/T070 regeneration reset requires completed upstream tasks T010-T060/);
   assert.match(tail,/T070_CHECKPOINT_RELATIVE_PATH/);
   assert.match(tail,/"06_clips\/google-flow-manifest\.json"/);
@@ -564,7 +564,7 @@ test("T070 checkpoint resume accepts an orphaned RUNNING attempt without increme
   assert.match(tail,/recoverableInterruptedT070/);
   assert.match(tail,/next\.status==="RUNNING"&&\(next\.attempt\?\?0\)>0/);
   assert.match(tail,/checkpoint\.value\?\.phase==="SEED_QC"/);
-  assert.match(workflow,/\["REVISION_REQUIRED",\s*"FAILED",\s*"RUNNING"\]\.includes\(task\.status\)/);
+  assert.match(workflow,/task\.status === "FAILED" \|\| task\.status === "RUNNING"/);
   assert.match(workflow,/const attempt = resumeCurrentAttempt \? task\.attempt : task\.attempt \+ 1/);
 });
 
@@ -658,7 +658,7 @@ test("visual planning reset preserves T010-T030 and invalidates T040 downstream 
   const production=read("packages/storage/src/production-spec.ts");
   const index=read("cli/vpf/src/index.ts");
   assert.match(tail,/async resetVisualPlanning/);
-  assert.match(tail,/requiredUpstream=\["T010","T020","T030"\]/);
+  assert.match(tail,/requiredUpstream=hasT025\?\["T010","T020","T025","T030"\]/);
   assert.match(tail,/agent3\.supersedeActive\(projectId,\[/);
   assert.match(tail,/production\.supersedeClipProduction\(projectId\)/);
   assert.match(tail,/status:taskId==="T040"\?"READY":"BLOCKED"/);

@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
 import { Agent2RuntimeRepository } from "@vpf/storage/agent2-runtime";
 import { Agent1WorkflowOrchestratorService } from "../src/workflow-orchestrator-service.js";
+import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
 import {
   Agent2RuntimeAdapterError,
   Agent2RuntimeAdapterService
@@ -222,9 +223,24 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
       ELEVENLABS_REQUEST_RETRIES: "0"
     }, progress);
 
+    const first = await runtime.runAll("agent2_runtime");
+    assert.deepEqual(first.steps.map(step => step.task_id), ["T010", "T020"]);
+    assert.equal(first.handoff_task, "T025");
+    const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
+    await workflow.dispatch("agent2_runtime", "T025", "AGENT3_VISUAL_PRODUCTION");
+    await new Agent3VisualProductionWorkerService(bootstrap).executePayload("agent2_runtime", "T025", {
+      schema_version: "1.0", project_id: "agent2_runtime",
+      pre_tts_visual_plan: { schema_version: "1.0", project_id: "agent2_runtime",
+        scenes: [{ scene_id: "SCENE_01", visual_intent: "Graphic reveal", uncertainty_handling: "Silhouette" }] },
+      pre_tts_visual_beat_spec: { schema_version: "1.0", project_id: "agent2_runtime",
+        beats: [{ scene_id: "SCENE_01", beat_id: "BEAT_01", visual_action: "Parallax reveal" }] },
+      pre_tts_visual_direction_spec: { schema_version: "1.0", project_id: "agent2_runtime",
+        style_direction: "NON_REALISTIC_STYLIZED", camera_direction: "Orbit", continuity_direction: "Preserve motif" }
+    });
+    await workflow.recordGate("agent2_runtime", "T025", true);
+    await workflow.complete("agent2_runtime", "T025");
     const result = await runtime.runAll("agent2_runtime");
-    assert.equal(result.steps.length, 3);
-    assert.deepEqual(result.steps.map(step => step.task_id), ["T010", "T020", "T030"]);
+    assert.deepEqual(result.steps.map(step => step.task_id), ["T030"]);
     assert.equal(result.handoff_task, "T040");
     assert.equal(result.handoff_agent, "AGENT3_VISUAL_PRODUCTION");
     assert.ok(progressEvents.some(event =>
@@ -247,7 +263,6 @@ test("Agent2 runtime adapter automatically runs T010-T030 then hands off T040 to
     assert.equal(openAiCalls, 2);
     assert.equal(ttsCalls, 1);
 
-    const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
     const state = await workflow.status("agent2_runtime");
     assert.equal(state.tasks.find(task => task.task_id === "T010")?.status, "COMPLETE");
     assert.equal(state.tasks.find(task => task.task_id === "T020")?.status, "COMPLETE");

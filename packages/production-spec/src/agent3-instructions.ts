@@ -1,18 +1,32 @@
 import { DIRECTING_V2_RULES } from "./directing.js";
 export interface Agent3TaskInstruction {
   instruction_id: string;
-  task_id: "T040" | "T050" | "T060";
+  task_id: "T025" | "T040" | "T050" | "T060";
   purpose: string;
   rules: string[];
   required_outputs: string[];
 }
 
-export const AGENT3_TASK_INSTRUCTIONS: Record<"T040" | "T050" | "T060", Agent3TaskInstruction> = {
+export const AGENT3_TASK_INSTRUCTIONS: Record<"T025" | "T040" | "T050" | "T060", Agent3TaskInstruction> = {
+  T025: {
+    instruction_id: "PRE_TTS_VISUAL_DEVELOPMENT_V1",
+    task_id: "T025",
+    purpose: "Develop visual structure and directing for the approved script before final TTS timing.",
+    rules: [
+      "Preserve approved story scene and beat IDs, order, facts and script meaning.",
+      "Provide a visual plan, beat treatment and directing direction without assigning precise shot seconds.",
+      "Use the pinned Visual Bible. For HISTORY_MYSTERY, use visibly non-realistic stylization and expressive camera motion; no photoreal reenactment.",
+      "Mark uncertainty through silhouette, abstraction or symbolic space; do not invent factual details.",
+      "T030 measures narration and timing; T040 refines this direction against those measurements."
+    ],
+    required_outputs: ["pre_tts_visual_plan", "pre_tts_visual_beat_spec", "pre_tts_visual_direction_spec"]
+  },
   T040: {
     instruction_id: "VISUAL_SCENE_PLAN_V1",
     task_id: "T040",
     purpose: "Translate approved Scene Timing into scene-level visual intent, uncertainty handling and continuity contracts.",
     rules: [
+      "In Workflow v1.3, preserve T025 visual plan, beat order and directing intent while refining against measured TTS and Scene Timing.",
       "Inherit the pinned Channel Visual Bible; do not invent a replacement show style.",
       "Fantasy reconstruction is allowed only when factuality mode and editorial role are explicit.",
       "Scene Visual fact_refs must exactly match the approved Story Scene fact_refs.",
@@ -55,6 +69,6 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T040" | "T050" | "T060", Agent3Ta
   }
 };
 
-export function getAgent3TaskInstruction(taskId: "T040" | "T050" | "T060"): Agent3TaskInstruction {
+export function getAgent3TaskInstruction(taskId: "T025" | "T040" | "T050" | "T060"): Agent3TaskInstruction {
   return structuredClone(AGENT3_TASK_INSTRUCTIONS[taskId]);
 }

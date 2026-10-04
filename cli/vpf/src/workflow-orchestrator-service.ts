@@ -227,6 +227,9 @@ export class Agent1WorkflowOrchestratorService {
       const definition = findTaskDefinition(workflow.definition, taskId);
       if (definition === null) throw new WorkflowOrchestratorError("TASK_NOT_FOUND", `Task definition missing: ${taskId}.`);
       const outputRefs = this.resolveRefs(projectId, definition.required_outputs, workflowRepo);
+      if (taskId === "T025" && pass && outputRefs.length !== definition.required_outputs.length) {
+        throw new WorkflowOrchestratorError("TASK_GATE_REQUIRED", "PRE_TTS_VISUAL_GATE requires all three active T025 artifacts.");
+      }
       const updated = { ...task, output_revision_refs: outputRefs };
       const at = nowIso();
       const evaluation: ProductionGateEvaluation = {
@@ -653,6 +656,21 @@ export class Agent1WorkflowOrchestratorService {
     task: ProjectTaskInstance,
     repo: ProductionSpecRepository
   ): Promise<ProductionGateEvaluation> {
+    if (definition.completion_gate === "PRE_TTS_VISUAL_GATE" &&
+        task.output_revision_refs.length !== definition.required_outputs.length) {
+      throw new WorkflowOrchestratorError("TASK_GATE_REQUIRED", "PRE_TTS_VISUAL_GATE requires all three active T025 artifacts.");
+    }
+    if (definition.completion_gate === "PRE_TTS_VISUAL_GATE") {
+      const latest = repo.getLatestGate(projectId, "PRE_TTS_VISUAL_GATE");
+      if (latest && repo.isLatestGateCurrent(projectId, "PRE_TTS_VISUAL_GATE", gateInput(task))) return latest;
+      const evaluation: ProductionGateEvaluation = {
+        project_id: projectId, gate: "PRE_TTS_VISUAL_GATE", status: "PASS", valid: true,
+        ready_for_generation: false, errors: [], warnings: [],
+        evaluated_by: "AGENT1_MANAGER", evaluated_at: nowIso()
+      };
+      repo.saveGateEvaluation(evaluation, gateInput(task));
+      return evaluation;
+    }
     if (definition.completion_gate === "RESEARCH_GATE") return this.production.validateResearch(projectId);
     if (definition.completion_gate === "SCRIPT_GATE") return this.production.validateScript(projectId);
     if (definition.completion_gate === "STORY_AUDIO_GATE") return this.production.validateStory(projectId);

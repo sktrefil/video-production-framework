@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import Database from "better-sqlite3";
 
 export type Agent3VisualArtifactType =
+  | "pre_tts_visual_plan"
+  | "pre_tts_visual_beat_spec"
+  | "pre_tts_visual_direction_spec"
   | "scene_visual_spec"
   | "state_image_spec"
   | "prompt_bundle_spec";
@@ -12,7 +15,7 @@ export interface Agent3StoredArtifact<T = unknown> {
   revision: number;
   sha256: string;
   value: T;
-  source_task_id: "T040" | "T050" | "T060";
+  source_task_id: "T025" | "T040" | "T050" | "T060";
   created_at: string;
 }
 
@@ -36,7 +39,7 @@ export class Agent3VisualProductionRepository {
     projectId: string,
     artifactType: Agent3VisualArtifactType,
     value: T,
-    sourceTaskId: "T040" | "T050" | "T060",
+    sourceTaskId: "T025" | "T040" | "T050" | "T060",
     at: string
   ): Agent3StoredArtifact<T> {
     const encoded = JSON.stringify(value);
@@ -89,7 +92,7 @@ export class Agent3VisualProductionRepository {
       revision: number;
       artifact_json: string;
       artifact_sha256: string;
-      source_task_id: "T040" | "T050" | "T060";
+      source_task_id: "T025" | "T040" | "T050" | "T060";
       created_at: string;
     } | undefined;
     if (row === undefined) return null;

@@ -22,6 +22,7 @@ import {
   type Agent3T060Input,
   type Agent3TaskExecutionResult,
   type PromptBundleDocument,
+  type PreTtsVisualInput,
   type SceneVisualDocument,
   type StateImageDocument,
   type VisualBibleRef
@@ -35,7 +36,7 @@ const DEFAULT_REPOSITORY_ROOT = path.resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
 );
 
-type Agent3TaskId = "T040" | "T050" | "T060";
+type Agent3TaskId = "T025" | "T040" | "T050" | "T060";
 
 const hash = (value: string): string =>
   createHash("sha256").update(value, "utf8").digest("hex");
@@ -137,6 +138,9 @@ export class Agent3VisualProductionWorkerService {
         "Agent3 Visual Production requires migration 0020. Upgrade the project schema explicitly or create a new project on the current framework."
       );
     }
+    if (taskId === "T025" && !status.migrations.appliedMigrationIds.includes("0025")) {
+      throw new Agent3VisualProductionError("AGENT3_PROJECT_UPGRADE_REQUIRED", "T025 requires migration 0025.");
+    }
     const workflow = new WorkflowOrchestratorRepository(status.projectDbPath, { readonly: true });
     try {
       const task = workflow.getTask(projectId, taskId);
@@ -156,6 +160,9 @@ export class Agent3VisualProductionWorkerService {
       workflow.close();
     }
 
+    if (taskId === "T025") {
+      return this.executePreTtsVisual(status, projectId, input);
+    }
     if (taskId === "T040") {
       return this.executeSceneVisual(status, projectId, input);
     }
@@ -163,6 +170,58 @@ export class Agent3VisualProductionWorkerService {
       return this.executeStateImages(status, projectId, input);
     }
     return this.executeClipCamera(status, projectId, input);
+  }
+
+  private executePreTtsVisual(
+    status: Awaited<ReturnType<ProjectBootstrapService["getStatus"]>>,
+    projectId: string,
+    input: unknown
+  ): Agent3TaskExecutionResult {
+    visualBibleRef(status);
+    const storyRepo = new Agent2StoryAudioRepository(status.projectDbPath, { readonly: true });
+    let story: Agent2StorySpec | null = null;
+    try {
+      story = storyRepo.getActive<Agent2StorySpec>(projectId, "story_spec")?.value ?? null;
+      if (!story || !storyRepo.getActive(projectId, "script")) {
+        throw new Agent3VisualProductionError("AGENT3_PREREQUISITE_MISSING", "T025 requires approved active story_spec and script.");
+      }
+    } finally { storyRepo.close(); }
+    const value = input as Partial<PreTtsVisualInput> | null;
+    const plan = value?.pre_tts_visual_plan;
+    const beats = value?.pre_tts_visual_beat_spec;
+    const direction = value?.pre_tts_visual_direction_spec;
+    const nonempty = (text: unknown): boolean => typeof text === "string" && text.trim().length > 0;
+    const sceneIds = story.scenes.map(scene => scene.scene_id);
+    const expectedBeats = story.scenes.flatMap(scene => scene.beats.map(beat => scene.scene_id + ":" + beat.beat_id));
+    if (
+      value?.schema_version !== "1.0" || value.project_id !== projectId ||
+      plan?.schema_version !== "1.0" || plan.project_id !== projectId ||
+      beats?.schema_version !== "1.0" || beats.project_id !== projectId ||
+      direction?.schema_version !== "1.0" || direction.project_id !== projectId ||
+      !Array.isArray(plan.scenes) || !Array.isArray(beats.beats) ||
+      JSON.stringify(plan.scenes.map(scene => scene.scene_id)) !== JSON.stringify(sceneIds) ||
+      JSON.stringify(beats.beats.map(beat => beat.scene_id + ":" + beat.beat_id)) !== JSON.stringify(expectedBeats) ||
+      plan.scenes.some(scene => !nonempty(scene.visual_intent) || !nonempty(scene.uncertainty_handling)) ||
+      beats.beats.some(beat => !nonempty(beat.visual_action)) ||
+      !nonempty(direction.style_direction) || !nonempty(direction.camera_direction) || !nonempty(direction.continuity_direction)
+    ) {
+      throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID", "T025 requires matching project and ordered Story scene/beat IDs with nonempty visual direction; precise shot seconds are not part of this stage.");
+    }
+    const historyMystery = status.resourcePins.some(pin => pin.resourceType === "CHANNEL_PROFILE" && pin.resourceId === "HISTORY_MYSTERY_V1");
+    if (historyMystery && !direction.style_direction.includes("NON_REALISTIC_STYLIZED")) {
+      throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID", "History mystery T025 direction must explicitly lock NON_REALISTIC_STYLIZED visuals.");
+    }
+    const repo = new Agent3VisualProductionRepository(status.projectDbPath);
+    try {
+      const at = new Date().toISOString();
+      const stored = [
+        repo.save(projectId, "pre_tts_visual_plan", plan, "T025", at),
+        repo.save(projectId, "pre_tts_visual_beat_spec", beats, "T025", at),
+        repo.save(projectId, "pre_tts_visual_direction_spec", direction, "T025", at)
+      ];
+      return { project_id: projectId, task_id: "T025", assigned_agent: "AGENT3_VISUAL_PRODUCTION",
+        stored_artifacts: stored.map(item => ({ artifact_type: item.artifact_type, revision: item.revision, sha256: item.sha256 })), warnings: [] };
+    } finally { repo.close(); }
   }
 
   private executeSceneVisual(

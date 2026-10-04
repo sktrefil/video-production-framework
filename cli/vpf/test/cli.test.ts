@@ -56,6 +56,16 @@ test("CLI creates SHORTFORM and reports status from project.db", async () => {
   assert.equal(status.legacyAllowed, false);
 });
 
+test("CLI exposes Agent3 T025 instruction and execute usage", async () => {
+  const f = await fixture();
+  assert.equal(await runCli(["agent3", "instruction", "T025"], f.io, f.service), 0);
+  const instruction = JSON.parse(f.output.at(-1)!) as { task_id: string; required_outputs: string[] };
+  assert.equal(instruction.task_id, "T025");
+  assert.equal(instruction.required_outputs.length, 3);
+  assert.equal(await runCli(["agent3", "execute", "fixture", "INVALID", "--file", "input.json"], f.io, f.service), 2);
+  assert.match(f.errors.at(-1)!, /T025\|T040\|T050\|T060/);
+});
+
 test("CLI creates LONGFORM and doctor returns healthy", async () => {
   const f = await fixture();
   assert.equal(await runCli([
@@ -129,7 +139,7 @@ test("CLI confirmed image regeneration reset preserves T010-T060 and clears T070
   const workflow = new WorkflowOrchestratorRepository(status.projectDbPath);
   try {
     const at = "2026-09-25T12:00:00.000Z";
-    for (const taskId of ["T010","T020","T030","T040","T050","T060"] as const) {
+    for (const taskId of ["T010","T020","T025","T030","T040","T050","T060"] as const) {
       workflow.updateTask({
         projectId: "cli_t070_reset",
         taskId,

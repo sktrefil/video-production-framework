@@ -753,7 +753,7 @@ export class CodexManagerRuntimeService {
 
   async reviewSuccess(input: {
     projectId: string;
-    taskId: "T010" | "T020" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090";
+    taskId: "T010" | "T020" | "T025" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090";
     attempt: number;
     workerRole: "CODEX_2_STORY_AUDIO" | "AGENT2_APPROVED_STORY_INPUT" | "CODEX_3_VISUAL_PRODUCTION" | "EDITOR_REMOTION";
     gateStatus: "PASS";
@@ -892,7 +892,7 @@ export class CodexManagerRuntimeService {
   private readSuccessArtifacts(
     dbPath: string,
     projectId: string,
-    taskId: "T010" | "T020" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090"
+    taskId: "T010" | "T020" | "T025" | "T040" | "T050" | "T060" | "T070" | "T080" | "T090"
   ): unknown {
     const agent2 = new Agent2StoryAudioRepository(dbPath, { readonly: true });
     const agent3 = new Agent3VisualProductionRepository(dbPath, { readonly: true });
@@ -910,6 +910,14 @@ export class CodexManagerRuntimeService {
           story_spec: agent2.getActive(projectId, "story_spec")?.value ?? null,
           script: agent2.getActive(projectId, "script")?.value ?? null,
           fact_check_spec: agent2.getActive(projectId, "fact_check_spec")?.value ?? null
+        };
+      }
+      if (taskId === "T025") {
+        return {
+          pre_tts_visual_plan: agent3.getActive(projectId, "pre_tts_visual_plan")?.value ?? null,
+          pre_tts_visual_beat_spec: agent3.getActive(projectId, "pre_tts_visual_beat_spec")?.value ?? null,
+          pre_tts_visual_direction_spec: agent3.getActive(projectId, "pre_tts_visual_direction_spec")?.value ?? null,
+          story_spec: agent2.getActive(projectId, "story_spec")?.value ?? null
         };
       }
       if (taskId === "T040") {

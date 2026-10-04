@@ -10,6 +10,7 @@ import { CodexRuntimeRepository } from "@vpf/storage/codex-runtime";
 import { Agent3RuntimeRepository } from "@vpf/storage/agent3-runtime";
 import { ProductionSpecRepository } from "@vpf/storage/production-spec";
 import { Agent2StoryAudioWorkerService } from "../src/agent2-story-audio-service.js";
+import { Agent3VisualProductionWorkerService } from "../src/agent3-visual-production-service.js";
 import { Agent2RuntimeAdapterError, Agent2RuntimeAdapterService } from "../src/agent2-runtime-adapter-service.js";
 import { buildT050CodexInput, Agent3RuntimeAdapterService } from "../src/agent3-runtime-adapter-service.js";
 import { CodexManagerRuntimeService } from "../src/codex-manager-runtime-service.js";
@@ -341,6 +342,18 @@ test("Codex 2 and Codex 3 execute through one stored-login runtime and reach T07
 
     const workflow = new Agent1WorkflowOrchestratorService(bootstrap);
     const worker = new Agent2StoryAudioWorkerService(bootstrap);
+    await workflow.dispatch("codex_multi", "T025", "AGENT3_VISUAL_PRODUCTION");
+    await new Agent3VisualProductionWorkerService(bootstrap).executePayload("codex_multi", "T025", {
+      schema_version: "1.0", project_id: "codex_multi",
+      pre_tts_visual_plan: { schema_version: "1.0", project_id: "codex_multi",
+        scenes: [{ scene_id: "SCENE_01", visual_intent: "Graphic reveal", uncertainty_handling: "Silhouette" }] },
+      pre_tts_visual_beat_spec: { schema_version: "1.0", project_id: "codex_multi",
+        beats: [{ scene_id: "SCENE_01", beat_id: "BEAT_01", visual_action: "Parallax traversal" }] },
+      pre_tts_visual_direction_spec: { schema_version: "1.0", project_id: "codex_multi",
+        style_direction: "NON_REALISTIC_STYLIZED", camera_direction: "Orbit", continuity_direction: "Preserve motif" }
+    });
+    await workflow.recordGate("codex_multi", "T025", true);
+    await workflow.complete("codex_multi", "T025");
     const characters = Array.from(scriptText);
     const starts = characters.map((_, index) => Number((index * 0.2).toFixed(3)));
     const ends = characters.map((_, index) => Number(((index + 1) * 0.2).toFixed(3)));
