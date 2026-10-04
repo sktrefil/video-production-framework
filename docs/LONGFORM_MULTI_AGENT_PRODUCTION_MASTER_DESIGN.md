@@ -1,6 +1,8 @@
 # LONGFORM Multi-Agent Production Master Design
 
 > 2026-09-27 연출 운영 추가 규칙: [제작 가이드 v2](directing-production-guide-v2.md), [적용·호환성·검수 계약](DIRECTING_V2_IMPLEMENTATION.md). 새 LONGFORM T060은 연출 카드 v2를 요구한다. ENTRY/TARGET은 설계 상태이며 종료 이미지 파일은 선택적이다. T070 이미지 생성 전에 경로·시간·이미지 모드를 승인하고 대표 구간 검수 후 전체 제작으로 진행한다. 아래 v1의 Agent1 권한, 16:9, 섹션별 TTS, canonical DB와 provenance 원칙은 유지한다.
+>
+> 2026-10-04 Workflow 1.3 기준은 [WORKFLOW_V1_3_PRODUCTION_STANDARD.md](WORKFLOW_V1_3_PRODUCTION_STANDARD.md)를 상위 운영 기준으로 사용한다. 특히 T060/T080은 단일 전역 생성 길이를 사용하지 않고 Clip별 `generation_provider` / `generation_model` / `generation_duration_sec`을 기록·검증하며 Gemini 직접 I2V와 Google Flow를 한 프로젝트 안에서 혼합할 수 있다.
 
 > Status: **FINAL / Architecture Freeze v1.0**  
 > Scope: `video-production-framework` LONGFORM production path  

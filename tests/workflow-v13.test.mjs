@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { ProjectBootstrapService } from "@vpf/project-bootstrap";
-import { STANDARD_PRODUCTION_WORKFLOW } from "@vpf/production-spec";
+import { STANDARD_PRODUCTION_WORKFLOW, VIDEO_GENERATION_CAPABILITIES } from "@vpf/production-spec";
 import { Agent3VisualProductionRepository } from "@vpf/storage/agent3-visual-production";
 import { Agent3RuntimeRepository } from "@vpf/storage/agent3-runtime";
 import { Agent2StoryAudioRepository } from "@vpf/storage/agent2-story-audio";
@@ -23,10 +23,21 @@ test("Workflow v1.3 boots eleven tasks and gates T030 behind T025", async () => 
   assert.equal(workflow.tasks.length, 11);
   const t025 = workflow.tasks.find(task => task.task_id === "T025");
   const t030 = workflow.tasks.find(task => task.task_id === "T030");
+  const t060 = workflow.tasks.find(task => task.task_id === "T060");
+  const t080 = workflow.tasks.find(task => task.task_id === "T080");
   assert.equal(t025.assigned_agent, "AGENT3_VISUAL_PRODUCTION");
   assert.deepEqual(t025.depends_on, ["T020"]);
   assert.equal(t025.completion_gate, "PRE_TTS_VISUAL_GATE");
   assert.deepEqual(t030.depends_on, ["T025"]);
+  assert.ok(t060.production_policies.includes("VIDEO_GENERATION_CAPABILITY_POLICY_V1"));
+  assert.ok(t080.production_policies.includes("VIDEO_GENERATION_CAPABILITY_POLICY_V1"));
+
+  const gemini = VIDEO_GENERATION_CAPABILITIES.find(item => item.provider === "GEMINI" && item.model === "GEMINI_I2V_10S");
+  const flowFast = VIDEO_GENERATION_CAPABILITIES.find(item => item.provider === "GOOGLE_FLOW" && item.model === "VEO_3_1_FAST");
+  const flowOmni = VIDEO_GENERATION_CAPABILITIES.find(item => item.provider === "GOOGLE_FLOW" && item.model === "GEMINI_OMNI_FLASH");
+  assert.deepEqual(gemini?.supported_durations_sec, [10]);
+  assert.deepEqual(flowFast?.supported_durations_sec, [4, 6, 8]);
+  assert.deepEqual(flowOmni?.supported_durations_sec, [4, 6, 8, 10]);
 
   const workspaceRoot = await mkdtemp(path.join(tmpdir(), "vpf-v13-"));
   try {
