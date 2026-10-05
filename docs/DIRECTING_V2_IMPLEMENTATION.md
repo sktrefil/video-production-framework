@@ -77,3 +77,45 @@ node scripts/export-directing-review.mjs --spec examples/production-spec/roman_i
 클립 ID로 시간·연출·레퍼런스·생성된 이미지·한영 프롬프트·영상 경로·검수 결과를 함께 표시한다. 예제 모드는 카드만 표시하며 없는 프롬프트/이미지/승인을 만들어내지 않는다. 출력은 검토 스냅샷이고 승인 버튼이나 DB 쓰기 기능이 없다.
 
 `roman_ix_001` 예제의 TTS 5초/생성 10초는 예제 수치이며, 실제 역사 사건이나 영상 제작의 성공 증거가 아니다. 실프로젝트에는 현재 승인된 대본과 실제 TTS를 사용해야 한다.
+
+
+## 2026-10-05: Incoming Clip boundary and state binding contract
+
+New LONGFORM v2 T060 output declares `directing.transition_in`. This describes the
+incoming boundary; `transition_out` remains the outgoing editorial transition.
+A HARD_CUT/GRAPHIC_MATCH value alone never bypasses state validation.
+
+| transition_in | image_mode | adjacent binding | image input |
+| --- | --- | --- | --- |
+| CONTINUATION | PREVIOUS_END_FRAME | previous.target == next.entry | Adopted previous clip's actual used-range end frame |
+| STORY_CUT / ANGLE_CHANGE / FRESH_START | START_ONLY / START_END | Separate next.entry permitted | Next clip's designated START image |
+
+CONTINUATION must name the immediately preceding clip in the same Scene and
+provide bilingual direction/speed/action-phase continuation. It cannot be the
+first clip. Fresh cuts require `previous_clip_id=null` and `continuation=null`.
+START_END additionally requires provider endpoint support. Every clip still has
+an END design, including START_ONLY and PREVIOUS_END_FRAME.
+
+T050 is an ordered Scene state catalog, not a mandatory continuous shot ladder.
+Scene roles remain one boundary ENTRY, ordered MID states, and one boundary
+TARGET. Clip START/END are bindings: an interior MID may be a fresh clip START
+or a clip END. For example, C1 binds S1(ENTRY) -> S2(MID), then an ANGLE_CHANGE
+C2 binds S3(MID) -> S4(TARGET). C2 generates its START from S3's directing card,
+not C1's S2 END. A separate fresh START follows the previous target in sequence;
+each clip's entry < optional mid < target remains enforced. State IDs must exist
+in approved T050 and belong to the same Scene. The timing capacity formula is a
+lower bound; fresh cuts can require additional states. Missing states return to
+T050 for revision and approval before T060; T060 must not invent state IDs.
+
+The compiler records transition_in in directing metadata/hash and emits the
+selected START and frame-source semantics. T070 generates fresh STARTs;
+PREVIOUS_END_FRAME does not generate a substitute target still. T080 keeps its
+actual-frame extraction and provenance checks. Story, identity, fact references,
+spatial plausibility, timing and manager continuity review still apply across cuts.
+
+Compatibility: cards without transition_in keep the old exact-chain binding
+rule. Existing v1/SHORTFORM readers remain unchanged; no inference from prose or
+outgoing transition silently grants a fresh cut. New LONGFORM runtime schemas
+require the field. Changes to bindings/cards must be imported as new revisions
+and pass existing invalidation/manager gates. No project.db or approved production
+artifact is automatically migrated by this code change.

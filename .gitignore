@@ -45,3 +45,5 @@ apps\editor\build
 *.bak-*
 patch-*.ps1
 codex-*-probe*.ps1
+
+apps\editor\build

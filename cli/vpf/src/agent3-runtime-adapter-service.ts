@@ -464,6 +464,7 @@ export function normalizedClipInput(
   if (format === "LONGFORM") {
     const validation = validateClipProductionSpecs(clips, {
       requireDirecting: true,
+      requireEntryTransition: true,
       requireGenerationTarget: true
     });
     if (!validation.valid) throw new Agent3VisualProductionError("AGENT3_INPUT_INVALID",
@@ -627,7 +628,7 @@ class OpenAiAgent3Runtime {
       developer: [
         "You are Agent 3 State Image Planning Worker in a production pipeline.",
         ...instruction.rules,
-        "Create one ordered state ladder per Scene: exactly one ENTRY, zero or more MID, exactly one TARGET.",
+        "Create one ordered state catalog per Scene: exactly one scene-boundary ENTRY, zero or more MID, exactly one scene-boundary TARGET. For LONGFORM v2, clip START/END are bindings, not scene roles: reserve distinct ordered MID states for fresh STARTs at story cuts or angle changes. Only continuation shares the previous target. Add states beyond minimum_state_count as needed.",
         "Use IDs that are globally unique and stable, for example SCENE_01_STATE_01_ENTRY.",
         "ENTRY handoff_anchor must exactly equal the Scene Visual handoff.entry_anchor.",
         "TARGET handoff_anchor must exactly equal the Scene Visual handoff.exit_anchor.",
@@ -640,6 +641,7 @@ class OpenAiAgent3Runtime {
         "Prefer the minimum number of states that can carry the narrative clearly. Do not add novelty-only states.",
         "Every State Image must be video-ready: layered depth, complete physical relationships, and one continuable motion vector.",
         "Respect each Scene fantasy_mode when designing states: fantasy may affect atmosphere, light, mist, texture, symbolic space and non-textual motifs, but never invent historical evidence or events.",
+        "Do not design generated readable names, dates, years, labels, captions, maps, site markers or location markers into State Images. Use non-cartographic terrain, cave, environmental and spatial cues unless an approved canonical reference explicitly authorizes otherwise.",
         "Use only Beat IDs that exist in the Scene Timing input, or null when the state is scene-level.",
         "If revision_feedback is present, correct those exact validation failures without changing approved Scene Visual meaning."
       ],
@@ -687,7 +689,7 @@ class OpenAiAgent3Runtime {
         "Use actual measured scene_timing_spec.scenes[].tts.duration_sec. Never use estimated_duration_sec for clip duration allocation.",
         "For every Scene, the sum of editorial_duration_sec across its Clips must equal that Scene's measured TTS duration to within 0.01 sec.",
         "No Clip may exceed 10 seconds. Prefer about 4–5 seconds for SHORTS and 5–8 seconds for LONGFORM, but narrative beats and available state transitions have priority.",
-        "Within a Scene, adjacent Clips must form a state chain: previous target state ID must exactly equal next entry state ID.",
+        "For LONGFORM v2 declare directing.transition_in on each Clip: CONTINUATION requires PREVIOUS_END_FRAME and previous.target == next.entry. STORY_CUT, ANGLE_CHANGE and FRESH_START use START_ONLY or START_END and may bind a separate approved T050 state as the fresh START. Legacy/SHORTS retain exact chaining.",
         "Use only State Image IDs supplied in state_image_spec.",
         "A Clip entry state must precede its target state by sequence_order; MID, when used, must lie strictly between them.",
         "For SHORTS use generation_provider=null, generation_model=null and generation_duration_sec=null.",
@@ -1685,7 +1687,7 @@ export class Agent3RuntimeAdapterService {
           AGENT3_STATE_IMAGE_SCHEMA,
           [
             ...getAgent3TaskInstruction("T050").rules,
-            "Create an ordered state ladder for every Scene with exactly one ENTRY and one TARGET.",
+            "Create an ordered state catalog for every Scene with exactly one boundary ENTRY and one boundary TARGET. For LONGFORM v2 reserve additional MID states for independent clip START/END at fresh cuts; the timing minimum is a lower bound, not a fixed state count.",
             "ENTRY handoff_anchor must exactly match Scene handoff.entry_anchor and TARGET must exactly match Scene handoff.exit_anchor.",
             "Use only current Beat IDs or null.",
             "For every Scene, obey scene_timing_spec.scenes[].minimum_state_count and state_capacity_requirements[].minimum_state_count as a hard lower bound.",
@@ -1743,13 +1745,15 @@ export class Agent3RuntimeAdapterService {
           "Use measured scene_timing_spec TTS duration, never estimated duration.",
           "For each Scene, Clip editorial durations must sum to measured TTS duration within 0.01 sec.",
           "No Clip may exceed 10 seconds.",
-          "Adjacent Clips in one Scene must chain previous target state to next entry state.",
+          "For LONGFORM v2 only CONTINUATION / PREVIOUS_END_FRAME requires previous.target == next.entry. Explicit STORY_CUT / ANGLE_CHANGE / FRESH_START may use a separate T050 START state with START_ONLY or START_END. Legacy/SHORTS retain exact chaining.",
           "For SHORTS use generation_provider=null, generation_model=null and generation_duration_sec=null.",
           "For LONGFORM v2 choose generation_provider, generation_model and generation_duration_sec per Clip from video_generation_capabilities; mixed GEMINI and GOOGLE_FLOW plans are allowed.",
           "Choose a supported duration that contains directing.source_out_sec, preferably the shortest supported duration that safely contains the used range. START_END must use a capability that supports START_END.",
           "GEMINI/GEMINI_I2V_10S is the direct Gemini fixed-10s workflow. GOOGLE_FLOW models provide their listed selectable durations. Use safe_trim_start_sec=editorial_duration_sec (editorial-local time).",
           "directing.reference_ids may contain ONLY IDs from approved_directing_reference_ids. Never use Scene IDs, State Image IDs, Beat IDs, Clip IDs, filenames or invented IDs; use [] when no approved canonical reference applies.",
           "Do not make a map, label, diagram, inscription or other unavailable reference a prerequisite for a Clip. If geography matters and no approved canonical map exists, preserve approved facts through non-cartographic cave, terrain, environment or spatial cues and keep reference_ids empty.",
+          "T050 State prose is provisional design context. For LONGFORM v2, the current T060 directing card is the production authority for generated START/END/video prompts. If an old State description mentions a superseded map or marker, do not carry that element forward; preserve only the State ID/order/handoff meaning and redesign the visible composition in directing.",
+          "Never instruct the generator to typeset/render readable place names, personal names, dates, years, labels, captions or map/site markers.",
           "Keep all mandatory core points before narrative_deadline_sec and target state before final hold.",
           "Before returning, self-check every sliding four-Clip window. The fourth Clip must not repeat the same camera movement as the previous three; vary movement while preserving narrative purpose and path semantics. Also avoid four repeated shot-size patterns or transitions.",
           "Do not output provider prompts; the deterministic Prompt Compiler runs after Core validation.",

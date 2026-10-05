@@ -43,11 +43,12 @@ export const AGENT3_TASK_INSTRUCTIONS: Record<"T025" | "T040" | "T050" | "T060",
     task_id: "T050",
     purpose: "Plan the minimum video-ready visual states needed for each Scene and its clip handoffs.",
     rules: [
-      "Every Scene requires exactly one ENTRY and one TARGET design state; MID is optional. These are design descriptions, not a requirement to generate every state as an image file.",
+      "Every Scene requires exactly one boundary ENTRY and one boundary TARGET design state. In LONGFORM v2, clip START/END are bindings, independent of these scene roles. Add ordered MID states for separate fresh STARTs at STORY_CUT, ANGLE_CHANGE or FRESH_START; only CONTINUATION shares the previous target. These are design descriptions, not a requirement to generate every state as an image file.",
       "State Images are video-ready keyframes, not posters.",
       "Each State needs depth, a continuable motion vector, physical integrity and a handoff anchor.",
       "State capacity is a hard timing constraint: minimum_state_count = max(2, ceil(measured_tts_duration_sec / 10) + 1). Create exactly one ENTRY and one TARGET, plus enough ordered MID states to meet or exceed that minimum.",
       "Do not create extra states merely for visual novelty.",
+      "Do not make a State depend on generated readable names, dates, years, labels, captions, maps, site markers or location markers. Express geography through non-cartographic terrain, cave, environmental and spatial cues unless an approved canonical reference explicitly authorizes otherwise.",
       "Preserve Scene continuity and factual constraints."
     ],
     required_outputs: ["state_image_spec"]

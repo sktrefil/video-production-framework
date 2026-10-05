@@ -5,7 +5,8 @@ import type {
   ShotSize
 } from "./enums.js";
 import type { ClipProductionDocument } from "./clip-production-spec.js";
-import { requiredImageStateIds } from "./directing.js";
+import { requiredImageStateIds, validateDirectingCard } from "./directing.js";
+import { validateClipStateBindings } from "./agent3-validator.js";
 import type {
   ImagePromptPlan,
   PromptBundleDocument,
@@ -80,6 +81,16 @@ export function compileAgent3Prompts(input: {
   const stateById = new Map(input.states.state_images.map(state => [state.state_image_id, state]));
   const v2 = input.clips.clips.some(clip => clip.directing !== undefined);
   if (v2 && input.clips.clips.some(clip => !clip.directing)) throw new Error("Do not mix legacy and v2 directing within one plan.");
+  if (v2) for (const clip of input.clips.clips) {
+    const forbidden = validateDirectingCard(clip as unknown as Record<string, unknown>)
+      .filter(issue => ["DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN", "CLIP_ENTRY_TRANSITION_INVALID", "TRANSITION_IMAGE_MODE_MISMATCH", "CONTINUATION_REQUIRED", "UNEXPECTED_CONTINUATION"].includes(issue.code));
+    if (forbidden.length) throw new Error(forbidden.map(issue => issue.code + ": " + issue.path).join("; "));
+  }
+  if (v2) {
+    const bindingErrors = validateClipStateBindings(input.clips, input.states).errors.filter(issue =>
+      ["WITHIN_SCENE_STATE_HANDOFF_MISMATCH", "PREVIOUS_CLIP_INVALID", "FRESH_START_STATE_ORDER_INVALID", "CLIP_STATE_SCENE_MISMATCH", "UNKNOWN_CLIP_STATE_IMAGE"].includes(issue.code));
+    if (bindingErrors.length) throw new Error(bindingErrors.map(issue => issue.code + ": " + issue.path).join("; "));
+  }
   const requiredStates = new Set(requiredImageStateIds(input.clips));
 
   const image_prompts: ImagePromptPlan[] = input.states.state_images.filter(state => !v2 || requiredStates.has(state.state_image_id)).map(state => {
@@ -174,6 +185,10 @@ export function compileAgent3Prompts(input: {
       const d = clip.directing;
       const prompt = (lang: "ko" | "en") => sentence([
         lang === "ko" ? "16:9, 연속 촬영, 정상 속도. 사용 시작부터 카메라가 움직인다." : "16:9, continuous shot, normal speed. Camera motion begins at the start of the used range.",
+        d.image_mode === "PREVIOUS_END_FRAME"
+          ? (lang === "ko" ? "직전 채택 클립의 실제 사용 종료 프레임에서 이어간다." : "Continue from the adopted preceding clip's actual used-range end frame.")
+          : (lang === "ko" ? "이 클립에 지정된 시작 이미지에서 시작한다. 이전 클립의 종료 프레임을 이어받지 않는다." : "Begin from this clip's designated START image, without inheriting the preceding clip's end frame."),
+        d.start[lang],
         d.action[lang], d.camera_path[lang], d.subject_motion[lang],
         lang === "ko"
           ? `원본 ${d.source_in_sec}초부터 사용하는 구간의 ${d.reveal_deadline_sec}초 이내 공개: ${d.reveal.ko}.`

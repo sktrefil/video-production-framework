@@ -420,6 +420,12 @@ export class Agent3VisualProductionWorkerService {
         );
       }
 
+      // Continuation clips may produce no image prompt, but their references
+      // must satisfy the same canonical contract before any revision is saved.
+      await resolveDirectingReferences({
+        dbPath: status.projectDbPath, projectRoot: status.projectRoot, projectId,
+        ids: [...new Set(typed.clip_production_spec.clips.flatMap(clip => clip.directing?.reference_ids ?? []))]
+      });
       let prompts: PromptBundleDocument;
       try {
         prompts = compileAgent3Prompts({

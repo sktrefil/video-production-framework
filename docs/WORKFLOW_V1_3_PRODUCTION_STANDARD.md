@@ -65,7 +65,7 @@ minimum_state_count
 = max(2, ceil(measured_tts_duration_sec / 10) + 1)
 ```
 
-각 Scene은 ENTRY 정확히 1개, TARGET 정확히 1개, 필요한 수만큼 ordered MID를 갖고 이전 Clip TARGET → 다음 Clip ENTRY handoff를 유지해야 한다.
+각 Scene은 경계 역할의 ENTRY 정확히 1개, TARGET 정확히 1개, 필요한 수만큼 ordered MID를 갖는다. LONGFORM v2의 CONTINUATION / PREVIOUS_END_FRAME은 이전 Clip TARGET → 다음 Clip ENTRY 동일 바인딩을 유지한다. 명시적 STORY_CUT / ANGLE_CHANGE / FRESH_START는 별도 START 상태를 허용하며, 그에 필요한 MID를 최소 State 수 이상 추가할 수 있다. 상세 규칙은 5절을 따른다.
 
 ## 4. T060 mixed video-generation capability policy
 
@@ -158,11 +158,50 @@ T060 이후 T080은 임의로 provider/model/duration을 다시 선택하지 않
 
 ## 5. T060 timing/directing contract
 
+### 전환별 State binding — LONGFORM v2 (2026-10-05)
+
+Workflow 1.3의 신규 LONGFORM v2 T060은 `directing.transition_in`을 필수로 선언한다. 같은 Scene의 인접 Clip이라고 해서 항상 `previous.target == next.entry`를 강제하지 않는다. `transition_in`은 현재 Clip으로 들어오는 연결이며, 기존 `transition_out`은 나가는 편집 전환이다.
+
+| transition_in | 허용 image_mode | State 연결 | 입력 이미지 |
+| --- | --- | --- | --- |
+| CONTINUATION | PREVIOUS_END_FRAME | `previous.target == next.entry` 필수 | 바로 앞 같은 Scene의 채택 Clip에서 추출한 실제 used-range 종료 프레임 |
+| STORY_CUT / ANGLE_CHANGE / FRESH_START | START_ONLY / START_END | `previous.target`와 `next.entry` 분리 허용 | 다음 Clip의 START 구도로 생성한 이미지 |
+
+- CONTINUATION은 바로 앞 Clip의 `previous_clip_id`와 한·영 `continuation`을 요구한다. 첫 Clip이나 다른 Scene에서 이어받을 수 없다. 계획 TARGET 스틸로 실제 종료 프레임을 대체하지 않는다.
+- 새 컷은 `previous_clip_id=null`, `continuation=null`이며 PREVIOUS_END_FRAME을 사용할 수 없다. START_END는 선택 provider/model의 endpoint 지원이 필요하다. END 설계 상태는 모든 모드에서 유지한다.
+- T050의 ENTRY/MID/TARGET은 Scene 경계·중간 역할이고, T060의 START/END는 Clip 바인딩이다. Scene 내부 MID도 독립 Clip START가 될 수 있다. 예: C1은 S1(ENTRY)→S2(MID), ANGLE_CHANGE인 C2는 S3(MID)→S4(TARGET).
+- T050은 새 컷에 필요한 별도 START 상태를 계획한다. minimum_state_count는 하한이며 별도 START를 위해 상태를 추가할 수 있다. 분리한 START는 이전 TARGET보다 뒤의 sequence_order를 갖고, 각 Clip의 entry < mid < target 순서와 같은 Scene 소속 검증을 유지한다.
+- T060은 승인된 T050 State ID만 참조한다. 필요한 START가 없으면 T050 수정·승인 후 T060을 재작성하며, 임의 ID 생성이나 승인 상태의 자동 변경으로 해결하지 않는다.
+- Compiler V2는 새 컷의 START 카드로 이미지 프롬프트를 만들고, 영상 프롬프트에 새 START 또는 실제 종료 프레임 상속을 구분한다. 전환 메타데이터는 기존 revision/hash에 포함한다. T070 이미지 범위와 T080 실제 프레임 provenance 검증도 유지한다.
+- `transition_in`이 없는 기존 카드와 legacy/SHORTFORM은 기존 exact-chain 규칙을 유지한다. outgoing HARD_CUT/GRAPHIC_MATCH나 서술 문구만으로 연결 검사를 우회하지 않는다. 바인딩 변경은 새 revision 및 기존 downstream 무효화·관리자 게이트를 거친다.
+
+세부 구현 계약은 [DIRECTING_V2_IMPLEMENTATION.md](DIRECTING_V2_IMPLEMENTATION.md)의 incoming Clip boundary 절을 따른다.
+
 LONGFORM Clip은 measured TTS timeline start/end, editorial duration, generation provider/model/duration, provider source in/out, reveal deadline, narrative deadline, target state deadline, safe trim start, camera path, state image handoff, transition을 분리 기록한다.
 
 핵심 공개는 used-range 시작 후 4초 이내를 목표로 하되, 사실·공간·행동의 자연스러움을 깨면서 맞추지 않는다. START/END는 전체 카메라 경로에서 추출한 상태이며 독립적인 장식 이미지가 아니다.
 
-### 5.1 Camera rhythm normalization
+### 5.1 T050 provisional state / T060 production authority
+
+LONGFORM v2에서 T050 State Image 문장은 **provisional design context**다. 실제 생성용 START/END/video prompt의 권위는 T060 `directing`과 `DIRECTING_PROMPT_COMPILER_V2` 결과다.
+
+따라서 과거 T050 State에 지도·site marker 같은 요소가 남아 있더라도 T060이 이를 실제 directing/prompt에서 제거하고 State ID·순서·handoff 의미만 보존했다면 그 옛 문구만으로 T060을 RETRY/BLOCK하지 않는다.
+
+반대로 현재 T060 directing/provider prompt가 다음을 실제 생성하라고 지시하면 deterministic validation에서 실패한다.
+
+```text
+readable place/person names
+dates / years
+labels / captions
+maps
+site markers / location markers
+읽히는 지명·이름·날짜·연도·라벨·캡션
+지도·사이트 마커·위치 마커
+```
+
+지리는 승인된 cartographic reference가 없으면 동굴·지형·환경·공간 관계 같은 비지도형 단서로 표현한다. 이 금지 규칙은 T050 신규 State 설계에도 동일하게 적용한다.
+
+### 5.2 Camera rhythm normalization
 
 Workflow 1.3은 동일한 `camera.movement`가 4개 이상 연속되는 T060 계획을 허용하지 않는다. T060 생성기는 모든 sliding 4-Clip window를 자체 점검해야 하며, 앞 3개와 동일한 movement가 네 번째에 반복되면 narrative purpose와 경로 의미를 보존하는 가까운 대체 movement로 교정한다.
 
@@ -223,6 +262,16 @@ agent3 run <project> --resume-current-attempt
 
 이 예외는 자동으로 attempt를 늘리거나 기존 revision을 삭제하지 않는다. 명시적 operator revision + resume 조합에서만 동작한다.
 
+최신 manager review가 RETRY인 경우에만 revision directive를 전달한다. review.attempt가 currentAttempt 또는 currentAttempt - 1이면 유효하다. 따라서 attempt 3에서 받은 RETRY는 같은 attempt 3 resume에도 전달된다. 최신 BLOCK은 이전 RETRY로 대체하거나 자동 재사용하지 않는다.
+
+### T060 deterministic text gate와 QC authority
+
+`story`, `action`, `space`, `start`, `subject_motion`, `camera_path`, `reveal`, `end`, `handoff` 양언어 필드의 긍정 생성 지시를 `DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN`으로 차단한다. `Do not display readable labels`, `No map or generated text`, `Avoid readable dates and captions`와 risk/fallback 금지 설명은 허용한다. 금지 설명 뒤 별도 절에 있는 실제 생성 지시는 여전히 차단한다. Compiler V2도 이 검사를 수행한다.
+
+QC는 approved Story/Fact → measured TTS → T050 State identity/order/bindings/handoff를 보존하고, 실제 화면은 T060 directing 및 compiled provider prompt로 판단한다. T050의 과거 composition prose만으로 RETRY/BLOCK하지 않는다. 현재 출력의 지도·문자·마커·reference·카메라·공간 상세·provider/model/duration 문제를 worker가 수정할 수 있으면 RETRY다. 정확한 필수 upstream evidence/identity/reference/configuration이 없거나 Story/Fact/TTS의 권위 있는 변경이 필요할 때만 BLOCK한다.
+
+State ID는 `state_images.entry/mid/target`, canonical media ID는 `directing.reference_ids`, 생성 설정은 `generation_provider/model/duration_sec`에만 사용한다. 이미지 prompt가 없는 PREVIOUS_END_FRAME 클립도 reference의 승인 상태, 파일 경로 및 checksum 검사를 통과해야 저장된다.
+
 ## 8. Regression requirements
 
 `npm run check:workflow-v13`은 Workflow 1.3의 구조적 기준을 보호한다.
@@ -241,6 +290,7 @@ agent3 run <project> --resume-current-attempt
 - Flow Omni 4/6/8/10 capability
 - unsupported provider/model/duration rejection
 - START_END provider capability validation
+- LONGFORM v2 incoming transition별 State binding, fresh START 이미지 및 legacy exact-chain 호환 검증
 - runtime history/revision safety
 
 ## 9. Source-of-truth files

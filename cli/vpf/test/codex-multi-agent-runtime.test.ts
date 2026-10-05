@@ -765,6 +765,7 @@ test("Codex 1 produces an advisory revision directive without changing workflow 
 
     const directive = await manager.latestDirective("codex_manager", "T040");
     assert.match(directive ?? "", /change factuality mode/u);
+    assert.match(await manager.latestDirective("codex_manager", "T040", 1) ?? "", /change factuality mode/u);
     assert.match(
       await manager.latestDirective("codex_manager", "T040", 2) ?? "",
       /change factuality mode/u
