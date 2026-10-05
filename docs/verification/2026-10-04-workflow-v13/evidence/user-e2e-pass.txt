@@ -1,0 +1,122 @@
+PS D:\git\video-production-framework-migrated> npm run check:e2e
+npm notice run video-production-framework@0.1.0 check:e2e
+npm notice run npm run build && node tests/e2e/unified-project/run.mjs
+npm notice run video-production-framework@0.1.0 build
+npm notice run npm run build --workspace @vpf/legacy-guard && npm run build--workspace @vpf/domain && npm run build --workspace @vpf/workflow && npm run build --workspace @vpf/runtime-contracts && npm run build --workspace @vpf/reference-library && npm run build --workspace @vpf/workspace && npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/production-system && npm run build --workspace @vpf/production-spec && npmrun build --workspace @vpf/resource-registry && npm run build --workspace @vpf/project-bootstrap && npm run build --workspace @vpf/story && npm run build --workspace @vpf/visual-identity && npm run build --workspace @vpf/scene-assets && npm run build --workspace @vpf/prelink-handoff && npm run build --workspace @vpf/final-clip && npm run build --workspace @vpf/qc-fallback && npm run build --workspace @vpf/media-binding && npm run build --workspace @vpf/editor-timeline && npm run build --workspace @vpf/final-render && npm run build --workspace @vpf/final-output && npm run build --workspace @vpf/tts-generation && npm run build --workspace @vpf/editor-materializer && npm run build --workspace @vpf/storage && npm run build --workspace @vpf/cli && npm run build --workspace @vpf/editor-app
+npm notice run @vpf/legacy-guard@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/domain@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/workflow@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/runtime-contracts@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/reference-library@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/workspace@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/provider-orchestrator@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/production-system@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/production-spec@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/resource-registry@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/project-bootstrap@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/story@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/visual-identity@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/scene-assets@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/prelink-handoff@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/final-clip@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/qc-fallback@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/media-binding@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/editor-timeline@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/final-render@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/final-output@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/tts-generation@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/editor-materializer@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/storage@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/cli@0.1.0 prebuild
+npm notice run npm run build --workspace @vpf/production-spec && npm run build --workspace @vpf/provider-orchestrator && npm run build --workspace @vpf/storage
+npm notice run @vpf/production-spec@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/provider-orchestrator@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/storage@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/cli@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/editor-app@0.1.0 build
+npm notice run remotion bundle src/index.ts
+Bundled code         ━━━━━━━━━━━━━━━━━━ 1848ms
+○ D:\git\video-production-framework-migrated\apps\editor\build
+Bundled code         ━━━━━━━━━━━━━━━━━━ 2100ms
+Composition          GenericFinalRender
+Codec                h264
+Output               C:\Users\dev\AppData\Local\Temp\vpf-mig12-e2e-bCU8hy\workspace\projects\mig12_shortform\09_render\final.mp4
+Concurrency          3x
+Rendered frames      ━━━━━━━━━━━━━━━━━━ 3198ms
+Downloaded assets    ━━━━━━━━━━━━━━━━━━ 3 files
+Encoded video        ━━━━━━━━━━━━━━━━━━ 302ms
++                    C:\Users\dev\AppData\Local\Temp\vpf-mig12-e2e-bCU8hy\workspace\projects\mig12_shortform\09_render\final.mp4 38.8 kB
+Bundled code         ━━━━━━━━━━━━━━━━━━ 1949ms
+Composition          GenericFinalRender
+Codec                h264
+Output               C:\Users\dev\AppData\Local\Temp\vpf-mig12-e2e-bCU8hy\workspace\projects\mig12_longform\09_render\final.mp4
+Concurrency          3x
+Rendered frames      ━━━━━━━━━━━━━━━━━━ 3143ms
+Downloaded assets    ━━━━━━━━━━━━━━━━━━ 4 files
+Encoded video        ━━━━━━━━━━━━━━━━━━ 363ms
++                    C:\Users\dev\AppData\Local\Temp\vpf-mig12-e2e-bCU8hy\workspace\projects\mig12_longform\09_render\final.mp4 36.7 kB
+{
+  "workItem": "MIG-12",
+  "status": "PASS",
+  "projects": [
+    {
+      "format": "SHORTFORM",
+      "projectId": "mig12_shortform",
+      "materialized": true,
+      "deliveryReady": true,
+      "publishHandoffReady": true,
+      "staleGateVerified": true,
+      "renderAttempt": 2,
+      "packageSha256": "f2fc1a44c3150a0380f9128d9ee5b51b9cfdcf128ab8640dd72207045cfc8129",
+      "providerCalls": {
+        "image": 2,
+        "tts": 1
+      }
+    },
+    {
+      "format": "LONGFORM",
+      "projectId": "mig12_longform",
+      "materialized": true,
+      "deliveryReady": true,
+      "publishHandoffReady": true,
+      "staleGateVerified": false,
+      "renderAttempt": 1,
+      "packageSha256": "90f9c7721dd8f61ca58d94529d6da4579abe45adc143277ddb0104b4d8b8e94f",
+      "providerCalls": {
+        "image": 2,
+        "tts": 1
+      }
+    }
+  ],
+  "projectDbCount": 2,
+  "oldRepoOperationalCalls": 0,
+  "legacyResourceAccesses": 0
+}

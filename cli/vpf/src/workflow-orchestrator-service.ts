@@ -178,7 +178,7 @@ export class Agent1WorkflowOrchestratorService {
         if (!resumableApprovedT020 && !resumableInterruptedT070 && !resumablePreTtsVisual && !resumableClipCamera) {
           throw new WorkflowOrchestratorError(
             "TASK_NOT_READY",
-            "Only an approved-input T020 revision with no outputs/latest Codex1 RETRY, a T025 or T060 REVISION_REQUIRED attempt with no outputs, or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
+            "Only an approved-input T020 revision with no outputs/latest Codex1 RETRY, a T025 REVISION_REQUIRED attempt with no outputs, a T060 REVISION_REQUIRED attempt (existing revisions are preserved), or an incomplete T070 revision/failed/running attempt can resume without consuming a new attempt."
           );
         }
       } else if (task.attempt >= definition.retry_policy.max_attempts) {

@@ -1,5 +1,6 @@
 import type { StoryRole } from "./enums.js";
 import type { Agent2FactClassification } from "./agent2-story-audio.js";
+import { validateDirectingCard } from "./directing.js";
 import type { ValidationIssue, ValidationResult } from "./project-validator.js";
 import {
   FANTASY_MODES,
@@ -481,8 +482,27 @@ export function validateClipStateBindings(
     }
 
     const previousTarget = previousTargetByScene.get(raw.scene_id);
-    if (previousTarget !== undefined && previousTarget !== entryId) {
-      errors.push({ code: "WITHIN_SCENE_STATE_HANDOFF_MISMATCH", path: base + ".state_images.entry", message: "Adjacent Clips in one Scene must hand off previous target to next entry." });
+    const d = record(raw.directing) ? raw.directing : undefined;
+    const fresh = d?.version === "2" && ["STORY_CUT", "ANGLE_CHANGE", "FRESH_START"].includes(String(d.transition_in));
+    if (d) {
+      errors.push(...validateDirectingCard(raw).filter(issue =>
+        ["CLIP_ENTRY_TRANSITION_INVALID", "TRANSITION_IMAGE_MODE_MISMATCH", "CONTINUATION_REQUIRED", "UNEXPECTED_CONTINUATION"].includes(issue.code)
+      ).map(issue => ({ ...issue, path: base + "." + issue.path })));
+    }
+    if (previousTarget !== undefined && previousTarget !== entryId && !fresh) {
+      errors.push({ code: "WITHIN_SCENE_STATE_HANDOFF_MISMATCH", path: base + ".state_images.entry", message: "Continuation and legacy bindings must hand off previous target to next entry; explicit v2 fresh cuts may use a separate START state." });
+    }
+    if (d?.image_mode === "PREVIOUS_END_FRAME" || d?.transition_in === "CONTINUATION") {
+      const previous = clipsInput.clips[index - 1];
+      if (!record(previous) || previous.scene_id !== raw.scene_id || previous.clip_id !== d.previous_clip_id) {
+        errors.push({ code: "PREVIOUS_CLIP_INVALID", path: base + ".directing.previous_clip_id", message: "Continuation requires the immediately preceding clip in the same Scene." });
+      }
+    }
+    if (fresh && previousTarget !== undefined && previousTarget !== entryId) {
+      const previousState = states.get(previousTarget);
+      if (entry && previousState && entry.sequence_order <= previousState.sequence_order) {
+        errors.push({ code: "FRESH_START_STATE_ORDER_INVALID", path: base + ".state_images.entry", message: "A separate fresh START must follow the previous target in the Scene state order." });
+      }
     }
     if (targetId) previousTargetByScene.set(raw.scene_id, targetId);
 

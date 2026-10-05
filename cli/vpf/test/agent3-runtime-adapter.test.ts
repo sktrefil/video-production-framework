@@ -406,6 +406,7 @@ test("T060 strips invented Scene/State reference IDs and preserves approved cano
   clip.camera.movement_curve = "CONTINUOUS_CONTROLLED_MOVE";
   clip.directing = {
     version: "2",
+    transition_in: "FRESH_START",
     timeline_start_sec: 0,
     timeline_end_sec: 5,
     source_in_sec: 0,
@@ -439,6 +440,8 @@ test("T060 strips invented Scene/State reference IDs and preserves approved cano
     normalized.clip_production_spec.clips[0]!.directing!.reference_ids,
     ["REF_APPROVED"]
   );
+  delete clip.directing.transition_in;
+  assert.throws(() => normalizedClipInput(raw, "ref_fixture", "LONGFORM", ["REF_APPROVED"]), /CLIP_ENTRY_TRANSITION_REQUIRED/);
 });
 
 test("Agent3 runtime automatically runs T040-T060 and hands off T070", async () => {

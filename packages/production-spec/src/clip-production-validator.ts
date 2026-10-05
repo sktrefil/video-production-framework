@@ -9,6 +9,8 @@ import type { ValidationIssue, ValidationResult } from "./project-validator.js";
 
 export interface ClipValidationContext {
   requireDirecting?: boolean;
+  /** New authoring only; persisted v2 cards retain legacy binding semantics. */
+  requireEntryTransition?: boolean;
   requireGenerationTarget?: boolean;
   sceneIds?: readonly string[];
   sceneTimings?: readonly {
@@ -68,6 +70,8 @@ export function validateClipProductionSpec(
   }
   const duration = input.editorial_duration_sec;
   if (context.requireDirecting || input.directing !== undefined) errors.push(...validateDirectingCard(input));
+  if (context.requireEntryTransition && (!record(input.directing) || input.directing.transition_in === undefined))
+    fail("CLIP_ENTRY_TRANSITION_REQUIRED", "New LONGFORM v2 output must declare its incoming transition.", "directing.transition_in");
   const narrative = input.narrative_deadline_sec;
   const target = input.target_state_deadline_sec;
   if (finite(duration) && duration <= 0) fail("INVALID_EDITORIAL_DURATION", "Editorial duration must be positive.", "editorial_duration_sec");
@@ -207,6 +211,8 @@ export function validateClipProductionSpecs(input: unknown, context: ClipValidat
         fail("DIRECTING_TIMELINE_ORDER_INVALID", "Clips must follow the global TTS timeline without overlap.", `clips[${index}].directing.timeline_start_sec`);
       if (d.image_mode === "PREVIOUS_END_FRAME" && (!record(previous) || previous.clip_id !== d.previous_clip_id || previous.scene_id !== clip.scene_id))
         fail("PREVIOUS_CLIP_INVALID", "Continuous footage must reference the immediately preceding clip in the same scene.", `clips[${index}].directing.previous_clip_id`);
+      if ((d.image_mode === "PREVIOUS_END_FRAME" || d.transition_in === "CONTINUATION") && record(previous) && record(previous.state_images) && record(clip.state_images) && previous.state_images.target !== clip.state_images.entry)
+        fail("WITHIN_SCENE_STATE_HANDOFF_MISMATCH", "Continuation must bind previous target to next entry.", `clips[${index}].state_images.entry`);
       const timing = context.sceneTimings?.find(scene => scene.scene_id === clip.scene_id)?.tts;
       const expectedStart = sceneEnds.get(String(clip.scene_id)) ?? timing?.start_sec;
       if (finite(d.timeline_start_sec) && expectedStart !== undefined && Math.abs(d.timeline_start_sec - expectedStart) > 0.01)

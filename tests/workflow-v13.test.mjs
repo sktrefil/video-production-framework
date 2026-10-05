@@ -154,7 +154,7 @@ test("Agent3 OpenAI runtime dispatches T025 before measured scene timing exists"
 });
 
 
-test("Workflow v1.3 resumes exhausted T060 without consuming a fourth attempt when no outputs were stored", async () => {
+test("Workflow v1.3 resumes exhausted T060 with prior output references without consuming a fourth attempt", async () => {
   const workspaceRoot = await mkdtemp(path.join(tmpdir(), "vpf-v13-t060-resume-"));
   const projectId = "v13_t060_resume_fixture";
   try {

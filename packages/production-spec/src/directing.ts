@@ -6,8 +6,12 @@ export const DIRECTING_TEXT_FIELDS = [
   "reveal", "end", "handoff", "locks", "risk", "fallback"
 ] as const;
 export type BilingualDirection = { ko: string; en: string };
+export const CLIP_ENTRY_TRANSITIONS = ["CONTINUATION", "STORY_CUT", "ANGLE_CHANGE", "FRESH_START"] as const;
+export type ClipEntryTransition = typeof CLIP_ENTRY_TRANSITIONS[number];
 export type DirectingCard = Record<typeof DIRECTING_TEXT_FIELDS[number], BilingualDirection> & {
   version: "2";
+  /** Incoming boundary, independent of transition_out. Absent only in persisted legacy cards. */
+  transition_in?: ClipEntryTransition;
   timeline_start_sec: number;
   timeline_end_sec: number;
   source_in_sec: number;
@@ -26,12 +30,13 @@ const bilingual = {
 } as const;
 export const DIRECTING_CARD_SCHEMA = {
   type: "object", additionalProperties: false,
-  required: [...DIRECTING_TEXT_FIELDS, "version", "timeline_start_sec", "timeline_end_sec",
+  required: [...DIRECTING_TEXT_FIELDS, "version", "transition_in", "timeline_start_sec", "timeline_end_sec",
     "source_in_sec", "source_out_sec", "reveal_deadline_sec", "image_mode", "previous_clip_id",
     "continuation", "reference_ids", "precision_physics_required"],
   properties: {
     ...Object.fromEntries(DIRECTING_TEXT_FIELDS.map(key => [key, bilingual])),
     version: { type: "string", enum: ["2"] },
+    transition_in: { type: "string", enum: CLIP_ENTRY_TRANSITIONS },
     ...Object.fromEntries(["timeline_start_sec", "timeline_end_sec", "source_in_sec", "source_out_sec", "reveal_deadline_sec"]
       .map(key => [key, { type: "number", minimum: 0 }])),
     image_mode: { type: "string", enum: ["START_ONLY", "START_END", "PREVIOUS_END_FRAME"] },
@@ -59,7 +64,13 @@ function instructsReadableTextOrCartography(value: string): boolean {
   const readable = /\b(?:readable|legible)\s+(?:name|names|date|dates|year|years|label|labels|caption|captions|title|titles|text)\b/iu;
   const korean = /(?:지도|사이트\s*마커|지점\s*마커|위치\s*마커|이름|지명|날짜|연도|라벨|캡션|텍스트|명칭).{0,30}(?:표시|표기|기입|작성|써|넣|삽입|보이|읽히게)/u;
   const koreanReverse = /(?:표시|표기|기입|작성|써|넣|삽입|보이|읽히게).{0,30}(?:지도|사이트\s*마커|지점\s*마커|위치\s*마커|이름|지명|날짜|연도|라벨|캡션|텍스트|명칭)/u;
-  return english.test(normalized) || readable.test(normalized) || korean.test(normalized) || koreanReverse.test(normalized);
+  // Scope negation to a clause; a later positive instruction must still fail.
+  return normalized.split(/[.!?;\n]|\b(?:but|however|instead)\b|하지만|그러나/iu).some(clause => {
+    const positive = clause
+      .replace(/\b(?:do\s+not|don't|never|avoid|without|no)\b[^,]*(?:,\s*(?!\s*(?:show|display|render|add|place|typeset|write|include|overlay)\b)[^,]*)*/giu, "")
+      .replace(/[^,]*(?:하지\s*않|하지\s*말|하지\s*마|금지|넣지\s*않|표시하지|표기하지)[^,]*/gu, "");
+    return english.test(positive) || readable.test(positive) || korean.test(positive) || koreanReverse.test(positive);
+  });
 }
 
 /** Structural checks complement, never replace, manager spatial/semantic review. */
@@ -108,6 +119,10 @@ export function validateDirectingCard(clip: Record<string, unknown>): Validation
   if (["LOCKED", "STATIC_HOLD"].includes(String(camera.movement)) || camera.movement_curve !== "CONTINUOUS_CONTROLLED_MOVE")
     fail("DIRECTING_CAMERA_MOTION_REQUIRED", "Use one purposeful continuous camera movement from the start.");
   if (!["START_ONLY", "START_END", "PREVIOUS_END_FRAME"].includes(String(d.image_mode))) fail("DIRECTING_IMAGE_MODE_INVALID", "Select a supported image mode.");
+  if (d.transition_in !== undefined && !CLIP_ENTRY_TRANSITIONS.includes(d.transition_in as ClipEntryTransition))
+    fail("CLIP_ENTRY_TRANSITION_INVALID", "Choose CONTINUATION, STORY_CUT, ANGLE_CHANGE or FRESH_START.", "directing.transition_in");
+  if (d.transition_in !== undefined && ((d.transition_in === "CONTINUATION") !== (d.image_mode === "PREVIOUS_END_FRAME")))
+    fail("TRANSITION_IMAGE_MODE_MISMATCH", "CONTINUATION requires PREVIOUS_END_FRAME; fresh cuts require START_ONLY or START_END.", "directing.image_mode");
   if (d.image_mode === "PREVIOUS_END_FRAME") {
     if (!text(d.previous_clip_id) || !object(d.continuation) || !text(d.continuation.ko) || !text(d.continuation.en))
       fail("CONTINUATION_REQUIRED", "Previous clip and bilingual direction, speed and action phase are required.");
@@ -127,6 +142,7 @@ export function requiredImageStateIds(document: ClipProductionDocument): string[
 }
 
 export const DIRECTING_V2_RULES = [
+  "Preserve approved Story/Fact meaning, measured TTS, State IDs, sequence order, ENTRY/MID/TARGET bindings and handoff meaning. T050 composition prose is provisional; T060 directing and DIRECTING_PROMPT_COMPILER_V2 control production composition. Remove stale map/marker prose using cave, terrain and environmental spatial separation without changing facts.",
   "For LONGFORM use directing guide v2: each Clip requires a bilingual directing card with version=2. SHORTS retains the existing contract.",
   "Design the complete action and camera path before extracting start/end compositions. T050 states are provisional design states, not generated image files; redesign them if the T060 path is impossible.",
   "One primary action, one camera move, one clear visual payoff; begin purposeful motion at used frame zero, start_handle_sec=0 and CONTINUOUS_CONTROLLED_MOVE. Avoid precision-contact-dependent meaning.",
@@ -135,6 +151,7 @@ export const DIRECTING_V2_RULES = [
   "Record global measured-TTS timeline start/end, actual provider generation duration, and source in/out separately. Cut on information/action/gaze, not punctuation. Recheck all timing when TTS changes.",
   "For LONGFORM choose generation_provider, generation_model and generation_duration_sec per Clip from the supplied video_generation_capabilities matrix. Never invent a provider/model/duration. The selected duration must contain source_out_sec and be one of that model's supported durations.",
   "In START and END specify camera position, height, facing, shot size, subject screen/world position and occlusion. SPACE specifies foreground/midground/background and traversable camera/subject paths. CAMERA_PATH specifies departure, arrival, direction coordinate system, speed and tracked subject, separately from SUBJECT_MOTION.",
+  "Declare transition_in on every new LONGFORM v2 card. CONTINUATION requires PREVIOUS_END_FRAME and the immediately preceding same-scene clip with previous.target == next.entry. STORY_CUT, ANGLE_CHANGE and FRESH_START require START_ONLY or START_END, previous_clip_id=null and continuation=null. They may use a separate approved T050 START state; return to T050 for missing states instead of inventing IDs. Clip START/END bindings are independent of scene ENTRY/MID/TARGET roles. transition_out describes outgoing editing, not incoming state continuity.",
   "END is always designed. START_ONLY generates only a start; START_END requires provider endpoint support; PREVIOUS_END_FRAME uses the adopted previous clip's used-range end frame and records previous_clip_id plus direction, speed and action phase in continuation. An angle-change cut gets a fresh start image.",
   "LOCKS and reference_ids pin identity, costume, props, spatial relationships and lighting without copying a static reference pose. Resolve reference/path conflicts before image generation.",
   "Do not instruct the generator to typeset or render readable names, dates, years, labels, captions, maps, site markers or location markers. When geography matters and no approved cartographic reference exists, use non-cartographic terrain, cave, environmental and spatial cues.",

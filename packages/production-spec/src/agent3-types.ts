@@ -12,6 +12,7 @@ export const VISUAL_FACTUALITY_MODES = [
 ] as const;
 export type VisualFactualityMode = typeof VISUAL_FACTUALITY_MODES[number];
 
+/** Scene boundary roles. Interior MID states may be clip START or END bindings in v2. */
 export const STATE_IMAGE_ROLES = ["ENTRY", "MID", "TARGET"] as const;
 export type StateImageRole = typeof STATE_IMAGE_ROLES[number];
 

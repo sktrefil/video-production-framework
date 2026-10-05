@@ -1,0 +1,619 @@
+✔ Agent3 run-all retries Core rejection with revision feedback (4100.543ms)
+✔ Agent3 automatic runtime fails closed when OPENAI_API_KEY is missing (1497.1864ms)
+✔ T040 normalization repairs factuality modes from approved fact classifications (13.4544ms)
+✔ T050 derives minimum state capacity from measured TTS (3.8698ms)
+✔ Agent3 executes T040-T060, compiles prompts and unlocks T070 (3325.7509ms)✔ architecture freeze: Codex authority and worker boundaries match the master contract (3.2524ms)
+✔ architecture freeze: LONGFORM format profile and bootstrap pin the canonical 16:9 resources (7.7312ms)
+✔ architecture freeze: LONGFORM visual authoring is Agent3-reviewed and browser transport is non-creative (27.4375ms)
+✔ architecture freeze: segmented LONGFORM TTS, subtitle offsets, and A1 routing are wired (13.8476ms)
+✔ architecture freeze: LONGFORM header is non-persistent and reference roles are semantic (3.4253ms)
+✔ architecture freeze: image failure states and revision-safe outputs remain distinct (5.7637ms)
+✔ CLI creates SHORTFORM and reports status from project.db (229.396ms)
+✔ CLI help exposes explicit Agent3 current-attempt resume opt-in (1.657ms)
+✔ CLI exposes Agent3 T025 instruction and execute usage (2.1979ms)
+✔ CLI creates LONGFORM and doctor returns healthy (212.7531ms)
+✔ CLI materializes the active DB script into 02_script (255.6143ms)
+✔ CLI confirmed image regeneration reset preserves T010-T060 and clears T070 outputs (309.5993ms)
+✔ future unified commands fail explicitly as NOT_IMPLEMENTED (1.5337ms)
+✔ CLI rejects legacy control-plane and repository commands before dispatch (1.0499ms)
+✔ compiled public CLI binary creates a real unified project (1008.2045ms)
+✔ Codex 2 and Codex 3 execute through one stored-login runtime and reach T070 (8165.9905ms)
+✔ Codex repeated executions on the same task attempt preserve distinct runtime rows (655.7626ms)
+✔ Codex visual review attaches actual local images to the initial exec message (567.2036ms)
+✔ Codex 1 produces an advisory revision directive without changing workflowstate (898.5172ms)
+✔ Codex role contracts block cross-agent tasks and unauthorized web search (1.7261ms)
+✔ Codex1 verdicts drive Agent2 workflow state (4620.169ms)
+✔ stale Codex1 verdict cannot overwrite a newer task attempt (556.3321ms)
+✔ Codex1 success QC verdicts control deterministic-pass T010 completion (6225.2109ms)
+✔ Codex timeout terminates a nested process tree and records FAILED (858.2892ms)
+✔ T050 Codex input excludes script bodies, provenance, and provider profile(2.2129ms)
+✔ Agent3 fatal Codex failure path restores task to revision-required (1.3584ms)
+✔ T050 timeout restores workflow to REVISION_REQUIRED for a later production retry (5365.21ms)
+✔ Codex role execution forces the primary prompt through stdin and closes it (0.5498ms)
+✔ LONGFORM T060 exposes mixed Gemini and Google Flow duration capabilities (2.387ms)
+✔ directing references require canonical approval, pin revision/hash and reject changed bytes (70.6652ms)
+✔ vpf production entry routes editor assemble through canonical orchestration (3.0248ms)
+✔ editor assembly resolves pinned format profile and emits DB-derived canonical json (1.0418ms)
+✔ shortform editor content plan includes top 18 percent and bottom 26 percent blur panels (1.4646ms)
+✔ editor content plan pins the approved Korean title and subtitle layout (1.5406ms)
+✔ editor assembly accepts project-owned, non-overlapping top information labels (0.5799ms)
+✔ video-only narration timing replaces image holds and loops only when the source is shorter (0.6527ms)
+✔ narration-timed video scenes restore source sound on A2 (0.5746ms)
+✔ canonical render wrapper rejects assembly lineage drift (1.4351ms)
+✔ LONGFORM editor assembly materializes segmented TTS placements on A1 withgenerated subtitle provenance (0.5606ms)
+✔ LONGFORM persistent header is off by default and an explicit title is opening-only (0.6296ms)
+✔ LONGFORM assembly omits implicit header and rejects stale TTS provenance (0.4211ms)
+✔ migrate-opening routes through duration reconciler (1.5806ms)
+✔ environment preflight resolves canonical providers without exposing secret values (81.4226ms)
+✔ project preflight requires doctor, current pins, storage and runtime secrets (360.8747ms)
+✔ environment preflight is NO-GO when an automated provider secret is missing (37.5475ms)
+✔ environment preflight blocks a legacy image adapter path before pilot execution (48.1454ms)
+✔ CLI env check and pilot preflight return machine-readable GO results (354.7519ms)
+✔ dashboard ETA uses ranges and improves from real item throughput (3.4975ms)
+✔ dashboard hub preserves event order and isolates broken subscribers (1.5902ms)
+✔ dashboard exposes T060 clip prompts and scene handoff before T080 (0.7147ms)
+✔ dashboard counts only real generated image files (33.2876ms)
+✔ dashboard reports real missing Google Flow outputs without mutating them (10.4095ms)
+✔ dashboard snapshot reconstructs progress from DB and does not mutate workflow (298.3209ms)
+✔ dashboard exposes T070 seed, scene and final visual QC state (268.2503ms)
+✔ dashboard only reports production complete after T100 DB completion and final artifacts (308.9792ms)
+✔ dashboard image endpoint rejects traversal and non-generated paths (0.7192ms)
+✔ dashboard server binds only to localhost (140.5152ms)
+✔ production run keeps JSONL stdout separate from dashboard diagnostics (2.1533ms)
+✔ dashboard event log persists ordered JSONL without blocking publishers (22.3321ms)
+✔ dashboard SSE delivers production events in order (20.0055ms)
+✔ dashboard reports T090 frame progress as unavailable instead of inventingit (314.5158ms)
+✔ production run gives dashboard a final snapshot settle window before shutdown (1.2844ms)
+✔ terminal progress renderer shows weighted overall and current task progress (2.7846ms)
+✔ terminal progress renderer advances completed tasks and reports handoff (1.6572ms)
+✔ production progress reporter emits ordered, versioned events and computesitem progress (2.8484ms)
+✔ production progress reporter clamps invalid item progress and never breaks production on sink failure (1.6007ms)
+✔ overall production progress uses canonical task weights and active task partial progress (0.4123ms)
+✔ direct Production Spec injection cannot bypass Agent2 story/audio gates (654.4659ms)
+✔ v2 manual handoff keeps endpoint design without requiring an endpoint image and pins directing hash (17.3537ms)
+✔ production tail builds a deterministic Google Flow manual manifest (0.5391ms)
+✔ production tail builds V1 A1 T1 edit project from unified artifacts (1.8513ms)
+✔ T070 seed plan deterministically samples early, middle and late states (0.5666ms)
+✔ T070 representative seed plan samples ENTRY, middle MID and final TARGET (0.8216ms)
+✔ T070 seed generation targets only three seeds and blocks later phases (0.4644ms)
+✔ new T070 execution pauses at SEED_QC before completion gate or full generation (2.0826ms)
+✔ T070 seed visual QC inspects actual pixels and only PASS unlocks full generation (3.4953ms)
+✔ T080 is locked behind pixel-grounded final QC of every approved T070 image (4.595ms)
+✔ T070 checkpoint persists phased seed state and remains backward compatible (1.0434ms)
+✔ T070 resume plan starts at 7/43 when the first six state images are checkpointed (0.6483ms)
+✔ T070 runtime persists item checkpoints, skips completed states and can resume an exhausted attempt (1.2034ms)
+✔ T070 keeps GLOBAL grammar text-only while v2 can attach approved identityreferences (2.399ms)
+✔ T070 seed QC regenerates failed calibration images instead of deadlocking(1.033ms)
+✔ T070 runtime omits undefined revision feedback under exact optional property types (1.1365ms)
+✔ T070 full generation is scene-batched with targeted pixel-QC regeneration(1.0516ms)
+✔ T070 cannot complete workflow before full final pixel QC passes (1.1551ms)✔ T070 final QC is policy-versioned and marks checkpoint COMPLETE only after PASS (1.3031ms)
+✔ T080 manifest carries state, camera, transition, continuity, handoff and fantasy metadata (2.5342ms)
+✔ T070 materializes image metadata, manifest and visual QC reports (0.8038ms)
+✔ confirmed regeneration reset removes stale T070 outputs and preserves upstream planning (2.1308ms)
+✔ T070 checkpoint resume accepts an orphaned RUNNING attempt without incrementing it (0.7747ms)
+✔ production tail never reports COMPLETE merely because no task is READY (0.7787ms)
+✔ production run starts or resumes the T070-T100 tail and pauses before consuming T080 (0.7194ms)
+✔ migration 0024 and workflow resolver persist every tail artifact needed by T070-T100 (7.5492ms)
+✔ standalone CLI lifecycle builds storage before loading production-tail (0.4994ms)
+✔ visual planning reset preserves T010-T030 and invalidates T040 downstreamwithout deleting revision history (3.044ms)
+✔ WF09 auto is project-generic and format-aware (3.5481ms)
+✔ WF09 auto cannot bypass Agent3 review for LONGFORM (0.6574ms)
+✔ ChatGPT Browser transport preserves approved prompt and negative constraints verbatim without references (15.5931ms)
+✔ reference guidance is a transport inventory and does not inject creative policy (1.0584ms)
+✔ ChatGPT Browser adapter uploads visual references and excludes KNF layoutpixels without creative injection (3.357ms)
+✔ ChatGPT Browser adapter exposes a non-generating browser health probe (0.7199ms)
+✔ ChatGPT Browser worker accepts only a stable new assistant image and downloads its source (14.5281ms)
+✔ ChatGPT Browser worker hardens exact prompt entry on reused conversations(5.2487ms)
+✔ ChatGPT Browser worker reuses one managed conversation per exact reference set across changing prompts (4.7003ms)
+✔ Agent1 workflow instantiates T010-T100, enforces assignment and revision state (732.6927ms)
+✔ T025 gate controls T030 unlock and keeps pre-TTS artifact revisions (805.1149ms)
+ℹ tests 121
+ℹ suites 0
+ℹ pass 121
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31761.3444
+npm notice run @vpf/production-system@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ ProductionFinalClipPlanner uses canonical task/target mapping (5.4001ms)
+✔ ProductionLinkPlanner uses PRE_LINK and QC + LINK + HANDOFF_QC (3.6938ms)
+✔ ProductionQcFallbackPlanner maps CLIP_QC and fallback selection canonically (5.0802ms)
+✔ scene asset planner uses ASSET_PLAN, IMAGE_ASSET_DESIGN, IMAGE_PROMPT andIMAGE_QC (2.422ms)
+✔ ProductionStoryPlanner uses canonical v2 story task types (2.7001ms)
+✔ visual identity planner uses PROJECT_STYLE and ANCHOR_PLAN (2.2269ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 438.4459
+npm notice run @vpf/production-spec@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ Agent2 research validation requires sourced verified facts (2.2471ms)
+✔ Agent2 story validation requires exact Scene and Beat script coverage (0.8577ms)
+✔ Agent2 TTS completion requires exact provider character alignment (0.8931ms)
+✔ Agent2 research topic must exactly match the active Project Spec topic (3.6485ms)
+✔ Agent2 research rejects same-publisher URLs as independent verification (0.655ms)
+✔ Agent2 research accepts two independent sources with an authority source (5.6354ms)
+✔ Agent2 HIGH confidence requires at least one authority-class source (1.2036ms)
+✔ Agent2 research rejects same-host sources even when publisher labels differ (1.3748ms)
+✔ Agent3 visual, state and clip-state contracts validate (3.1427ms)
+✔ Agent3 prompt compiler preserves clip timing and state references (4.125ms)
+✔ Agent3 fantasy mode defaults preserve facts while allowing editorial mystery treatment (0.2814ms)
+✔ Agent3 rejects editorial fantasy mode on evidence scenes (0.4218ms)
+✔ Agent3 state validation rejects missing TARGET state (0.2662ms)
+✔ Agent3 rejects a TARGET state that breaks the Scene exit handoff anchor (1.1956ms)
+✔ Agent3 warns on three repeated shot patterns and blocks four (1.3275ms)
+✔ Agent3 cannot promote a hypothesis into EVIDENCE visual mode (0.5221ms)
+✔ Agent3 requires enough sequential states to split scenes longer than 10 seconds (0.7786ms)
+✔ five second clip with two points is ready independent of caller's false flag (5.7685ms)
+✔ LONGFORM mixed provider targets validate against capability-specific durations (1.3296ms)
+✔ generation duration never expands the editorial narrative budget (0.6451ms)
+✔ duration policy assigns conservative inclusive boundaries (0.4838ms)
+✔ 4.5 second clip overloaded by three core points (0.3535ms)
+✔ narrative deadline beyond editorial duration (0.2117ms)
+✔ narrative deadline equals editorial duration (0.2742ms)
+✔ target deadline equals editorial duration (0.2007ms)
+✔ camera purpose absent (0.1952ms)
+✔ camera movement absent (0.368ms)
+✔ camera movement curve absent (0.1603ms)
+✔ unsupported camera enum (0.1579ms)
+✔ target image absent (0.1158ms)
+✔ entry image absent (0.2139ms)
+✔ core point window exceeds editorial end (0.2429ms)
+✔ core point finishes after narrative deadline (0.122ms)
+✔ overlapping core point windows (0.0952ms)
+✔ zero length window (0.0923ms)
+✔ negative timing (0.128ms)
+✔ nonfinite timing (0.0945ms)
+✔ missing editorial duration (0.1009ms)
+✔ missing core points (1.1886ms)
+✔ duplicate core point identity (0.1274ms)
+✔ missing core point description (0.1054ms)
+✔ unsafe trim (0.1486ms)
+✔ short provider footage (0.1036ms)
+✔ target state precedes narrative deadline (0.0902ms)
+✔ hold begins before target state (0.0909ms)
+✔ core point appears during handle (0.1232ms)
+✔ over ten seconds requires splitting (0.1312ms)
+✔ arbitrary JSON fails structurally without throwing (0.2103ms)
+✔ batch checks actual TTS rather than the estimated duration and supports clip splitting (0.6781ms)
+✔ batch rejects empty, duplicate, unknown-scene, and missing-scene plans (0.5248ms)
+✔ clip document validates envelope and ignores spoofed readiness (0.5009ms)
+✔ v2 distinguishes measured timeline, source trim, generation length and early reveal (29.9492ms)
+✔ v2 rejects positive instructions to render readable labels, dates or maps(4.3549ms)
+✔ all production fields reject positive text/map directives and allow negative constraints (203.4862ms)
+✔ SC02/SC06 stale provisional geography never enters v2 production prompts (5.7333ms)
+✔ START_END selects a Flow-capable target instead of direct Gemini (1.9335ms)
+✔ end state design survives START_ONLY without requiring an end image file (1.1517ms)
+✔ v2 compiles concise parallel-language direction and planned image coverage (2.1317ms)
+✔ actual video QC rejects stale footage, late reveals and critical NA despite a claimed pass (1.503ms)
+✔ SHORTS defaults and LONGFORM delivery resolution remain separate from format (4.028ms)
+✔ invalid project inputs and disabled manager gates fail without throwing (0.4914ms)
+✔ actual TTS duration drives clip planning while preserving estimate (1.3289ms)
+✔ TTS inconsistencies, non-finite values, and invalid roles block story validation (0.573ms)
+✔ beats must remain ordered within the actual global TTS interval (2.2513ms)✔ scene documents preserve input and reject duplicate scenes and overlapping audio (1.2388ms)
+✔ provenance hashes and revisions are validated when supplied (0.5587ms)
+ℹ tests 66
+ℹ suites 0
+ℹ pass 66
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 602.4779
+npm notice run @vpf/story@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ FACT requires at least one source (1.721ms)
+✔ fact approval and script revision preserve stable ids while incrementing revisions (1.1466ms)
+✔ story generation is blocked until a FINAL script has human approval (0.5286ms)
+✔ approved final script generates validated chapter sequence scene graph (2.534ms)
+✔ script change impact preserves unchanged scene candidates but marks structure stale (1.378ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 216.6043
+npm notice run @vpf/visual-identity@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ Project Style uses the pinned Channel Visual Bible and requires approval before Anchor Plan (3.3592ms)
+✔ recurring anchors must actually recur (0.2762ms)
+✔ approved style plus approved non-stale anchors makes V1/V2 identity readiness true (1.7467ms)
+✔ style revision invalidates current Anchor approvals and reference media without deleting history (1.3214ms)
+✔ new approved script marks Project Style and Anchors stale instead of deleting them (0.8847ms)
+✔ WF-08 resolves the canonical History/Mystery Visual Bible through the registry adapter (12.4904ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 243.9463
+npm notice run @vpf/scene-assets@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ MIG-06 job stores exact prompt, format dimensions, references and currentGENERATING target revision (3.5993ms)
+✔ runtime MediaArtifact attaches only as candidate and existing IMAGE_QC remains mandatory (1.5268ms)
+✔ retry preserves semantic prompt, negative prompt, dimensions and exact references (0.9129ms)
+✔ readiness requires Scene, Style, Anchor and Format prerequisites (3.167ms)✔ manual external image result remains Candidate until QC and explicit Approval (3.0509ms)
+✔ ApprovalPolicy can auto-approve PASS without hardcoded confidence threshold (0.8874ms)
+✔ media import rejects traversal and non-image MIME (2.6376ms)
+✔ failed Provider Job retries as a new Job and batch operations preserve partial success (3.2787ms)
+✔ IMPORT and REUSE source strategies attach candidates without Provider Jobs (1.1466ms)
+✔ manual Image Job Pack exports prompts and batch result import isolates failures (1.6866ms)
+✔ WF-09 readiness resolves canonical Visual Bible and Format Profile through registry adapters (14.7284ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 273.6275
+npm notice run @vpf/prelink-handoff@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ Link Graph preserves production order, scopes and structured StateRefs (3.8718ms)
+✔ Pre-Link auto-progress and human review remain separate approval paths (2.0621ms)
+✔ approved endpoint Assets bind before actual Handoff QC and PASS opens Final Clip readiness (1.986ms)
+✔ contradictory Handoff PASS decision is rejected (1.2258ms)
+✔ Asset changes reset only Handoff stage while Scene changes stale the Link(1.2214ms)
+✔ Batch Handoff work preserves partial success (1.409ms)
+✔ Handoff QC requiring human review does not open Final Clip readiness until accepted (0.8186ms)
+✔ Pre-Link can be explicitly NOT_REQUIRED without forcing a continuity gate(0.4636ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 226.5852
+npm notice run @vpf/final-clip@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ CUT and editorial implementations do not require provider execution (4.8049ms)
+✔ Final Clip human review blocks provider execution until explicit design approval (0.975ms)
+✔ unsafe Provider Pre-QC blocks execution and cannot be human-overridden (1.1103ms)
+✔ safe Provider Pre-QC review requires human acceptance before READY (1.8434ms)
+✔ manual video result remains Candidate and Job Pack carries START/END media paths (3.204ms)
+✔ failed video Job retries as a new Job and Batch result import isolates failures (2.8622ms)
+✔ Additional Asset requirement stops provider path and returns Link to rework (0.4019ms)
+✔ late Provider result is rejected after Clip execution revision changes (0.9419ms)
+✔ readiness distinguishes editorial-ready, provider-ready, and candidate states (1.3589ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 233.306
+npm notice run @vpf/qc-fallback@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ TRIM_PASS approves the candidate but preserves usable range instead of discarding it (2.651ms)
+✔ invalid TRIM_PASS range is rejected before persistence (0.8793ms)
+✔ REGENERATE QC can fall back to an editorial implementation without approving bad video (1.1024ms)
+✔ REGENERATE fallback rearms the existing provider path for a new WF-11 video job (0.599ms)
+✔ reviewable PASS does not approve media until explicit human acceptance (0.7065ms)
+✔ aggregate QC rollup exposes PASS, PARTIAL and BLOCKED readiness (0.5019ms)ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 221.4461
+npm notice run @vpf/media-binding@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ WF-13 preserves WF-12 TRIM_PASS range in final video binding (3.0208ms)
+✔ WF-13 rejects an approvedMediaId without durable media approval (0.8173ms)✔ WF-13 binds approved editorial Clip to its START image without video QC (0.4405ms)
+✔ WF-13 represents approved CUT as a media-free editor instruction (0.5405ms)
+✔ WF-13 marks an existing binding stale when the Clip revision changes (1.7823ms)
+✔ WF-13 editor handoff is READY only when every current implementation is bound (0.8169ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 214.8847
+npm notice run @vpf/editor-timeline@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ WF-14 converts approved TRIM_PASS window to Generic Editor frames (4.0224ms)
+✔ WF-14 lays visual items contiguously on V1 (0.5648ms)
+✔ WF-14 keeps CUT as a zero-duration boundary instead of a fake media item (0.9874ms)
+✔ WF-15 compiles EDITORIAL_MOVE into executable Generic Editor motion (1.6237ms)
+✔ WF-15 compiles REUSE_REFRAME directional motion without exposing frame edges (1.034ms)
+✔ WF-14 is idempotent for identical bindings and timeline profile (1.7892ms)✔ WF-14 marks an existing assembly stale when a source binding revision changes (0.8946ms)
+✔ WF-14 blocks a CUT-only project because no visual item can be rendered (0.6109ms)
+✔ WF-16 assembles TTS, clip audio, BGM, SFX, subtitles, text, and graphics into canonical tracks (4.1342ms)
+✔ WF-16 blocks an unapproved content plan without polluting the editor items (1.0919ms)
+✔ WF-16 allows source-longer BGM only when loop is explicitly enabled (0.7016ms)
+✔ WF-16 blocks a subtitle that escapes its referenced TTS window (0.4046ms)
+✔ WF-16 stales an assembled timeline when the content plan revision changes(0.9799ms)
+✔ manual subtitle correction creates a new DRAFT content-plan revision without mutating TTS provenance (2.9486ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 248.1766
+npm notice run @vpf/final-render@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ WF-17 prepares an idempotent render request from READY WF-16 timeline (3.3786ms)
+✔ WF-17 accepts probed H264/AAC output and creates DELIVERY_READY manifest (3.2389ms)
+✔ WF-17 fails Technical QC when actual codec or duration differs (0.8745ms)
+✔ WF-17 retries failed Technical QC as a new render attempt (0.8381ms)
+✔ WF-17 rejects unexpected audio stream when timeline has no audible audio (0.6134ms)
+✔ WF-17 marks delivered render and delivery manifest stale after timeline revision changes (0.797ms)
+✔ WF-17 blocks render preparation when WF-16 timeline is not READY (0.7898ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 225.7108
+npm notice run @vpf/final-output@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ WF-18 records PASS only against the current WF-17 delivery (2.4352ms)
+✔ WF-18 supports explicit human review before Final Output QC PASS (0.7332ms)
+✔ WF-18 blocks packaging for FIX_REQUIRED or BLOCKED output QC (1.3924ms)
+✔ WF-18 creates an idempotent YouTube publish handoff after QC PASS (2.6315ms)
+✔ WF-18 marks an existing package STALE when delivery revision changes (0.975ms)
+✔ WF-18 refuses to start when WF-17 delivery is not current READY (0.3067ms)ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 212.2454
+npm notice run @vpf/tts-generation@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ TTS runtime preparation resolves exact version+hash pin and persists secret-free AUTOMATED ProviderJob (16.9616ms)
+✔ runtime completion reuses Framework-ingested narration AUDIO instead of creating a second media identity (11.3276ms)
+✔ runtime-ingested narration AUDIO is consumable as WF-16 TTS on A1 (2.4517ms)
+✔ SEGMENTED LONGFORM runtime exposes one AUDIO and alignment output per section without merged narration (0.4134ms)
+✔ ElevenLabs character alignment becomes non-overlapping T1-ready cues withTTS provenance (3.4314ms)
+✔ subtitle bridge rejects stale TTS/script provenance rather than silently realigning (0.7698ms)
+✔ subtitle bridge verifies the persisted alignment artifact hash before cuegeneration (16.1255ms)
+✔ MIG-10 subtitle bridge does not depend on old subtitle or Whisper orchestration (2.3785ms)
+✔ TTS requires the current human-approved FINAL script (2.9532ms)
+✔ LONGFORM creates scene-bound segmented narration with the history preset (2.9973ms)
+✔ SHORTFORM uses the existing history shorts voice preset with Eleven v3 (0.5032ms)
+✔ identical approved script and format reuse the same TTS plan (0.6872ms)
+✔ completed ElevenLabs alignment becomes a WF-16 compatible AUDIO MediaArtifact (1.2395ms)
+✔ alignment mismatch is rejected instead of drifting subtitles from TTS (0.522ms)
+✔ splitTextForTts preserves the legacy 4000-character hard ceiling (0.4899ms)
+✔ LONGFORM does not reuse a TTS plan when approved Scene grouping changes (0.8536ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 297.3543
+npm notice run @vpf/editor-materializer@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ MIG-11 materializer rejects old renderer references and symlinked media (22.9326ms)
+✔ materializer preserves canonical project while rewriting only the disposable editor mirror (53.7268ms)
+✔ materializer blocks a missing MediaArtifact before creating an authoritative-looking mirror (7.3072ms)
+✔ materializer verifies the workspace source hash against project.db MediaArtifact checksum (10.0462ms)
+✔ legacy out/<project> logical paths map deliberately into unified 09_render and 10_publish workspace folders (8.3205ms)
+✔ publish materialization verifies sources and copies WF-18 logical packageinto 10_publish/package (65.1409ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 392.7533
+npm notice run @vpf/storage@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ SQLite audio importer persists one AVAILABLE AUDIO MediaArtifact with durable event (66.9567ms)
+✔ approved local A2/A3/A4 imports flow from project.db MediaArtifacts through WF-16 placement (157.8683ms)
+✔ sqlite commits provider transition, runtime receipt and durable event atomically (23.3008ms)
+✔ sqlite can record MANUAL_EXTERNAL PREPARED receipt without changing provider job state (5.1463ms)
+✔ sqlite + orchestrator persists COMPLETE provider revision, candidate media and execution receipts (47.3469ms)
+✔ WF-07 -> WF-08 -> WF-09 completes in one project.db with separate Asset/Media/QC/Approval history (96.9335ms)
+✔ WF-07 -> WF-18 completes in one project.db through publish handoff readiness (228.9295ms)
+✔ sqlite preserves stable ids across revisions and durable approval events (26.8682ms)
+✔ sqlite commits generated graph and scene approvals without destroying history (8.7539ms)
+✔ WF-07 story and WF-08 visual identity share one project DB without Scene revision churn (67.1912ms)
+✔ SqliteTtsRuntimeRepository persists an initial AUDIO-target ProviderJob and exposes current TTS target revision (30.8357ms)
+✔ TTS completion adopts an already-ingested narration MediaArtifact withoutduplicate insert (11.253ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 937.3333
+npm notice run @vpf/workspace@0.1.0 test
+npm notice run tsx --test test/**/*.test.ts
+✔ workspace defaults to <repository>/workspace (1.8255ms)
+✔ VPF_WORKSPACE_ROOT overrides the default workspace root (0.6014ms)
+✔ Windows absolute workspace roots remain absolute even when validated on anon-Windows CI host (0.6819ms)
+✔ project workspace supports unicode ids and rejects traversal or Windows reserved ids (2.0874ms)
+✔ stored project paths normalize Windows separators to project-relative POSIX form (0.4813ms)
+✔ project-relative paths resolve inside the project and can be stored again(0.5094ms)
+✔ artifact paths outside the project root are rejected (0.3016ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 212.7044
+npm notice run @vpf/editor-app@0.1.0 pretest
+npm notice run npm run build --workspace @vpf/domain
+npm notice run @vpf/domain@0.1.0 build
+npm notice run tsc -p tsconfig.json
+npm notice run @vpf/editor-app@0.1.0 test
+npm notice run node --test test/*.test.mjs
+✔ schemaVersion 1 fixture preserves every canonical item type (2.6815ms)
+✔ fixture preserves VIDEO AUDIO TEXT GRAPHIC track contracts (0.3972ms)
+✔ ProjectRenderer uses independent Sequence routing and no Series (10.0704ms)
+✔ image motion is deterministic from/to frame interpolation (1.4283ms)
+✔ video audio text and graphic renderers remain separate (4.2808ms)
+✔ Preview and final render share ProjectRenderer (2.7603ms)
+✔ Root registers only canonical generic compositions (3.5011ms)
+✔ Generic Studio includes timeline, audio, subtitle and overlay panels (2.3424ms)
+✔ Studio editor controls portal into the Studio host instead of covering the composition (1.7529ms)
+✔ Studio timeline seeks the real Remotion playhead and mirrors render framechanges (3.2746ms)
+✔ P0-01 exposes audio split toolbar command and R shortcut (9.5234ms)
+✔ P0-01 audio split command accepts only one unlocked audio item strictly inside its bounds and generates collision-free ids (172.1278ms)
+✔ P0-01 reducer split preserves timeline and source continuity for all audio item types (109.987ms)
+✔ P0-02 waveform peak sampling follows the source window and display density (24.8053ms)
+✔ P0-02 timeline renders cached waveforms and degrades non-fatally when decoding fails (5.3915ms)
+✔ P0-03 subtitle sync helper resolves split, next merge target, nudge and warnings (15.5675ms)
+✔ P0-03 reducer splits and merges subtitles as single state operations (113.1049ms)
+✔ P0-03 inspector exposes subtitle split merge nudge overlap and safe-zone controls (3.5117ms)
+✔ persistence is an injected unified adapter and has no old localhost authority (1.8845ms)
+✔ production source has zero legacy project-specific dependency (351.5885ms)✔ P0-10 edit project JSON roundtrip preserves source windows, video/audio splits, subtitle timing and track controls (384.9294ms)
+✔ P0-10 provider hydrates on open, supports manual save/reload and debounced autosave (13.6508ms)
+✔ P0-10 persistence transport writes the complete EditProject derivative instead of mutating project.db (21.1634ms)
+✔ P0-10 browser refresh and Studio restart reload the disk draft only when its canonical fingerprint still matches (6.6162ms)
+✔ P0-10 preview and final render remain on one ProjectRenderer contract (4.4828ms)
+✔ P0-09 Studio keyboard routes playback, frame stepping, boundaries, split,delete and undo redo (7.1595ms)
+✔ P0-09 shortcuts never hijack text inputs and multi-delete is one edit transaction (1.6244ms)
+✔ P0-09 playback and frame-step commands are available from UI as well as keyboard (2.6238ms)
+✔ P0-09 uses the official Remotion Studio playback, pause and seek APIs (1.6089ms)
+✔ P0-09 pop-out preserves the project canvas scale and updates it on resize(1.3872ms)
+✔ P0-09 preview prefers always-on-top Document Picture-in-Picture with popup fallback (1.2996ms)
+✔ P0-07 snap targets include playhead, project edges, item edges and subtitle edges (245.9164ms)
+✔ P0-07 move snapping can align either item edge while preserving item duration (49.0827ms)
+✔ P0-07 trim snapping obeys tolerance and Shift bypass (18.0613ms)
+✔ P0-07 timeline exposes snap toggle, Shift bypass and guide (5.4232ms)
+✔ P0-05 FULL_SOURCE does not bypass a partial canonical approval window (403.1465ms)
+✔ P0-05 QC_TRIM restores the canonical window and clears reapproval (104.0731ms)
+✔ P0-05 DESIGNED_DURATION applies only when it fits the canonical window (87.6081ms)
+✔ P0-05 manual source expansion beyond canonical window is blocked and flagged (72.886ms)
+✔ P0-05 inspector exposes all source usage policies and reapproval warning (6.658ms)
+✔ P0-04 normalizes a canonical source-window baseline without changing the active window (305.2965ms)
+✔ P0-04 source-window edits clamp inside the approved canonical window and retain timeline duration (99.2685ms)
+✔ P0-04 source info exposes out frame, use percent, canonical window and binding provenance (16.8803ms)
+✔ P0-04 inspector exposes source in/out, asset, used, timeline, rate and canonical provenance (2.0618ms)
+✔ P0-08 reducer persists track lock, visibility, mute and solo controls (215.4228ms)
+✔ P0-08 non-audio tracks ignore mute and solo (76.6845ms)
+✔ P0-08 timeline exposes lock hide mute solo controls and blocks locked drag/drop (12.0321ms)
+✔ P0-08 renderer keeps hidden tracks out and applies audio mute/solo without hiding visuals (3.5142ms)
+✔ P0-06 video split command requires one approved unlocked video strictly around playhead (135.9435ms)
+✔ P0-06 reducer razor preserves timeline and playback-rate-adjusted source continuity (152.9387ms)
+✔ P0-06 reducer blocks razor on a source awaiting reapproval (90.0799ms)
+✔ P0-06 Studio exposes Razor Video and routes S to selected audio or video (8.926ms)
+✔ A2 master volume defaults to 100 percent and persists as one project setting (346.1959ms)
+✔ A2 slider and renderer apply the setting only to the A2 audio track (6.0806ms)
+✔ selected audio can audition only its source window outside timeline playback (5.9121ms)
+✔ P1-02 crossfade helper resolves overlapping next audio and clamps duration (152.215ms)
+✔ P1-02 applying a crossfade uses one edit transaction and two fade updates(7.3839ms)
+✔ P1-02 reducer persistence keeps matched fade-out and fade-in values (173.8479ms)
+✔ P1-02 renderer uses the linear fade envelope for both sides of an overlap(2.5413ms)
+✔ P1-03 ducking settings clamp and nearby TTS ranges merge by minimum gap (157.627ms)
+✔ P1-03 gain curve applies attack, duck level and release without baking source audio (38.368ms)
+✔ P1-03 BGM ducking reducer is editable, clamped and persistent (100.018ms)
+✔ P1-03 Inspector exposes BGM ducking controls (4.5892ms)
+✔ P1-03 renderer derives TTS ranges and applies ducking gain inside the audio volume callback (6.0961ms)
+✔ P1-01 fade helpers clamp to clip duration and map handle drag direction (99.5025ms)
+✔ P1-01 reducer stores clamped UI fade values and JSON persistence preserves them (170.1611ms)
+✔ P1-01 Inspector exposes Fade In/Out inputs with duration bounds (2.8996ms)✔ P1-01 Timeline exposes fade regions and transaction-backed fade handles (3.8194ms)
+✔ P1-01 renderer applies fade envelope to final audio volume (4.0318ms)
+✔ P1-14 Studio exposes the configured BGM library and imports a selected asset only into A3 review media (8.3703ms)
+✔ P1-07 canvas helper calculates safe guides and transform-aware rectangles(163.8816ms)
+✔ P1-07 composition uses one direct canvas overlay for media text subtitle and graphic editing (4.5441ms)
+✔ P1-07 direct canvas is Studio-only and respects locked items or tracks (2.4968ms)
+✔ P1-12 clipboard captures selected items and pastes them at the playhead with regenerated ids (143.167ms)
+✔ P1-12 paste validates target tracks and skips locked tracks (20.6296ms)
+✔ P1-12 duplicate preserves relative timing and uses a defined +1 frame offset (16.87ms)
+✔ P1-12 Studio exposes copy paste duplicate buttons and Ctrl/Cmd+C V D shortcuts without replacing media refs (5.6683ms)
+✔ P1 cut position accepts exact frames and mm:ss:ff timecodes (122.2246ms)
+✔ P1 timeline exposes a direct cut-position control and synchronized playhead (5.1391ms)
+✔ P1-10 shorts graphic regions match 0-18, 18-72 and 74-100 percent (218.7383ms)
+✔ P1-10 graphic editor exposes blur gradient panel geometry and shorts presets (4.0285ms)
+✔ P1-10 overlay panel creates all graphic types on an unlocked graphic track (4.3519ms)
+✔ P1-10 renderer consumes blur, color, radius and gradient fields (2.5046ms)✔ P1-11 additive selection toggles items and normal selection preserves an existing drag group (97.8459ms)
+✔ P1-11 group movement clamps at project frame zero and preserves relative starts (12.4529ms)
+✔ P1-11 timeline exposes ctrl shift multi-selection, marquee, group drag nudge and delete as transactions (2.636ms)
+✔ P1-11 group operations keep reducer lock enforcement instead of bypassingMOVE_ITEM DELETE_ITEM (6.9582ms)
+✔ Studio editor panel is vertically resizable, scrollable and collapsible (1.567ms)
+✔ P1-04 playback-rate guard respects available source frames (105.6092ms)
+✔ P1-04 Inspector exposes preset, numeric, reset and duration-policy controls (5.7916ms)
+✔ P1-04 renderer still drives media playback from item playbackRate (2.9918ms)
+✔ final-audio sync normalizes Korean punctuation while retaining numbers (5.3332ms)
+✔ final-audio sync independently repairs local offset and accumulated drift(1.5361ms)
+✔ final-audio sync flags weak text matches instead of silently applying them (0.3241ms)
+✔ Whisper fallback remains isolated from the production gate (11.0922ms)
+✔ Studio exposes preview scopes and applies accepted timings as one undoable action (9.4276ms)
+✔ P1-13 subtitle emphasis renders only explicit authored ranges (167.0926ms)✔ P1-13 emphasis survives JSON roundtrip, copy/paste, duplicate and undo/redo (208.6508ms)
+✔ P1-13 Inspector exposes exact emphasis text, color and on/off controls (1.7657ms)
+✔ P1-08 subtitle style editor exposes full typography position background and preset controls (7.8589ms)
+✔ P1-08 subtitle presets are data driven and include the shared cinematic-shorts preset (19.0597ms)
+✔ cinematic-shorts preset scales from project dimensions (1.6688ms)
+✔ canonical assembly and shared renderer use format-aware cinematic subtitle contracts (5.8704ms)
+✔ P1-08 Inspector delegates subtitle styling to the full style editor (1.5105ms)
+✔ P1-09 text role presets cover every title role and create generic text items (145.0983ms)
+✔ P1-09 overlay panel can add every role at playhead and edit selected text(1.7345ms)
+✔ P1-09 text editor exposes style, role, duplicate and delete controls (2.1986ms)
+✔ P1-09 direct canvas editing continues to include TEXT items (1.8123ms)
+✔ P1-06 transform helper clamps scale and opacity and exposes reset (78.7002ms)
+✔ P1-06 Inspector exposes full VIDEO IMAGE transform controls and reset (2.1063ms)
+✔ P1-06 preview and final render consume all transform fields (2.1352ms)
+✔ P1-05 Inspector exposes video fit, crop position, reset and vertical preset (15.5163ms)
+✔ P1-05 presets are generic centered cover values (2.8032ms)
+✔ P1-05 final renderer applies fit and crop transform without changing media source window (2.434ms)
+✔ MIG-09 runtime scripts use unified workspace adapters and Framework WF-17/WF-18 state authorities (12.1486ms)
+✔ MIG-09 production scripts contain zero operational dependency on the old repository or old local state (5.9055ms)
+✔ production gate rejects remote and ephemeral media instead of making editor mirror authoritative (2.3847ms)
+✔ actual render bridge pins the accepted production profile (2.264ms)
+✔ MIG-09 deliberately excludes the old Whisper subtitle cache bridge (1.3163ms)
+✔ Studio review server loads a materialized project and keeps edits outsideproject.db (1.4031ms)
+✔ Studio review server quarantines an incompatible derivative draft and falls back to the current materialized project (1.9592ms)
+✔ Studio review drafts are pinned to the canonical materialized assembly fingerprint (1.7433ms)
+✔ Studio can discover the active materialized project after Remotion normalizes away URL query parameters (4.5264ms)
+✔ Studio render uses the active project instead of the empty Studio fallback (3.6645ms)
+✔ Studio persistence discovers the live API port instead of trusting a stale editor URL (2.9254ms)
+ℹ tests 125
+ℹ suites 0
+ℹ pass 125
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4042.759
+npm notice run video-production-framework@0.1.0 check:editor-browser
+npm notice run npm run check:browser --workspace @vpf/editor-app
+npm notice run @vpf/editor-app@0.1.0 check:browser
+npm notice run node scripts/check-browser.mjs
+[editor-browser] PASS: child process spawned and Remotion browser enumerated GenericVideoEditor + GenericFinalRender
+npm notice run video-production-framework@0.1.0 check:editor-render
+npm notice run npm run check:render --workspace @vpf/editor-app
+npm notice run @vpf/editor-app@0.1.0 check:render
+npm notice run node scripts/check-render-fixture.mjs
+Bundled code         ━━━━━━━━━━━━━━━━━━ 2134ms
+Composition          GenericFinalRender
+Codec                h264
+Output               C:\Users\dev\AppData\Local\Temp\vpf-mig09-render-2MSVG6\mig09-fixture-13332\09_render\final.mp4
+Concurrency          3x
+Rendered frames      ━━━━━━━━━━━━━━━━━━ 795ms
+Encoded video        ━━━━━━━━━━━━━━━━━━ 33ms
++                    C:\Users\dev\AppData\Local\Temp\vpf-mig09-render-2MSVG6\mig09-fixture-13332\09_render\final.mp4 2.2 kB
+[editor-render] PASS: actual GenericFinalRender MP4 + Technical QC + WF-18 package · project=mig09-fixture-13332 · bytes=2210
+npm notice run video-production-framework@0.1.0 check:repository-boundaries
+npm notice run node scripts/check-no-legacy-paths.mjs
+[repository-boundary] PASS · no hardcoded legacy operational repository path
+PS D:\git\video-production-framework-migrated> 

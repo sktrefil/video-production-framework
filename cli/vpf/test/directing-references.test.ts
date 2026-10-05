@@ -51,3 +51,14 @@ test("directing references require canonical approval, pin revision/hash and rej
     await rm(root, {recursive:true,force:true});
   }
 });
+
+
+test("only new LONGFORM schemas require an explicit incoming state transition", async () => {
+  const { clipCameraSchema } = await import("../src/agent3-runtime-schemas.js");
+  const longform = clipCameraSchema("LONGFORM") as any;
+  const card = longform.properties.clip_production_spec.properties.clips.items.properties.directing;
+  assert.ok(card.required.includes("transition_in"));
+  assert.deepEqual(card.properties.transition_in.enum, ["CONTINUATION", "STORY_CUT", "ANGLE_CHANGE", "FRESH_START"]);
+  const shorts = clipCameraSchema("SHORTS") as any;
+  assert.equal(shorts.properties.clip_production_spec.properties.clips.items.required.includes("directing"), false);
+});

@@ -839,6 +839,13 @@ export class CodexManagerRuntimeService {
           status: input.gateStatus
         },
         warnings: input.warnings ?? [],
+        t060_authority_policy: input.taskId === "T060" ? {
+          preserved_upstream: ["approved Story/Fact", "measured TTS", "T050 State identity/order/bindings/handoff"],
+          production_authority: ["T060 directing", "DIRECTING_PROMPT_COMPILER_V2 provider prompts"],
+          t050_composition_prose: "PROVISIONAL: stale map prose alone must not cause RETRY or BLOCK",
+          retry: "Worker can repair composition, text/maps/markers, references, camera rhythm, spatial detail or provider/model/duration while preserving upstream meaning",
+          block: "Exact mandatory upstream evidence, identity/reference, Story/Fact/TTS or configuration is missing or requires authoritative revision"
+        } : null,
         t060_reference_policy: input.taskId === "T060" ? {
           empty_reference_ids_valid: true,
           unapproved_map_or_label_generation_forbidden: true,
