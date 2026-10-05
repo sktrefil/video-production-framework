@@ -14,8 +14,47 @@ import { WorkflowOrchestratorRepository } from "@vpf/storage/workflow-orchestrat
 import { Agent1WorkflowOrchestratorService } from "../cli/vpf/dist/workflow-orchestrator-service.js";
 import { Agent3VisualProductionWorkerService } from "../cli/vpf/dist/agent3-visual-production-service.js";
 import { Agent3RuntimeAdapterService } from "../cli/vpf/dist/agent3-runtime-adapter-service.js";
+import { createImageProviderAdapter, ensureLocalCdp } from "../runtimes/image/adapters/chatgpt-browser-adapter.mjs";
 
 const repositoryRoot = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
+
+test("T070 auto-launches a local Chromium browser before consuming provider retries", async () => {
+  let ready = false;
+  let launches = 0;
+  const result = await ensureLocalCdp("http://127.0.0.1:9222", {
+    env: {}, autoLaunchBrowser: true, cdpReadyTimeoutMs: 50,
+    cdpProbe: async () => ready,
+    browserLauncher: async () => {
+      launches += 1;
+      ready = true;
+      return { executable: "fixture-chrome", profile: "fixture-profile" };
+    },
+    sleep: async () => {}
+  });
+  assert.equal(result.status, "READY");
+  assert.equal(result.launched, true);
+  assert.equal(launches, 1);
+});
+
+test("ChatGPT image adapter passes the prepared CDP endpoint to the worker", async () => {
+  let preflightCalls = 0;
+  let workerCalls = 0;
+  const adapter = createImageProviderAdapter({
+    cdpUrl: "http://127.0.0.1:9222",
+    browserPreflight: async cdpUrl => {
+      preflightCalls += 1;
+      assert.equal(cdpUrl, "http://127.0.0.1:9222");
+    },
+    workerRunner: async payload => {
+      workerCalls += 1;
+      assert.equal(payload.cdpUrl, "http://127.0.0.1:9222");
+      return { status: "READY" };
+    }
+  });
+  assert.deepEqual(await adapter.healthcheck(), { status: "READY" });
+  assert.equal(preflightCalls, 1);
+  assert.equal(workerCalls, 1);
+});
 
 test("Workflow v1.3 boots eleven tasks and gates T030 behind T025", async () => {
   const workflow = STANDARD_PRODUCTION_WORKFLOW;
