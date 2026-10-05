@@ -1,0 +1,376 @@
+{
+  "schemaVersion": 1,
+  "resourceType": "CHANNEL_VISUAL_BIBLE",
+  "resourceId": "HISTORY_MYSTERY_VISUAL_BIBLE",
+  "version": "1.3.0",
+  "payload": {
+    "channelWideVisualApproach": "Cinematic historical-mystery animation for casual entertainment: preserve factual boundaries while turning people, danger, discovery, contradiction, and human reversal into an immediately readable chain of dramatic events.",
+    "realismAndFactualityPrinciples": [
+      "Prefer historically plausible people, spaces, objects, materials, clothing, and environmental conditions unless an approved reconstruction mode explicitly authorizes fantasy stylization.",
+      "Do not present a generated reconstruction as authenticated primary evidence, an archival photograph, a map, a document, or an artifact.",
+      "When the script expresses uncertainty, retain uncertainty through partial information, distance, occlusion, competing possibilities, or explicit editorial disclosure.",
+      "Fantasy reconstruction may heighten scale, atmosphere, silhouettes, impossible geography, or symbolic energy only when its reconstruction status is editorially disclosed and it does not assert an unsupported historical fact."
+    ],
+    "continuityPrinciples": {
+      "characters": [
+        "Recurring people retain locked identity, period logic, silhouette grammar, and scale role across scenes.",
+        "Pose, weather, injury, dirt, and local action may change without overwriting identity."
+      ],
+      "locations": [
+        "Recurring locations preserve architecture, geography, landmark relationships, material logic, and a motivated spatial path across cuts.",
+        "Adjacent scenes must differ through approved terrain, weather, light, camera elevation, colour accent, screen direction, or human activity; novelty alone is not a reason to change location."
+      ],
+      "props": [
+        "Recurring or historically meaningful props retain recognizable shape, material, scale, wear, ownership, and function.",
+        "No prop may silently become a new identity, inscription, heraldry, or historical claim between shots."
+      ]
+    },
+    "visualLanguageBoundaries": {
+      "color": [
+        "Derive colour from place, weather, time, material, and story state; do not let a generic golden sunrise or fixed palette replace scene-specific direction.",
+        "Use controlled warm/cool contrast only when motivated by the approved scene."
+      ],
+      "lighting": [
+        "Use motivated natural, practical, architectural, fire, candle, moon, storm, or overcast light.",
+        "Do not default to spectacle sunbeams, heroic rim light, or identical dramatic skies across adjacent scenes."
+      ],
+      "material": [
+        "Keep stone, wood, metal, soil, vegetation, textiles, water, and weathering physically legible.",
+        "Avoid glossy game-render surfaces, unsupported luxury, and decorative detail that invents historical certainty."
+      ]
+    },
+    "reconstructionEvidenceDistinction": [
+      "Evidence and generated reconstruction remain visually and editorially distinct.",
+      "Generated readable text, pseudo-writing, maps, labels, unsupported heraldry, and fabricated inscriptions are forbidden unless a verified source asset—not a generated image—supplies them.",
+      "Use object silhouette, material, light, absence, and spatial context rather than invented writing to convey evidence or uncertainty."
+    ],
+    "compositionAndCameraTendencies": [
+      "Favor environment-first wide and medium frames that establish danger, scale, geography, and human relationships before detail.",
+      "Make people or environmental forces act: approach, search, wait, flee, confront, gather, hide, discover, or react.",
+      "Use detail shots briefly to intensify touch, weight, danger, choice, or revelation; never let teeth, bone, diagrams, or display furniture replace the story.",
+      "An I2V keyframe contains separable foreground, action plane, and distant world; a clear travel or reveal corridor; complete bodies and props; credible contact; and a usable end-state handoff.",
+      "Vary shot scale, angle, motion function, and visual center across adjacent scenes while preserving identity and screen direction."
+    ],
+    "historicalUncertaintyHandling": [
+      "Differentiate fact, reconstruction, hypothesis, legend, and unknown through the approved factual constraints.",
+      "Do not invent exact faces, inscriptions, colours, insignia, layouts, object details, or decisive outcomes beyond approved evidence.",
+      "When a high-energy fantasy image is used for legend or reconstruction, preserve its non-documentary status through editorial disclosure."
+    ],
+    "formatAdaptationRules": [
+      "The same Visual Bible governs LONGFORM and SHORTFORM; format profiles own dimensions, safe areas, subtitle envelope, and delivery.",
+      "SHORTFORM keeps decisive faces, evidence, action contacts, and handoff anchors in the protected central story area; peripheral zones carry only lower-detail atmosphere or texture.",
+      "LONGFORM is horizontal 16:9, sustains geography and identity across sequences, and introduces a new question, discovery, danger, reversal, or payoff every 20 to 40 seconds.",
+      "LONGFORM uses shot-scale and camera-function variation; repeated static explanatory images or identical close-ups are not acceptable continuity."
+    ],
+    "avoidances": [
+      "Do not inherit a project-specific palette, master image, character identity, or franchise style into the channel-wide resource.",
+      "Do not imitate Dragon Ball or any other identifiable franchise, character, logo, costume, pose system, or signature image language.",
+      "Avoid anachronisms, text artifacts, watermarks, UI, generic repeated golden-valley/castle vistas, unexplained heroic close-ups, cropped bodies, oversized foreground limbs, and disconnected props.",
+      "Avoid prolonged teeth, bone, artifact, diagram, genealogy, label, museum-support, or editorial-panel close-ups that turn the story into a lecture.",
+      "Avoid static figures posed only to illustrate narration, repeated camera moves, and scenes without a visible verb.",
+      "Avoid literal magical disappearance, physical-to-diagram morphs, and fantasy spectacle that can be mistaken for historical fact.",
+      "Avoid narration, dialogue, speech, voice, vocalization, or music in generated video clips; allow only restrained visible-action-supported ambience and effects."
+    ],
+    "visualDirectionGrammar": {
+      "grammarId": "HISTORY_MYSTERY_VISUAL_DIRECTION_GRAMMAR_V1",
+      "grammarVersion": "1.1.0",
+      "coreStatement": "Story-first historical or disclosed-fantasy reconstruction: a still image is the first stable frame of a future video clip, not a standalone poster.",
+      "storyHierarchy": [
+        "NARRATIVE_FUNCTION",
+        "ENVIRONMENT_AND_SPATIAL_CONTEXT",
+        "CONTINUITY_AND_HANDOFF",
+        "EVIDENCE",
+        "CHARACTER_OR_OBJECT"
+      ],
+      "shotGrammar": {
+        "defaultShotFamilies": [
+          "MEDIUM_WIDE",
+          "WIDE"
+        ],
+        "defaultSubjectScale": [
+          "SMALL",
+          "MEDIUM"
+        ],
+        "environmentVisibility": "HIGH",
+        "closeUpPolicy": {
+          "default": "RESTRICTED",
+          "allowedReasons": [
+            "NARRATIVE_TURNING_POINT",
+            "DECISIVE_EVIDENCE",
+            "EMOTIONAL_TRANSITION",
+            "EVIDENCE_REACTION"
+          ],
+          "rule": "A close-up must have narrative purpose and remain safe for the planned video motion."
+        }
+      },
+      "keyframeGrammar": {
+        "requiredDepthLayers": [
+          "TEXTURED_FOREGROUND",
+          "CENTRAL_ACTION",
+          "DISTANT_WORLD"
+        ],
+        "motionVectorRule": "Show one clear continuable vector: travel, weather drift, banner/cloth movement, force/action direction, atmospheric flow, or deliberate stillness.",
+        "physicalIntegrityRule": "People, animals, props, hands, weapons, and structures are complete, naturally connected, and not edge-clipped.",
+        "forbidden": [
+          "POSTER_POSE",
+          "SYMMETRICAL_GROUP_FREEZE",
+          "OVERSIZED_FOREGROUND_HERO",
+          "FLOATING_PROP",
+          "CROPPED_DECISIVE_ACTION"
+        ]
+      },
+      "fantasyEnergyGrammar": {
+        "allowed": "For approved LEGEND or disclosed RECONSTRUCTION, use strong directional force, dynamic diagonals, readable action silhouettes, scale contrast, heightened atmosphere, and controlled energy effects.",
+        "rule": "Use the clarity and momentum associated with high-energy animation without copying any identifiable franchise.",
+        "forbidden": [
+          "FRANCHISE_STYLE_IMPERSONATION",
+          "IDENTIFIABLE_CHARACTER_DESIGN",
+          "LOGO_OR_SYMBOL_REPLICATION",
+          "UNMOTIVATED_ENERGY_SPECTACLE"
+        ]
+      },
+      "handoffGrammar": {
+        "preserveElementsMin": 2,
+        "preserveElementsMax": 4,
+        "preferredElements": [
+          "SUBJECT_OR_TRAVEL_DIRECTION",
+          "DEPTH_AXIS",
+          "LIGHT_DIRECTION",
+          "WEATHER_OR_ATMOSPHERE",
+          "DOMINANT_GEOMETRY",
+          "HANDOFF_ANCHOR"
+        ],
+        "rule": "Each image leaves usable information for the next shot and I2V."
+      },
+      "motionGrammar": {
+        "preferred": [
+          "SLOW_PUSH_IN",
+          "MEASURED_FORWARD_TRACK",
+          "RESTRAINED_LATERAL_TRACK",
+          "SUBTLE_PARALLAX",
+          "EVIDENCE_REVEAL",
+          "ATMOSPHERIC_DRIFT"
+        ],
+        "avoidByDefault": [
+          "WHIP_PAN",
+          "CRASH_ZOOM",
+          "FAST_ORBIT",
+          "UNMOTIVATED_DRONE_DIVE",
+          "SPECTACLE_ONLY_CAMERA_MOVE"
+        ]
+      },
+      "formatGrammar": {
+        "LONGFORM": {
+          "rule": "Favor continuity, geography, editability, and variation."
+        },
+        "SHORTFORM": {
+          "essentialInformationZone": "CENTER_60_70_PERCENT",
+          "topPeripheralZone": "TOP_15_20_PERCENT_LOW_DETAIL",
+          "bottomPeripheralZone": "BOTTOM_15_20_PERCENT_LOW_DETAIL",
+          "rule": "Keep decisive action and handoff anchors in the central band."
+        }
+      },
+      "tenExpertAcceptanceGate": [
+        "Narrative director: one clear action and next-cut handoff.",
+        "Cinematographer: motivated unique camera and light.",
+        "Production designer: approved terrain/weather/structure dominates.",
+        "Historical or role designer: correct collective silhouette grammar.",
+        "Motion designer: separable layers and one vector.",
+        "I2V supervisor: complete anatomy, props, contact, and safe scale.",
+        "Mobile designer: safe-zone compliance.",
+        "Art director: approved finish without repeated generic defaults.",
+        "Editorial designer: no generated text, maps, labels, or overlays.",
+        "Continuity editor: required visual handoff survives the cut."
+      ],
+      "promptCompilation": {
+        "principles": [
+          "Keep prompts compact; detailed design logic belongs upstream.",
+          "State narrative role, environment, video-ready keyframe requirements, and decisive avoidances before beauty language.",
+          "Carry only handoff constraints that materially affect the frame."
+        ],
+        "forbidden": [
+          "READABLE_GENERATED_HISTORICAL_TEXT",
+          "UNSUPPORTED_INSIGNIA_OR_HERALDRY",
+          "HEROIC_CLOSEUP_BY_DEFAULT",
+          "CHARACTER_OR_OBJECT_DOMINATES_WITHOUT_NARRATIVE_REASON",
+          "GLOSSY_GAME_RENDER_LANGUAGE",
+          "LEGACY_MASTER_STYLE_INJECTION",
+          "IDENTIFIABLE_FRANCHISE_STYLE_IMPERSONATION"
+        ]
+      }
+    },
+    "entertainmentDirection": {
+      "audiencePromise": "Give a general viewer an easy-to-follow historical mystery with curiosity, tension, surprise, and human consequence rather than an academic lecture or prolonged artifact inspection.",
+      "informationBudget": "Retain only three to five facts essential to the mystery; every visual fact must support an action, question, reveal, reversal, or payoff.",
+      "eventCadenceSeconds": {
+        "minimum": 20,
+        "maximum": 40
+      },
+      "openingRule": "Within the first five seconds, make at least one place, action, anomaly, danger, or question visually legible.",
+      "sceneRule": "Every scene contains a visible verb performed by a person, group, animal, object, or environment and a designed handoff into the next scene.",
+      "prohibitedCenter": [
+        "LECTURE",
+        "MUSEUM_DISPLAY",
+        "TECHNICAL_DIAGRAM",
+        "FORENSIC_INSPECTION",
+        "STATIC_AI_SLIDESHOW"
+      ]
+    },
+    "stylizationGrammar": {
+      "defaultLevel": "F2_DRAMATIC_RECONSTRUCTION",
+      "allowedLevels": {
+        "F0_RECORD": "Use only when primary evidence itself must be inspected.",
+        "F1_ATMOSPHERIC": "Heighten weather, light, texture, and depth without changing factual meaning.",
+        "F2_DRAMATIC_RECONSTRUCTION": "Default: animated human action, cinematic depth, expressive silhouettes, motivated camera, and emotionally heightened natural phenomena.",
+        "F3_SYMBOLIC_TRANSITION": "Use briefly for mystery, memory, time, hypothesis, reveal, or scene transition while retaining editorial clarity."
+      },
+      "forbiddenLevel": "F4_LITERAL_MAGIC_PRESENTED_AS_FACT",
+      "animationLanguage": [
+        "CLEAR_ACTION_SILHOUETTE",
+        "EXPRESSIVE_BUT_PLAUSIBLE_BODY_LANGUAGE",
+        "DYNAMIC_DIAGONALS",
+        "LAYERED_PARALLAX",
+        "CONTROLLED_ATMOSPHERIC_EXAGGERATION"
+      ],
+      "factBoundary": "Stylization may intensify emotion and motion but cannot authenticate an unknown face, relationship, event, inscription, map, genealogy, or outcome."
+    },
+    "visualIdentitySystem": {
+      "characters": {
+        "lock": [
+          "FACE_AND_AGE_RANGE",
+          "BODY_PROPORTION",
+          "HAIR_SILHOUETTE",
+          "COSTUME_LAYERS",
+          "DISTINCTIVE_PROP",
+          "GROUP_ROLE"
+        ],
+        "variation": [
+          "POSE",
+          "EXPRESSION",
+          "WEATHERING",
+          "LOCAL_ACTION",
+          "CAMERA_DISTANCE"
+        ],
+        "rule": "Recurring characters must be identifiable by at least two locked features without depending on face close-ups."
+      },
+      "locations": {
+        "lock": [
+          "ENTRY_AND_EXIT",
+          "DEPTH_AXIS",
+          "LANDMARK_RELATIONSHIPS",
+          "MATERIAL_LOGIC",
+          "LIGHT_DIRECTION",
+          "TRAVERSABLE_PATH"
+        ],
+        "rule": "A location is an action space with stable geography, not a decorative background."
+      },
+      "props": {
+        "lock": [
+          "SHAPE",
+          "MATERIAL",
+          "SCALE",
+          "WEAR",
+          "OWNER_OR_FUNCTION"
+        ],
+        "rule": "A prop earns screen time through action or a mystery question; full form and spatial relation precede any detail insert."
+      },
+      "closeUpPolicy": {
+        "extremeExplanatoryCloseUp": "PROHIBITED_BY_DEFAULT",
+        "allowedOnlyFor": [
+          "DECISIVE_REVEAL",
+          "EMOTIONAL_REACTION",
+          "PHYSICAL_ACTION_CONTACT",
+          "BRIEF_EVIDENCE_CONFIRMATION"
+        ],
+        "maximumSceneSharePercent": 20,
+        "artifactRule": "Teeth, bone, documents, diagrams, labels, and specimens cannot become the long-duration visual protagonist."
+      }
+    },
+    "temporalAndAudioGrammar": {
+      "clipPhases": [
+        "START",
+        "ACTION",
+        "REVEAL",
+        "END_HOLD"
+      ],
+      "movementStartSecondsMax": 0.5,
+      "meaningfulChangeSeconds": {
+        "minimum": 1,
+        "maximum": 3
+      },
+      "revealPlacementPercent": {
+        "minimum": 35,
+        "maximum": 65
+      },
+      "endHoldSeconds": {
+        "minimum": 0.25,
+        "maximum": 0.5
+      },
+      "motionRule": "Use natural but decisive acceleration; reach the edit target early enough to hold it. Camera, subject, and environment motions must have separate purposes.",
+      "providerIndependence": "Specify total generated duration, edit-use interval, target-arrival time, and hold independently of provider name or duration controls.",
+      "generatedAudio": {
+        "allowed": [
+          "VISIBLE_ACTION_SUPPORTED_AMBIENCE",
+          "VISIBLE_ACTION_SUPPORTED_SOUND_EFFECTS"
+        ],
+        "forbidden": [
+          "NARRATION",
+          "DIALOGUE",
+          "SPEECH",
+          "VOICE",
+          "VOCALIZATION",
+          "MUSIC"
+        ],
+        "mixRule": "Keep generated ambience and effects separable from video, on A2, ducked beneath segmented narration."
+      }
+    },
+    "stageGateContract": {
+      "scoreScale": 100,
+      "thresholds": {
+        "T040": 95,
+        "T050": 95,
+        "T060": 95
+      },
+      "rule": "A score below threshold blocks advancement. A fatal failure cannot be offset by points.",
+      "T040Weights": {
+        "viewerHookAndEmotion": 15,
+        "concreteSpaceActionReveal": 20,
+        "factBoundaryAndStylization": 20,
+        "identityContinuity": 15,
+        "nextSceneHandoff": 10,
+        "shotVarietyAndEditability": 10,
+        "scriptVisualComplement": 10
+      },
+      "T050Weights": {
+        "physicalReachability": 20,
+        "primarySubjectAction": 15,
+        "identityLock": 20,
+        "depthOcclusionScreenDirection": 15,
+        "shotScaleVariety": 10,
+        "factStylizationBoundary": 10,
+        "nextStateEditConnection": 10
+      },
+      "T060Weights": {
+        "movementStartAndTargetTime": 20,
+        "naturalSpeedAccelerationHold": 15,
+        "cameraSubjectEnvironmentSeparation": 15,
+        "startActionRevealEndSpecificity": 20,
+        "locksRisksFallback": 10,
+        "naturalSfxControl": 10,
+        "providerIndependenceAndEditability": 10
+      },
+      "fatalFailures": [
+        "FACTUAL_BOUNDARY_BREACH",
+        "NO_VISIBLE_ACTION",
+        "NO_REVEAL_OR_HANDOFF",
+        "LECTURE_OR_EXHIBIT_DOMINATES_STORY",
+        "EXTREME_EXPLANATORY_CLOSEUP_DOMINATES",
+        "PHYSICALLY_UNREACHABLE_STATE_TRANSITION",
+        "IDENTITY_LOCK_BROKEN",
+        "TARGET_REACHED_AFTER_EDIT_WINDOW",
+        "SUBJECT_DEFORMATION_AS_CAMERA_MOTION",
+        "VOICE_OR_NARRATION_IN_GENERATED_CLIP"
+      ]
+    }
+  }
+}

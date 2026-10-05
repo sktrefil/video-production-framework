@@ -1,0 +1,93 @@
+﻿{
+    "recordedAt":  "2026-10-04T22:08:27.6670676+09:00",
+    "baseCommit":  "2fe97b0c29462940a3c71c3f965a007daa715952",
+    "scope":  "Current changed files at report creation; not a historical test-time snapshot",
+    "files":  [
+                  {
+                      "path":  ".gitignore",
+                      "sha256":  "BC1F26C470964419D07B019F347D17A36096E9BC31441579B8761183C6023849"
+                  },
+                  {
+                      "path":  "cli/vpf/src/agent3-runtime-adapter-service.ts",
+                      "sha256":  "EEFAFE3A039F5FE3241AC80C9C8766DBF08BFC1103BF31B7E9D67B733600FE7E"
+                  },
+                  {
+                      "path":  "cli/vpf/src/agent3-visual-production-service.ts",
+                      "sha256":  "2391DB473B34E0FD9FCA1B009CA502CADDA8C38B8E0335FF77449EDBBC91ED4F"
+                  },
+                  {
+                      "path":  "cli/vpf/src/codex-manager-runtime-service.ts",
+                      "sha256":  "E5B3704497C248FAB043534AEF4FE359F287E5FADE26B5ECDFB0F9CFC5513881"
+                  },
+                  {
+                      "path":  "cli/vpf/src/workflow-orchestrator-service.ts",
+                      "sha256":  "668A4142A191B36390DE87D287659FCC461A4AF2946B3BB9A000ACD28565504F"
+                  },
+                  {
+                      "path":  "cli/vpf/test/codex-multi-agent-runtime.test.ts",
+                      "sha256":  "A1F88AB6BB55B6C11CEFB2DB087525575E3F9EF3EFBEE72787ECDBFBF411CC77"
+                  },
+                  {
+                      "path":  "docs/WORKFLOW_V1_3_PRODUCTION_STANDARD.md",
+                      "sha256":  "783ACB1F2B4718502A8154F32D71E25BCDD6AEBF2D910C921A5E1918E8B295EA"
+                  },
+                  {
+                      "path":  "packages/production-spec/src/agent3-instructions.ts",
+                      "sha256":  "2893457E558705A8EFED9316D5C7516BD22903572674DA85EC6DCD6DA06568A4"
+                  },
+                  {
+                      "path":  "packages/production-spec/src/agent3-prompt-compiler.ts",
+                      "sha256":  "2C137DC0481CE0B064C8CE48938DC513D8DDCC0F0C42227F9F0B9ABDB1A22DBE"
+                  },
+                  {
+                      "path":  "packages/production-spec/src/directing.ts",
+                      "sha256":  "4C31F15F4383D5DC4E14CFEB94C6AFB59C99B83C7BA876E9701293D1230BB8E1"
+                  },
+                  {
+                      "path":  "packages/production-spec/test/directing.test.ts",
+                      "sha256":  "A80CA75D5144BDDA238FF97ADDE384304FA5644B83A898FB53D1D95CE73F9DF2"
+                  },
+                  {
+                      "path":  "tests/workflow-v13.test.mjs",
+                      "sha256":  "9D61C82858D047CB1BFD8ACC8E0D2C58D6881B0F17912E5BE59F661A2D175D85"
+                  },
+                  {
+                      "path":  "resources/channel-profiles/HISTORY_MYSTERY_V1/1.9.0.json",
+                      "sha256":  "54A243EBD6CC0A9BBC61EFE17B2A70C603A346588DF8B12424A7FC2FC3CA953F"
+                  },
+                  {
+                      "path":  "resources/visual-bibles/HISTORY_MYSTERY_VISUAL_BIBLE/1.3.0.json",
+                      "sha256":  "24D5D1FE98837F330149C58153E25CB3289F0A7CECFC94B8C5CFBA3AE49B2695"
+                  }
+              ],
+    "evidence":  [
+                     {
+                         "path":  "evidence/agent-cli-environment-failures.log",
+                         "sha256":  "430B49EB10A511B2E7EA8C9D195976E45AD153727299AD63A7C0CB89DE23D6F1"
+                     },
+                     {
+                         "path":  "evidence/agent-production-spec.log",
+                         "sha256":  "E15C8D3819ACE74BB5039EA35A7332D63197B442618C1DA15323DA008BDB2534"
+                     },
+                     {
+                         "path":  "evidence/agent-typecheck.log",
+                         "sha256":  "9C94E00923B3BF4A8CD15BAA2DE97611F73B8C4DB462DEDCA967CE26093702D8"
+                     },
+                     {
+                         "path":  "evidence/agent-workflow-v13.log",
+                         "sha256":  "1C324E84035F774A0E6BE8ABF21FF25A0F46C6579069CC9F8651427A8AF82DEB"
+                     },
+                     {
+                         "path":  "evidence/user-cli-pass.txt",
+                         "sha256":  "10AF4706777DCF6AF9C3E62DA221B40BC6E85B53B5456CD51D8B479AFFFAF84E"
+                     },
+                     {
+                         "path":  "evidence/user-e2e-pass.txt",
+                         "sha256":  "10CC65F3615FE5D03F5A3C29C3D17DDC5D557C089DD2A68DD41A6C2BEB842EB2"
+                     },
+                     {
+                         "path":  "evidence/user-full-test-tail.txt",
+                         "sha256":  "BD11F79BC4894B2C56913A7D1F4FF9542D55B8C91A2ABBAE53FCDC4B6849C323"
+                     }
+                 ]
+}

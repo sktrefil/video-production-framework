@@ -1,0 +1,396 @@
+{
+  "recordedAt": "2026-10-04T13:17:54.824Z",
+  "project": "neanderthal_oase1_longform_v13_001",
+  "readOnly": true,
+  "tasks": [
+    {
+      "task_id": "T010",
+      "status": "COMPLETE",
+      "attempt": 1,
+      "last_gate_id": "RESEARCH_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"research_spec\",\"revision\":1,\"sha256\":\"3d4762d934e912f1b63af953ead386b339ba80c2409eeb2f91f071abdea9f74f\"},{\"artifact_type\":\"fact_check_spec\",\"revision\":1,\"sha256\":\"4ea67aa88f5c0cb12c2be4fa254d29190445dee59b75e5fb8aebbca46891c769\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T020",
+      "status": "COMPLETE",
+      "attempt": 1,
+      "last_gate_id": "SCRIPT_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"story_spec\",\"revision\":1,\"sha256\":\"ab34c06489dd4a8e1fe6fa4fe3b2f806633ae6aa85795e2ce66c21ea886a388a\"},{\"artifact_type\":\"script\",\"revision\":1,\"sha256\":\"a85291e1fadb54ac10fa16660f20a47f395890a22b758ef3168301908fc414b4\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T025",
+      "status": "COMPLETE",
+      "attempt": 3,
+      "last_gate_id": "PRE_TTS_VISUAL_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"pre_tts_visual_plan\",\"revision\":1,\"sha256\":\"ba77211e39813470b677f93289e3d391746f9d62f5de6597f42552231a2933e2\"},{\"artifact_type\":\"pre_tts_visual_beat_spec\",\"revision\":1,\"sha256\":\"7f2d5f94687e2fdb8071f775daa55c25287a356a314b950013e9168072be671b\"},{\"artifact_type\":\"pre_tts_visual_direction_spec\",\"revision\":1,\"sha256\":\"4d9eef724ebaea837c74e0779392a6efe297ac45d525595e88000d43085dc108\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T030",
+      "status": "COMPLETE",
+      "attempt": 2,
+      "last_gate_id": "STORY_AUDIO_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"tts_manifest\",\"revision\":1,\"sha256\":\"b4990a63e273aba6d8b701186cff60f2238ade50faecfc15c6e6a30f11ab1bab\"},{\"artifact_type\":\"scene_timing_spec\",\"revision\":1,\"sha256\":\"1c05969230cbc725a265a413350877ce1bd42139c2a9c9a53f27ae19b8491b2d\"},{\"artifact_type\":\"subtitle_timing\",\"revision\":1,\"sha256\":\"60a60d62e7a506357a7ffded8082e3cc5497d82dba4d13db5061361dc4ecdee7\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T040",
+      "status": "COMPLETE",
+      "attempt": 2,
+      "last_gate_id": "VISUAL_PLAN_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"scene_visual_spec\",\"revision\":1,\"sha256\":\"7d0e9db3332037dcc252af73d4194a37c59ea62fc84806266b37150dba9364b2\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T050",
+      "status": "COMPLETE",
+      "attempt": 2,
+      "last_gate_id": "STATE_IMAGE_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"state_image_spec\",\"revision\":1,\"sha256\":\"c0c2647af236b5d36e05a4fbc78431f820181accc5c40d8040d27b484ebc9457\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T060",
+      "status": "REVISION_REQUIRED",
+      "attempt": 3,
+      "last_gate_id": "CLIP_PLAN_GATE",
+      "last_gate_status": "PASS",
+      "output_refs_json": "[{\"artifact_type\":\"clip_production_spec\",\"revision\":3,\"sha256\":\"daec232565ba5f544fc2437226db55212267919b96086e3d6a3567dea4cd14d8\"},{\"artifact_type\":\"prompt_bundle_spec\",\"revision\":3,\"sha256\":\"aebbecf8fbbe3d6f8e4fd31efeae12def0434674e5c8a236e31612beb108caef\"}]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T070",
+      "status": "BLOCKED",
+      "attempt": 0,
+      "last_gate_id": null,
+      "last_gate_status": null,
+      "output_refs_json": "[]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T080",
+      "status": "BLOCKED",
+      "attempt": 0,
+      "last_gate_id": null,
+      "last_gate_status": null,
+      "output_refs_json": "[]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T090",
+      "status": "BLOCKED",
+      "attempt": 0,
+      "last_gate_id": null,
+      "last_gate_status": null,
+      "output_refs_json": "[]",
+      "outputRefsValid": true
+    },
+    {
+      "task_id": "T100",
+      "status": "BLOCKED",
+      "attempt": 0,
+      "last_gate_id": null,
+      "last_gate_status": null,
+      "output_refs_json": "[]",
+      "outputRefsValid": true
+    }
+  ],
+  "artifacts": [
+    {
+      "type": "fact_check_spec",
+      "revision": 1,
+      "sha256": "4ea67aa88f5c0cb12c2be4fa254d29190445dee59b75e5fb8aebbca46891c769",
+      "hashValid": true
+    },
+    {
+      "type": "research_spec",
+      "revision": 1,
+      "sha256": "3d4762d934e912f1b63af953ead386b339ba80c2409eeb2f91f071abdea9f74f",
+      "hashValid": true
+    },
+    {
+      "type": "script",
+      "revision": 1,
+      "sha256": "a85291e1fadb54ac10fa16660f20a47f395890a22b758ef3168301908fc414b4",
+      "hashValid": true
+    },
+    {
+      "type": "story_spec",
+      "revision": 1,
+      "sha256": "ab34c06489dd4a8e1fe6fa4fe3b2f806633ae6aa85795e2ce66c21ea886a388a",
+      "hashValid": true
+    },
+    {
+      "type": "subtitle_timing",
+      "revision": 1,
+      "sha256": "60a60d62e7a506357a7ffded8082e3cc5497d82dba4d13db5061361dc4ecdee7",
+      "hashValid": true
+    },
+    {
+      "type": "tts_manifest",
+      "revision": 1,
+      "sha256": "b4990a63e273aba6d8b701186cff60f2238ade50faecfc15c6e6a30f11ab1bab",
+      "hashValid": true
+    },
+    {
+      "type": "pre_tts_visual_beat_spec",
+      "revision": 1,
+      "sha256": "7f2d5f94687e2fdb8071f775daa55c25287a356a314b950013e9168072be671b",
+      "hashValid": true
+    },
+    {
+      "type": "pre_tts_visual_direction_spec",
+      "revision": 1,
+      "sha256": "4d9eef724ebaea837c74e0779392a6efe297ac45d525595e88000d43085dc108",
+      "hashValid": true
+    },
+    {
+      "type": "pre_tts_visual_plan",
+      "revision": 1,
+      "sha256": "ba77211e39813470b677f93289e3d391746f9d62f5de6597f42552231a2933e2",
+      "hashValid": true
+    },
+    {
+      "type": "prompt_bundle_spec",
+      "revision": 3,
+      "sha256": "aebbecf8fbbe3d6f8e4fd31efeae12def0434674e5c8a236e31612beb108caef",
+      "hashValid": true
+    },
+    {
+      "type": "scene_visual_spec",
+      "revision": 1,
+      "sha256": "7d0e9db3332037dcc252af73d4194a37c59ea62fc84806266b37150dba9364b2",
+      "hashValid": true
+    },
+    {
+      "type": "state_image_spec",
+      "revision": 1,
+      "sha256": "c0c2647af236b5d36e05a4fbc78431f820181accc5c40d8040d27b484ebc9457",
+      "hashValid": true
+    },
+    {
+      "type": "project_spec",
+      "revision": 1,
+      "sha256": "139bc83c91c258abf8f4fef5bd2457e4a73f4bbcd1ac06aacdc233f1f7d3c771",
+      "hashValid": true
+    },
+    {
+      "type": "scene_timing_spec",
+      "revision": 1,
+      "sha256": "1c05969230cbc725a265a413350877ce1bd42139c2a9c9a53f27ae19b8491b2d",
+      "hashValid": true
+    },
+    {
+      "type": "clip_production_spec",
+      "revision": 3,
+      "sha256": "daec232565ba5f544fc2437226db55212267919b96086e3d6a3567dea4cd14d8",
+      "hashValid": true
+    }
+  ],
+  "audio": [
+    {
+      "section": "tts-SC01",
+      "path": "03_tts/sections/section_001.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC02",
+      "path": "03_tts/sections/section_002.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC03",
+      "path": "03_tts/sections/section_003.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC04",
+      "path": "03_tts/sections/section_004.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC05",
+      "path": "03_tts/sections/section_005.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC06",
+      "path": "03_tts/sections/section_006.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC07",
+      "path": "03_tts/sections/section_007.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC08",
+      "path": "03_tts/sections/section_008.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC09",
+      "path": "03_tts/sections/section_009.mp3",
+      "hashValid": true
+    },
+    {
+      "section": "tts-SC10",
+      "path": "03_tts/sections/section_010.mp3",
+      "hashValid": true
+    }
+  ],
+  "totalDuration": 221.2,
+  "clipCount": 28,
+  "currentDirectingErrors": [
+    {
+      "clip": "SC01-C02",
+      "code": "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+      "message": "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+      "path": "directing.reveal"
+    },
+    {
+      "clip": "SC01-C02",
+      "code": "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+      "message": "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+      "path": "directing.handoff"
+    },
+    {
+      "clip": "SC02-C02",
+      "code": "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+      "message": "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+      "path": "directing.story"
+    },
+    {
+      "clip": "SC02-C02",
+      "code": "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+      "message": "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+      "path": "directing.reveal"
+    },
+    {
+      "clip": "SC06-C01",
+      "code": "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+      "message": "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+      "path": "directing.reveal"
+    },
+    {
+      "clip": "SC08-C02",
+      "code": "DIRECTING_READABLE_TEXT_OR_MAP_FORBIDDEN",
+      "message": "Do not instruct the generator to render readable names, dates, labels, captions, maps or site/location markers. Use non-textual and non-cartographic spatial cues.",
+      "path": "directing.reveal"
+    }
+  ],
+  "pins": [
+    {
+      "resourceType": "CHANNEL_PROFILE",
+      "resourceId": "HISTORY_MYSTERY_V1",
+      "version": "1.8.0",
+      "contentHash": "sha256:6d626b3380febeb7dda0a066fe9f4923ba4df56f0a20b83af94f4833b09d2d7f"
+    },
+    {
+      "resourceType": "CHANNEL_VISUAL_BIBLE",
+      "resourceId": "HISTORY_MYSTERY_VISUAL_BIBLE",
+      "version": "1.2.0",
+      "contentHash": "sha256:c979879bfe40f3e118bd72955fabe153ed685e342977bc9a2df647b8d5e449b9"
+    },
+    {
+      "resourceType": "RULE_REGISTRY",
+      "resourceId": "PRODUCTION_RULE_REGISTRY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:961c5bb553867bec5b624baa289ff75c027baf859a4ff548d8de16a0023665bd"
+    },
+    {
+      "resourceType": "FORMAT_PROFILE",
+      "resourceId": "LONGFORM_16X9_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:03a69f095026bbb323c11079da4c83678c73034f6304cf7459ad50161d04202f"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "REMOTION_FINAL_RENDER_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:bfc0726f82def5c49d8880e0e8a3423594027b7a6a7f32e01d42b44d83e803af"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "IMAGE_PROVIDER_EXECUTION_V1",
+      "version": "1.2.0",
+      "contentHash": "sha256:8c6bc773465b367ba8a39fef12d74654d35414dda3bd35112f0a551ba399779c"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "CODEX_MANAGER_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:ff36b6fdf1b33c9008e3f15b208731a9d56a550282bc570cb08521c55425e76a"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "CODEX_STORY_AUDIO_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:6a7f6258fbe93ca28a2ff6355b78c74c8d877ae13f8973d3124f2fc4b40947b6"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "OPENAI_AGENT2_STORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:9a293e8852e752ac246020d5ec451f88f437667c7c90ccf13f4683f682c93214"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "GOOGLE_FLOW_MANUAL_EXTERNAL_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:9425d56f8e8271fe35fc5bb5aba2de1210d95035ef346b50607685f8332f5859"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "CODEX_VISUAL_PRODUCTION_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:4045bfeb68a7e5566cf039b92d0ed32e4eecfc8f4745b333fcfd37816e9b5edd"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "OPENAI_AGENT3_VISUAL_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:c49232e392c6431f87bd70db446852f92eb93a7a5a4e51faa5fc6f0067b29a1a"
+    }
+  ],
+  "reviews": [
+    {
+      "task_id": "T060",
+      "attempt": 3,
+      "verdict": "RETRY",
+      "root_cause": "The T060 clips use non-cartographic geography, but referenced provisional states SC02-S01–S03 and SC06-S01–S04 still specify maps and site markers. Several provider video prompts also instruct the generator to typeset readable names, dates, or labels, despite the rule against generated readable text.",
+      "revision_instruction": "Redesign the affected T060 state handoffs and prompts so SC02 and SC06 use only cave, terrain, and separate evidence-panel cues, with no map or location markers. Reserve all names, dates, percentages, and hypothesis labels for editorial typesetting outside image and video generation; make the provider prompts request blank space for those overlays. Keep the reveals within their existing deadlines and align the referenced start and end states with the revised clips before T070. Do not request a new map or reference asset.",
+      "created_at": "2026-10-04T12:15:41.225Z"
+    },
+    {
+      "task_id": "T060",
+      "attempt": 3,
+      "verdict": "RETRY",
+      "root_cause": "SC02 and SC06 require a verified map in their clips, state images, and prompts, but no approved map reference is supplied. Their empty reference_ids lists are valid; the defect is the unresolved map dependency, which could lead to generated geography.",
+      "revision_instruction": "Redesign SC02 and SC06 to convey the verified locations through non-cartographic spatial or environmental cues, with place names typeset in editorial. Remove map-dependent reveals and camera paths from the affected clips, state images, and prompts. Preserve the approved location facts, sample distinctions, timing, IDs, visual policy, and Korean–English equivalence.",
+      "created_at": "2026-10-04T12:05:29.820Z"
+    },
+    {
+      "task_id": "T060",
+      "attempt": 3,
+      "verdict": "BLOCK",
+      "root_cause": "SC02 and SC06 require a verified Europe map, but the supplied artifacts contain no map asset or reference ID. Their image prompts have empty reference lists, so the required geography cannot be locked for production.",
+      "revision_instruction": "Supply a verified Europe map asset with a stable reference ID upstream, then regenerate the SC02 and SC06 state-image prompts and clips to bind that reference. Preserve the approved facts, measured timing, clip and state IDs, and pinned Visual Bible.",
+      "created_at": "2026-10-04T11:49:10.864Z"
+    }
+  ]
+}

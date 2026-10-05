@@ -1,0 +1,13 @@
+{
+  "ready": false,
+  "command": "C:\\Windows\\system32\\cmd.exe",
+  "cli_version": null,
+  "auth_status": null,
+  "checks": [
+    {
+      "code": "CODEX_CLI_INSTALLED",
+      "status": "FAIL",
+      "message": "spawn EPERM"
+    }
+  ]
+}

@@ -47,3 +47,4 @@ patch-*.ps1
 codex-*-probe*.ps1
 
 apps\editor\build
+/.tmp-*
