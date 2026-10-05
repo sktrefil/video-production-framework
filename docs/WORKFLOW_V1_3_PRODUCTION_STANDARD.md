@@ -232,6 +232,37 @@ FOREGROUND_REVEAL -> LATERAL_TRACK_WITH_SUBTLE_PUSH
 
 `T080 VIDEO_CLIP_GENERATION_QC`는 T060에서 승인된 provider/model/duration을 실행 계약으로 상속한다.
 
+### 6.1 T070 ChatGPT Browser CDP auto-start
+
+T070의 ChatGPT Browser 이미지 생성은 로컬 Chrome CDP가 꺼져 있다는 이유만으로 provider retry를 소비하지 않는다.
+
+기본 CDP endpoint는 `http://127.0.0.1:9222`다. IMAGE provider adapter는 worker 실행 전에 endpoint를 probe하고, 연결되지 않으면 기본적으로 설치된 Chrome 또는 Chromium 기반 Edge를 찾아 VPF 전용 영속 프로필로 자동 실행한다.
+
+```text
+CDP unavailable
+  → installed Chrome/Edge discovery
+  → --remote-debugging-port=9222
+  → persistent VPF ChromeCDP user-data-dir
+  → wait for /json/version READY
+  → start ChatGPT browser worker
+  → continue T070
+```
+
+Windows 기본 프로필은 `%LOCALAPPDATA%\\VPF\\ChromeCDP`다. 이 프로필은 다음 실행에도 재사용하므로 최초 한 번 ChatGPT 로그인이 필요할 수 있다. 로그인, captcha, usage-limit은 우회하지 않고 기존 browser-worker gate로 명시적으로 실패한다.
+
+운영 환경 변수:
+
+```text
+CHATGPT_CDP_URL                  # default http://127.0.0.1:9222
+CHATGPT_AUTO_LAUNCH_BROWSER      # default true; 0/false/off이면 자동 실행 금지
+CHATGPT_BROWSER_EXECUTABLE       # Chrome/Edge 실행 파일을 명시적으로 고정
+VPF_CHROME_EXECUTABLE            # alternate explicit executable
+CHATGPT_CDP_USER_DATA_DIR        # 영속 브라우저 프로필 경로
+CHATGPT_CDP_START_TIMEOUT_MS     # 자동 실행 후 CDP READY 대기, default 20000ms
+```
+
+Chrome 프로세스가 없거나 9222 포트가 열려 있지 않은 것은 복구 가능한 런타임 조건이다. 브라우저 실행 파일 자체가 설치되어 있지 않으면 임의 설치하지 않고 명확한 configuration error로 실패한다.
+
 ## 7. 신규 프로젝트 bootstrap 요구사항
 
 새 프로젝트는 Workflow 1.3 11-task bootstrap을 사용해야 한다.
