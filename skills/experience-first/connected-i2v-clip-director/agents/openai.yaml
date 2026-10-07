@@ -1,0 +1,13 @@
+interface:
+  display_name: 4. Connected I2V Clip Director
+  short_description: 콘티를 연결 클립 프롬프트와 프레임·생성 계획으로 바꾼다
+  default_prompt: $connected-i2v-clip-director로 콘티를 서로 이어지는 I2V 클립 제작 패키지로 바꿔줘.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

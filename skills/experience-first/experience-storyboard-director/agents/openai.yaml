@@ -1,0 +1,13 @@
+interface:
+  display_name: 3. Experience Storyboard Director
+  short_description: 경험과 소재를 구도·카메라·소리·연결 콘티로 구체화한다
+  default_prompt: $experience-storyboard-director로 선택한 경험과 소재를 제작 콘티로 구체화해줘.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

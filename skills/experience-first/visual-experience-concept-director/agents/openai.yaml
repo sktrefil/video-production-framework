@@ -1,0 +1,13 @@
+interface:
+  display_name: 1. Visual Experience Concept Director
+  short_description: 시청각 경험을 먼저 설계하고 주제 탐색 조건을 정의한다
+  default_prompt: $visual-experience-concept-director로 시청자의 눈과 귀를 붙잡는 경험 콘셉트를 설계해줘.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

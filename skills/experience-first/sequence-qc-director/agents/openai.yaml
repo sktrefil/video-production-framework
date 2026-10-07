@@ -1,0 +1,13 @@
+interface:
+  display_name: 5. Sequence QC Director
+  short_description: 설계와 실제 파일럿을 검수하고 내레이션 진입을 판정한다
+  default_prompt: $sequence-qc-director로 연결 시퀀스를 검수하고 실제 파일럿 통과 여부를 판정해줘.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

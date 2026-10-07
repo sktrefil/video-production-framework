@@ -1,0 +1,13 @@
+interface:
+  display_name: 2. Mystery / History / Fiction Topic Finder
+  short_description: 경험 콘셉트에 맞는 소재를 찾고 사실과 허구를 구분한다
+  default_prompt: $mystery-history-fiction-topic-finder로 1번 경험 콘셉트에 맞는 소재를 찾아줘.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
