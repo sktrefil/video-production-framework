@@ -1,0 +1,23 @@
+{
+  "project_id": "weekday-roman-gods-v1",
+  "gate_id": "MSTG-weekday-roman-gods-v1-01",
+  "status": "PASS",
+  "approver": "Agent1",
+  "user_authorization": "Story Gate 승인하자",
+  "script_directing_lock_id": "SDL-weekday-roman-gods-v1-r04",
+  "approved_script_id": "script_ac618b4d-64b8-49e4-a6be-4bcc4188064a",
+  "approved_script_db_revision": 4,
+  "approved_script_revision": "r04",
+  "approved_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+  "approved_script_body_hash": "sha256:6e8b5558e70ea725dec25821c8f32b48b68d1a95bb963a781d3bd07182d0cf51",
+  "approved_scene_graph_revision": "SG01",
+  "approved_scene_graph_hash": "sha256:b13b6764e46eac30a7e31300edd71831ff188bfc32a33f105d52664100d3671f",
+  "scene_count": 19,
+  "sequence_count": 4,
+  "chapter_count": 4,
+  "script_approval_id": "apr_aa8dd254-a000-443a-a4c1-8ca915a2d263",
+  "structure_approval_id": "apr_99c6230e-2acb-4f0c-a8c1-472a829a52fb",
+  "tts_timing_status": "ESTIMATED_ONLY",
+  "final_tts_generated": false,
+  "completed_at": "2026-10-10T07:35:00.069Z"
+}

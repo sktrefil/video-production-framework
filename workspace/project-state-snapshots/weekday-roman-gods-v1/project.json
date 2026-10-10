@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "projectId": "weekday-roman-gods-v1",
+  "title": "요일 이름에 숨겨진 로마 신들의 살벌한 비밀",
+  "format": "LONGFORM",
+  "revision": 1,
+  "lifecycleStatus": "ACTIVE",
+  "pipeline": "VPF_UNIFIED_V1",
+  "legacyAllowed": false,
+  "versions": {
+    "frameworkVersion": "0.1.0",
+    "dataModelVersion": "0025",
+    "channelVisualBibleVersion": "1.2.0",
+    "productionSystemVersion": "2.0.0",
+    "ruleRegistryVersion": "1.0.0",
+    "formatProfileVersion": "1.0.0",
+    "providerProfileVersions": {
+      "FINAL_RENDER": "1.0.0",
+      "IMAGE": "1.2.0",
+      "MANAGER_AI": "1.0.0",
+      "STORY_AI": "1.0.0",
+      "STORY_AI_FALLBACK": "1.0.0",
+      "TTS": "1.0.0",
+      "VIDEO_MANUAL": "1.0.0",
+      "VISUAL_AI": "1.0.0",
+      "VISUAL_AI_FALLBACK": "1.0.0"
+    },
+    "projectStyleVersion": "UNMATERIALIZED",
+    "resourceHashes": {
+      "channelVisualBible": "sha256:c979879bfe40f3e118bd72955fabe153ed685e342977bc9a2df647b8d5e449b9",
+      "ruleRegistry": "sha256:961c5bb553867bec5b624baa289ff75c027baf859a4ff548d8de16a0023665bd",
+      "formatProfile": "sha256:03a69f095026bbb323c11079da4c83678c73034f6304cf7459ad50161d04202f",
+      "providerProfiles": {
+        "FINAL_RENDER": "sha256:bfc0726f82def5c49d8880e0e8a3423594027b7a6a7f32e01d42b44d83e803af",
+        "IMAGE": "sha256:8c6bc773465b367ba8a39fef12d74654d35414dda3bd35112f0a551ba399779c",
+        "MANAGER_AI": "sha256:ff36b6fdf1b33c9008e3f15b208731a9d56a550282bc570cb08521c55425e76a",
+        "STORY_AI": "sha256:6a7f6258fbe93ca28a2ff6355b78c74c8d877ae13f8973d3124f2fc4b40947b6",
+        "STORY_AI_FALLBACK": "sha256:9a293e8852e752ac246020d5ec451f88f437667c7c90ccf13f4683f682c93214",
+        "TTS": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2",
+        "VIDEO_MANUAL": "sha256:9425d56f8e8271fe35fc5bb5aba2de1210d95035ef346b50607685f8332f5859",
+        "VISUAL_AI": "sha256:4045bfeb68a7e5566cf039b92d0ed32e4eecfc8f4745b333fcfd37816e9b5edd",
+        "VISUAL_AI_FALLBACK": "sha256:c49232e392c6431f87bd70db446852f92eb93a7a5a4e51faa5fc6f0067b29a1a"
+      },
+      "channelProfile": "sha256:6d626b3380febeb7dda0a066fe9f4923ba4df56f0a20b83af94f4833b09d2d7f"
+    }
+  },
+  "resourcePins": [
+    {
+      "resourceType": "CHANNEL_PROFILE",
+      "resourceId": "HISTORY_MYSTERY_V1",
+      "version": "1.8.0",
+      "contentHash": "sha256:6d626b3380febeb7dda0a066fe9f4923ba4df56f0a20b83af94f4833b09d2d7f"
+    },
+    {
+      "resourceType": "CHANNEL_VISUAL_BIBLE",
+      "resourceId": "HISTORY_MYSTERY_VISUAL_BIBLE",
+      "version": "1.2.0",
+      "contentHash": "sha256:c979879bfe40f3e118bd72955fabe153ed685e342977bc9a2df647b8d5e449b9"
+    },
+    {
+      "resourceType": "RULE_REGISTRY",
+      "resourceId": "PRODUCTION_RULE_REGISTRY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:961c5bb553867bec5b624baa289ff75c027baf859a4ff548d8de16a0023665bd"
+    },
+    {
+      "resourceType": "FORMAT_PROFILE",
+      "resourceId": "LONGFORM_16X9_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:03a69f095026bbb323c11079da4c83678c73034f6304cf7459ad50161d04202f"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "REMOTION_FINAL_RENDER_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:bfc0726f82def5c49d8880e0e8a3423594027b7a6a7f32e01d42b44d83e803af"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "IMAGE_PROVIDER_EXECUTION_V1",
+      "version": "1.2.0",
+      "contentHash": "sha256:8c6bc773465b367ba8a39fef12d74654d35414dda3bd35112f0a551ba399779c"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "CODEX_MANAGER_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:ff36b6fdf1b33c9008e3f15b208731a9d56a550282bc570cb08521c55425e76a"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "CODEX_STORY_AUDIO_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:6a7f6258fbe93ca28a2ff6355b78c74c8d877ae13f8973d3124f2fc4b40947b6"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "OPENAI_AGENT2_STORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:9a293e8852e752ac246020d5ec451f88f437667c7c90ccf13f4683f682c93214"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "GOOGLE_FLOW_MANUAL_EXTERNAL_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:9425d56f8e8271fe35fc5bb5aba2de1210d95035ef346b50607685f8332f5859"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "CODEX_VISUAL_PRODUCTION_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:4045bfeb68a7e5566cf039b92d0ed32e4eecfc8f4745b333fcfd37816e9b5edd"
+    },
+    {
+      "resourceType": "PROVIDER_PROFILE",
+      "resourceId": "OPENAI_AGENT3_VISUAL_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:c49232e392c6431f87bd70db446852f92eb93a7a5a4e51faa5fc6f0067b29a1a"
+    }
+  ]
+}

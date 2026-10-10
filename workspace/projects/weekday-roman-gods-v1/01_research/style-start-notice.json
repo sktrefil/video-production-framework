@@ -1,0 +1,27 @@
+{
+  "notice_id": "STYLE-weekday-roman-gods-v1-r1",
+  "project_id": "weekday-roman-gods-v1",
+  "video_title_or_topic": "요일 이름에 숨겨진 로마 신들의 살벌한 비밀",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "visual_language": "strong stylized history-fantasy / graphic animation",
+  "camera_language": [
+    "kinetic camera motion",
+    "foreground parallax",
+    "scale shifts",
+    "spatial traversal",
+    "arc/orbit",
+    "graphic match",
+    "speed contrast"
+  ],
+  "prohibited_styles": [
+    "PHOTOREALISTIC",
+    "LIVE_ACTION",
+    "DOCUMENTARY_REENACTMENT",
+    "HYPERREAL",
+    "REALISTIC_CINEMATIC_RECONSTRUCTION"
+  ],
+  "evidence_policy": "Preserve factual anchors accurately. Stylize, abstract, silhouette, omit, or editorialize unknown details instead of depicting them as established fact.",
+  "user_visible_notice_ko": "이 영상은 비실사 스타일라이즈드 역사 판타지·그래픽 애니메이션으로 진행하며, 포토리얼·실사·다큐 재현을 사용하지 않습니다. 확인된 사실과 근거는 정확히 유지하고, 불확실한 부분은 스타일화·추상화·실루엣·편집 그래픽으로 표현합니다. 강한 그래픽 연출과 목적 있는 역동적 카메라 움직임을 사용합니다.",
+  "user_notice_rendered": true,
+  "status": "DECLARED"
+}

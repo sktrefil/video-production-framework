@@ -1,0 +1,131 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut1_3",
+  "canonical_scene_id": "sc_0b1142c2-5c7c-49be-a314-9c3c78b885c3",
+  "cut_id": "P1_S1_Cut03",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 10,
+  "planned_parent_end_sec": 16,
+  "exact_narration": "이야기는 로마 세계의 달력으로 이어집니다. 시간의 문을 열어볼까요?",
+  "estimated_speech_duration_sec": 5.4,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P1_S1_Cut03.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut1_3",
+      "canonical_scene_id": "sc_0b1142c2-5c7c-49be-a314-9c3c78b885c3",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_4fd2a360-9fdf-4de7-8851-4b5065810440",
+      "part_id": "P1",
+      "sequence_id": "S1",
+      "cut_id": "P1_S1_Cut03",
+      "shot_id": "P1_S1_Cut03",
+      "subshot_suffix": null,
+      "shot_title_ko": "사각형에서 석판으로",
+      "review_summary_ko": "휴대폰의 한 사각 면을 종이 같은 그래픽 조각으로 분해해 석판 외곽으로 결합한다. 과거 실물 유물이 아니라 편집적 시대 전환이다.",
+      "scene_purpose_ko": "현재 화면에서 과거를 설명하는 프레임으로 전환",
+      "evidence_ids": [
+        "F-01",
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 10.0,
+        "planned_end_sec": 16.0,
+        "planned_use_duration_sec": 6,
+        "parent_start_sec": 10,
+        "parent_end_sec": 16,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 6.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 16.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "이야기는 로마 세계의 달력으로 이어집니다. 시간의 문을 열어볼까요?",
+        "text_sha256": "sha256:a3fcc4f403699bbda5ec580f5179ab7709010e54c9c3428b1dd9253de4292bb6",
+        "estimated_parent_speech_sec": 5.4,
+        "tts_file_planned": "03_tts/P1_S1_Cut03.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "A→B: 화면의 사각형이 종이처럼 분해되고 청회색 그래픽 석판으로 결합.",
+        "directing_intent_ko": "스마트폰과 석판의 형상 연결을 관객이 직접 보게 함",
+        "state_in_ko": "컷 cut1_2: 요일 칸의 직사각형을 석판 외곽과 매치",
+        "state_current_ko": "현재 화면에서 과거를 설명하는 프레임으로 전환",
+        "state_out_ko": "컷 cut1_3: 석판에 라틴 요일 설명판을 드러냄",
+        "hold_back_ko": "석판 제목보다 물체 변환이 먼저",
+        "camera_reason_ko": "한 번의 축 방향 접근과 종이 면의 펼침. 스마트폰을 돌로 물리적으로 녹이는 사실적 모핑은 피한다.",
+        "parent_attention_event": {
+          "type": "ACTION",
+          "target_time_sec": 1.2
+        },
+        "parent_secondary_attention_event": {
+          "required": false
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Extreme close composition of one blank rectangular plane originating from the same smartphone calendar cell, tilted on the inherited diagonal. The rectangle is clearly an illustrated editorial transition surface, with a few crisp paperlike facets beginning to lift from its outer edge. Behind it, a blue-gray uninscribed sculptural tablet silhouette is partly concealed in dark negative space. Foreground rectangular facets, middle transition plane and background tablet form three distinct depth layers. Amber seam light from upper left follows the rectangle; its surface must remain blank, without invented ancient writing. The still marks the beginning of an overt graphic transformation, not a discovered historical relic. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) A, B only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No authentic-looking inscriptions, runes, date claims, new people, antiquarian reconstruction, or realistic stone-chip debris. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:9c28b9da0366ed284aa27b36a37d9f07f650b7667dbe2062cc1e2b3b31851d7a",
+      "motion_prompt_english": "STORY: Extreme close composition of one blank rectangular plane originating from the same smartphone calendar cell, tilted on the inherited diagonal. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.2s: enter with the prior rectangular cell occupying the frame; move backward enough to expose its border. At 1.2s begin a controlled paper-facet separation. 1.2–4.8s: the same few rectangular planes fold and reassemble into a blue-gray tablet outline while the camera pulls to a medium view. 4.8–6.0s: settle on the blank tablet face. Keep the motion legible and finite; no uncontrolled shattering or multiplying fragments. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: The blank tablet and its edges are fully readable, ready for separate modern explanatory plates in cut1_4. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No authentic-looking inscriptions, runes, date claims, new people, antiquarian reconstruction, or realistic stone-chip debris. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:fcaea3c7ba6a04a1ef590a691bfa0679a8ea0820523e21bf56a9bcdada8141b0",
+      "reference_contract": {
+        "board_panels": "A → B",
+        "board_ref_planned": "04_visual_identity/board_refs/P1_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P1_S1_Cut02",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P1_S1_Cut03_1.png",
+        "video_candidate_planned": "06_clips/generated/P1_S1_Cut03_1.mp4",
+        "parent_tts_planned": "03_tts/P1_S1_Cut03.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P1_S1_Cut03.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P1_S1_Cut03_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "종이 면 접힘과 짧은 낮은 전환음.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P1_S1_Cut04"
+    }
+  ]
+}

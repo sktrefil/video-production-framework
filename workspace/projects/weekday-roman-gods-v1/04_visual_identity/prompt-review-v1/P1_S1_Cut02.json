@@ -1,0 +1,135 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut1_2",
+  "canonical_scene_id": "sc_e3f0d937-5f3f-470a-b307-efd6ddf02b52",
+  "cut_id": "P1_S1_Cut02",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 5,
+  "planned_parent_end_sec": 10,
+  "exact_narration": "월요일, 화요일, 금요일. 이 이름들은 어디서 왔을까요?",
+  "estimated_speech_duration_sec": 4.5,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P1_S1_Cut02.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut1_2",
+      "canonical_scene_id": "sc_e3f0d937-5f3f-470a-b307-efd6ddf02b52",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_4fd2a360-9fdf-4de7-8851-4b5065810440",
+      "part_id": "P1",
+      "sequence_id": "S1",
+      "cut_id": "P1_S1_Cut02",
+      "shot_id": "P1_S1_Cut02",
+      "subshot_suffix": null,
+      "shot_title_ko": "월·화·금의 질문",
+      "review_summary_ko": "월·화·금 세 칸을 한 방향으로 훑는다. 글자는 편집 합성이며 한국어가 로마 신명으로 변하는 효과는 넣지 않는다.",
+      "scene_purpose_ko": "세 요일의 어원 질문",
+      "evidence_ids": [
+        "F-05",
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 5.0,
+        "planned_end_sec": 10.0,
+        "planned_use_duration_sec": 5,
+        "parent_start_sec": 5,
+        "parent_end_sec": 10,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 5.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 10.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "월요일, 화요일, 금요일. 이 이름들은 어디서 왔을까요?",
+        "text_sha256": "sha256:8726eb94bc856695a0a242ed86c2707505aab3da90c2c37a24dcee68d9156331",
+        "estimated_parent_speech_sec": 4.5,
+        "tts_file_planned": "03_tts/P1_S1_Cut02.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "A: 스마트폰의 월·화·금 글자를 순차 확대. 정확한 글자는 편집에서 합성.",
+        "directing_intent_ko": "언어 질문을 읽을 수 있는 문자 대상으로 접지",
+        "state_in_ko": "컷 cut1_1: 앱 아이콘에서 요일 글자로 진입",
+        "state_current_ko": "세 요일의 어원 질문",
+        "state_out_ko": "컷 cut1_2: 요일 칸의 직사각형을 석판 외곽과 매치",
+        "hold_back_ko": "정답 없이 세 칸을 연결",
+        "camera_reason_ko": "좌우 문자 칸을 한 방향으로 훑되 세 번의 줌을 반복하지 않는다.",
+        "parent_attention_event": {
+          "type": "FOCUS_SHIFT",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": false
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Close view of the same illustrated smartphone calendar surface, keeping the upper-right device orientation, blue-gray bezel and amber light from upper left. Show a clean seven-cell weekday row with blank text locations; mark three discrete cell positions through slightly brighter borders for later Korean labels. Maintain a sliver of the same desk and phone edge at the lower side so the view remains grounded in one object. Camera-ready diagonal depth permits a single lateral scan, with the first target nearest the left. This image supplies geometry; all required weekday lettering will be typeset later. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) A only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No letter generation or mutation, Roman names on the Korean screen, extra screens, new iconography or repeated zoom pulses. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:093068650eb08937ab0c11d97f0b6de7d48df875ad0dd9f839456e70566311e0",
+      "motion_prompt_english": "STORY: Close view of the same illustrated smartphone calendar surface, keeping the upper-right device orientation, blue-gray bezel and amber light from upper left. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement, after prior media exists and passes Agent1 review: use the previous shot's actual EDITED use-exit frame as START, with exact object geometry, desk angle and light direction. The prose ENTRY specification below is a review target and may not replace that continuity reference. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: start on the inherited calendar area and begin one continuous left-to-right oblique tracking move. 1.0–3.8s: pass the three editorially labeled target cells in spoken order; alter the composited emphasis, not the screen geometry, while maintaining one camera trajectory. 3.8–5.0s: settle on the final rectangular cell boundary and let its shape become the handoff. Do not perform three separate zoom punches. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: A single clear calendar rectangle fills the visual center; retain its angle for the phone-to-tablet graphic match in cut1_3. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No letter generation or mutation, Roman names on the Korean screen, extra screens, new iconography or repeated zoom pulses. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:505848a7bf3a52e9ea22e89a74426b403f06f45e92a0b48d41d3b22a139d0474",
+      "reference_contract": {
+        "board_panels": "A",
+        "board_ref_planned": "04_visual_identity/board_refs/P1_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P1_S1_Cut01",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "CONTINUATION",
+        "sequential_dependency_required": true,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P1_S1_Cut02_1.png",
+        "video_candidate_planned": "06_clips/generated/P1_S1_Cut02_1.mp4",
+        "parent_tts_planned": "03_tts/P1_S1_Cut02.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P1_S1_Cut02.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P1_S1_Cut02_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "월",
+          "화",
+          "금"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "세 개의 아주 짧은 강조음; 나레이션보다 작게.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P1_S1_Cut03"
+    }
+  ]
+}

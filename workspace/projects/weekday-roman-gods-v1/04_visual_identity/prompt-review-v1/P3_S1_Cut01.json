@@ -1,0 +1,135 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut3_1",
+  "canonical_scene_id": "sc_f5f4fc4e-194a-449a-9e16-64aa590bbf63",
+  "cut_id": "P3_S1_Cut01",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 80,
+  "planned_parent_end_sec": 90,
+  "exact_narration": "금요일도 보죠. 라틴어 디에스 베네리스는 비너스의 이름과 연결됩니다. 금성의 날이죠. 여기까지는 로마의 이름입니다.",
+  "estimated_speech_duration_sec": 9.0,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P3_S1_Cut01.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut3_1",
+      "canonical_scene_id": "sc_f5f4fc4e-194a-449a-9e16-64aa590bbf63",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_025ead34-c4f4-4fef-9c90-f38eb485a8cf",
+      "part_id": "P3",
+      "sequence_id": "S1",
+      "cut_id": "P3_S1_Cut01",
+      "shot_id": "P3_S1_Cut01",
+      "subshot_suffix": null,
+      "shot_title_ko": "라틴어 금요일과 비너스",
+      "review_summary_ko": "금성 기호를 먼저 보여주고 5.5초에 dies Veneris로 초점을 옮긴다. 10초는 낭독 밀도 때문에 유지한 강조 컷이며 실측 뒤 다시 검토한다.",
+      "scene_purpose_ko": "비너스와 금성의 라틴 금요일",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "timeline": {
+        "planned_start_sec": 80.0,
+        "planned_end_sec": 90.0,
+        "planned_use_duration_sec": 10,
+        "parent_start_sec": 80,
+        "parent_end_sec": 90,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 10.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 90.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "금요일도 보죠. 라틴어 디에스 베네리스는 비너스의 이름과 연결됩니다. 금성의 날이죠. 여기까지는 로마의 이름입니다.",
+        "text_sha256": "sha256:1c5488fbdc22e6a349abae3cb23f73c10563eb217b169ec2189c550df3dff9f3",
+        "estimated_parent_speech_sec": 9.0,
+        "tts_file_planned": "03_tts/P3_S1_Cut01.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "금성 기호와 호박색 원반이 석판 설명판 dies Veneris 옆에 드러남. 궁전·연회·암살 장면 없음.",
+        "directing_intent_ko": "라틴어 금요일을 다음 반전의 비교 기준으로 확립",
+        "state_in_ko": "컷 cut2_6: Friday 칸의 호박색을 금성 원반에 전달",
+        "state_current_ko": "비너스와 금성의 라틴 금요일",
+        "state_out_ko": "컷 cut3_1: 라틴 칸을 유지한 채 영어 비교 열을 열기",
+        "hold_back_ko": "금성 기호 뒤 라틴 어구",
+        "camera_reason_ko": "금성 원반 뒤 설명판을 옆으로 드러내는 짧은 아크. 화성 비교의 붉은 전면 병치와 구별되는 뒤편 발견 구도.",
+        "parent_attention_event": {
+          "type": "REVEAL",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "FOCUS_SHIFT",
+          "target_time_sec": 5.5
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. An amber illustrated Venus disc and one simple Venus symbol form the primary foreground subject in a dark blue editorial space. The established uninscribed tablet silhouette and a separate modern blank dies Veneris explanation plate sit farther back to the right. Start close enough that the disc dominates but leave its circular boundary fully visible. Use visibly painted sculptural facets, muted amber highlights and cool blue shade; the plate remains blank until typesetting. Reserve a shallow lateral camera path from disc to label. The symbolism explains a name; it does not depict a goddess, palace or ancient event. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) B, C only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No sensual goddess portrait, palace, banquet, assassination, historical rituals, seven-column deity board or photoreal planet rendering. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:d9cdd4975cb885e9c6c6dac4950359bcb619fd73a74f2149e47495473b6f1ff6",
+      "motion_prompt_english": "STORY: An amber illustrated Venus disc and one simple Venus symbol form the primary foreground subject in a dark blue editorial space. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: match the prior amber cell to a single Venus disc, revealing the disc and its symbolic sign. 1.0–5.3s: travel along a shallow lateral arc to expose the separate modern explanation plate. At 5.5s shift emphasis to dies Veneris. 5.5–9.0s: let the phrase and Venus relationship remain readable with minimal residual parallax. 9.0–10.0s: settle on the plate rectangle for the next English comparison. This 10s use interval is an emphasis exception, not a default pacing rule. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: Preserve the modern plate format and tablet silhouette; the next cut introduces two different English-name rows rather than deity morphing. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No sensual goddess portrait, palace, banquet, assassination, historical rituals, seven-column deity board or photoreal planet rendering. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:ce8626e7b2583418f928679e0c27cd96b7d47bf77bd4f86ba19d81a0ddb01e81",
+      "reference_contract": {
+        "board_panels": "B / C",
+        "board_ref_planned": "04_visual_identity/board_refs/P3_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P2_S1_Cut06",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P3_S1_Cut01_1.png",
+        "video_candidate_planned": "06_clips/generated/P3_S1_Cut01_1.mp4",
+        "parent_tts_planned": "03_tts/P3_S1_Cut01.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P3_S1_Cut01.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P3_S1_Cut01_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "dies Veneris",
+          "Venus / 금성의 날"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "밝고 작은 원반 강조음; 과도한 신비 효과 없음.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P3_S1_Cut02"
+    }
+  ]
+}

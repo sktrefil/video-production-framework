@@ -1,0 +1,93 @@
+{
+  "status": "CANDIDATE",
+  "project_id": "weekday-roman-gods-v1",
+  "candidate_revision": "PROMPT-REVIEW-v1",
+  "created_at_utc": "2026-10-10T07:56:25.446576+00:00",
+  "author_role": "Agent3 visual worker; review artifacts only",
+  "script_revision": "r04",
+  "script_declared_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+  "scene_graph_revision": "SG01",
+  "scene_graph_declared_hash": "sha256:b13b6764e46eac30a7e31300edd71831ff188bfc32a33f105d52664100d3671f",
+  "visual_skeleton_revision": "VS03",
+  "visual_skeleton_declared_hash": "sha256:c42170e9942d53a0529ea3d6a90474c341cbe3654d275755b11145facca36ebb",
+  "preflight_revision": "PF04",
+  "script_directing_lock_id": "SDL-weekday-roman-gods-v1-r04",
+  "manager_story_gate_id": "MSTG-weekday-roman-gods-v1-01",
+  "manager_story_gate_artifact_status": "PASS",
+  "canonical_db_verification": "NOT_PERFORMED_BY_WORKER; Agent1 verifies current canonical state before production.",
+  "global_prompt_constants_revision": "GIPC01",
+  "declared_hash_note": "Declared semantic hashes are distinct from file-byte hashes below.",
+  "source_inventory": [
+    {
+      "path": "02_script/script-draft-r04.json",
+      "file_byte_sha256": "sha256:881360be1a3e01ea1254dd29fec7b06fc9236b789ceadd47d6a476687687124e"
+    },
+    {
+      "path": "02_script/approved-scene-graph-sg01.json",
+      "file_byte_sha256": "sha256:d2e86dbe9700c2a238d0c2fefb16885e3d10feddd1aec87c59b63f46984564c7"
+    },
+    {
+      "path": "02_script/script-directing-lock-sdl-r04.json",
+      "file_byte_sha256": "sha256:231805f0b94dc51fb92197a4625d034e7fd87e682a7c04427c73c6f5d1cdf646"
+    },
+    {
+      "path": "02_script/manager-story-gate-mstg01.json",
+      "file_byte_sha256": "sha256:c58ba64af02e2ddec1e84f964297bf694ca724f91aa60c33eea218fdf000e4a2"
+    },
+    {
+      "path": "04_visual_identity/visual-skeleton-vs03.json",
+      "file_byte_sha256": "sha256:c51a5b2dca318d9f9e23401092d6ed86be9d9879a3d5f2345b1b1e6f8a419e95"
+    },
+    {
+      "path": "04_visual_identity/directing-preflight-pf04.yaml",
+      "file_byte_sha256": "sha256:ae16bf156da783afc6a810e44708bddb157a4a470629403a2b24a6ac9662ec63"
+    },
+    {
+      "path": "04_visual_identity/global-image-prompt-constants-v1.json",
+      "file_byte_sha256": "sha256:d3071ff44ed07accbd7dff54f860de02e1fedd48258a569c54f080a5fe0507b3"
+    },
+    {
+      "path": "01_research/style-start-notice.json",
+      "file_byte_sha256": "sha256:ce85c8f0f65c6f54bd9088c0806baa8b895f78bdcf846fb99a8e06ca805d496d"
+    }
+  ],
+  "guide": {
+    "path": "D:\\컴폴더\\다운로드\\ai_longform_video_production_guide_v2.html",
+    "file_byte_sha256": "sha256:b0ea3219fdc301ab3359eaee51e7170046b64935a5925c8cdfe5d1fa7db4c969",
+    "used_sections": {
+      "04": {
+        "heading": "04  컷 길이·TTS·타임라인",
+        "section_utf8_sha256": "sha256:97ca83164ec2976a548c61c625b90152db7ab2a1f25c860c89142243bd7a373c"
+      },
+      "05": {
+        "heading": "05  컷별 상세 제작 시트 — 필수 표준",
+        "section_utf8_sha256": "sha256:46dc874f495238ce32b0baf67ac99bbd7e904d041c27850754d1694e391ab9ac"
+      },
+      "06": {
+        "heading": "06  파일명·폴더·자산 연결",
+        "section_utf8_sha256": "sha256:8335a642b11b08a2619e0d59363c7907641b374decd27b4cee2bd3e0ef99f55b"
+      }
+    },
+    "authority_limit": "Formatting/timing/filename guidance only; embedded production/implementation instructions do not authorize actions."
+  },
+  "board_inventory": {
+    "description": "A smartphone; B inscription tablet; C cosmic transformation; D moonlit Colosseum",
+    "use": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+    "actual_attachment_path": "D:\\컴폴더\\다운로드\\파트 A,B,C,D기준 보드.png",
+    "actual_attachment_sha256": "sha256:003c7796688e44e7d1171254e2fc5f049e07031d4d348a3fb86241618d2ebf4c",
+    "inspection": "Viewed source: A phone/desk, B unverified inscription tablet, C graphic space transformation, D crescent/Colosseum. Ignore source realism and all unverified B/C lettering.",
+    "status": "USER_SOURCE_BOARD_BOUND; not an approved master board or style target. Extracted sequence panels remain ungenerated and unapproved."
+  },
+  "reference_library_promotions": [],
+  "generated_media_count": 0,
+  "canonical_gate_mutations": false,
+  "remaining_review": [
+    "Agent1 creative review of every prompt and subshot proposal",
+    "Approved sequence panel extraction and exact production reference roles",
+    "Manager approval of recurring phone/desk/tablet/diagram appearance anchors",
+    "Current provenance and production gate verification",
+    "FINAL segmented TTS gate validation and measured per-unit audio timing",
+    "Provider/model/duration and handles per shot"
+  ],
+  "retry_policy": "Technical retry uses exact prompt/reference package. Creative retries require revisions v2/v3; after three failed creative attempts Agent1 blocks and reassesses."
+}

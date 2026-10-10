@@ -1,0 +1,130 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut1_5",
+  "canonical_scene_id": "sc_31f0ef5e-9a18-49c7-b416-c08cc739a5d1",
+  "cut_id": "P1_S1_Cut05",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 23,
+  "planned_parent_end_sec": 30,
+  "exact_narration": "하지만 우리가 그 신들의 이름을 그대로 부르는 걸까요? 여기서 반전이 시작됩니다.",
+  "estimated_speech_duration_sec": 6.3,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P1_S1_Cut05.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut1_5",
+      "canonical_scene_id": "sc_31f0ef5e-9a18-49c7-b416-c08cc739a5d1",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_4fd2a360-9fdf-4de7-8851-4b5065810440",
+      "part_id": "P1",
+      "sequence_id": "S1",
+      "cut_id": "P1_S1_Cut05",
+      "shot_id": "P1_S1_Cut05",
+      "subshot_suffix": null,
+      "shot_title_ko": "틈을 통과해 달밤으로",
+      "review_summary_ko": "석판 틈 통과 후 달과 콜로세움 실루엣을 큰 스케일로 공개한다. 이 공간은 역사 재현이 아니라 질문을 확장하는 상징이다.",
+      "scene_purpose_ko": "같은 신명인가라는 질문에서 달밤 공간으로 확대",
+      "evidence_ids": [
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 23.0,
+        "planned_end_sec": 30.0,
+        "planned_use_duration_sec": 7,
+        "parent_start_sec": 23,
+        "parent_end_sec": 30,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 7.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 30.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "하지만 우리가 그 신들의 이름을 그대로 부르는 걸까요? 여기서 반전이 시작됩니다.",
+        "text_sha256": "sha256:1367d3023f94a6862a65104d80364121454941f30020092450bcb3ada9b38d3c",
+        "estimated_parent_speech_sec": 6.3,
+        "tts_file_planned": "03_tts/P1_S1_Cut05.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "C→D: 석판의 별빛 균열을 통과해 거대한 초승달과 층 분리한 콜로세움 실루엣으로 확장.",
+        "directing_intent_ko": "답을 보류하면서 스케일을 크게 바꾸어 월요일 달로 접속",
+        "state_in_ko": "컷 cut1_4: 설명판 기호가 우주 균열을 형성",
+        "state_current_ko": "같은 신명인가라는 질문에서 달밤 공간으로 확대",
+        "state_out_ko": "컷 cut1_5: D의 달에 시선 고정 후 달 요일 설명",
+        "hold_back_ko": "영어/한국어 반전 답은 보류",
+        "camera_reason_ko": "C의 밝은 틈을 한 번 통과한 뒤 D 실루엣의 큰 스케일로 감속한다. 광원과 입구를 겹쳐 통로를 읽힌다.",
+        "parent_attention_event": {
+          "type": "SPATIAL_DISCOVERY",
+          "target_time_sec": 1.5
+        },
+        "parent_secondary_attention_event": {
+          "required": false
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. A narrow star-colored graphic seam divides the same blue-gray tablet in extreme foreground. Through that seam, reveal only a sliver of an oversized crescent and two abstract arch layers suggesting the Colosseum silhouette. Build a clearly painted fantasy space: angular indigo planes, a crisp amber seam edge and muted silver-blue crescent light. The tablet edges frame a traversable opening with foreground, midground arch and distant moon layers. Keep the far space mostly concealed in the ENTRY image so the later scale reveal is earned. The architecture is an editorial silhouette, not a reconstruction of ancient Rome. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) C, D only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No live city streets, people, historically exact building textures, god names, English/Korean answers, or random galaxy-particle overload. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:d531e7a71499250f107ba06a567f60c9d3d7f1fe5172a3bce0b922546cce0e97",
+      "motion_prompt_english": "STORY: A narrow star-colored graphic seam divides the same blue-gray tablet in extreme foreground. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.5s: advance rapidly but smoothly into the graphic seam; at 1.5s cross the near plane and reveal the large moon-space. 1.5–5.5s: accelerate through the layered opening, then widen to an extreme-wide crescent above separated Colosseum-like silhouettes with clear parallax. 5.5–7.0s: decelerate and fix attention on the crescent. Do not create a realistic city or a historical ceremony. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: The crescent remains in the upper-middle region, larger than the silhouetted arches; give cut2_1 a stable moon and arch orientation to continue. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No live city streets, people, historically exact building textures, god names, English/Korean answers, or random galaxy-particle overload. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:146ba3c4c383e7af3a7d2d5ea983bd61279d009a6f066781c50f40c6aeece073",
+      "reference_contract": {
+        "board_panels": "C → D",
+        "board_ref_planned": "04_visual_identity/board_refs/P1_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P1_S1_Cut04",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P1_S1_Cut05_1.png",
+        "video_candidate_planned": "06_clips/generated/P1_S1_Cut05_1.mp4",
+        "parent_tts_planned": "03_tts/P1_S1_Cut05.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P1_S1_Cut05.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P1_S1_Cut05_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "짧은 공간 통과음; 도착 뒤 숨을 둔다.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P2_S1_Cut01"
+    }
+  ]
+}

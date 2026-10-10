@@ -1,0 +1,36 @@
+{
+  "status": "CANDIDATE",
+  "self_qc_result": "PASS_STRUCTURAL_ONLY",
+  "manager_approval": null,
+  "checks": {
+    "canonical_unit_count": 19,
+    "canonical_scene_count": 19,
+    "visual_shot_proposal_count": 25,
+    "long_parent_units_split": 6,
+    "unique_shot_and_image_names": true,
+    "unique_parent_narration_names": 19,
+    "narration_exact_r04_and_scene_graph_match": true,
+    "parent_scene_time_windows_preserved": true,
+    "all_edited_shots_lte_10sec": true,
+    "planned_used_picture_duration_sec": 180,
+    "intershot_overlap_candidate_sec": 0.0,
+    "tts_actual_is_null_everywhere": true,
+    "tts_speed": 1.0,
+    "english_only_prompt_text": true,
+    "exact_global_suffix_every_image": true,
+    "motion_required_fields_every_shot": true,
+    "r04_sg01_vs03_pf04_provenance_match": true,
+    "source_bytes_unchanged_after_build": true,
+    "parent_attention_events_preserved_in_metadata": true,
+    "generated_media_count": 0
+  },
+  "unresolved": [
+    "Measured timing/word alignment",
+    "Approved sequence panel extraction",
+    "Approved recurring appearance anchors",
+    "Provider/model/generation duration and handle capacity",
+    "Agent1 creative/continuity approval and canonical DB verification"
+  ],
+  "style_review_note": "Explicit illustrated geometry and common non-realistic negatives in every shot; this is prose review, not generated-image QC.",
+  "approval_boundary": "No approval record written; no canonical gate advanced; no images/TTS/video generated."
+}

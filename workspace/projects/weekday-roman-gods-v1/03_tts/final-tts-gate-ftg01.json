@@ -1,0 +1,99 @@
+{
+  "gate_id": "FTG-weekday-roman-gods-v1-01",
+  "script_directing_lock_id": "SDL-weekday-roman-gods-v1-r04",
+  "lock": {
+    "script_revision": "r04",
+    "script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "preflight_revision": "PF04",
+    "preflight_script_revision": "r04",
+    "preflight_input_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "visual_skeleton_revision": "VS03",
+    "visual_skeleton_hash": "sha256:c42170e9942d53a0529ea3d6a90474c341cbe3654d275755b11145facca36ebb",
+    "visual_skeleton_script_revision": "r04",
+    "visual_skeleton_input_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "locked_unit_ids": [
+      "cut1_1",
+      "cut1_2",
+      "cut1_3",
+      "cut1_4",
+      "cut1_5",
+      "cut2_1",
+      "cut2_2",
+      "cut2_3",
+      "cut2_4",
+      "cut2_5",
+      "cut2_6",
+      "cut3_1",
+      "cut3_2",
+      "cut3_3",
+      "cut3_4",
+      "cut4_1",
+      "cut4_2",
+      "cut4_3",
+      "cut4_4"
+    ],
+    "fact_guardrail_ids": [
+      "FG01",
+      "FG02",
+      "FG03",
+      "FG04",
+      "FG05",
+      "FG06"
+    ]
+  },
+  "current_script": {
+    "revision": "r04",
+    "hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "unit_ids": [
+      "cut1_1",
+      "cut1_2",
+      "cut1_3",
+      "cut1_4",
+      "cut1_5",
+      "cut2_1",
+      "cut2_2",
+      "cut2_3",
+      "cut2_4",
+      "cut2_5",
+      "cut2_6",
+      "cut3_1",
+      "cut3_2",
+      "cut3_3",
+      "cut3_4",
+      "cut4_1",
+      "cut4_2",
+      "cut4_3",
+      "cut4_4"
+    ],
+    "fact_guardrail_ids": [
+      "FG01",
+      "FG02",
+      "FG03",
+      "FG04",
+      "FG05",
+      "FG06"
+    ]
+  },
+  "current_preflight": {
+    "revision": "PF04",
+    "input_script_revision": "r04",
+    "input_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "status": "PASS"
+  },
+  "current_visual_skeleton": {
+    "revision": "VS03",
+    "hash": "sha256:c42170e9942d53a0529ea3d6a90474c341cbe3654d275755b11145facca36ebb",
+    "input_script_revision": "r04",
+    "input_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "status": "PASS"
+  },
+  "manager_story_gate": {
+    "status": "PASS",
+    "approved_script_revision": "r04",
+    "approved_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "approved_scene_graph_revision": "SG01",
+    "approved_scene_graph_hash": "sha256:b13b6764e46eac30a7e31300edd71831ff188bfc32a33f105d52664100d3671f"
+  },
+  "final_tts_generated": false,
+  "canonical_db_check": "PASS: active FINAL r04 and all 19 approved Scene revisions match SG01"
+}

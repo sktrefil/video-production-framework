@@ -1,0 +1,257 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut3_3",
+  "canonical_scene_id": "sc_cbefd34c-3bc8-41a1-a70e-a594c24cce1a",
+  "cut_id": "P3_S1_Cut03",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 100,
+  "planned_parent_end_sec": 115,
+  "exact_narration": "라틴어의 마르스와 비너스가, 영어의 이름 속에서는 그대로 보이지 않습니다. 같은 요일을 가리켜도, 부르는 이름에는 다른 전통이 담깁니다. 달력은 이렇게 달라집니다.",
+  "estimated_speech_duration_sec": 13.3,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P3_S1_Cut03.mp3",
+  "visual_subshot_proposal": true,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut3_3",
+      "canonical_scene_id": "sc_cbefd34c-3bc8-41a1-a70e-a594c24cce1a",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_025ead34-c4f4-4fef-9c90-f38eb485a8cf",
+      "part_id": "P3",
+      "sequence_id": "S1",
+      "cut_id": "P3_S1_Cut03",
+      "shot_id": "P3_S1_Cut03_A",
+      "subshot_suffix": "_A",
+      "shot_title_ko": "분리된 카드, 같은 요일 위치",
+      "review_summary_ko": "100–107.5초 제안. 분리된 종이 카드가 105.5초에 겹쳐 같은 요일 위치와 다른 이름을 드러낸다.",
+      "scene_purpose_ko": "같은 주간 구조에 다른 명칭",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 100.0,
+        "planned_end_sec": 107.5,
+        "planned_use_duration_sec": 7.5,
+        "parent_start_sec": 100,
+        "parent_end_sec": 115,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 7.5,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 107.5,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "라틴어의 마르스와 비너스가, 영어의 이름 속에서는 그대로 보이지 않습니다. 같은 요일을 가리켜도, 부르는 이름에는 다른 전통이 담깁니다. 달력은 이렇게 달라집니다.",
+        "text_sha256": "sha256:0d4d952280c6a93d31a20966b5426fa20a1a9398f55db9550434880c0fdb95f3",
+        "estimated_parent_speech_sec": 13.3,
+        "tts_file_planned": "03_tts/P3_S1_Cut03.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "라틴어와 영어 이름이 적힌 두 장의 분리된 종이 카드로 시작. 1초 카드 가장자리 차이, 5.5초 카드가 겹쳐 같은 요일 위치를 가리키는 관계를 읽힘. 10초부터 A 책상과 스마트폰 몸체를 선명히 보여준다. 일곱 칸 도식의 색판 교체를 반복하지 않는다.",
+        "directing_intent_ko": "종합 설명을 두 물체의 겹침과 전체 책상 스케일로 표현. 이미 설명한 어구만 사용하고 10초 이후 스마트폰 몸체를 읽혀 다음 한국어 달력에 물리적으로 접지한다.",
+        "state_in_ko": "컷 cut3_2: 이름 변형을 요일 칸의 연속과 대비",
+        "state_current_ko": "같은 주간 구조에 다른 명칭",
+        "state_out_ko": "컷 cut3_3: A 스마트폰의 한국어 달력을 다음 컷의 日/月 두 그룹 공개로 전달",
+        "hold_back_ko": "두 카드의 다른 이름을 먼저 읽히고 관계를 확인한 뒤 10초에 스마트폰으로 복귀",
+        "camera_reason_ko": "분리된 라틴어/영어 종이 카드의 가장자리를 1초에 읽히고 5.5초 카드의 겹침으로 같은 요일 위치를 확인. 10초부터 스마트폰 몸체와 책상으로 단일 후퇴. 일곱 칸 색판 교체 반복을 제거.",
+        "parent_attention_event": {
+          "type": "ACTION",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "REORIENTATION",
+          "target_time_sec": 5.5
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Close oblique view of two separate illustrated paper language cards on the familiar dark-indigo desk, one Latin comparison card and one English comparison card. Their rectangular edges are offset, exposing distinct paper thicknesses; blank printed-label zones and one corresponding weekday position on each card are clearly separated. Neither card is a full cloned seven-cell board. Keep the two cards partly apart at ENTRY so an later overlap can reveal their positional relationship. The original smartphone exists outside this close crop to the right. Upper-left amber desk light and cool blue-gray painted shadows maintain the established environment. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) A, B only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No floating letters, repeated color-swapping week-grid motif, god-name morph, direct transmission arrows, extra cards or spontaneous device arrival. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:69010e01a928b582fa1d2b5f8fb402e5f71ca605105e2bd68b568f89e7f3a870",
+      "motion_prompt_english": "STORY: Close oblique view of two separate illustrated paper language cards on the familiar dark-indigo desk, one Latin comparison card and one English comparison card. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: move along the two different paper edges and reveal their separation at 1.0s. 1.0–5.3s: take one shallow lateral camera path with the card edges acting as parallax anchors. At parent 5.5s, slide the two already-present cards a short distance to partially overlap, exposing the correspondence of one weekday position while their labels remain distinct. 5.5–7.5s: hold the overlap relation and begin a gentle pullback toward the unseen phone. The cards remain two physical editorial props. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: End on two partially overlapping cards with the rightward desk area opening into view; cut3_3_B starts from the actual used exit frame if production is approved. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No floating letters, repeated color-swapping week-grid motif, god-name morph, direct transmission arrows, extra cards or spontaneous device arrival. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:d51d1997a764f8beb7f0e608ea7ed9836c937bc5877073d67791476de441dab3",
+      "reference_contract": {
+        "board_panels": "A / B의 종이 형태",
+        "board_ref_planned": "04_visual_identity/board_refs/P3_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P3_S1_Cut02",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P3_S1_Cut03_A_1.png",
+        "video_candidate_planned": "06_clips/generated/P3_S1_Cut03_A_1.mp4",
+        "parent_tts_planned": "03_tts/P3_S1_Cut03.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P3_S1_Cut03.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P3_S1_Cut03_A_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "라틴어",
+          "영어",
+          "서로 다른 이름 / 같은 요일 위치"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "105.5초 짧은 종이 미끄러짐.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P3_S1_Cut03_B"
+    },
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut3_3",
+      "canonical_scene_id": "sc_cbefd34c-3bc8-41a1-a70e-a594c24cce1a",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_025ead34-c4f4-4fef-9c90-f38eb485a8cf",
+      "part_id": "P3",
+      "sequence_id": "S1",
+      "cut_id": "P3_S1_Cut03",
+      "shot_id": "P3_S1_Cut03_B",
+      "subshot_suffix": "_B",
+      "shot_title_ko": "카드에서 일상 스마트폰으로",
+      "review_summary_ko": "107.5–115초 제안. 원래 잠금의 110초 스마트폰 공개를 그대로 유지한다. 부모 음성은 끊거나 다시 녹음하지 않는다.",
+      "scene_purpose_ko": "같은 주간 구조에 다른 명칭",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 107.5,
+        "planned_end_sec": 115.0,
+        "planned_use_duration_sec": 7.5,
+        "parent_start_sec": 100,
+        "parent_end_sec": 115,
+        "parent_local_start_sec": 7.5,
+        "parent_local_end_sec": 15.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 115.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "라틴어의 마르스와 비너스가, 영어의 이름 속에서는 그대로 보이지 않습니다. 같은 요일을 가리켜도, 부르는 이름에는 다른 전통이 담깁니다. 달력은 이렇게 달라집니다.",
+        "text_sha256": "sha256:0d4d952280c6a93d31a20966b5426fa20a1a9398f55db9550434880c0fdb95f3",
+        "estimated_parent_speech_sec": 13.3,
+        "tts_file_planned": "03_tts/P3_S1_Cut03.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "라틴어와 영어 이름이 적힌 두 장의 분리된 종이 카드로 시작. 1초 카드 가장자리 차이, 5.5초 카드가 겹쳐 같은 요일 위치를 가리키는 관계를 읽힘. 10초부터 A 책상과 스마트폰 몸체를 선명히 보여준다. 일곱 칸 도식의 색판 교체를 반복하지 않는다.",
+        "directing_intent_ko": "종합 설명을 두 물체의 겹침과 전체 책상 스케일로 표현. 이미 설명한 어구만 사용하고 10초 이후 스마트폰 몸체를 읽혀 다음 한국어 달력에 물리적으로 접지한다.",
+        "state_in_ko": "컷 cut3_2: 이름 변형을 요일 칸의 연속과 대비",
+        "state_current_ko": "같은 주간 구조에 다른 명칭",
+        "state_out_ko": "컷 cut3_3: A 스마트폰의 한국어 달력을 다음 컷의 日/月 두 그룹 공개로 전달",
+        "hold_back_ko": "두 카드의 다른 이름을 먼저 읽히고 관계를 확인한 뒤 10초에 스마트폰으로 복귀",
+        "camera_reason_ko": "분리된 라틴어/영어 종이 카드의 가장자리를 1초에 읽히고 5.5초 카드의 겹침으로 같은 요일 위치를 확인. 10초부터 스마트폰 몸체와 책상으로 단일 후퇴. 일곱 칸 색판 교체 반복을 제거.",
+        "parent_attention_event": {
+          "type": "ACTION",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "REORIENTATION",
+          "target_time_sec": 5.5
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Start from the candidate overlap state of the two grounded language cards on the same desk, framed slightly wider than the preceding close view. The same blue-gray smartphone is physically present at the right edge, with its full body mostly concealed beyond the initial crop. Its Korean calendar page has blank stable typography zones and the same device proportions, diagonal angle and amber upper-left light as the opening. The paper cards stay separate objects with visible thickness. Layering must support a camera pullback that reveals the actual device and desk instead of returning to an abstract full-screen diagram. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) A only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No new spoken text, audio split assumption, device change, Latin-to-Korean genealogical morph, cosmic prop spawning or detached overlay panels. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:842e46a3ec9e469dc5ddc2ac104aad01a947cfba48ba000e4f5e4cf86664c0ca",
+      "motion_prompt_english": "STORY: Start from the candidate overlap state of the two grounded language cards on the same desk, framed slightly wider than the preceding close view. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement, after prior media exists and passes Agent1 review: use the previous shot's actual EDITED use-exit frame as START, with exact object geometry, desk angle and light direction. The prose ENTRY specification below is a review target and may not replace that continuity reference. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: Local 0.0–2.4s (parent 7.5–9.9s): continue the prior pullback slowly while keeping the overlapping cards readable. At local 2.5s (parent 10.0s), clearly reveal the full original smartphone body and the desk area beside it. Local 2.5–6.5s: travel slightly rightward, settling on the Korean calendar page without altering any names. Local 6.5–7.5s: pause on the familiar object, preparing the next cut to explain the sun/moon and five-element celestial groupings. The parent narration continues without a new audio segment. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: The familiar device and desk become the focal anchor; leave its screen calendar clear for cut3_4_A. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No new spoken text, audio split assumption, device change, Latin-to-Korean genealogical morph, cosmic prop spawning or detached overlay panels. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:f1ff97d304ec41bb338fd9fd21de7b511348fdbc6934231507760731ea263dc1",
+      "reference_contract": {
+        "board_panels": "A",
+        "board_ref_planned": "04_visual_identity/board_refs/P3_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P3_S1_Cut03_A",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "CONTINUATION",
+        "sequential_dependency_required": true,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P3_S1_Cut03_B_1.png",
+        "video_candidate_planned": "06_clips/generated/P3_S1_Cut03_B_1.mp4",
+        "parent_tts_planned": "03_tts/P3_S1_Cut03.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P3_S1_Cut03.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P3_S1_Cut03_B_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "한국어 달력(정확한 글자 후반 합성)"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "카메라 확대에는 아주 낮은 책상 공간음.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P3_S1_Cut04_A"
+    }
+  ]
+}

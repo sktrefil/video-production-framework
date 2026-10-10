@@ -5,8 +5,9 @@ coverage/
 .env.*
 !.env.example
 
-# Unified runtime workspace: code/docs stay tracked, real projects do not.
-workspace/projects/**
+# Runtime projects stay local by default. Track reviewed source for this LONGFORM project.
+workspace/projects/*
+!workspace/projects/weekday-roman-gods-v1/
 !workspace/README.md
 
 # Generated editor runtime mirrors and renders are never source.
@@ -30,6 +31,8 @@ logs/
 !workspace/project-state-snapshots/
 !workspace/project-state-snapshots/pilot_short_roman_ix/
 !workspace/project-state-snapshots/pilot_short_roman_ix/project.db
+!workspace/project-state-snapshots/weekday-roman-gods-v1/
+!workspace/project-state-snapshots/weekday-roman-gods-v1/project.db
 local.config.*
 .DS_Store
 

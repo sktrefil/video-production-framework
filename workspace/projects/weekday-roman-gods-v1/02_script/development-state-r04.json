@@ -1,0 +1,27 @@
+{
+  "project_id": "weekday-roman-gods-v1",
+  "development_state": "STORY_GATE_PASS",
+  "revision_round": 2,
+  "research_revision": "RL01",
+  "script_revision": "r04",
+  "script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+  "preflight_revision": "PF04",
+  "visual_skeleton_revision": "VS03",
+  "writer_status": "CANDIDATE_READY_FOR_LOCK_REVIEW",
+  "directing_preflight_status": "PASS",
+  "visual_skeleton_status": "PASS",
+  "sequence_qc_status": "PASS",
+  "unresolved_issues": [
+    "Actual TTS timing, final image prompts, and I2V motion prompts are not yet produced."
+  ],
+  "revision_route": "NONE",
+  "script_directing_lock_id": "SDL-weekday-roman-gods-v1-r04",
+  "lock_status": "LOCKED",
+  "final_tts_permission": "DEVELOPMENT_READY",
+  "manager_story_gate_id": "MSTG-weekday-roman-gods-v1-01",
+  "manager_story_gate_status": "PASS",
+  "approved_scene_graph_revision": "SG01",
+  "approved_scene_graph_hash": "sha256:b13b6764e46eac30a7e31300edd71831ff188bfc32a33f105d52664100d3671f",
+  "next_allowed_action": "FINAL_TTS_GATE",
+  "invalidated_downstream": ["FINAL_TTS", "FULL_STORYBOARD", "FINAL_IMAGE_PROMPTS", "FINAL_I2V_PROMPTS"]
+}

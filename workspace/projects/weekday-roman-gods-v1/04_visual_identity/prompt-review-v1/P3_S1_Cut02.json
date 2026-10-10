@@ -1,0 +1,136 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut3_2",
+  "canonical_scene_id": "sc_c64585c4-2311-4ba4-a12c-cb93d744a736",
+  "cut_id": "P3_S1_Cut02",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 90,
+  "planned_parent_end_sec": 100,
+  "exact_narration": "그런데 영어 튜즈데이는 티우의 날, 프라이데이는 프리그의 날에서 왔습니다. 로마 신의 이름이 그대로 남은 말은 아니죠.",
+  "estimated_speech_duration_sec": 9.0,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P3_S1_Cut02.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut3_2",
+      "canonical_scene_id": "sc_c64585c4-2311-4ba4-a12c-cb93d744a736",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_025ead34-c4f4-4fef-9c90-f38eb485a8cf",
+      "part_id": "P3",
+      "sequence_id": "S1",
+      "cut_id": "P3_S1_Cut02",
+      "shot_id": "P3_S1_Cut02",
+      "subshot_suffix": null,
+      "shot_title_ko": "Tuesday/Tiw와 Friday/Frigg",
+      "review_summary_ko": "두 행에서 Tuesday/Tiw 다음 Friday/Frigg를 읽힌다. 이 한 컷에서만 해당 대비를 전개하고 로마 신과 같은 인물로 그리지 않는다.",
+      "scene_purpose_ko": "영어 Tuesday와 Friday의 다른 신명",
+      "evidence_ids": [
+        "F-04"
+      ],
+      "timeline": {
+        "planned_start_sec": 90.0,
+        "planned_end_sec": 100.0,
+        "planned_use_duration_sec": 10,
+        "parent_start_sec": 90,
+        "parent_end_sec": 100,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 10.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 100.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "그런데 영어 튜즈데이는 티우의 날, 프라이데이는 프리그의 날에서 왔습니다. 로마 신의 이름이 그대로 남은 말은 아니죠.",
+        "text_sha256": "sha256:a11c7b3e1873955f268a0b98539166c55145f87cda5ca8762b15b25a063b72dc",
+        "estimated_parent_speech_sec": 9.0,
+        "tts_file_planned": "03_tts/P3_S1_Cut02.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "두 행의 문자 비교: Tuesday/Tiw, Friday/Frigg. 게르만 신 얼굴 대신 구별되는 추상 문장 기호. 로마 신과 동일 인물처럼 모핑하지 않음.",
+        "directing_intent_ko": "영어의 두 어원을 한 컷에서 나란히 읽힘",
+        "state_in_ko": "컷 cut3_1: 라틴 칸을 유지한 채 영어 비교 열을 열기",
+        "state_current_ko": "영어 Tuesday와 Friday의 다른 신명",
+        "state_out_ko": "컷 cut3_2: 이름 변형을 요일 칸의 연속과 대비",
+        "hold_back_ko": "Tuesday 대응 먼저, Friday 대응 뒤",
+        "camera_reason_ko": "두 행을 한 행씩 차례로 읽고 카메라는 정지에 가까운 짧은 시선 이동만 사용. 로마 신을 게르만 신으로 모핑하지 않는다.",
+        "parent_attention_event": {
+          "type": "REVEAL",
+          "target_time_sec": 1.5
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "FOCUS_SHIFT",
+          "target_time_sec": 5.5
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. One stable modern comparison board with exactly two rows, placed on a grounded dark blue editorial surface. Each row has two generous blank typesetting zones, a small abstract emblem and no human or deity portrait. The upper-row emblem uses an angular notch; the lower-row emblem uses an offset loop, making them visibly distinct without claiming historical iconography. Leave the lower row subtly subordinate in the ENTRY image. Use a medium oblique framing with very shallow layer depth, blue-gray board material and restrained amber edge light; the board geometry must allow static editorial typography. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) B only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No additional Germanic deity roster, Roman/Germanic identity equivalence, god faces, face morphing, automatic letters or repeated zooms. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:0992cfc42d8fc254fd8cf903da8344bccfb80a93f539ba503b3b5942bc7f44eb",
+      "motion_prompt_english": "STORY: One stable modern comparison board with exactly two rows, placed on a grounded dark blue editorial surface. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.5s: settle into the single comparison board; at 1.5s reveal the Tuesday/Tiw row by composited emphasis. 1.5–5.3s: retain a gentle 8% forward camera approach while the first row reads. At 5.5s move editorial emphasis to the Friday/Frigg row, with a small downward camera adjustment. 5.5–9.3s: keep both rows in one stable frame for the contrast. 9.3–10.0s: settle, preserving rectangular paper-plane geometry for the next shot. No gods or names morph into one another. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: Both distinct rows remain legible; hand off their rectangular comparison geometry to two separate language cards on the desk. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No additional Germanic deity roster, Roman/Germanic identity equivalence, god faces, face morphing, automatic letters or repeated zooms. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:6a2ebf7b4963344be25e2ef5b6d66da24691636c14614409ca377c231d73c253",
+      "reference_contract": {
+        "board_panels": "B의 설명판 구도",
+        "board_ref_planned": "04_visual_identity/board_refs/P3_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P3_S1_Cut01",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P3_S1_Cut02_1.png",
+        "video_candidate_planned": "06_clips/generated/P3_S1_Cut02_1.mp4",
+        "parent_tts_planned": "03_tts/P3_S1_Cut02.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P3_S1_Cut02.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P3_S1_Cut02_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "Tuesday / Tiw",
+          "Friday / Frigg",
+          "서로 다른 이름 전통"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "행 전환 시 작은 톤 2개.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P3_S1_Cut03_A"
+    }
+  ]
+}

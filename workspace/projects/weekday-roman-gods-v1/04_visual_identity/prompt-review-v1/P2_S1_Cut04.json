@@ -1,0 +1,135 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut2_4",
+  "canonical_scene_id": "sc_949e38c3-a7c1-4953-80c4-8cec1f6f4311",
+  "cut_id": "P2_S1_Cut04",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 55,
+  "planned_parent_end_sec": 63,
+  "exact_narration": "화요일의 라틴 이름은 디에스 마르티스. 마르스의 이름이 담긴, 화성의 날입니다.",
+  "estimated_speech_duration_sec": 7.0,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P2_S1_Cut04.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut2_4",
+      "canonical_scene_id": "sc_949e38c3-a7c1-4953-80c4-8cec1f6f4311",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_47848837-095e-4d48-974e-2a11a92a5259",
+      "part_id": "P2",
+      "sequence_id": "S1",
+      "cut_id": "P2_S1_Cut04",
+      "shot_id": "P2_S1_Cut04",
+      "subshot_suffix": null,
+      "shot_title_ko": "마르스와 화성",
+      "review_summary_ko": "화성 원반과 추상 마르스 표지를 병치한다. 얼굴·갑옷·전투를 만들지 않고 이름 관계만 설명한다.",
+      "scene_purpose_ko": "마르스와 화성의 날",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "timeline": {
+        "planned_start_sec": 55.0,
+        "planned_end_sec": 63.0,
+        "planned_use_duration_sec": 8,
+        "parent_start_sec": 55,
+        "parent_end_sec": 63,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 8.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 63.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "화요일의 라틴 이름은 디에스 마르티스. 마르스의 이름이 담긴, 화성의 날입니다.",
+        "text_sha256": "sha256:8a315c6e43cdf49b5cf3a03b48a13979dc36cff9dd34d582b59ff98d6af6c66c",
+        "estimated_parent_speech_sec": 7.0,
+        "tts_file_planned": "03_tts/P2_S1_Cut04.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "붉은 화성 원반과 추상적 마르스 상징판을 병치. 특정 신상·갑옷의 역사적 복원 없음.",
+        "directing_intent_ko": "신명과 행성 이름의 겹침을 하나의 연결로 읽힘",
+        "state_in_ko": "컷 cut2_3: 문서 가장자리의 붉은 기호를 화성 원반으로 전달",
+        "state_current_ko": "마르스와 화성의 날",
+        "state_out_ko": "컷 cut2_4: 무기 상징을 실제 사건의 증거로 읽지 않게 제한",
+        "hold_back_ko": "화성 색 원반 먼저, 마르티스 설명판 뒤",
+        "camera_reason_ko": "화성 원반에서 현대 이름판으로 초점 이동. 카메라 아크는 원반 뒤 이름 발견에만 쓰고 갑옷·창의 사실 복원은 제외한다.",
+        "parent_attention_event": {
+          "type": "REVEAL",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "FOCUS_SHIFT",
+          "target_time_sec": 5.0
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. A large illustrated muted-red Mars disc occupies the left-middle of a dark blue graphic space. Behind and slightly to the right, place one modern blue-gray blank nameplate with an abstract angular Mars emblem composed of two flat geometric planes, explicitly editorial and without historical costume details. Keep the disc round and matte-painted, with strong silhouette; maintain a restrained amber edge highlight consistent with the red marker handoff. The near disc and farther plate offer a clear shallow arc camera path. Leave the plate blank for editorial Latin and explanatory labels. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) B, C only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No historical armor reconstruction, Mars deity anatomy, battlefield, soldiers, blood, weapons in action or war-calendar causal arrows. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:b25676d5fe516891ce15f29811f6b353fb9fa1231ffe67373d44bb8033a31d6e",
+      "motion_prompt_english": "STORY: A large illustrated muted-red Mars disc occupies the left-middle of a dark blue graphic space. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: match the red margin marker to the Mars disc and reveal its full circular outline at 1.0s. 1.0–4.8s: make a short 12-degree camera arc around the near disc, exposing the farther nameplate without orbiting the planet. At 5.0s shift the editorial focus to the dies Martis plate. 5.0–8.0s: settle with the disc and abstract emblem side by side. The disc remains one symbolic object, not an actual celestial observation. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: End with the modern nameplate rectangle dominant enough to continue into the evidence-limit comparison. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No historical armor reconstruction, Mars deity anatomy, battlefield, soldiers, blood, weapons in action or war-calendar causal arrows. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:1619dd72fccb530a7971c65cb148e2d04d42b9ef3ff66f4288ee6f5e284e1e23",
+      "reference_contract": {
+        "board_panels": "B / C의 원형 연결",
+        "board_ref_planned": "04_visual_identity/board_refs/P2_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P2_S1_Cut03",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P2_S1_Cut04_1.png",
+        "video_candidate_planned": "06_clips/generated/P2_S1_Cut04_1.mp4",
+        "parent_tts_planned": "03_tts/P2_S1_Cut04.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P2_S1_Cut04.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P2_S1_Cut04_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "dies Martis",
+          "Mars / 화성의 날"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "짧은 붉은 원반 매치음; 전쟁 효과음 없음.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P2_S1_Cut05"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "project_id": "weekday-roman-gods-v1",
+  "revision": "GIPC01",
+  "status": "PROMPT_PREPARATION_ONLY",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "applies_to": "All future image prompt packages for this project, after the Manager Story Gate and approved Scene graph",
+  "global_style_suffix": "Stylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+  "output_spec": {
+    "aspect_ratio": "16:9",
+    "image_generation_width": 1536,
+    "image_generation_height": 864,
+    "editor_render_width": 1920,
+    "editor_render_height": 1080
+  },
+  "application_rule": [
+    "Append global_style_suffix to each cut-specific image prompt; preserve each cut's subject, action, and evidence limits.",
+    "Set 16:9 using the image tool's aspect-ratio control when available. Use --ar 16:9 only in tools that recognize that syntax.",
+    "Use golden-hour lighting only for cuts whose approved scene calls for sunset. Preserve the moonlit blue lighting of reference board D.",
+    "Do not infer or invent recurring character appearance. A recurring character design requires Agent1 approval of its reference anchor.",
+    "Use reference board A-D for composition, palette, and transition ideas only; transform all final frames into the locked stylized visual language."
+  ],
+  "excluded_from_effective_suffix": [
+    "photorealistic",
+    "historical documentary style",
+    "8k resolution as an actual output claim",
+    "golden hour lighting as a global constant"
+  ],
+  "user_reference_suffix": "Cinematic historical documentary style, dark moody atmosphere, photorealistic, 8k resolution, consistent character design, golden hour lighting, muted color palette with deep blues and burnt orange accents --ar 16:9",
+  "source_context": {
+    "script_revision": "r04",
+    "directing_preflight_revision": "PF04",
+    "visual_skeleton_revision": "VS03",
+    "script_directing_lock_revision": "SDL-r04"
+  }
+}

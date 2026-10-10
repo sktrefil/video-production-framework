@@ -1,0 +1,34 @@
+{
+  "project_id": "weekday-roman-gods-v1",
+  "review_id": "MQC01",
+  "reviewer": "Agent1",
+  "script_revision": "r04",
+  "script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+  "status": "PASS",
+  "score": 97,
+  "score_target": 96,
+  "criteria": {
+    "factual_integrity": {"score": 20, "max": 20, "result": "PASS", "note": "Script claims map to F-01 through F-05; direct Roman-to-Korean descent, weekday violence, and Roman invention claims are guarded against."},
+    "narrative_causality": {"score": 15, "max": 15, "result": "PASS", "note": "Opens on the everyday calendar, introduces Roman planetary names, tests English and Korean comparisons, and returns to the opening object."},
+    "curiosity_retention": {"score": 14, "max": 15, "result": "PASS", "note": "The reveal sequence changes from lunar continuity to English substitution to Korean celestial terminology."},
+    "directability": {"score": 15, "max": 15, "result": "PASS", "note": "All 19 units have visual events, attention timing, and handoff intent; PF04, VS03, and SQC03 pass."},
+    "bridge_quality": {"score": 10, "max": 10, "result": "PASS", "note": "Visual and narrative transitions connect phone, tablet, planetary signs, language cards, and phone return."},
+    "tts_rhythm": {"score": 8, "max": 10, "result": "PASS_WITH_TTS_MEASUREMENT_PENDING", "note": "Estimated narration totals 160.1 seconds within the 180-second timeline; actual segmented TTS durations are not yet measured."},
+    "uncertainty_discipline": {"score": 10, "max": 10, "result": "PASS", "note": "Unsupported invasion warnings, weekday battle claims, assassination banquets, and collapse causation are excluded."},
+    "ending_payoff": {"score": 5, "max": 5, "result": "PASS", "note": "Final quarter recovers the shared-week/different-names spine and returns to the smartphone calendar."}
+  },
+  "independent_checks": {
+    "script_validator": "PASS",
+    "directing_preflight_revision": "PF04 PASS, 19 units / 7 sequence blocks",
+    "visual_skeleton_revision": "VS03 PASS, 19 units",
+    "sequence_qc_revision": "SQC03 PASS",
+    "style_notice": "STYLE-weekday-roman-gods-v1-r1 PASS",
+    "final_tts_generated": false
+  },
+  "unresolved_issues": [
+    "TTS timing is estimated; it must be measured after the canonical Manager Story Gate.",
+    "Image and video generation prompts have not been created; full production directing follows the development lock and Manager Story Gate."
+  ],
+  "decision": "READY_FOR_SCRIPT_DIRECTING_LOCK",
+  "canonical_manager_story_gate": "PENDING"
+}

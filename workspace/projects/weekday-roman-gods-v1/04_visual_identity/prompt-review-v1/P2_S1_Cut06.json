@@ -1,0 +1,134 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut2_6",
+  "canonical_scene_id": "sc_2082b771-2ea2-496a-a5f7-7a843f01d468",
+  "cut_id": "P2_S1_Cut06",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 72,
+  "planned_parent_end_sec": 80,
+  "exact_narration": "이 달력의 단서는 전쟁 날짜가 아니라 이름입니다. 같은 요일을, 다른 언어는 어떻게 부를까요?",
+  "estimated_speech_duration_sec": 7.4,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P2_S1_Cut06.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut2_6",
+      "canonical_scene_id": "sc_2082b771-2ea2-496a-a5f7-7a843f01d468",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_47848837-095e-4d48-974e-2a11a92a5259",
+      "part_id": "P2",
+      "sequence_id": "S1",
+      "cut_id": "P2_S1_Cut06",
+      "shot_id": "P2_S1_Cut06",
+      "subshot_suffix": null,
+      "shot_title_ko": "휴대폰으로 돌아와 Friday를 발견",
+      "review_summary_ko": "1초에 스마트폰 몸체를 다시 발견하고 5초에 설명용 영어 페이지의 Friday 칸을 공개한다. 언어 카드는 책상 위 종이 물체로 둔다.",
+      "scene_purpose_ko": "전쟁이 아닌 언어 비교로 질문 전환",
+      "evidence_ids": [
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 72.0,
+        "planned_end_sec": 80.0,
+        "planned_use_duration_sec": 8,
+        "parent_start_sec": 72,
+        "parent_end_sec": 80,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 8.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 80.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "이 달력의 단서는 전쟁 날짜가 아니라 이름입니다. 같은 요일을, 다른 언어는 어떻게 부를까요?",
+        "text_sha256": "sha256:f9ab59e7745bca1a27bb6533e5f019e61e562c9d643b761d51b9a4e68d5d438d",
+        "estimated_parent_speech_sec": 7.4,
+        "tts_file_planned": "03_tts/P2_S1_Cut06.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "A 스마트폰 몸체와 책상 모서리로 돌아온다. 1초에 휴대폰의 전체 형태를 드러내고 5초에 화면 달력 페이지를 넘겨 Friday 칸을 읽힌다. 설명용 언어 카드는 책상에 놓인 종이 물체이며 떠다니는 문자 패널로 펼치지 않는다.",
+        "directing_intent_ko": "증거 공백 설명에서 실제 물체 행동으로 관심 전환. 페이지 넘김은 현대 편집 예시이며 고대 관습이 아님. 같은 책상의 낮은 사선 위치에서 전체 스마트폰을 읽히고 단일 페이지 동작으로 다음 비교 질문 연결.",
+        "state_in_ko": "컷 cut2_5: 폭력 추론을 접고 언어 비교로 방향 전환",
+        "state_current_ko": "전쟁이 아닌 언어 비교로 질문 전환",
+        "state_out_ko": "컷 cut2_6: Friday 칸의 호박색을 금성 원반에 전달",
+        "hold_back_ko": "스마트폰 발견 후 페이지가 넘어가며 Friday 공개",
+        "camera_reason_ko": "A 스마트폰 몸체와 책상으로 복귀한 뒤 페이지가 옆으로 넘어감. 1초 물체 위치 발견, 5초 Friday 칸 공개로 세 번째 설명판 반복을 중단.",
+        "parent_attention_event": {
+          "type": "REORIENTATION",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "SPATIAL_DISCOVERY",
+          "target_time_sec": 5.0
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Return to the same illustrated blue-gray smartphone at the same diagonal angle on the same dark-indigo desk, seen from a medium three-quarter overhead position. The device body is partly outside the initial crop but must be spatially established for a full-form reveal. A single real-in-the-editorial-space paper language card rests separately on the desk, never floating. The calendar screen has a blank seven-cell layout and an amber target cell awaiting a Friday label. Keep the upper-left amber light, original bezel proportions and desk edge. This is an English comparison screen on the same device, not the Korean opening screen magically relabeled in place. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) A only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No floating word panels, hands, device replacement, Korean-letter-to-god-name mutation, automatic spawning cards or whole-screen glitch. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:20adee70bef0966bab2ae709d08d799be26fcfef797b011272262b070a2920db",
+      "motion_prompt_english": "STORY: Return to the same illustrated blue-gray smartphone at the same diagonal angle on the same dark-indigo desk, seen from a medium three-quarter overhead position. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: reorient outward from the prior rectangle to reveal the entire phone body by 1.0s. 1.0–4.8s: follow one diagonal tabletop move toward the calendar surface. At 5.0s, use a deliberate editorial page-turn within the screen to reveal the English comparison page and Friday cell. 5.0–8.0s: ease into a close view of the amber cell. Keep the physical phone and paper card fixed; the page animation is a composited layer. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: The amber Friday cell provides one clean circular-color handoff to the Venus disc of cut3_1. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No floating word panels, hands, device replacement, Korean-letter-to-god-name mutation, automatic spawning cards or whole-screen glitch. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:0c6e4aa8836a16db3ba534a274340d12f03e950cfae12d1ef1272a9dbe30b65f",
+      "reference_contract": {
+        "board_panels": "A",
+        "board_ref_planned": "04_visual_identity/board_refs/P2_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P2_S1_Cut05",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P2_S1_Cut06_1.png",
+        "video_candidate_planned": "06_clips/generated/P2_S1_Cut06_1.mp4",
+        "parent_tts_planned": "03_tts/P2_S1_Cut06.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P2_S1_Cut06.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P2_S1_Cut06_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "Friday"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "화면 페이지 넘김 한 번.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P3_S1_Cut01"
+    }
+  ]
+}

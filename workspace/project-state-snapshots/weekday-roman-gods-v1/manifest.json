@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "projectId": "weekday-roman-gods-v1",
+  "generatedAt": "2026-10-10T08:14:24.987Z",
+  "files": {
+    "database": {
+      "path": "project.db",
+      "bytes": 909312,
+      "sha256": "56360c31f61ff12a1dc9c08023478a7837815fb1732fa711e73ec18c85912eab"
+    },
+    "projectJson": {
+      "path": "project.json",
+      "bytes": 5122,
+      "sha256": "6c0867dceca61c771e4decee5f3f250eff30d669d14d74644e27b083cd19c62b"
+    },
+    "editorReview": null,
+    "editorReviewBase": null
+  }
+}

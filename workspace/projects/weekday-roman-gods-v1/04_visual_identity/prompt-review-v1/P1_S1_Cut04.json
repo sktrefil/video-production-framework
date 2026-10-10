@@ -1,0 +1,135 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut1_4",
+  "canonical_scene_id": "sc_1b7ecf74-67ea-4f53-86ab-79ec2692d983",
+  "cut_id": "P1_S1_Cut04",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 16,
+  "planned_parent_end_sec": 23,
+  "exact_narration": "그곳의 요일에는 달과 행성, 그리고 신들의 이름이 얽혀 있었습니다.",
+  "estimated_speech_duration_sec": 6.0,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P1_S1_Cut04.mp3",
+  "visual_subshot_proposal": false,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut1_4",
+      "canonical_scene_id": "sc_1b7ecf74-67ea-4f53-86ab-79ec2692d983",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_4fd2a360-9fdf-4de7-8851-4b5065810440",
+      "part_id": "P1",
+      "sequence_id": "S1",
+      "cut_id": "P1_S1_Cut04",
+      "shot_id": "P1_S1_Cut04",
+      "subshot_suffix": null,
+      "shot_title_ko": "라틴어와 천체의 세 연결",
+      "review_summary_ko": "달·화성·금성과 라틴어 세 어구만 보여준다. 라틴 문자는 석판 비문이 아니라 현대 설명판 위에 합성한다.",
+      "scene_purpose_ko": "달·화성·금성과 라틴 요일명 관계",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "timeline": {
+        "planned_start_sec": 16.0,
+        "planned_end_sec": 23.0,
+        "planned_use_duration_sec": 7,
+        "parent_start_sec": 16,
+        "parent_end_sec": 23,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 7.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 23.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "그곳의 요일에는 달과 행성, 그리고 신들의 이름이 얽혀 있었습니다.",
+        "text_sha256": "sha256:424efa5f21612574faeaab21709967d6bc6d9129f4e130091d68a30980c5d579",
+        "estimated_parent_speech_sec": 6.0,
+        "tts_file_planned": "03_tts/P1_S1_Cut04.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "B: 장식 문자 없는 석판 앞에 현대 설명판 dies Lunae, dies Martis, dies Veneris와 달·화성·금성 기호.",
+        "directing_intent_ko": "신 이름과 행성의 연결을 세 기호로 읽힘",
+        "state_in_ko": "컷 cut1_3: 석판에 라틴 요일 설명판을 드러냄",
+        "state_current_ko": "달·화성·금성과 라틴 요일명 관계",
+        "state_out_ko": "컷 cut1_4: 설명판 기호가 우주 균열을 형성",
+        "hold_back_ko": "한꺼번에 일곱 줄을 읽히지 않고 세 연결만 제시",
+        "camera_reason_ko": "단일 가로 트래킹으로 기호부터 읽힌다. 라틴어 세 줄을 동시에 암기시키지 않는다.",
+        "parent_attention_event": {
+          "type": "REVEAL",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": false
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Medium frontal-oblique view of the same blue-gray uninscribed tablet, occupying the middle right of the frame. In front of it place three clearly modern blank explanatory plates at slightly different depths, with one illustrated moon shape, one muted red Mars disc and one amber Venus disc associated with their respective plate. These are modern diagram elements, never lettering carved into the tablet. Give each plate generous blank space for editorial Latin labels. Maintain a compact three-item grouping with strong focal hierarchy and dark blue background; amber rim light catches the plate edges and a narrow seam in the tablet. No seven-line text wall. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) B only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No fake Latin inscriptions, seven crowded rows, god faces, anatomical deity forms, magical historical rituals or documentary relic staging. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:51ee881c28f71be7bbea66c968d72d57d2eab0a0b1cfbab6a305061c2e9e4b43",
+      "motion_prompt_english": "STORY: Medium frontal-oblique view of the same blue-gray uninscribed tablet, occupying the middle right of the frame. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement, after prior media exists and passes Agent1 review: use the previous shot's actual EDITED use-exit frame as START, with exact object geometry, desk angle and light direction. The prose ENTRY specification below is a review target and may not replace that continuity reference. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: approach the three-item grouping from the inherited tablet view; at 1.0s reveal the grouped moon/Mars/Venus relationships through one editorial reveal. 1.0–5.8s: make a restrained 10-degree camera arc, providing shallow parallax between the plates and tablet while allowing the composited labels to remain readable. 5.8–7.0s: redirect attention to the narrow illuminated seam behind the group. The symbols do not orbit or become gods. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: Keep the tablet seam near the frame center as a clear portal-shaped editorial handoff to cut1_5; no answer to the English/Korean comparison yet. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No fake Latin inscriptions, seven crowded rows, god faces, anatomical deity forms, magical historical rituals or documentary relic staging. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:06118f01b2fc99efdcf5d03f7616ddc2cbcbb894365bcdc6a260663503eccd59",
+      "reference_contract": {
+        "board_panels": "B",
+        "board_ref_planned": "04_visual_identity/board_refs/P1_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P1_S1_Cut03",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "CONTINUATION",
+        "sequential_dependency_required": true,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P1_S1_Cut04_1.png",
+        "video_candidate_planned": "06_clips/generated/P1_S1_Cut04_1.mp4",
+        "parent_tts_planned": "03_tts/P1_S1_Cut04.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P1_S1_Cut04.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P1_S1_Cut04_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "dies Lunae",
+          "dies Martis",
+          "dies Veneris",
+          "현대 설명 그래픽(필요시 작은 표기)"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "세 관계를 한 번에 밝히는 작은 톤.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P1_S1_Cut05"
+    }
+  ]
+}

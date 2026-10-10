@@ -5,11 +5,21 @@ Default local runtime root:
     workspace/projects/<project_id>/
 
 Real project databases and media are ignored by Git.
+Reviewed source for `weekday-roman-gods-v1` is tracked; its live `project.db`
+remains local. The GitHub handoff includes a separate database snapshot.
 
 ## Reviewed GitHub snapshot
 
 `workspace/project-state-snapshots/pilot_short_roman_ix/` holds the reviewed
 GitHub handoff snapshot: `project.db`, `project.json`, and a SHA-256 manifest.
+`workspace/project-state-snapshots/weekday-roman-gods-v1/` uses the same handoff
+for the approved LONGFORM script and scene state.
+After checking out that project's source branch on another PC, stop its editor
+and restore the approved state with:
+
+```powershell
+npm.cmd run project:state -- restore weekday-roman-gods-v1 --confirm-stopped
+```
 It is **not** a multi-writer database. The owner creates a snapshot only after
 stopping every editor/server process, commits it, and pushes it. Receivers pull
 the commit, stop their local editor/server, and restore the snapshot; the

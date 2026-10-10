@@ -1,0 +1,597 @@
+{
+  "project_id": "weekday-roman-gods-v1",
+  "visual_skeleton_revision": "VS03",
+  "mode": "VISUAL_SKELETON",
+  "script_revision": "r04",
+  "input_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+  "preflight_revision": "PF04",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "status": "PASS",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "target_duration_sec": 180,
+  "units": [
+    {
+      "unit_id": "cut1_1",
+      "part_id": "part1",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "책상 전경에서 달력 아이콘을 발견",
+      "expected_duration_band_sec": {
+        "speech_estimate": 4.3,
+        "timeline_window": 5
+      },
+      "timeline_start_sec": 0,
+      "timeline_end_sec": 5,
+      "visual_mode": "OBJECT",
+      "scale_intent": "책상 미디엄→아이콘 디테일",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": false
+      },
+      "transition_handoff_intent": "앱 아이콘에서 요일 글자로 진입",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "ED-01"
+      ],
+      "visual_note": "A: 청회색과 호박색의 평면 음영 스마트폰. 손이나 실제 인물 없이 달력 아이콘을 펼친다."
+    },
+    {
+      "unit_id": "cut1_2",
+      "part_id": "part1",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "세 요일의 어원 질문",
+      "expected_duration_band_sec": {
+        "speech_estimate": 4.5,
+        "timeline_window": 5
+      },
+      "timeline_start_sec": 5,
+      "timeline_end_sec": 10,
+      "visual_mode": "OBJECT",
+      "scale_intent": "화면 디테일 내 세 칸 순차 시선 이동",
+      "attention_event": {
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": false
+      },
+      "transition_handoff_intent": "요일 칸의 직사각형을 석판 외곽과 매치",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-05",
+        "ED-01"
+      ],
+      "visual_note": "A: 스마트폰의 월·화·금 글자를 순차 확대. 정확한 글자는 편집에서 합성."
+    },
+    {
+      "unit_id": "cut1_3",
+      "part_id": "part1",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "현재 화면에서 과거를 설명하는 프레임으로 전환",
+      "expected_duration_band_sec": {
+        "speech_estimate": 5.4,
+        "timeline_window": 6
+      },
+      "timeline_start_sec": 10,
+      "timeline_end_sec": 16,
+      "visual_mode": "CHANGE",
+      "scale_intent": "사각 면 디테일→석판 미디엄",
+      "attention_event": {
+        "type": "ACTION",
+        "target_time_sec": 1.2
+      },
+      "secondary_attention_event": {
+        "required": false
+      },
+      "transition_handoff_intent": "석판에 라틴 요일 설명판을 드러냄",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-01",
+        "ED-01"
+      ],
+      "visual_note": "A→B: 화면의 사각형이 종이처럼 분해되고 청회색 그래픽 석판으로 결합."
+    },
+    {
+      "unit_id": "cut1_4",
+      "part_id": "part1",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "달·화성·금성과 라틴 요일명 관계",
+      "expected_duration_band_sec": {
+        "speech_estimate": 6.0,
+        "timeline_window": 7
+      },
+      "timeline_start_sec": 16,
+      "timeline_end_sec": 23,
+      "visual_mode": "DOCUMENTED_DIAGRAM",
+      "scale_intent": "석판 미디엄 내 기호/설명판",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": false
+      },
+      "transition_handoff_intent": "설명판 기호가 우주 균열을 형성",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "visual_note": "B: 장식 문자 없는 석판 앞에 현대 설명판 dies Lunae, dies Martis, dies Veneris와 달·화성·금성 기호."
+    },
+    {
+      "unit_id": "cut1_5",
+      "part_id": "part1",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "같은 신명인가라는 질문에서 달밤 공간으로 확대",
+      "expected_duration_band_sec": {
+        "speech_estimate": 6.3,
+        "timeline_window": 7
+      },
+      "timeline_start_sec": 23,
+      "timeline_end_sec": 30,
+      "visual_mode": "CHANGE",
+      "scale_intent": "빛 틈 디테일→달/콜로세움 익스트림 와이드",
+      "attention_event": {
+        "type": "SPATIAL_DISCOVERY",
+        "target_time_sec": 1.5
+      },
+      "secondary_attention_event": {
+        "required": false
+      },
+      "transition_handoff_intent": "D의 달에 시선 고정 후 달 요일 설명",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "ED-01"
+      ],
+      "visual_note": "C→D: 석판의 별빛 균열을 통과해 거대한 초승달과 층 분리한 콜로세움 실루엣으로 확장."
+    },
+    {
+      "unit_id": "cut2_1",
+      "part_id": "part2",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "달의 날과 루나의 연결",
+      "expected_duration_band_sec": {
+        "speech_estimate": 7.2,
+        "timeline_window": 8
+      },
+      "timeline_start_sec": 30,
+      "timeline_end_sec": 38,
+      "visual_mode": "OBJECT",
+      "scale_intent": "아치 미디엄→달 클로즈",
+      "attention_event": {
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "REVEAL",
+        "target_time_sec": 5.0
+      },
+      "transition_handoff_intent": "동일 달을 영어 글자에 연결",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "visual_note": "D: 거대한 초승달을 강조하고 현대 설명판 dies Lunae와 달의 날을 따로 합성."
+    },
+    {
+      "unit_id": "cut2_2",
+      "part_id": "part2",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "라틴과 영어가 같은 달 의미를 공유",
+      "expected_duration_band_sec": {
+        "speech_estimate": 7.2,
+        "timeline_window": 8
+      },
+      "timeline_start_sec": 38,
+      "timeline_end_sec": 46,
+      "visual_mode": "COMPARISON",
+      "scale_intent": "좌우 설명카드 미디엄 비교",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.5
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 5.0
+      },
+      "transition_handoff_intent": "같은 일곱 칸이 퍼지는 시간축으로 이동",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-04"
+      ],
+      "visual_note": "달 모양이 왼쪽 라틴 설명판과 오른쪽 Monday 현대 타이포를 잇는 그래픽 매치."
+    },
+    {
+      "unit_id": "cut2_3",
+      "part_id": "part2",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "행성 주간의 점진적 정착",
+      "expected_duration_band_sec": {
+        "speech_estimate": 8.0,
+        "timeline_window": 9
+      },
+      "timeline_start_sec": 46,
+      "timeline_end_sec": 55,
+      "visual_mode": "OBJECT",
+      "scale_intent": "문서 한 칸 디테일→책상 전체 와이드",
+      "attention_event": {
+        "type": "ACTION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "REORIENTATION",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "문서 가장자리의 붉은 기호를 화성 원반으로 전달",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-01",
+        "F-03"
+      ],
+      "visual_note": "한 장의 그래픽 문서 모서리와 요일 칸을 먼저 읽힌다. 5.5초에 책상 폭으로 시야를 넓혀 별도의 문서 물체가 같은 칸을 사용함을 발견. 미검증 비문은 만들지 않고 정확한 어구는 현대 설명층으로 합성한다. 실제 유물이나 전파 경로 재현이 아니다."
+    },
+    {
+      "unit_id": "cut2_4",
+      "part_id": "part2",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "마르스와 화성의 날",
+      "expected_duration_band_sec": {
+        "speech_estimate": 7.0,
+        "timeline_window": 8
+      },
+      "timeline_start_sec": 55,
+      "timeline_end_sec": 63,
+      "visual_mode": "COMPARISON",
+      "scale_intent": "화성 클로즈→뒤 이름판 미디엄",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 5.0
+      },
+      "transition_handoff_intent": "무기 상징을 실제 사건의 증거로 읽지 않게 제한",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "visual_note": "붉은 화성 원반과 추상적 마르스 상징판을 병치. 특정 신상·갑옷의 역사적 복원 없음."
+    },
+    {
+      "unit_id": "cut2_5",
+      "part_id": "part2",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "요일명으로 실제 전쟁을 증명할 수 없음",
+      "expected_duration_band_sec": {
+        "speech_estimate": 8.0,
+        "timeline_window": 9
+      },
+      "timeline_start_sec": 63,
+      "timeline_end_sec": 72,
+      "visual_mode": "ABSENCE",
+      "scale_intent": "사건칸 디테일→끊긴 연결선 미디엄",
+      "attention_event": {
+        "type": "QUESTION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "REVEAL",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "폭력 추론을 접고 언어 비교로 방향 전환",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02",
+        "LIMIT-01"
+      ],
+      "visual_note": "요일명 설명판 옆 사건 기록 칸을 비워 두고 연결선을 끊음. 전쟁 장면·피·시체 없음."
+    },
+    {
+      "unit_id": "cut2_6",
+      "part_id": "part2",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "전쟁이 아닌 언어 비교로 질문 전환",
+      "expected_duration_band_sec": {
+        "speech_estimate": 7.4,
+        "timeline_window": 8
+      },
+      "timeline_start_sec": 72,
+      "timeline_end_sec": 80,
+      "visual_mode": "ACTION",
+      "scale_intent": "책상 스마트폰 미디엄→페이지 디테일",
+      "attention_event": {
+        "type": "REORIENTATION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "SPATIAL_DISCOVERY",
+        "target_time_sec": 5.0
+      },
+      "transition_handoff_intent": "Friday 칸의 호박색을 금성 원반에 전달",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "ED-01"
+      ],
+      "visual_note": "A 스마트폰 몸체와 책상 모서리로 돌아온다. 1초에 휴대폰의 전체 형태를 드러내고 5초에 화면 달력 페이지를 넘겨 Friday 칸을 읽힌다. 설명용 언어 카드는 책상에 놓인 종이 물체이며 떠다니는 문자 패널로 펼치지 않는다."
+    },
+    {
+      "unit_id": "cut3_1",
+      "part_id": "part3",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "비너스와 금성의 라틴 금요일",
+      "expected_duration_band_sec": {
+        "speech_estimate": 9.0,
+        "timeline_window": 10
+      },
+      "timeline_start_sec": 80,
+      "timeline_end_sec": 90,
+      "visual_mode": "OBJECT",
+      "scale_intent": "금성 클로즈→옆 라틴 판 미디엄",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "라틴 칸을 유지한 채 영어 비교 열을 열기",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02"
+      ],
+      "visual_note": "금성 기호와 호박색 원반이 석판 설명판 dies Veneris 옆에 드러남. 궁전·연회·암살 장면 없음."
+    },
+    {
+      "unit_id": "cut3_2",
+      "part_id": "part3",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "영어 Tuesday와 Friday의 다른 신명",
+      "expected_duration_band_sec": {
+        "speech_estimate": 9.0,
+        "timeline_window": 10
+      },
+      "timeline_start_sec": 90,
+      "timeline_end_sec": 100,
+      "visual_mode": "COMPARISON",
+      "scale_intent": "안정된 비교판 미디엄; 두 행 순차 읽기",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.5
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "이름 변형을 요일 칸의 연속과 대비",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-04"
+      ],
+      "visual_note": "두 행의 문자 비교: Tuesday/Tiw, Friday/Frigg. 게르만 신 얼굴 대신 구별되는 추상 문장 기호. 로마 신과 동일 인물처럼 모핑하지 않음."
+    },
+    {
+      "unit_id": "cut3_3",
+      "part_id": "part3",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "같은 주간 구조에 다른 명칭",
+      "expected_duration_band_sec": {
+        "speech_estimate": 13.3,
+        "timeline_window": 15
+      },
+      "timeline_start_sec": 100,
+      "timeline_end_sec": 115,
+      "visual_mode": "CHANGE",
+      "scale_intent": "종이 카드 가장자리 디테일→카드 겹침→스마트폰 몸체와 책상 미디엄",
+      "attention_event": {
+        "type": "ACTION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "REORIENTATION",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "A 스마트폰의 한국어 달력을 다음 컷의 日/月 두 그룹 공개로 전달",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "ED-01"
+      ],
+      "visual_note": "라틴어와 영어 이름이 적힌 두 장의 분리된 종이 카드로 시작. 1초 카드 가장자리 차이, 5.5초 카드가 겹쳐 같은 요일 위치를 가리키는 관계를 읽힘. 10초부터 A 책상과 스마트폰 몸체를 선명히 보여준다. 일곱 칸 도식의 색판 교체를 반복하지 않는다."
+    },
+    {
+      "unit_id": "cut3_4",
+      "part_id": "part3",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "한국어 해·달 및 오행 천체 표기",
+      "expected_duration_band_sec": {
+        "speech_estimate": 13.4,
+        "timeline_window": 15
+      },
+      "timeline_start_sec": 115,
+      "timeline_end_sec": 130,
+      "visual_mode": "DOCUMENTED_DIAGRAM",
+      "scale_intent": "스마트폰 화면 미디엄→해/달 및 다섯 칸의 세부",
+      "attention_event": {
+        "type": "REVEAL",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "REVEAL",
+        "target_time_sec": 5.0
+      },
+      "transition_handoff_intent": "개별 일곱 칸을 하나의 달력 틀로 되모음",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-05"
+      ],
+      "visual_note": "A의 스마트폰에서 日/月을 해·달 기호로 대응하고 火/水/木/金/土를 오행·천체 연결을 설명하는 현대 그래픽으로 펼침. 특정 전래 지도 없이 비교만."
+    },
+    {
+      "unit_id": "cut4_1",
+      "part_id": "part4",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "같은 일곱 칸과 서로 다른 이름 종합",
+      "expected_duration_band_sec": {
+        "speech_estimate": 10.5,
+        "timeline_window": 12
+      },
+      "timeline_start_sec": 130,
+      "timeline_end_sec": 142,
+      "visual_mode": "COMPARISON",
+      "scale_intent": "책상 언어 카드 세부→달력 카드/스마트폰 전체 미디엄",
+      "attention_event": {
+        "type": "REORIENTATION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "책상 표면과 분리된 카드 물체를 유지해 다음 컷으로 전달",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "F-05",
+        "ED-01"
+      ],
+      "visual_note": "두 개의 읽기 상태만 사용. 첫 상태는 현대 설명용 언어 카드가 놓인 책상 세부: 이미 설명한 세 이름 전통을 차례로 강조. 5.5초에 동일 공간에서 달력 카드와 스마트폰 전체가 드러나는 둘째 상태로 확대. 8.5초 공통 요일 위치를 빛 하나로 회수한다. A/B/C/D 네 이미지의 동시 몽타주는 사용하지 않는다."
+    },
+    {
+      "unit_id": "cut4_2",
+      "part_id": "part4",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "로마 단일 기원 단정의 한계",
+      "expected_duration_band_sec": {
+        "speech_estimate": 10.5,
+        "timeline_window": 12
+      },
+      "timeline_start_sec": 142,
+      "timeline_end_sec": 154,
+      "visual_mode": "OBJECT",
+      "scale_intent": "동등한 카드들의 미디엄; 한 카드→다른 카드→스마트폰 가로 이동",
+      "attention_event": {
+        "type": "REORIENTATION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "SPATIAL_DISCOVERY",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "책상 위 석판 형상의 설명 카드 모서리를 다음 A 스마트폰 외곽 매치로 전달",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-01",
+        "F-03",
+        "ED-01"
+      ],
+      "visual_note": "현대 설명용 라틴어·영어·한국어 종이 카드가 같은 크기로 책상 위에 따로 놓여 있다. 1초에 한 장을 읽고 5.5초에 시야를 옆으로 넓혀 동등한 카드들을 발견. 9초에 스마트폰과 카드의 공존으로 관심 이동. 공전 고리·발원지 지도·직계 전파 화살표 없음."
+    },
+    {
+      "unit_id": "cut4_3",
+      "part_id": "part4",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "오프닝 스마트폰의 새로운 의미",
+      "expected_duration_band_sec": {
+        "speech_estimate": 12.4,
+        "timeline_window": 14
+      },
+      "timeline_start_sec": 154,
+      "timeline_end_sec": 168,
+      "visual_mode": "CHANGE",
+      "scale_intent": "석판/스마트폰 사각 디테일→책상 와이드",
+      "attention_event": {
+        "type": "ACTION",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "D 달빛을 스마트폰 반사색으로 회수하여 엔딩",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "F-05",
+        "ED-01"
+      ],
+      "visual_note": "B 석판의 외곽을 A 스마트폰으로 매치. C 빛이 기호를 따라 흘러도 화면의 한국어 글자 자체는 신명으로 교체하지 않음. 10초 지점에 일상 책상 전체로 확장."
+    },
+    {
+      "unit_id": "cut4_4",
+      "part_id": "part4",
+      "style_mode": "NON_REALISTIC_STYLIZED",
+      "story_event": "다음 요일로 넘어가며 관객의 질문 남김",
+      "expected_duration_band_sec": {
+        "speech_estimate": 10.7,
+        "timeline_window": 12
+      },
+      "timeline_start_sec": 168,
+      "timeline_end_sec": 180,
+      "visual_mode": "ACTION",
+      "scale_intent": "달빛 미디엄→다음 칸 디테일→질문 여백",
+      "attention_event": {
+        "type": "FOCUS_SHIFT",
+        "target_time_sec": 1.0
+      },
+      "secondary_attention_event": {
+        "required": true,
+        "type": "ACTION",
+        "target_time_sec": 5.5
+      },
+      "transition_handoff_intent": "179초 이후 음악 잔향과 화면 페이드; 목표 180초 종료",
+      "abstraction_handling": "그려진 물체·문서·건물 실루엣과 현대 설명 공간. 신 얼굴·고대 실내·전쟁 사건·비문·전래 지도는 임의 복원하지 않음. 문자 합성은 현대 비교 자료임을 명시.",
+      "evidence_ids": [
+        "ED-01"
+      ],
+      "visual_note": "D의 달 실루엣→A 달력의 다음 칸. 마지막 글자와 기호가 C 별빛으로 흩어지고 179초부터 어두워짐. 가사 노래 대신 질문을 차분히 낭독."
+    }
+  ],
+  "fact_guardrail_ids": [
+    "FG01",
+    "FG02",
+    "FG03",
+    "FG04",
+    "FG05",
+    "FG06"
+  ],
+  "final_tts_generated": false,
+  "scope": "경량 연출 검토 후보. 최종 이미지/비디오 생성 지시 또는 프로젝트 승인 상태가 아님.",
+  "substantive_review_equality": {
+    "previous_script_revision": "r03",
+    "previous_input_script_hash": "sha256:eb9c0f7f9fb2816a3cb388cdb93b0380b8028bac029f7dfbc5bda65eb738b46a",
+    "current_script_revision": "r04",
+    "current_input_script_hash": "sha256:61421546ff99a12f35515d55b460b7fd51752c6ba3e3407b835979d57a93f68c",
+    "content_equality": "PASS_FOR_ALL_UNITS",
+    "comparison_scope": "All fields unchanged except script_revision, script_hash, revision_log and narrative_spine; all 19 units identical including narration, timing, visual directing, attention events and evidence/guardrails.",
+    "spine_change_assessment": "PASS: corrected spine distinguishes shared seven-day structure from different language name traditions and explicitly avoids a direct Roman-to-Korean genealogy. Existing units already use comparative modern explanatory space without historical transmission arrows; camera, sequence, event density and factual guardrails remain compatible.",
+    "previous_narrative_spine": "요일의 일곱 칸은 이어져도, 그 칸을 부르는 이름은 로마 신에서 다른 신과 천체 표기로 바뀌었다. 익숙한 달력은 언어가 바꿔 쓴 이름의 흔적이다.",
+    "current_narrative_spine": "로마 세계에는 행성의 이름으로 요일을 부르는 전통이 퍼졌다. 오늘날 언어별 요일명에는 서로 다른 이름 전통이 담겨 있다. 라틴어의 행성·신명과 달리 영어 일부 요일은 게르만 신명으로 불리고, 한국어는 해·달과 오행에 연결된 천체 표기를 사용한다. 공유하는 일곱 날 구조와 개별 이름의 계통은 구별해야 하며, 로마 신명에서 한국어로 직접 이어졌다고 단정하지 않는다.",
+    "reuse_basis": "Substantive unit directing review retained only after identical-unit verification and explicit corrected-spine review. Rebound all artifacts to the R04 candidate."
+  },
+  "narrative_spine": "로마 세계에는 행성의 이름으로 요일을 부르는 전통이 퍼졌다. 오늘날 언어별 요일명에는 서로 다른 이름 전통이 담겨 있다. 라틴어의 행성·신명과 달리 영어 일부 요일은 게르만 신명으로 불리고, 한국어는 해·달과 오행에 연결된 천체 표기를 사용한다. 공유하는 일곱 날 구조와 개별 이름의 계통은 구별해야 하며, 로마 신명에서 한국어로 직접 이어졌다고 단정하지 않는다.",
+  "visual_skeleton_hash": "sha256:c42170e9942d53a0529ea3d6a90474c341cbe3654d275755b11145facca36ebb",
+  "hash_basis": "UTF-8 canonical JSON with sorted keys and compact separators, excluding visual_skeleton_hash and hash_basis."
+}

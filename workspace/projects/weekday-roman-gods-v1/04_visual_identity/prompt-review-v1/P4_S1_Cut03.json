@@ -1,0 +1,258 @@
+{
+  "status": "CANDIDATE",
+  "canonical_unit_id": "cut4_3",
+  "canonical_scene_id": "sc_d5f67353-f960-454e-b263-55f4a44db927",
+  "cut_id": "P4_S1_Cut03",
+  "canonical_scene_count_preserved": true,
+  "planned_parent_start_sec": 154,
+  "planned_parent_end_sec": 168,
+  "exact_narration": "처음 봤던 스마트폰으로 돌아가 봅시다. 작은 달력 칸에는 달과 행성, 신을 부르던 말의 흔적이 겹쳐 있습니다. 익숙한 요일 이름도, 이제는 조금 다르게 보이지 않나요?",
+  "estimated_speech_duration_sec": 12.4,
+  "measured_tts_duration_sec": null,
+  "tts_speed": 1.0,
+  "planned_tts_file": "03_tts/P4_S1_Cut03.mp3",
+  "visual_subshot_proposal": true,
+  "shots": [
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut4_3",
+      "canonical_scene_id": "sc_d5f67353-f960-454e-b263-55f4a44db927",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_357e6493-d13a-41ae-ac32-32b3ec94e61c",
+      "part_id": "P4",
+      "sequence_id": "S1",
+      "cut_id": "P4_S1_Cut03",
+      "shot_id": "P4_S1_Cut03_A",
+      "subshot_suffix": "_A",
+      "shot_title_ko": "휴대폰 사각형으로 다시 매치",
+      "review_summary_ko": "154–161초 제안. 사각형 매치 후 159.5초에 의미 기호로 초점을 옮긴다. 한국어 글자 자체는 바꾸지 않는다.",
+      "scene_purpose_ko": "오프닝 스마트폰의 새로운 의미",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "F-05",
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 154.0,
+        "planned_end_sec": 161.0,
+        "planned_use_duration_sec": 7.0,
+        "parent_start_sec": 154,
+        "parent_end_sec": 168,
+        "parent_local_start_sec": 0.0,
+        "parent_local_end_sec": 7.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 161.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "처음 봤던 스마트폰으로 돌아가 봅시다. 작은 달력 칸에는 달과 행성, 신을 부르던 말의 흔적이 겹쳐 있습니다. 익숙한 요일 이름도, 이제는 조금 다르게 보이지 않나요?",
+        "text_sha256": "sha256:313042760766318ba12365c1c9e75c7a30505bfc211f9cf36458cd36513ec7da",
+        "estimated_parent_speech_sec": 12.4,
+        "tts_file_planned": "03_tts/P4_S1_Cut03.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "B 석판의 외곽을 A 스마트폰으로 매치. C 빛이 기호를 따라 흘러도 화면의 한국어 글자 자체는 신명으로 교체하지 않음. 10초 지점에 일상 책상 전체로 확장.",
+        "directing_intent_ko": "달력이 신명의 직접 계승이라는 잘못된 인상을 피하면서 관객 일상으로 회수",
+        "state_in_ko": "컷 cut4_2: 책상 위 석판 형상의 설명 카드 모서리를 다음 A 스마트폰 외곽 매치로 전달",
+        "state_current_ko": "오프닝 스마트폰의 새로운 의미",
+        "state_out_ko": "컷 cut4_3: D 달빛을 스마트폰 반사색으로 회수하여 엔딩",
+        "hold_back_ko": "한국어 표기는 남겨 두고 의미의 층만 겹침",
+        "camera_reason_ko": "B에서 A로 그래픽 매치 후 책상 전체로 단일 후퇴. 한국어 글자는 유지하고 천체 기호를 별도 설명층으로 놓는다.",
+        "parent_attention_event": {
+          "type": "ACTION",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "FOCUS_SHIFT",
+          "target_time_sec": 5.5
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Close diagonal framing of the same slab-shaped modern paper explanation card adjacent to the original smartphone. Their rectangular outer edges share the same angle, preparing a precise editorial shape match. The phone screen contains stable blank text locations for the actual Korean weekday labels; a narrow amber light path is prepared along small moon/planet meaning-symbol positions on a separate explanatory layer. Preserve the phone, desk plane and blue-gray/amber palette. This entry image is a present-day graphic construction, not an ancient tablet turning literally into a device. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) B, A, C only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No Korean characters changing into deity names, actual time travel, cosmic objects breaking the screen, phone reshaping or extra portal layers. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:946096b100269d1d3dcb0f43ab69ac115d42b19dc5288e836906c06847daea11",
+      "motion_prompt_english": "STORY: Close diagonal framing of the same slab-shaped modern paper explanation card adjacent to the original smartphone. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement: generate and review this shot's START image, then use it only after Agent1 approves it. No approved START image currently exists. For a graphic match, bind the previous actual EDITED use-exit frame once available for shape/direction reference; preserve only the planned match, not a false physical continuity. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: 0.0–1.0s: align the slab-shaped card outline with the smartphone rectangle, completing the graphic attention match at parent 1.0s through an editorial cut. 1.0–5.3s: approach the stable Korean calendar screen using one diagonal dolly. At parent 5.5s shift emphasis to the meaning-symbol layer and send one controlled editorial light trace along the existing symbols. 5.5–7.0s: keep the Korean letters entirely fixed while the light settles. The overlay expresses naming associations, not identity replacement. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: Keep the original screen labels stable and the single light trace quiet; cut4_3_B continues toward a wide view of the ordinary desk. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No Korean characters changing into deity names, actual time travel, cosmic objects breaking the screen, phone reshaping or extra portal layers. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:dcf2ef20066ebcdceb1a066164e10c2a4a07b99ef3df8e8dbae267c46c6b32a3",
+      "reference_contract": {
+        "board_panels": "B → A / C의 의미 빛",
+        "board_ref_planned": "04_visual_identity/board_refs/P4_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P4_S1_Cut02_B",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "MATCH_TRANSITION",
+        "sequential_dependency_required": false,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P4_S1_Cut03_A_1.png",
+        "video_candidate_planned": "06_clips/generated/P4_S1_Cut03_A_1.mp4",
+        "parent_tts_planned": "03_tts/P4_S1_Cut03.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P4_S1_Cut03.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P4_S1_Cut03_A_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "match_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "원래 한국어 요일명(고정)",
+          "달·행성 등 의미 기호(별도 설명층)"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "매치에 짧은 클릭, 의미 빛에는 작은 일회성 톤.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P4_S1_Cut03_B"
+    },
+    {
+      "status": "CANDIDATE",
+      "canonical_unit_id": "cut4_3",
+      "canonical_scene_id": "sc_d5f67353-f960-454e-b263-55f4a44db927",
+      "canonical_scene_revision": 2,
+      "canonical_sequence_id": "seq_357e6493-d13a-41ae-ac32-32b3ec94e61c",
+      "part_id": "P4",
+      "sequence_id": "S1",
+      "cut_id": "P4_S1_Cut03",
+      "shot_id": "P4_S1_Cut03_B",
+      "subshot_suffix": "_B",
+      "shot_title_ko": "새 의미를 안고 일상 책상으로",
+      "review_summary_ko": "161–168초 제안. 원래 164초 책상 전체 공개를 유지하고 D의 푸른색은 작은 반사 기억으로만 회수한다.",
+      "scene_purpose_ko": "오프닝 스마트폰의 새로운 의미",
+      "evidence_ids": [
+        "F-02",
+        "F-04",
+        "F-05",
+        "ED-01"
+      ],
+      "timeline": {
+        "planned_start_sec": 161.0,
+        "planned_end_sec": 168.0,
+        "planned_use_duration_sec": 7.0,
+        "parent_start_sec": 154,
+        "parent_end_sec": 168,
+        "parent_local_start_sec": 7.0,
+        "parent_local_end_sec": 14.0,
+        "timing_status": "PROVISIONAL_ESTIMATE_ONLY",
+        "tts_measured_duration_sec": null,
+        "tts_speed": 1.0,
+        "generation_duration_sec": null,
+        "generation_provider": null,
+        "generation_model": null,
+        "head_handle_target_sec": 0.3,
+        "tail_handle_target_sec": 0.3,
+        "handle_status": "PLANNING_ALLOWANCE_ONLY; provider capacity not selected or validated",
+        "handoff_target_absolute_sec": 168.0,
+        "handoff_measured_timestamp_sec": null
+      },
+      "narration": {
+        "exact_parent_text": "처음 봤던 스마트폰으로 돌아가 봅시다. 작은 달력 칸에는 달과 행성, 신을 부르던 말의 흔적이 겹쳐 있습니다. 익숙한 요일 이름도, 이제는 조금 다르게 보이지 않나요?",
+        "text_sha256": "sha256:313042760766318ba12365c1c9e75c7a30505bfc211f9cf36458cd36513ec7da",
+        "estimated_parent_speech_sec": 12.4,
+        "tts_file_planned": "03_tts/P4_S1_Cut03.mp3",
+        "tts_revision": null,
+        "subshot_audio_slice": null,
+        "subshot_audio_policy": "One continuous parent narration MP3; A/B are visual edit views only. Determine semantic word-aligned ranges after measured TTS."
+      },
+      "story": {
+        "approved_visual_note_ko": "B 석판의 외곽을 A 스마트폰으로 매치. C 빛이 기호를 따라 흘러도 화면의 한국어 글자 자체는 신명으로 교체하지 않음. 10초 지점에 일상 책상 전체로 확장.",
+        "directing_intent_ko": "달력이 신명의 직접 계승이라는 잘못된 인상을 피하면서 관객 일상으로 회수",
+        "state_in_ko": "컷 cut4_2: 책상 위 석판 형상의 설명 카드 모서리를 다음 A 스마트폰 외곽 매치로 전달",
+        "state_current_ko": "오프닝 스마트폰의 새로운 의미",
+        "state_out_ko": "컷 cut4_3: D 달빛을 스마트폰 반사색으로 회수하여 엔딩",
+        "hold_back_ko": "한국어 표기는 남겨 두고 의미의 층만 겹침",
+        "camera_reason_ko": "B에서 A로 그래픽 매치 후 책상 전체로 단일 후퇴. 한국어 글자는 유지하고 천체 기호를 별도 설명층으로 놓는다.",
+        "parent_attention_event": {
+          "type": "ACTION",
+          "target_time_sec": 1.0
+        },
+        "parent_secondary_attention_event": {
+          "required": true,
+          "type": "FOCUS_SHIFT",
+          "target_time_sec": 5.5
+        }
+      },
+      "image_prompt_english": "Horizontal 16:9 ENTRY image, generation target 1536x864, composed for a 1920x1080 edit. SCENE PURPOSE: The approved factual/narrative event is specified in the accompanying story sheet; the English geometry below expresses that approved scene without adding claims. Continuation close state of the same smartphone on the same dark-indigo desk, with stable Korean weekday labels reserved for editorial compositing and the already introduced meaning symbols fading in visual prominence. The familiar paper explanation card remains nearby. Cool crescent-blue reflection on the phone edge recalls board D while retaining the upper-left amber desk-light structure. Prepare a wider layer layout so the camera can reveal the full original desk at the approved parent 10-second beat. No new objects or alternate device geometry. CONTINUITY: The phone, desk, uninscribed tablet and card geometry described here are candidate appearance specifications; use their actual manager-approved reference anchors once bound. Use user board panel(s) A, D only for composition, palette, shape and transition ideas, transformed visibly into illustrated graphic fantasy. All required labels listed in metadata are composited later as modern explanatory text. NEGATIVE: No return to historical reenactment, replacement of weekday names, cosmic spectacle, new props, automatic captions or sudden camera direction reversal. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.\n\nStylized cinematic history-fantasy graphic animation, bold illustrated forms and sculptural textures, dark moody atmosphere, consistent recurring visual motifs and prop shapes, kinetic-camera-ready depth, muted color palette with deep blues and burnt orange accents, clear focal hierarchy, high-detail illustrated finish, horizontal 16:9 composition.",
+      "image_prompt_utf8_sha256": "sha256:30136bd6d10fa37ddd7b268269b7deb9f4ba8dee9a3a574671ef727def612cd9",
+      "motion_prompt_english": "STORY: Continuation close state of the same smartphone on the same dark-indigo desk, with stable Korean weekday labels reserved for editorial compositing and the already introduced meaning symbols fading in visual prominence. Communicate the event and factual limit stated in the parent story sheet; this proposed subshot adds no narration or historical claim.\nFRAME: Future production requirement, after prior media exists and passes Agent1 review: use the previous shot's actual EDITED use-exit frame as START, with exact object geometry, desk angle and light direction. The prose ENTRY specification below is a review target and may not replace that continuity reference. The illustrated ENTRY state in the image prompt is a CANDIDATE description, not an existing approved asset. In future production retain horizontal 16:9, all object counts and visible drawing language.\nMOTION: Local 0.0–2.9s (parent 7.0–9.9s): continue the gentle backward movement from the symbol emphasis and let the light trace settle; do not add new meaning graphics. At local 3.0s (parent 10.0s), broaden to the full ordinary desk and full original phone. Local 3.0–6.0s: ease farther back, keeping the blue reflection as a modest visual memory of the moon-space. Local 6.0–7.0s: hold quiet negative space for the viewer question and a stable ending handoff. Timing values are proposed EDITED-use seconds at 1.0x narration, not measured TTS or provider generation length.\nEXIT: End on the familiar smartphone/desk wide view with a restrained crescent-blue reflection, ready for the next-day calendar move. Extract the actual edited use-exit at the chosen handoff timestamp, not the provider's final generation frame. Render no inter-shot fades, wipes or typography mutations inside I2V; planned UI/text/symbol layers are assembled in editing.\nNEGATIVE: No return to historical reenactment, replacement of weekday names, cosmic spectacle, new props, automatic captions or sudden camera direction reversal. No photorealism, live-action look, documentary reenactment, hyperreal skin or realistic cinematic reconstruction. No invented historical faces, garments, interior details, rituals, killings, invasion alerts or weekday-event claims. No faux ancient Latin lettering, watermarks, logos or generated required typography. No vertical framing, shortform central-band crop, persistent header or baked subtitles. Keep all exact lettering in a separate modern editorial layer.",
+      "motion_prompt_utf8_sha256": "sha256:0933dcb7c9ec42cf1e33965544d2b9c25bfdfffa9459bfed807d0ef5a9055dfb",
+      "reference_contract": {
+        "board_panels": "A / D의 푸른 반사색",
+        "board_ref_planned": "04_visual_identity/board_refs/P4_S1.png",
+        "board_ref_exists_or_approved": false,
+        "source_board_scope": "COMPOSITION_PALETTE_SHAPE_TRANSITION_ONLY",
+        "previous_shot_id": "P4_S1_Cut03_A",
+        "previous_actual_used_exit_frame": null,
+        "continuity_mode": "CONTINUATION",
+        "sequential_dependency_required": true,
+        "manager_approved_appearance_anchor_ids": [],
+        "appearance_status": "CANDIDATE descriptors only; no reference-library promotion",
+        "factual_reference_note": "No external photographs supplied by this package. Real references, if added, are FACT/SHAPE only."
+      },
+      "assets": {
+        "image_candidate_planned": "05_images/candidates/P4_S1_Cut03_B_1.png",
+        "video_candidate_planned": "06_clips/generated/P4_S1_Cut03_B_1.mp4",
+        "parent_tts_planned": "03_tts/P4_S1_Cut03.mp3",
+        "metadata_candidate_file": "04_visual_identity/prompt-review-v1/P4_S1_Cut03.json",
+        "used_exit_frame_planned": "06_clips/used_exits/P4_S1_Cut03_B_use_exit.png",
+        "selected_image": null,
+        "selected_video": null,
+        "selected_tts": null,
+        "candidate_index": 1,
+        "prompt_revision": "v1",
+        "tts_revision": null
+      },
+      "edit_audio": {
+        "transition_in_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "transition_out_candidate": {
+          "type": "hard_cut",
+          "duration_sec": 0.0,
+          "reason_ko": "문자·휴대폰·카드의 중첩 잔상을 막고 연속 동작 또는 사각/원형 매치를 살리는 편집 예외."
+        },
+        "subtitle_policy_ko": "정확한 한국어 나레이션 자막은 실측 단어 정렬 뒤 편집층에서 제작; 이미지/I2V에 굽지 않는다.",
+        "typeset_overlays_ko": [
+          "익숙한 요일 이름을 다시 본다(선택적 편집 제목)"
+        ],
+        "overlay_status": "PLANNED_ONLY; typography is not generated in I2V.",
+        "sfx_candidate_ko": "효과음은 줄이고 나레이션을 앞에 둔다.",
+        "bgm_candidate_ko": "가사 없는 낮은 앰비언트·그래픽 리듬; 나레이션보다 낮게. 컷 사이 음악은 이어간다.",
+        "qc_status": "CANDIDATE_SELF_REVIEW_ONLY"
+      },
+      "production_eligibility": "REVIEW_ONLY_PENDING_MANAGER_AND_MEASURED_TTS",
+      "next_shot_id": "P4_S1_Cut04_A"
+    }
+  ]
+}
