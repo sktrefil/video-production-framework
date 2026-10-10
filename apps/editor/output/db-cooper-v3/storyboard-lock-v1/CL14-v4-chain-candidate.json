@@ -1,0 +1,62 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL14",
+  "scene": "SC04",
+  "timeline_start": 121,
+  "timeline_end": 130,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "editor_fps": 30,
+  "base_image_mode": "SINGLE",
+  "proposed_image_mode": "START_TARGET_OPTIONAL_END",
+  "transition": "INDEPENDENT_COCKPIT_STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null,
+    "start_path": "assets/CL14_START_v4.png"
+  },
+  "end_target_path": "assets/CL14_END_TARGET_v4.png",
+  "video_path": "clips/CL14.mp4",
+  "prompts": {
+    "start": "prompts/CL14_v4_START.prompt.txt",
+    "end": "prompts/CL14_v4_END.prompt.txt",
+    "video": "prompts/CL14_v4_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "start": "cf3e3b4c1713ab332765ba817de6564861fda572d0e407492d27c9980cc70889",
+    "end": "79d4c0ba2912ad732d12286a3c06b9bcb071aefecf141a02c4a1048826a2150b",
+    "video": "3c0f581986f004780c92becb09ee80c95f154fe066cc5b3123bd7270cfc0afe2"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL14_v4_VIDEO.ko.txt",
+    "sha256": "8a931e6c5a4166187a0917f73ac8160dcdd3533ced44895c1be53ea3ae414fc0",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "boards": {
+    "BOARD01_STYLE": {
+      "path": "boards/BOARD01_STYLE.png",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    "BOARD02_MOTION": {
+      "path": "boards/BOARD02_MOTION.png",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    "BOARD03_SCENE": {
+      "path": "boards/BOARD03_SCENE.png",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다.",
+  "voice_slot_relative_seconds": [
+    1,
+    6.091
+  ],
+  "motion_budget": "ONE_SHORT_FAST_PANEL_PUSH_ONE_WARNING_INDICATOR_REVEAL",
+  "prior_clip_qc": "CL13 v3 duplicate handset and v4 open-panel END rejected; CL13 v5 closed-panel reference reviewed. CL14 is an independent cockpit story cut.",
+  "next_clip_handoff": "CL15 START derives from CL14 actual 9-second used exit, not from planned END target."
+}

@@ -1,0 +1,69 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL16",
+  "scene": "SC04",
+  "timeline_start": 139,
+  "timeline_end": 148,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "editor_fps": 30,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL15"
+  },
+  "start_path": "assets/CL16_START.png",
+  "start_sha256": "3adcebf0d1f48f8fa83cce859dfe73419512949bde8dc69e9441b559d2a274e2",
+  "source_clip_path": "clips/CL15.mp4",
+  "source_clip_sha256": "290a20baeb08c627ce1da059bda90fd1d8e263a1bb2d2d031b28eed8f6ac7384",
+  "source_exit_path": "exits/CL15_USED_EXIT.png",
+  "source_exit_sha256": "3adcebf0d1f48f8fa83cce859dfe73419512949bde8dc69e9441b559d2a274e2",
+  "source_frame_index": 215,
+  "source_frame_seconds": 8.958333,
+  "start_visual_qc": "MANAGER_REVIEWED_FRAME_CONTENT: closed curtain fills left/center, one flat fixed grille on right; candidate pending CL15/CL16 motion and audio continuity playback",
+  "end_target_path": "assets/CL16_END_TARGET_v3.png",
+  "video_path": "clips/CL16.mp4",
+  "prompts": {
+    "end": "prompts/CL16_v3_END.prompt.txt",
+    "video": "prompts/CL16_v3_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "end": "0187ffe6d7629544ecc0576a77c643300ce9c3f584ccce65685afb5d0f7ef9cb",
+    "video": "b0a84d27e50582bc487b189b1aef5b182dd8d4efb38c63c4ac3314d241d8355e"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL16_v3_VIDEO.ko.txt",
+    "sha256": "9bd0af581691431f4dbfb98905b05f6d01d7b586dd319daaadd1025c1485bd6e",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "boards": {
+    "BOARD01_STYLE": {
+      "path": "boards/BOARD01_STYLE.png",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160",
+      "original_name": "D.B.COOPER 마스터 보드 v3.1.png"
+    },
+    "BOARD02_MOTION": {
+      "path": "boards/BOARD02_MOTION.png",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7",
+      "original_name": "D.B.COOPER 마스터 보드 v3.2.png"
+    },
+    "BOARD03_SCENE": {
+      "path": "boards/BOARD03_SCENE.png",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79",
+      "original_name": "D.B.COOPER 마스터 보드 v3.3.png"
+    }
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다.",
+  "voice_slot_relative_seconds": [
+    1.2,
+    5.709
+  ],
+  "motion_budget": "ONE_FAST_RIGHTWARD_PATH_ONE_FLAT_SPEAKER_GRILLE_ONE_AMBER_CONNECTION_SEQUENCE_THEN_DARK_GAUGE_HANDOFF",
+  "next_clip_handoff": "CL17 START derives from CL16 actual 9-second used exit, not from the planned END target."
+}

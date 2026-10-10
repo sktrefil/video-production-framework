@@ -1,0 +1,14 @@
+{
+  "status": "REVIEW_READY_NONCANONICAL",
+  "project": "output/db-cooper-v3/review/remotion-cl01-16-v1/edit_project.json",
+  "remotion_props": "output/db-cooper-v3/review/remotion-cl01-16-v1/remotion-props.json",
+  "timeline_seconds": 148,
+  "timeline_frames": 4440,
+  "fps": 30,
+  "video_clips": 16,
+  "tts_segments": 16,
+  "subtitle_cues": 38,
+  "final_tts_source": "canonical FINAL segmented TTS + character alignments",
+  "canonical_project_db_modified": false,
+  "clips_are_review_copies": true
+}

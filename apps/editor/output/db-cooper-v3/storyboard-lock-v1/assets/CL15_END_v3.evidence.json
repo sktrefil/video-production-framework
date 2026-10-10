@@ -1,0 +1,37 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "clip_id": "CL15",
+  "kind": "END_TARGET",
+  "prompt_sha256": "5f4c23368f095a9a7e413f189e4dc33c2dee2deae0018b996ff4efdc0a262a70",
+  "source_clip_sha256": "79a443f1b4917764de037da3732ac4139196e3299921c4ebf3601a8f7e3cb446",
+  "start_sha256": "729db88dca72c941aa62712fabb544cec7016f4b0c5d6ceaf02334adab01a6b7",
+  "references": [
+    {
+      "role": "CL15_ACTUAL_START_STYLE",
+      "sha256": "729db88dca72c941aa62712fabb544cec7016f4b0c5d6ceaf02334adab01a6b7"
+    },
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    {
+      "role": "BOARD02_MOTION",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    {
+      "role": "BOARD03_SCENE",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  ],
+  "output_path": "assets/CL15_END_TARGET_v3.png",
+  "output_sha256": "6fa2b7b98b7097d317dadc60548849481a020c9422ddc79790ccad5468690230",
+  "distinct_from_start": {
+    "mean_absolute_rgb_delta": 20.45,
+    "edge_correlation": 0.074,
+    "method": "320x180 RGB difference and 160x90 edge correlation"
+  },
+  "provider_request_ids": [],
+  "generated_at": "2026-10-10T03:57:11.047Z",
+  "status": "GENERATED_UNREVIEWED",
+  "canonical_approval": false
+}

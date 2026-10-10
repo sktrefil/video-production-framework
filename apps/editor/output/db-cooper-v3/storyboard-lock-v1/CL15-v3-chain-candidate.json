@@ -1,0 +1,69 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL15",
+  "scene": "SC04",
+  "timeline_start": 130,
+  "timeline_end": 139,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "editor_fps": 30,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL14"
+  },
+  "start_path": "assets/CL15_START.png",
+  "start_sha256": "729db88dca72c941aa62712fabb544cec7016f4b0c5d6ceaf02334adab01a6b7",
+  "source_clip_path": "clips/CL14.mp4",
+  "source_clip_sha256": "79a443f1b4917764de037da3732ac4139196e3299921c4ebf3601a8f7e3cb446",
+  "source_exit_path": "exits/CL14_USED_EXIT.png",
+  "source_exit_sha256": "729db88dca72c941aa62712fabb544cec7016f4b0c5d6ceaf02334adab01a6b7",
+  "source_frame_index": 215,
+  "source_frame_seconds": 8.958333,
+  "start_visual_qc": "MANAGER_REVIEWED_FRAME_CONTENT: lit amber stair-warning indicator close-up; candidate pending CL14/CL15 motion and audio continuity playback",
+  "end_target_path": "assets/CL15_END_TARGET_v3.png",
+  "video_path": "clips/CL15.mp4",
+  "prompts": {
+    "end": "prompts/CL15_v3_END.prompt.txt",
+    "video": "prompts/CL15_v3_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "end": "5f4c23368f095a9a7e413f189e4dc33c2dee2deae0018b996ff4efdc0a262a70",
+    "video": "4de31dd220bcdd23666f6be6def86b803b786a52006c2976496867d347002d55"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL15_v3_VIDEO.ko.txt",
+    "sha256": "f31d33670c4787ce8fc9050aaed6a919c73ef67e606f2535753cc59441030169",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "boards": {
+    "BOARD01_STYLE": {
+      "path": "boards/BOARD01_STYLE.png",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160",
+      "original_name": "D.B.COOPER 마스터 보드 v3.1.png"
+    },
+    "BOARD02_MOTION": {
+      "path": "boards/BOARD02_MOTION.png",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7",
+      "original_name": "D.B.COOPER 마스터 보드 v3.2.png"
+    },
+    "BOARD03_SCENE": {
+      "path": "boards/BOARD03_SCENE.png",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79",
+      "original_name": "D.B.COOPER 마스터 보드 v3.3.png"
+    }
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다.",
+  "voice_slot_relative_seconds": [
+    1.8,
+    5.418
+  ],
+  "motion_budget": "ONE_RIGHTWARD_MOVE_ONE_CONCEALED_GRAPHIC_MATCH_CUT_THEN_CLOSED_CURTAIN_AND_SPEAKER_GRILLE_REVEAL",
+  "next_clip_handoff": "CL16 START derives from CL15 actual 9-second used exit, not from the planned END target."
+}

@@ -1,0 +1,12 @@
+{
+    "project_id":  "db_cooper_1971_4m30_v3",
+    "clip_id":  "CL16",
+    "binding_kind":  "PREVIOUS_USED_EXIT",
+    "source_clip":  "CL15",
+    "source_exit_path":  "exits/CL15_USED_EXIT.png",
+    "source_exit_sha256":  "3adcebf0d1f48f8fa83cce859dfe73419512949bde8dc69e9441b559d2a274e2",
+    "start_path":  "assets/CL16_START.png",
+    "start_sha256":  "3adcebf0d1f48f8fa83cce859dfe73419512949bde8dc69e9441b559d2a274e2",
+    "status":  "EXTRACTED_UNREVIEWED",
+    "canonical_approval":  false
+}
