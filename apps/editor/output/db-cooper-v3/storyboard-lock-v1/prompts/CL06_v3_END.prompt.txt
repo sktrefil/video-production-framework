@@ -1,0 +1,18 @@
+SC02 | CL06 | END/TARGET IMAGE | v3 | 9-second editorial exit
+
+Create one 1536x864 horizontal 16:9 illustration in the project's NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir style. Use bold charcoal and steel-blue ink shadows with restrained warm ivory highlights. No photorealism, live action, documentary reenactment, hyperrealism or glossy 3D.
+
+PRIMARY SAME-SEQUENCE REFERENCE: assets/CL06_START.png | SHA-256 b185935b1051d6a10c4ea07a8e70765d899db5dcfc9b6eab331128b5dc305604. This is CL05.mp4's actual last used video frame at 8.958333 seconds. It shows a dark case filling most of the foreground, a narrow shadowed gap under its lid, two bent knees below, an ink-shaded hand at the far right holding the lid, and the same cabin behind it. It is CL06's exact first frame. Preserve the case geometry, rightward screen direction, cabin light direction, palette and ink texture; the camera may travel rightward from this state. Do not pretend that a blank memo is already visible in START.
+
+PROJECT STYLE BOARD: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+PROJECT MOTION BOARD: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+PROJECT SCENE BOARD: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Use the boards for linework, motion-space and scene grammar only, not their panel layouts, typography or facial likenesses.
+
+TARGET AT CL06'S EDITOR-USED 9-SECOND EXIT: The camera has moved along the dark case rim toward the aisle-side hand space. On the right half of the frame, a second person's cropped hand holds a separate small ivory memo sheet. A pencil or pen may rest at its edge after a brief writing gesture; any marks on the sheet are abstract, soft, and completely unreadable. Keep the memo distinct from the earlier folded note. The left edge retains a narrow, dark out-of-focus part of the same case or seat, making the travel from START spatially clear. Warm overhead cabin light picks out the paper; anonymous sleeves and hands have the same ink-drawn proportions and lighting as START. No identifiable face.
+
+This is an editorial depiction of information being recorded, not a reproduction of a historical document. Do not print amounts, numbers, names, equipment labels or any other readable text. Do not add an extra person, a new room, a visible device, an explosion, subtitles, title, watermark or panel borders. Avoid duplicated fingers and floating paper.
+
+TIMING: The planned source video is 10 seconds, but the editor uses only 0–9 seconds. Writing gestures and the separate memo should be visible during the used window, and this held-paper composition must be reached by 9 seconds. Hold it during 9–10 seconds if a video generator requires the target at the full source endpoint. Inspect the actual CL06.mp4 used exit near 8.967 seconds before further use. This target still is not proof of the video result.
+
+SAVE AS: assets/CL06_END_TARGET_v3.png

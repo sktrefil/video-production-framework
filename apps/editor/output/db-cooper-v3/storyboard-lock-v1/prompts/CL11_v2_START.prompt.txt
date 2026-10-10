@@ -1,0 +1,15 @@
+D.B. COOPER | CL11 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 재이륙 때 후방 계단이 열린 화면 금지, 실제 경고등 문구 생성 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL11.
+STORY: 무리한 요구: 계단을 내린 채 이륙하라고 했으나 이륙 뒤 조작하기로 변경
+START FRAME: 닫힌 후방 계단과 바퀴가 읽히는 활주로의 727
+FUTURE CAMERA SPACE: 닫힌 후방 계단 로우앵글→기체 전체 PULL-BACK→활주와 상승 FOLLOW
+REVEAL TO RESERVE: 계단을 내린 채 이륙할 수 없어서 이륙 뒤에 내리기로 하고 다시 밤하늘로 오른다
+Keep the revealed state out of the START composition. One frame, one information state.

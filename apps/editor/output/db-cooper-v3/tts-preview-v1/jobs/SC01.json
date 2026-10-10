@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "jobId": "tts-preview-SC01-92ca156aba67",
+  "jobRevision": 1,
+  "projectId": "db_cooper_1971_4m30_v3_preview",
+  "provider": "ELEVENLABS",
+  "providerProfileVersion": "1.0.0",
+  "jobType": "TTS_GENERATION",
+  "executionMode": "AUTOMATED",
+  "attempt": 1,
+  "inputHash": "92ca156aba6764efce9e4316b4d21b456aeb0bdd3e57f3ba13a3f4bc840a9d83",
+  "secretRequirements": [
+    {
+      "envName": "ELEVENLABS_API_KEY",
+      "required": true
+    }
+  ],
+  "input": {
+    "schemaVersion": 1,
+    "providerProfile": {
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    "plan": {
+      "id": "preview-plan-SC01-92ca156aba67",
+      "revision": 1,
+      "sourceScript": {
+        "id": "DB_Cooper_4min30_script_v3_TTS.txt",
+        "revision": 3,
+        "sha256": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac"
+      },
+      "contentFormat": "LONGFORM",
+      "endpoint": "/v1/text-to-speech/{voice_id}/with-timestamps",
+      "modelId": "eleven_v3",
+      "outputFormat": "mp3_44100_128",
+      "voiceIdResolution": "VOICE_PRESET_THEN_ENV",
+      "voiceIdFallbackEnv": "ELEVENLABS_VOICE_ID",
+      "voicePreset": "HISTORY_MYSTERY_LONGFORM",
+      "configuredVoiceSettings": {
+        "stability": 0.62,
+        "similarityBoost": 0.8,
+        "style": 0.04,
+        "speed": 1,
+        "useSpeakerBoost": true
+      },
+      "effectiveVoiceSettings": {
+        "stability": 0.62,
+        "style": 0.04
+      },
+      "droppedVoiceSettings": [
+        "similarity_boost",
+        "speed",
+        "use_speaker_boost"
+      ],
+      "preserveProviderCadence": true,
+      "narrationMode": "SEGMENTED",
+      "chunks": [
+        {
+          "index": 1,
+          "text": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다. 착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.",
+          "textCharacterCount": 114,
+          "outputRelativePath": "03_tts/sections/SC01_raw.mp3",
+          "sectionId": "preview-SC01",
+          "sectionIndex": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "preview-SC01",
+          "index": 1,
+          "sequenceId": "preview-SC01",
+          "sceneIds": [
+            "SC01"
+          ],
+          "text": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다. 착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.",
+          "textCharacterCount": 114,
+          "audioRelativePath": "03_tts/sections/SC01_raw.mp3",
+          "characterAlignmentRelativePath": "03_tts/alignment/SC01.json"
+        }
+      ],
+      "outputPaths": {
+        "narrationManifest": "03_tts/manifests/SC01.json",
+        "metadata": "03_tts/metadata/SC01.json",
+        "resolvedVoiceProfile": "03_tts/voice/SC01.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "CL06",
+  "scene": "SC02",
+  "ordinal": 6,
+  "timeline_start": 45,
+  "timeline_end": 54,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL05"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL06_START.png",
+  "end_target_asset": "assets/CL06_END_TARGET.png",
+  "video_asset": "clips/CL06.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL06_v2_END.prompt.txt",
+    "video": "prompts/CL06_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "승무원이 쿠퍼의 구두 지시를 별도의 종이에 적는 행위를 공개",
+  "action": "손이 글씨를 적는 제스처; 실제 읽을 수 있는 글자는 생성하지 않음",
+  "camera": "메모지 위를 근접 PUSH-IN → 손목을 따라 우측 이동 → 클로즈로 종료",
+  "reveal": "5~7초 종이가 실제 요구 사항을 전달할 도구로 바뀜",
+  "exit": "손에 잡힌 종이를 화면 오른쪽에 배치",
+  "sound": "연필 마찰→발걸음; 읽히는 임의 글자는 후반 합성만",
+  "narrator_text": "남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 16.618,
+    "scene_audio_end_seconds": 22.4,
+    "spoken_window_seconds": 5.782
+  },
+  "voice_slot_relative": {
+    "start": 1.1,
+    "end": 6.882
+  },
+  "voice_slot_timeline": {
+    "start": 46.1,
+    "end": 51.882
+  },
+  "pre_voice_seconds": 1.1,
+  "post_voice_seconds": 2.118,
+  "nonvoice_seconds": 3.218
+}

@@ -1,0 +1,55 @@
+{
+  "id": "CL12",
+  "scene": "SC03",
+  "ordinal": 12,
+  "timeline_start": 102,
+  "timeline_end": 112,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL11"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL12_START.png",
+  "end_target_asset": "assets/CL12_END_TARGET.png",
+  "video_asset": "clips/CL12.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL12_v2_END.prompt.txt",
+    "video": "prompts/CL12_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "MONEY-01",
+    "PARA-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "돈가방 결속과 마지막 승무원 퇴장, 후방 객실이 고립됨",
+  "action": "쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘",
+  "camera": "가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe",
+  "reveal": "5초 매듭의 고정, 7~9초 커튼 완전 차폐",
+  "exit": "커튼의 검은 수직 주름이 전체 프레임을 덮음",
+  "sound": "줄 마찰→발걸음→커튼 긁힘→후방 바람 저음",
+  "narrator_text": "쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 23.927,
+    "scene_audio_end_seconds": 31.127,
+    "spoken_window_seconds": 7.2
+  },
+  "voice_slot_relative": {
+    "start": 0.2,
+    "end": 7.4
+  },
+  "voice_slot_timeline": {
+    "start": 102.2,
+    "end": 109.4
+  },
+  "pre_voice_seconds": 0.2,
+  "post_voice_seconds": 2.6,
+  "nonvoice_seconds": 2.8
+}

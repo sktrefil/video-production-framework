@@ -1,0 +1,22 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "revision": "scene-candidate-v2",
+  "status": "DIRECTING_REVISION_CANDIDATE",
+  "canonical_approval": false,
+  "script_revision": "v3",
+  "script_path": "D:/컴폴더/다운로드/DB_Cooper_4min30_script_v3.md",
+  "script_sha256": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "timing_basis": "PLANNED_NOT_AUDIO_MEASURED",
+  "scenes": [
+    {"scene_id":"SC01","sequence_id":"SQ01","script_segment":"00:00-00:18","primary_visual_idea":"night 727 rear stair reveal, then empty landed cabin","must_be_seen":["ventral airstair structure revealed at 6-8 seconds","CL01 ends in stairwell darkness at 10 seconds","CL02 intentionally cuts to empty cabin"],"identity_anchors":["AIR-01","STAIR-01","CAB-01"],"revision":"v2","approval_state":"CANDIDATE"},
+    {"scene_id":"SC02","sequence_id":"SQ02","script_segment":"00:18-01:02","primary_visual_idea":"note passes, partial briefcase reveal, separate demand note reaches cockpit","must_be_seen":["first note transfer","red sticks and wires shown without confirming real bomb","separate written demands"],"identity_anchors":["COO-01","NOTE-01","BRF-01","CAB-01"],"revision":"v1","approval_state":"CANDIDATE"},
+    {"scene_id":"SC03","sequence_id":"SQ03","script_segment":"01:02-01:52","primary_visual_idea":"ransom and parachutes exchanged for passengers, then second takeoff and curtain closure","must_be_seen":["money and four parachutes","passengers leave","curtain closes after takeoff"],"identity_anchors":["AIR-01","MONEY-01","PARA-01","CAB-01"],"revision":"v1","approval_state":"CANDIDATE"},
+    {"scene_id":"SC04","sequence_id":"SQ04","script_segment":"01:52-03:05","primary_visual_idea":"crew learns about rear-stair change without witnessing the departure","must_be_seen":["stair difficulty and warning indicator","no witnessed jump","Reno landing followed by empty cabin and tie"],"identity_anchors":["STAIR-01","CAB-01","TIE-01"],"revision":"v1","approval_state":"CANDIDATE"},
+    {"scene_id":"SC05","sequence_id":"SQ05","script_segment":"03:05-03:31","primary_visual_idea":"search expands from aircraft clues to stylized forest and river map space","must_be_seen":["search without conclusive trace","transition toward later river discovery"],"identity_anchors":["TIE-01"],"revision":"v1","approval_state":"CANDIDATE"},
+    {"scene_id":"SC06","sequence_id":"SQ06","script_segment":"03:31-04:06","primary_visual_idea":"small damaged money edge becomes linked evidence, then river emptiness","must_be_seen":["1980 riverside discovery","damaged 20-dollar bundles totaling 5800 dollars","serial number connection","money path remains unknown"],"identity_anchors":["CASH80-01"],"revision":"v1","approval_state":"REVISION_REQUIRED_TIMING"},
+    {"scene_id":"SC07","sequence_id":"SQ07","script_segment":"04:06-04:30","primary_visual_idea":"file closes, visible stair from CL01 is revisited, camera retreats","must_be_seen":["no solved identity","CL29 starts from visible stair geometry, not CL01 black exit","retreat leaves unresolved night sky"],"identity_anchors":["AIR-01","STAIR-01"],"revision":"v2","approval_state":"CANDIDATE"}
+  ],
+  "blocking_issues": ["SC06 narration timing remains unmeasured", "CL29 v2 binding has not been integrated into a revised shot manifest and generated chain plan"],
+  "manager_story_gate": "NOT_ADVANCED"
+}

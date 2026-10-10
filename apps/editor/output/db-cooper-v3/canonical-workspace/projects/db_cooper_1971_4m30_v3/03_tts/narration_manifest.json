@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 2,
+  "mode": "SEGMENTED",
+  "planId": "tts-plan_3c3aa78843564ae39676505a41c347fb",
+  "planRevision": 2,
+  "sourceScriptId": "script_c1b9b5c0010d45539e4514874b99dd0c",
+  "sourceScriptRevision": 1,
+  "sourceScriptSha256": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "finalTtsGateId": "FTG-db_cooper_1971_4m30_v3-r1",
+  "reuseQcSha256": "86b5e6b0c7f0e5a6bd95f535d0d5a0dd7ee47c0e81c22b2a3db9ec42ca94d337",
+  "transform": {
+    "type": "ATEMPO_PLAYBACK_PROMOTION",
+    "speed": 1.1,
+    "alignment": "source timestamps divided by 1.1; whitespace mapped to zero-duration characters"
+  },
+  "sections": [
+    {
+      "sceneId": "SC01",
+      "canonicalSceneId": "sc_121fe98f06664120b7b4d04f06727832",
+      "sectionId": "tts-section-001",
+      "textSha256": "61b6fff503ad1e5737f00dceff7e860a3f3d19a932e66db57251277b9cb1697e",
+      "audioRelativePath": "03_tts/sections/section_001.mp3",
+      "audioSha256": "c91ce20e10be13629348d16a49367bbf2e82c1611fe8af06e2354e1561b9f700",
+      "audioDurationMs": 11936,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_001.json",
+      "characterAlignmentSha256": "cb932d826821cae065d4d3d0d0d143c2886ea40f76bea6ae28dbd49855f37d6b",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC01_raw.mp3",
+      "sourceRawAudioSha256": "9b10cca681f9dafc7c21b06bbb368e729fca3c3198e89300e1469753bdbcc4f9",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC01_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC01-92ca156aba67",
+      "sourceProviderRequestIds": [
+        "m1uuBcQ2JEgkwQt3gE9i"
+      ]
+    },
+    {
+      "sceneId": "SC02",
+      "canonicalSceneId": "sc_ab51763efc184ea98fbd794154f4f3e2",
+      "sectionId": "tts-section-002",
+      "textSha256": "c63548e2c706afc4280f45607ea85ed3a9f61246b562e595f0a47dd649cf6044",
+      "audioRelativePath": "03_tts/sections/section_002.mp3",
+      "audioSha256": "222fa4f64d937b32192584e7c4f198a0aa7bd4fc46280ada7c842311cc0bd97a",
+      "audioDurationMs": 26845,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_002.json",
+      "characterAlignmentSha256": "da62658d5914dce78f100e6363df09538396fa156f1755fc5984465a5b7913b7",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC02_raw.mp3",
+      "sourceRawAudioSha256": "9e2ddffe9b6401ab17c2feb8ad4cf5c5dfedb14763b43d58d56f862dc8d6aa7f",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC02_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC02-edb92356049f",
+      "sourceProviderRequestIds": [
+        "IycqYJp50HR6oN9G0vQH"
+      ]
+    },
+    {
+      "sceneId": "SC03",
+      "canonicalSceneId": "sc_29d2cc5b722e45029e40362fa2e875ce",
+      "sectionId": "tts-section-003",
+      "textSha256": "f93655c35f23349d5de32dd521f121f5402de077934c61962e9ecc2d51df4107",
+      "audioRelativePath": "03_tts/sections/section_003.mp3",
+      "audioSha256": "2463edefb0e322912b0ec68a8ddb29dfa9005952eea1b23db2ba77141914e8c0",
+      "audioDurationMs": 31126,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_003.json",
+      "characterAlignmentSha256": "ff94b3559b648da93afc75f871c82215d77d1ec4c5ad3d8787f13851ed76eb0d",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC03_raw.mp3",
+      "sourceRawAudioSha256": "a9061b55ec76d8cf693330695cf1610f7883bf78d986c97834832ceb36bf95e7",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC03_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC03-0485528d70b3",
+      "sourceProviderRequestIds": [
+        "DPWPRER0V43u5rth5yun"
+      ]
+    },
+    {
+      "sceneId": "SC04",
+      "canonicalSceneId": "sc_565da5a13a594f0a830cafb8ba887373",
+      "sectionId": "tts-section-004",
+      "textSha256": "8884db80dcbcb0172753a3b92166c17760d553afaff6fee78b1dcf6bec4adb8d",
+      "audioRelativePath": "03_tts/sections/section_004.mp3",
+      "audioSha256": "1bb1a3be17c13c84e09d9982682c2ad4b6a25783d070c6eb3024c058455c48cb",
+      "audioDurationMs": 41828,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_004.json",
+      "characterAlignmentSha256": "bda812676ed5e1574bc5c2773a9310543685579c16a2d519077809e68c119bd6",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC04_raw.mp3",
+      "sourceRawAudioSha256": "14f29bef8606c9e715a687b7cf87725fe55a070f3b0f9714322c593ec428c539",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC04_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC04-414c49c5cdeb",
+      "sourceProviderRequestIds": [
+        "K22zohNXkbJLieB5OetV"
+      ]
+    },
+    {
+      "sceneId": "SC05",
+      "canonicalSceneId": "sc_f1c5366d74664863b0f827369817266b",
+      "sectionId": "tts-section-005",
+      "textSha256": "b2759309c1cae83dd3501272dbb8b6ebe9e15c1d35a0725ce2e56c1ff810d2a1",
+      "audioRelativePath": "03_tts/sections/section_005.mp3",
+      "audioSha256": "2320fd890e1209d940c6cae8539d431b62a56a533db2d4b70adde900700b1804",
+      "audioDurationMs": 14562,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_005.json",
+      "characterAlignmentSha256": "402dace49bf399528b263233a4f56b545a04acf2e2010f33c2fb31618f6c583b",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC05_raw.mp3",
+      "sourceRawAudioSha256": "f8bfc534af24a7294adff6ba7d5d67949135b012eaee4cd49b5e994620c96ec8",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC05_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC05-45acdd0c6679",
+      "sourceProviderRequestIds": [
+        "VmQH9tubLN00v6JOce7r"
+      ]
+    },
+    {
+      "sceneId": "SC06",
+      "canonicalSceneId": "sc_16f20ef357a54bfabcc1f9651c490323",
+      "sectionId": "tts-section-006",
+      "textSha256": "5bba0d1ada0b856a9cffd389d384ef143f3119e5bc1ef22cbc81329e3b94d04b",
+      "audioRelativePath": "03_tts/sections/section_006.mp3",
+      "audioSha256": "66d0e1a7ac96cfecde1f0e937161f3bc49acb0085133e92fd4be8ac85a9eb198",
+      "audioDurationMs": 22327,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_006.json",
+      "characterAlignmentSha256": "fe2b3cabbfde3d108fb73a465954808ff455f9caf7b0b721f6dbe828e0491ebd",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC06_raw.mp3",
+      "sourceRawAudioSha256": "7f7c60462378ea04d7091ce3cb1e5f083b54c01ec35ce8e384e7ccbd5e163e5e",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC06_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC06-0b7ca3d474ae",
+      "sourceProviderRequestIds": [
+        "kZKKJB4qrehNYh0hFrox"
+      ]
+    },
+    {
+      "sceneId": "SC07",
+      "canonicalSceneId": "sc_656e364a573a469790b4f6fa60b94f45",
+      "sectionId": "tts-section-007",
+      "textSha256": "4718d4bdbf05d15de1d977f6ab475d32bf8049000b8dd1540ebcbf3ac4b9edf3",
+      "audioRelativePath": "03_tts/sections/section_007.mp3",
+      "audioSha256": "eedce03959b07e6398c712348414445340a561349ecd7375f8ff6bca215678ef",
+      "audioDurationMs": 13977,
+      "characterAlignmentRelativePath": "03_tts/alignment/section_007.json",
+      "characterAlignmentSha256": "fe0dc8a80d97c6315db00ed478c92106a0b5c0b216e522d7774215ea0d2a0837",
+      "sourceRawAudioRelativePath": "03_tts/source_raw/SC07_raw.mp3",
+      "sourceRawAudioSha256": "61b03ebf89cff2f4d412bda607475ead6d75c1180b916e3ad3be5b87277af544",
+      "sourceRawAlignmentRelativePath": "03_tts/source_raw/SC07_alignment.json",
+      "sourceProviderJobId": "tts-preview-SC07-a09102a57635",
+      "sourceProviderRequestIds": [
+        "mD7YvGUYJkFVQQFz5Df7"
+      ]
+    }
+  ],
+  "totalAudioDurationMs": 162601,
+  "regeneratedScenes": []
+}

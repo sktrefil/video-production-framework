@@ -1,0 +1,28 @@
+CL01 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL01_v4_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | SC01 | CL01 | VIDEO PROMPT v4
+Create one continuous 10-second horizontal 16:9 hand-drawn 2D ink-noir animation. Use the supplied CL01_START_v4.png as the exact first-frame identity reference and CL01_END_TARGET_v4.png as the planned final-frame target. Preserve the approved steel-blue night, muted amber highlights, rough ink linework and graphic shadows. NON_REALISTIC_STYLIZED only: no photorealism, live action, documentary reenactment or glossy 3D.
+
+START IMAGE: assets/CL01_START_v4.png
+END/TARGET IMAGE: assets/CL01_END_TARGET_v4.png
+PROJECT BOARDS: boards/BOARD01_STYLE.png, boards/BOARD02_MOTION.png, boards/BOARD03_SCENE.png. Use their style, camera grammar and scene intent; never copy board text or panel layout into the clip.
+
+0–3 s — Establish the SAME Boeing 727 in flight from the distant rear three-quarter START. Hold its forward travel direction and T-tail silhouette. Exactly three engines throughout: one at the vertical-tail root and one on each side of the rear fuselage. Do not multiply or morph engine pods.
+3–6 s — Follow the aircraft, arc quickly around its right rear quarter, then lower the camera and push toward the integrated rear airstair beneath the tail. Cloud and ink-wind layers create parallax. The aircraft must stay spatially continuous with no teleport, axis flip or sudden redesign.
+6–8 s — The rear airstair descends from its lower hinge. Show its downward structure clearly in a low-angle reveal. This is the one new visual fact; keep it readable before moving closer.
+8–10 s — Continue the same push into the dark stairwell opening. The rails become thin edge-lit shapes and the near-black interior fills the center. Match the planned END/TARGET at the 10-second used exit. Do not cut to a new location.
+
+Narration will be placed later in the edit from 0.300 to 6.991 s; leave visual space for it. Sound intention: low engine rumble, brief metal vibration, then rising wind, with a short quiet hold in the dark ending. Do not generate spoken narration or burned-in subtitles.
+
+HISTORICAL GUARD: No person jumping or falling, no parachute in the air, no landing, no claim of survival or death. Do not turn stylized moon/cloud/weather marks into factual evidence. No legible invented airline text, captions, titles or watermark.
+
+EDITOR USE: Generate 10 seconds. The planned used interval is 0–10 s at 30 fps. Review the actual final used frame before deriving the next clip's START; the target image alone does not prove continuity.
+SAVE AS: clips/CL01_v4.mp4
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

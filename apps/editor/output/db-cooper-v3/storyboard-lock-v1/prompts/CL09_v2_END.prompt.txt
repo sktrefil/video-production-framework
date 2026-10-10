@@ -1,0 +1,15 @@
+D.B. COOPER | CL09 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 승객 정확히 36명을 화면에 모두 표현할 필요 없음, 대사 수치만 고정
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL09, using its reviewed START as the primary image reference.
+START STATE: 돈과 낙하산이 기내로 향하고 승객들이 반대로 내리기 시작하는 시애틀 정차 상태
+CAMERA PATH: 승객 하차 흐름과 반대 방향으로 트랙해 남은 쿠퍼에서 조종실 문까지 시선을 이동
+TARGET STATE AT USED EXIT: 빈 통로 끝에 쿠퍼만 남고 재이륙 요구가 조종실 방향으로 전달되는 구도
+EXIT: 조종실 문과 남은 쿠퍼를 한 축에 두는 방향
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

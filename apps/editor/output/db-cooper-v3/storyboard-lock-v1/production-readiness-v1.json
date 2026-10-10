@@ -1,0 +1,20 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "PRODUCTION_HOLD",
+  "design_lock": "PASS_30_SHOTS_FINAL_TTS_ALIGNED",
+  "canonical_story_gate": "PASS",
+  "final_tts": "COMPLETE_SEVEN_SEGMENTED",
+  "project_doctor": "PASS",
+  "project_pilot_preflight": "PASS_WHEN_REPOSITORY_ENV_LOADED",
+  "editor_typecheck": "PASS",
+  "longform_e2e": "BLOCKED_SPAWN_EPERM",
+  "pilot_readiness_ci": "BLOCKED_SPAWN_EPERM",
+  "full_build": "NOT_RUN_WORKSPACE_WRITE_RESTRICTION",
+  "full_tests": "NOT_RUN_WORKSPACE_WRITE_RESTRICTION",
+  "human_audio_listening_qc": "NOT_RECORDED",
+  "cl01_start_image": "NOT_GENERATED",
+  "cl01_end_target_image": "NOT_GENERATED",
+  "cl01_video": "NOT_GENERATED",
+  "restriction": "AGENTS.md forbids starting a real LONGFORM pilot without current typecheck, build, tests, LONGFORM E2E, and pilot-readiness green.",
+  "next_action": "Run the required CI gates in an environment with permitted child processes and build writes; then resume CL01 media creation from the locked prompt package."
+}

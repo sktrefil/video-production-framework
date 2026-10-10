@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL27 | SCENE SC06 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: CASH80-01, ENV-RIVER
+FACT GUARD: 실제 돈이 이동한 경로·물살 방향을 증명하는 그래픽 금지
+Create one planned END/TARGET still for CL27: 발견이 답을 주지는 않는다.
+Attach the reviewed CL27 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 돈은 나왔지만 돈이 왜 이곳에 있는지는 증명되지 않음
+START STATE: 1980년 강변 모래톱의 좁은 프레임
+CAMERA PATH: 지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경
+DESIRED TARGET COMPOSITION: 카메라가 멀리 물러나 사람 없는 광활한 강변만 남음
+PLANNED EDITORIAL EXIT AT 8 SECONDS: 물의 검은 영역이 SC07 서류 암부로 자연 이어짐
+SUBJECT ACTION: 사람과 낙하산 실루엣은 새로 등장하지 않음
+ENVIRONMENT MOTION: 강바람과 물결·구름 움직임만
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

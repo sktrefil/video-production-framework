@@ -1,0 +1,30 @@
+{
+  "id": "CL16",
+  "scene": "SC04",
+  "ordinal": 16,
+  "timeline_start": 139,
+  "timeline_end": 148,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL15"
+  },
+  "start_asset": "assets/CL16_START.png",
+  "end_target_asset": "assets/CL16_END_TARGET.png",
+  "video_asset": "clips/CL16.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL16_END.prompt.txt",
+    "video": "prompts/CL16_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

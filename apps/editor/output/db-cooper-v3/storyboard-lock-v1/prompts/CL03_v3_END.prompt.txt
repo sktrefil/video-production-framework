@@ -1,0 +1,14 @@
+D.B. COOPER | SC02 | CL03 | END/TARGET IMAGE | v3 START-linked revision
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, horizontal 16:9, 1536x864. Use the generated CL03_START_v3.png as the PRIMARY same-shot reference. Preserve its ticket shape family, suit fabric, black tie, cabin seat geometry, palette, lighting direction and camera axis. No photorealism, live action, documentary reenactment or glossy 3D.
+
+PROJECT STYLE BOARD: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+PROJECT MOTION BOARD: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+PROJECT SCENE BOARD: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board panel layouts or lettering.
+
+Create ONE planned END image for CL03 at its EDITOR-USED 9-SECOND EXIT. From the START ticket, the camera has followed left-to-right past a seat back and stopped near the anonymous suited man. Show only a cropped side/back silhouette and a narrow glimpse of his black tie; keep his face out of view. His hand has slowly risen and now holds a small folded note. Let only the note's bright paper edge enter the frame so CL04 can continue toward the note without a jump in position. The boarding pass from START may leave the frame but the paper color and ink texture remain coherent.
+
+Do not reveal readable note contents yet. Do not put a bomb device, money, weapon or parachute in the frame. Avoid exaggerated secretive gestures. The character's unknown appearance remains a stylized silhouette. No invented legible writing, subtitles, title or watermark.
+
+TIMING: The source video is planned for 10 seconds, but the editor uses only 0–9 seconds. This target must be visually reached by 9 seconds and held during 9–10 seconds if the generator requires a full 10-second endpoint. Review the actual frame near 8.967 seconds at 30 fps before using it for CL04 START. This planned END is not proof of the generated video's actual used exit.
+SAVE AS: assets/CL03_END_TARGET_v3.png

@@ -1,0 +1,31 @@
+{
+  "id": "CL12",
+  "scene": "SC03",
+  "ordinal": 12,
+  "timeline_start": 102,
+  "timeline_end": 112,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL11"
+  },
+  "start_asset": "assets/CL12_START.png",
+  "end_target_asset": "assets/CL12_END_TARGET.png",
+  "video_asset": "clips/CL12.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL12_END.prompt.txt",
+    "video": "prompts/CL12_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "MONEY-01",
+    "PARA-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

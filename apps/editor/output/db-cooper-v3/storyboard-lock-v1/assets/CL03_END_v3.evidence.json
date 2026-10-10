@@ -1,0 +1,30 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "clip_id": "CL03",
+  "kind": "END",
+  "prompt_sha256": "718e089b5eeadfd769bc312865861f21abca35bfc911149c31884fa76a9f8358",
+  "references": [
+    {
+      "role": "CL03_START_PRIMARY_SAME_SHOT",
+      "sha256": "17786b2d672ee6acfb9a1e9fc88a6d23c820181f6dac599200f603de0f5063ad"
+    },
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    {
+      "role": "BOARD02_MOTION",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    {
+      "role": "BOARD03_SCENE",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  ],
+  "output_path": "assets/CL03_END_TARGET_v3.png",
+  "output_sha256": "2b4fa7a784eca2d1f40bbf3308404fc00a954948c868b2c3c93982957e57b199",
+  "provider_request_ids": [],
+  "generated_at": "2026-10-09T13:16:17.328Z",
+  "status": "GENERATED_UNREVIEWED",
+  "canonical_approval": false
+}

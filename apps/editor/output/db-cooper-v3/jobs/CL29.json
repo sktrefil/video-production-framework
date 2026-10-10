@@ -1,0 +1,29 @@
+{
+  "id": "CL29",
+  "scene": "SC07",
+  "ordinal": 29,
+  "timeline_start": 254,
+  "timeline_end": 262,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "EXIT_REFERENCE",
+  "transition": "BIBLE_MATCH",
+  "start_binding": {
+    "kind": "EARLIER_USED_EXIT",
+    "source_clip": "CL01"
+  },
+  "start_asset": "assets/CL29_START.png",
+  "end_target_asset": null,
+  "video_asset": "clips/CL29.mp4",
+  "prompts": {
+    "start": null,
+    "end": null,
+    "video": "prompts/CL29_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "STAIR-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

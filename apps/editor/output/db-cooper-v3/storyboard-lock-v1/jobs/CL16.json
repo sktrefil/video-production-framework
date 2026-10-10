@@ -1,0 +1,54 @@
+{
+  "id": "CL16",
+  "scene": "SC04",
+  "ordinal": 16,
+  "timeline_start": 139,
+  "timeline_end": 148,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL15"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL16_START.png",
+  "end_target_asset": "assets/CL16_END_TARGET.png",
+  "video_asset": "clips/CL16.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL16_v2_END.prompt.txt",
+    "video": "prompts/CL16_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "조종실과 후방 사이에 닫힌 커튼이 있어 누구도 그 장면을 보지 못함",
+  "action": "보이지 않는 쿠퍼는 재현하지 않고 인터폰의 신호 변화만 사용",
+  "camera": "인터폰으로 FAST PUSH-IN→응답 신호와 함께 정지→조용한 계기판으로 짧은 TRUCK",
+  "reveal": "조종실의 질문에 답이 오지만 이것이 마지막 확인된 교신이다",
+  "exit": "조용한 계기판 한 곳에 시선 고정",
+  "sound": "질문 신호→짧은 응답 잡음→연결 종료→기체 저음만; 가짜 음성 대사 금지",
+  "narrator_text": "조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 13.818,
+    "scene_audio_end_seconds": 18.327,
+    "spoken_window_seconds": 4.509
+  },
+  "voice_slot_relative": {
+    "start": 1.2,
+    "end": 5.709
+  },
+  "voice_slot_timeline": {
+    "start": 140.2,
+    "end": 144.709
+  },
+  "pre_voice_seconds": 1.2,
+  "post_voice_seconds": 3.291,
+  "nonvoice_seconds": 4.491
+}

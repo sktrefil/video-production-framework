@@ -1,0 +1,31 @@
+CL10 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL10_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+D.B. COOPER | CL10 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 당시 대사 임의 인용, 입모양 싱크 동작 과장 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL10. Editor uses 10 seconds at timeline 82-92 seconds.
+START: assets/CL10_START.png (GENERATE_START).
+END/TARGET: assets/CL10_END_TARGET.png
+ACTION: 기체 조건 세 가지를 추상 도식으로 제시하고 실제로 열린 계단 이륙은 보여주지 않음
+CAMERA: 빈 객실에서 기체 측면으로 그래픽 전환→착륙장치·속도선·닫힌 후방 계단을 순서대로 스케일 변경
+ENVIRONMENT: 해질녘 조명에서 다음 야간 상태로 명암 변환은 하드컷
+REVEAL: 낮은 속도·내린 착륙장치·열린 후방 계단을 요구했다는 세 비행 조건
+USED EXIT: 이륙 전 닫힌 후방 계단의 윤곽
+VOICE SLOT IN USED CLIP: 1.800-6.866s; narration: 그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다.
+SOUND DESIGN: 객실 룸톤→엔진 저음 감속→닫힌 계단의 금속음; 실제 비행 조건의 수치·가짜 교신 대사 금지
+HANDOFF: BIBLE_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.

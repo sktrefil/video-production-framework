@@ -30,12 +30,12 @@
     "video": "prompts/CL13_v4_VIDEO.prompt.txt"
   },
   "prompt_sha256": {
-    "end": "ee53da716e19f76d2828b07faac302cbe61dae52483105c7108c424b23818448",
-    "video": "71fb8ea29b6a7fe021d7cbd86b399b2cb2d1d74778fd29b89f5f1ac7d6c9c73d"
+    "end": "aaf0c90acaa070b97f57712f9e0e5b555e23f823283b019df78c902954745f06",
+    "video": "51bb651a7e9d0204be4ca66cf51fffe7fd4dc186c8a410ba49c6520da92e5b65"
   },
   "video_prompt_korean_translation": {
     "path": "prompts/CL13_v4_VIDEO.ko.txt",
-    "sha256": "027a708362b68f651e7c65ede1cbe954dba238f1fbd573603925482c3dff7aef",
+    "sha256": "3354cfb691b0875c5e5fe49584f66fab1ac36fb03e09d4e8958222048ca29cf5",
     "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
   },
   "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",

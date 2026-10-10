@@ -1,0 +1,53 @@
+{
+  "id": "CL24",
+  "scene": "SC06",
+  "ordinal": 24,
+  "timeline_start": 211,
+  "timeline_end": 220,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL24_START.png",
+  "end_target_asset": "assets/CL24_END_TARGET.png",
+  "video_asset": "clips/CL24.mp4",
+  "prompts": {
+    "start": "prompts/CL24_v2_START.prompt.txt",
+    "end": "prompts/CL24_v2_END.prompt.txt",
+    "video": "prompts/CL24_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "CASH80-01",
+    "ENV-RIVER"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "1980년 낮, 한 소년이 강변에서 이상한 물체를 보게 되는 상황",
+  "action": "소년은 먼 실루엣으로만 두고 지폐는 내레이션의 발견 시점에 드러냄",
+  "camera": "수면 LOW SKIM→모래톱 PARALLAX→발견 지점에 맞춰 지폐 묶음 부분 PUSH-IN",
+  "reveal": "1980년 강변에서 소년이 낡은 지폐 뭉치를 발견한다",
+  "exit": "액수·번호가 보이지 않는 낡은 지폐 묶음",
+  "sound": "잔잔한 강물→물결 근접→젖은 종이 마찰; 발견자의 대사·손동작은 추가하지 않는다",
+  "narrator_text": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 0,
+    "scene_audio_end_seconds": 4.145,
+    "spoken_window_seconds": 4.145
+  },
+  "voice_slot_relative": {
+    "start": 1.3,
+    "end": 5.445
+  },
+  "voice_slot_timeline": {
+    "start": 212.3,
+    "end": 216.445
+  },
+  "pre_voice_seconds": 1.3,
+  "post_voice_seconds": 3.555,
+  "nonvoice_seconds": 4.855
+}

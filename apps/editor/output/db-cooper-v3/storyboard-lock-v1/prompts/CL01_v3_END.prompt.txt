@@ -1,0 +1,16 @@
+D.B. COOPER | CL01 | SC01 | PROMPT PACKAGE v3
+NON_REALISTIC_STYLIZED: hand-drawn 2D ink noir, bold graphic shadows, visible ink texture and kinetic camera motion. Horizontal 16:9. Images: 1536x864; editor delivery: 1920x1080.
+Use the three attached master boards only for style, camera language and object geometry. Do not reproduce board layouts, captions or lettering in the generated frame.
+STYLE REFERENCE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+MOTION REFERENCE: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+SCENE REFERENCE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY LOCKS: AIR-01 (Boeing 727), STAIR-01 (integrated rear airstair), CAB-01.
+FACT GUARD: No eyewitness view of a jump, falling person, landing, survival or death. The dark space and weather marks are stylized storytelling, not historical proof.
+EXCLUDE: photorealism, live action, documentary reenactment, glossy 3D, text, subtitles, watermark and invented historical writing.
+
+Create ONE END/TARGET image for CL01 using the approved CL01 START image as the primary continuity reference, plus the three boards.
+TARGET TIME: 10.0s, the actual planned end of the 10-second used clip. This is AFTER the 6–8s stair reveal.
+FRAME: Camera is close to and low under the same 727's rear airstair. The stair has descended from its lower hinge. Only thin edge light on the same stair rails and ink outlines remains at the sides; the near-black interior fills the center and almost fully occludes the frame.
+CONTINUITY: Preserve AIR-01 / STAIR-01 shape, tail and center-engine orientation, camera axis, palette and lighting family from the approved START. The image must read as the end of a continuous approach, not a new aircraft or a separate location.
+DO NOT SHOW: a person, jump, parachute, landing, or the brighter 6–8s reveal as the final frame. This is a planned target, not evidence of the generated clip's actual exit.
+SAVE AS: assets/CL01_END_TARGET.png

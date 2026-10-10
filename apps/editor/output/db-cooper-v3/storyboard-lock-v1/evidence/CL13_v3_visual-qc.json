@@ -1,0 +1,20 @@
+{
+  "schema": "db-cooper-visual-qc.v1",
+  "clip_id": "CL13",
+  "revision": "v3",
+  "status": "REJECTED_VISUAL_CONTINUITY",
+  "canonical_approval": false,
+  "media": "clips/CL13.mp4",
+  "target": "assets/CL13_END_TARGET_v3.png",
+  "observations": [
+    "The v3 END target contains a handset in its wall cradle and a second handset-like form in the foreground hand.",
+    "The generated clip shows a wall-mounted handset at approximately 4 seconds and a new hand-held handset at approximately 6 seconds; both remain visible near the 9-second edit exit.",
+    "The v3 video prompt explicitly instructs the hand to lift an interphone handset, while the target image already contains incompatible handset geometry."
+  ],
+  "review_frames": [
+    "exits/CL13_QC_2.png",
+    "exits/CL13_QC_3.png",
+    "exits/CL13_QC_5.png"
+  ],
+  "disposition": "Do not use the existing CL13.mp4. Generate and visually review the v4 END target before regenerating CL13 with v4 video prompt. Preserve v3 files as evidence."
+}

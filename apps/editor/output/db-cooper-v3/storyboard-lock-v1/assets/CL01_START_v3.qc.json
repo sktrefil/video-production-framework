@@ -1,0 +1,9 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "shot_id": "CL01",
+  "candidate": "assets/CL01_START.png",
+  "candidate_sha256": "7bd0fe68681046e142932aef4a564d224dcbbfec1593a103d4d73ef46efc0b9e",
+  "verdict": "REVISE",
+  "reason": "Rear aircraft anatomy appears to show four engine intakes/pods; Boeing 727 identity requires exactly three. Do not use this candidate as the END reference.",
+  "replacement_prompt": "prompts/CL01_v4_START.prompt.txt"
+}

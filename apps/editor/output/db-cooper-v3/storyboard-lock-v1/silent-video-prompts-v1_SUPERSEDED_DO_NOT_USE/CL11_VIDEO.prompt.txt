@@ -1,0 +1,31 @@
+CL11 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL11_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | CL11 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 재이륙 때 후방 계단이 열린 화면 금지, 실제 경고등 문구 생성 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL11. Editor uses 10 seconds at timeline 92-102 seconds.
+START: assets/CL11_START.png (GENERATE_START).
+END/TARGET: assets/CL11_END_TARGET.png
+ACTION: 계단은 닫힌 채 유지하고 기체만 활주·상승
+CAMERA: 닫힌 후방 계단 로우앵글→기체 전체 PULL-BACK→활주와 상승 FOLLOW
+ENVIRONMENT: 하부 반사광이 빠르게 뒤로 흐르고 엔진 3기 실루엣 유지
+REVEAL: 계단을 내린 채 이륙할 수 없어서 이륙 뒤에 내리기로 하고 다시 밤하늘로 오른다
+USED EXIT: 밤하늘 기체 암부에서 돈가방 쪽으로 내부 컷
+VOICE SLOT IN USED CLIP: 1.000-6.309s; narration: 그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편.
+SOUND DESIGN: 터빈 상승→기내 엔진 저음; 계단이 열린 채 이륙하는 음향·화면 금지
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

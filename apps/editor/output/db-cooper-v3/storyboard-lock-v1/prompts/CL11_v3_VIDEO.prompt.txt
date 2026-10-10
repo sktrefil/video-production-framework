@@ -1,0 +1,16 @@
+D.B. COOPER | SC03 | CL11 VIDEO | v3
+Create one 10-second horizontal 16:9 animated clip in NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Use assets/CL11_START_v3.png as the exact first frame and assets/CL11_END_TARGET_v3.png as the target last frame. The editor uses the full 10 seconds at timeline 92-102 seconds. Deliver clips/CL11.mp4. Keep the SAME 1971 Northwest Orient Boeing 727, left-rear camera axis, rain-wet Seattle runway, T-tail, three rear engines, down landing wheels, storm-blue night palette, muted amber light, and textured ink linework. The physical rear stair stays CLOSED during the entire takeoff and ascent.
+
+ONE AIRCRAFT ACTION, ONE CAMERA PATH WITH SPEED CONTRAST: the aircraft accelerates forward along the runway and lifts into the sky; the camera follows along one low left-rear tracking path and rises with it. The start is close enough to see the closed stair and wheels. Keep a stable aircraft identity and heading. Do not add a cockpit cut, pilot, passenger action, stair operation, diagram or extra location.
+
+0.0-1.2s: Show the closed stair and wheels on the ground. The aircraft begins rolling. Leave a brief readable beat for the narration's practical objection; no generated reply or dialogue.
+1.2-5.0s: Build to a FAST runway tracking move. Wet lights and painted ground reflections stream backward with readable parallax. The stair remains closed. The aircraft does not leap upward or change direction.
+5.0-7.3s: Continue the SAME forward follow as the wheels gradually leave the runway. Let the camera rise smoothly with the plane; preserve the tail, rear engines and closed stair without geometry morphs. The lift aligns with the narration's return to the night sky.
+7.3-9.0s: Follow the plane into darker sky and ease slightly so its airborne silhouette remains clear. The rear stair is still closed.
+9.0-10.0s: One dark ink cloud crosses from lower/right and covers MOST of the frame by the last usable editor frame near 9.967s, leaving a small aircraft-tail sliver at upper/left. This is one simple closing wipe for CL12's later cabin reveal. Do not transform the airplane into a money bag inside this clip.
+
+EDITOR NARRATION ALIGNMENT ONLY; do not generate or speak this text: approved Korean TTS occupies 1.000-6.309s. The closed-stair runway view supports the first two ideas; visible lift begins with the final return-to-sky idea. Final narration is added in editing.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Generate synchronized NONVERBAL sound effects and ambience: restrained wet-runway tire roll building into a three-engine turbine rise, air rush during the fast track, then a lower steady flight rumble as the aircraft lifts. No narration, dialogue, cockpit or radio exchange, public announcement, crowd speech, whispers, sung words or intelligible human vocalizations. No music unless later supplied in editing.
+
+No photorealism, live action, documentary reenactment, glossy 3D, subtitles, captions, UI, readable text, fake warning label, numeric speed, logo, watermark, generator mark, airborne open stair, sudden jump, landing or impossible aircraft geometry. Use supplied master boards for style/motion/shape only; do not copy their text.

@@ -1,0 +1,18 @@
+SC02 | CL04 | END/TARGET IMAGE | v3 | 9-second editorial exit
+
+Create one 1536x864 horizontal 16:9 still in a strongly stylized, non-photorealistic hand-drawn 2D ink-noir style. This is an illustrated animation frame, never live action, hyperrealism, glossy 3D, or documentary reenactment.
+
+PRIMARY SAME-SHOT REFERENCE: assets/CL04_START.png | SHA-256 be07228d9387054df9b7db5b01c76d4ac2ac159df56b30dc27edb0c22f401e0b. It is the actual last used CL03 video frame at 8.958333 seconds, extracted from clips/CL03.mp4, and is the exact CL04 starting state. Preserve its left-side dark suit sleeve, gloved-looking ink-shaded hand, folded ivory note, cabin seat silhouettes, window positions, warm ceiling lights, steel-blue shadows, perspective, and camera axis. Do not introduce a new room or reverse the screen direction.
+
+PROJECT STYLE BOARD: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+PROJECT MOTION BOARD: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+PROJECT SCENE BOARD: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Use these only for visual language and motion-space guidance. Do not copy a board panel, title, or facial likeness.
+
+TARGET AT CL04'S EDITOR-USED 9-SECOND EXIT: The small folded note has completed one clear handoff from the dark-sleeved passenger's hand on the left to a second, attendant's hand entering naturally from the right. The attendant now holds the paper; the passenger's fingers have released it. Keep both people anonymous and cropped to sleeves and hands. Show two anatomically coherent hands, with five fingers per hand and no duplicated fingers. The camera has moved at hand height toward the paper. The unfolded-looking ivory surface of the still-folded note fills most of the frame as a soft graphic occlusion, leaving a narrow, recognizable dark cabin edge at one side. This pale-paper wipe can lead into CL05 without inventing a new location inside CL04.
+
+Do not show readable note contents, lettering, a face, a device, a weapon, money, or a new prop. Preserve the note's paper shape and restrained ivory color. No captions, subtitles, logos, watermark, or panel borders. Keep the visual readable: transfer complete, paper dominates, and the cabin remains spatially consistent.
+
+TIMING: This is a planned END/TARGET for a 10-second generated source video whose first 9 seconds are used in editing. The video should reach this composition by 9.0 seconds and hold it during 9–10 seconds if needed. After CL04.mp4 is generated, inspect its actual used exit near 8.967 seconds; the target still does not prove the generated video reached it. CL05 START must come from that actual reviewed exit.
+
+SAVE AS: assets/CL04_END_TARGET_v3.png

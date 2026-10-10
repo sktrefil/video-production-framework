@@ -1,0 +1,15 @@
+D.B. COOPER | CL20 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 구두/낙하산을 실제 회수된 증거처럼 보이지 않게 인서트 분리
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL20, using its reviewed START as the primary image reference.
+START STATE: 넥타이에서 낙하산·구두의 기록물 실루엣으로 넘어가는 그래픽 공간
+CAMERA PATH: 넥타이 선에서 낙하산·구두의 그래픽 인서트로 MATCH→불확실한 넓은 수색 영역으로 PULL-BACK
+TARGET STATE AT USED EXIT: 조종 한계와 험지에 맞지 않는 구두를 보여주되 착륙 지점은 비워 둔 구도
+EXIT: 확정 표시 없는 넓은 수색 영역
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

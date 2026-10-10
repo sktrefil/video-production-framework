@@ -1,0 +1,50 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL14",
+  "scene": "SC04",
+  "timeline_start": 121,
+  "timeline_end": 130,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "editor_fps": 30,
+  "base_image_mode": "SINGLE",
+  "proposed_image_mode": "START_TARGET_OPTIONAL_END",
+  "transition": "INDEPENDENT_COCKPIT_STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null,
+    "start_path": "assets/CL14_START_v3.png"
+  },
+  "end_target_path": "assets/CL14_END_TARGET_v3.png",
+  "video_path": "clips/CL14.mp4",
+  "prompts": {
+    "start": "prompts/CL14_v3_START.prompt.txt",
+    "end": "prompts/CL14_v3_END.prompt.txt",
+    "video": "prompts/CL14_v3_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "start": "67c0d548872e12f9dc1844cf7b09b64a70e0e19be3ff196b336de0a549f75610",
+    "end": "937161116f396539a988e9f32b1412c752c365dc0a83076b86b57112b45daee2",
+    "video": "d1b43f2408c1823d5a90c510f1366bc3a5f0c8b3da52a52cf3623555a30d6073"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL14_v3_VIDEO.ko.txt",
+    "sha256": "d050d45d36b97389af0cf80e69912b8855432af299f8b58c54e6d60331a40ac8",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "boards": {
+    "BOARD01_STYLE": {"path": "boards/BOARD01_STYLE.png", "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"},
+    "BOARD02_MOTION": {"path": "boards/BOARD02_MOTION.png", "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"},
+    "BOARD03_SCENE": {"path": "boards/BOARD03_SCENE.png", "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"}
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다.",
+  "voice_slot_relative_seconds": [1, 6.091],
+  "motion_budget": "ONE_SHORT_FAST_PANEL_PUSH_ONE_WARNING_INDICATOR_REVEAL",
+  "prior_clip_qc": "CL13 v3 rejected for duplicate handset; CL14 is an independent story cut. Review CL13 replacement before joining the sequence.",
+  "next_clip_handoff": "CL15 START derives from CL14 actual 9-second used exit, not from planned END target."
+}

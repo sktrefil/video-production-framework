@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D.B. Cooper CL24 | 무음 영상 프롬프트</title>
+<style>:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;background:#101a21;color:#f0eee8}body{margin:0;line-height:1.6}header{background:#1c303c;padding:32px max(22px,calc((100vw - 980px)/2));border-bottom:2px solid #b68a50}main{max-width:980px;margin:auto;padding:24px 22px 70px}h1{margin:0 0 6px}small,.meta{color:#cad1d1}.alert{border-left:4px solid #e7ae63;background:#24333a;padding:13px 17px;margin:18px 0}article{background:#1b2a33;border:1px solid #4c626c;border-radius:9px;padding:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c161b;border:1px solid #506471;border-radius:6px;padding:18px;font:14px/1.65 Consolas,monospace}button{border:0;border-radius:5px;background:#e5b371;color:#10202b;font-weight:800;padding:10px 14px;cursor:pointer}a{color:#f0c280}</style></head><body>
+<header><small>D.B. COOPER / CL24 / SC06 / SILENT PACK v1</small><h1>CL24 무음 영상 프롬프트</h1><span>생성 10초 · 편집 사용 9초 · 타임라인 211–220초</span></header>
+<main><p class="alert"><strong>Google Flow에서 모든 오디오 생성 금지.</strong> 음성·대사·효과음·음악·환경음·자동 사운드트랙을 생성하지 않습니다. Flow 오디오 옵션을 끄고, 확정 TTS와 음향은 편집에서 넣습니다.</p><p class="alert">이 샷은 프롬프트 초안입니다. START·END 실제 이미지와 이전 클립의 사용 종료 프레임, 확정 TTS 타이밍을 확인한 뒤 생성하세요.</p>
+<article><button id="copy" type="button">프롬프트 복사</button><p class="meta">원본: <code>prompts/CL24_v2_VIDEO.prompt.txt</code><br>원본 SHA-256: <code>5833d7ea68a51a5879477bca0bf07c3328162f4b3694389620da435238465b52</code><br>이 무음 프롬프트 SHA-256: <code>74e411fb6d3d5692c8a16c963825e3a7a9a5223532bea46f91b2fbe45f869aa3</code></p><pre id="prompt">CL24 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL24_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | CL24 | SC06 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: CASH80-01, ENV-RIVER
+FACT GUARD: 모래톱 발견=점프 장소라는 인과 암시 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL24. Editor uses 9 seconds at timeline 211-220 seconds.
+START: assets/CL24_START.png (GENERATE_START).
+END/TARGET: assets/CL24_END_TARGET.png
+ACTION: 소년은 먼 실루엣으로만 두고 지폐는 내레이션의 발견 시점에 드러냄
+CAMERA: 수면 LOW SKIM→모래톱 PARALLAX→발견 지점에 맞춰 지폐 묶음 부분 PUSH-IN
+ENVIRONMENT: 잔물결, 젖은 모래의 브러시 결
+REVEAL: 1980년 강변에서 소년이 낡은 지폐 뭉치를 발견한다
+USED EXIT: 액수·번호가 보이지 않는 낡은 지폐 묶음
+VOICE SLOT IN USED CLIP: 1.300-5.445s; narration: 1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다.
+SOUND DESIGN: 잔잔한 강물→물결 근접→젖은 종이 마찰; 발견자의 대사·손동작은 추가하지 않는다
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.
+</pre><a href="CL24_VIDEO.prompt.txt">프롬프트 TXT 열기</a></article><p><a href="index.html">전체 30샷 목록</a></p></main>
+<script>document.getElementById('copy').addEventListener('click',async()=>{let b=document.getElementById('copy'),v=document.getElementById('prompt').textContent;try{await navigator.clipboard.writeText(v)}catch{let a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()}b.textContent='복사 완료';setTimeout(()=>b.textContent='프롬프트 복사',1600)});</script></body></html>

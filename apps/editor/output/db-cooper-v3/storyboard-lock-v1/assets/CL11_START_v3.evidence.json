@@ -1,0 +1,33 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "clip_id": "CL11",
+  "kind": "START",
+  "prompt_sha256": "0ecec621654901b49493f77f063e33521d0a64a895e7045b0dfe8c702f558051",
+  "source_clip_sha256": "73f2a7066b65ff7b0e598e1996c4c65c1cd14cb7cd12f8c68cc442fb80b83af4",
+  "start_sha256": null,
+  "references": [
+    {
+      "role": "CL10_CLEAN_IDENTITY",
+      "sha256": "ef1253037fe59e8491f95ab9b84252ddd2fa2d0e9f7444a44a956cec967e097d"
+    },
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    {
+      "role": "BOARD02_MOTION",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    {
+      "role": "BOARD03_SCENE",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  ],
+  "output_path": "assets/CL11_START_v3.png",
+  "output_sha256": "02aa32bb5e29482d0fda88c15cc38123a80d8b6bebc4f1b00e6951a3696a923a",
+  "distinct_from_start": null,
+  "provider_request_ids": [],
+  "generated_at": "2026-10-10T01:15:34.982Z",
+  "status": "GENERATED_UNREVIEWED",
+  "canonical_approval": false
+}

@@ -1,0 +1,15 @@
+D.B. COOPER | CL12 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 가방/낙하산 기하학 불변, 직접적인 추락 장면 없음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL12, using its reviewed START as the primary image reference.
+START STATE: 기내 좌석 위 돈가방·낙하산 줄, 쿠퍼 손만 프레임
+CAMERA PATH: 가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe
+TARGET STATE AT USED EXIT: 결속된 돈가방 너머 후방 커튼이 닫혀 전경을 채움
+EXIT: 커튼의 검은 수직 주름이 전체 프레임을 덮음
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

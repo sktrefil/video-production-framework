@@ -1,0 +1,13 @@
+SC02 | CL07 | END TARGET IMAGE | v3 | COCKPIT DOOR WIPE
+
+Create one full-frame 1536x864 horizontal 16:9 illustration for the LAST USED FRAME of CL07, just before its 8-second edit boundary. NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, charcoal and steel-blue shadows, restrained amber cabin light, bold ink lines and rough paper grain. No photorealism, live action, documentary reenactment, hyperrealism or glossy 3D.
+
+The prior shot CL06 ends with an anonymous attendant seen from behind at the left side of a narrow 1971 aircraft aisle, holding a small unreadable ivory memo low in one hand. The closed cockpit door is far ahead. CL07 follows that attendant toward the door. This END image is the destination after the travel, not another view of the stationary START. The CL06 used-exit frame is described for continuity but is deliberately not attached as an image reference to this END generation.
+
+TARGET COMPOSITION: the near-black, CLOSED cockpit door and its adjacent dark wall fill at least 85 percent of the frame. A very thin wedge of the same cabin amber light remains at the far left, perhaps with a cropped anonymous attendant shoulder at that edge. The camera has reached the doorway; it has not entered the cockpit. The tiny memo may be out of frame. The door surface creates a near-total dark wipe for the cut to CL08. No open doorway, no pilots, no cockpit instruments, no readable sign.
+
+SPATIAL PATH: from CL07 START's broad view down the aisle, move behind the attendant, then past seat backs toward the door. The camera passes the attendant's shoulder and approaches the closed door until the door/wall occludes the lens. Do not show the memo being passed to a visible pilot or reveal any cockpit interior; the narration can say the note went to the cockpit without inventing a witnessed exchange.
+
+Use the attached project boards only for style, aircraft geometry and motion language: BOARD03_SCENE, BOARD01_STYLE, BOARD02_MOTION. Do not reproduce their panel layout, titles, captions, lettering or exact character likeness. One image, one information state. No dominant suitcase, no paper close-up, no readable writing, money, parachutes, dialogue, subtitles, logos, watermark or four-point generator mark.
+
+This is a planned END target, not proof of the generated video's actual exit. Save only if the door/wall clearly dominates and the composition is substantially different from CL07 START.

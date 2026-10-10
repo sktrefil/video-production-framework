@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL28 | SCENE SC07 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, STAIR-01
+FACT GUARD: FBI 수사 종료=사건 해결 아니며 공식 문서 원문 복제 금지
+Create one planned END/TARGET still for CL28: 2016년, 파일은 닫히지만.
+Attach the reviewed CL28 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: FBI는 수사 자원을 재배분했으며 사건이 해결된 것은 아님
+START STATE: 실제 문서의 복제가 아닌 중립적 조사 파일 아이보리 표지
+CAMERA PATH: 문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION
+DESIRED TARGET COMPOSITION: 파일이 덮여 화면을 어둡게 가림
+PLANNED EDITORIAL EXIT AT 8 SECONDS: 표지의 먹색이 1971년 계단의 어둠으로 연결
+SUBJECT ACTION: 손 하나가 파일을 덮는 작은 동작
+ENVIRONMENT MOTION: 배경은 특정 기관 사무실로 단정하지 않은 에디토리얼 공간
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

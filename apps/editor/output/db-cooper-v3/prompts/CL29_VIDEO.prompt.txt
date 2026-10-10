@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL29 | SCENE SC07 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, STAIR-01
+FACT GUARD: CL01 프레임 기하학을 고정한 채 공간 뒤집기 금지; 점프한 인물 생성 금지
+SOURCE: assets/CL29_START.png (EARLIER_USED_EXIT from CL01)
+END/TARGET: none; use the reviewed START and motion path
+Generate one 10-second 16:9 clip. Intended editor window: timeline 254-262 seconds; use only the first 8 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 8-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL29, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: CL01 TARGET/EXIT의 동일한 하부 계단, 같은 T-tail/엔진 위치. CAMERA PATH: SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK. SUBJECT MOTION: 계단/기체 구조/날씨의 스타일은 CL01과 동일. ENVIRONMENT MOTION: 구름과 바람잉크는 뒤로 멀어지고 계단은 계속 비어 있음. KEY REVEAL: 4~6초 첫 장면인 것을 관객이 알아차림. TARGET FRAME: 카메라가 계단을 향해 가지 않고 천천히 물러나 기체 후미가 드러남. EXIT FRAME: 후방 3/4 기체의 같은 축, 빈 하늘이 확대. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: BIBLE_MATCH; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

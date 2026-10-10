@@ -1,0 +1,21 @@
+D.B. COOPER | CL12 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 가방/낙하산 기하학 불변, 직접적인 추락 장면 없음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL12. Editor uses 10 seconds at timeline 102-112 seconds.
+START: assets/CL12_START.png (PREVIOUS_USED_EXIT from CL11).
+END/TARGET: assets/CL12_END_TARGET.png
+ACTION: 쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘
+CAMERA: 가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe
+ENVIRONMENT: 기내 조명은 어둡고 엔진진동을 그린 잉크 선만
+REVEAL: 5초 매듭의 고정, 7~9초 커튼 완전 차폐
+USED EXIT: 커튼의 검은 수직 주름이 전체 프레임을 덮음
+VOICE SLOT IN USED CLIP: 0.200-7.400s; narration: 쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.
+SOUND DESIGN: 줄 마찰→발걸음→커튼 긁힘→후방 바람 저음
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

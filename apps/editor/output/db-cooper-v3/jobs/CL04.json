@@ -1,0 +1,31 @@
+{
+  "id": "CL04",
+  "scene": "SC02",
+  "ordinal": 4,
+  "timeline_start": 27,
+  "timeline_end": 36,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL03"
+  },
+  "start_asset": "assets/CL04_START.png",
+  "end_target_asset": "assets/CL04_END_TARGET.png",
+  "video_asset": "clips/CL04.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL04_END.prompt.txt",
+    "video": "prompts/CL04_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

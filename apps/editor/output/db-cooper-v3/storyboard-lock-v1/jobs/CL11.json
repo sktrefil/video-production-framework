@@ -1,0 +1,55 @@
+{
+  "id": "CL11",
+  "scene": "SC03",
+  "ordinal": 11,
+  "timeline_start": 92,
+  "timeline_end": 102,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL11_START.png",
+  "end_target_asset": "assets/CL11_END_TARGET.png",
+  "video_asset": "clips/CL11.mp4",
+  "prompts": {
+    "start": "prompts/CL11_v2_START.prompt.txt",
+    "end": "prompts/CL11_v2_END.prompt.txt",
+    "video": "prompts/CL11_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "MONEY-01",
+    "PARA-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "무리한 요구: 계단을 내린 채 이륙하라고 했으나 이륙 뒤 조작하기로 변경",
+  "action": "계단은 닫힌 채 유지하고 기체만 활주·상승",
+  "camera": "닫힌 후방 계단 로우앵글→기체 전체 PULL-BACK→활주와 상승 FOLLOW",
+  "reveal": "계단을 내린 채 이륙할 수 없어서 이륙 뒤에 내리기로 하고 다시 밤하늘로 오른다",
+  "exit": "밤하늘 기체 암부에서 돈가방 쪽으로 내부 컷",
+  "sound": "터빈 상승→기내 엔진 저음; 계단이 열린 채 이륙하는 음향·화면 금지",
+  "narrator_text": "그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 18.473,
+    "scene_audio_end_seconds": 23.782,
+    "spoken_window_seconds": 5.309
+  },
+  "voice_slot_relative": {
+    "start": 1,
+    "end": 6.309
+  },
+  "voice_slot_timeline": {
+    "start": 93,
+    "end": 98.309
+  },
+  "pre_voice_seconds": 1,
+  "post_voice_seconds": 3.691,
+  "nonvoice_seconds": 4.691
+}

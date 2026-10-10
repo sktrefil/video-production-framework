@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL17 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 마지막 교신 원문 대사 임의 창작 금지
+Create one planned END/TARGET still for CL17: 마지막 교신 이후 정적.
+Attach the reviewed CL17 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 조종실에서 상태를 확인하고 마지막 응답 이후 연락이 끊기는 구간
+START STATE: 조종석 인터폰과 승무원의 손, 어두운 전방 창
+CAMERA PATH: 수신기 쪽 PUSH-IN → 승무원 손에서 계기판으로 미세 TRUCK → 정적
+DESIRED TARGET COMPOSITION: 인터폰에 답신이 끝난 뒤 움직임이 멈추는 조종실
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 정적인 계기판 하나로 후속 변화 대비
+SUBJECT ACTION: 손이 내려가고 승무원은 앞쪽 계기를 봄
+ENVIRONMENT MOTION: 창밖 지나가는 구름과 흔들림 없는 얕은 잉크 빛
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

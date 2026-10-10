@@ -1,0 +1,21 @@
+D.B. COOPER | CL08 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 항공기 도장/꼬리 문양 AIR-01 반복, 지상 후미 계단은 맥락에 따라 닫힘
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL08. Editor uses 10 seconds at timeline 62-72 seconds.
+START: assets/CL08_START.png (GENERATE_START).
+END/TARGET: assets/CL08_END_TARGET.png
+ACTION: 지상 차량이 느리게 이동, 승객 하차는 다음 샷에서 분리
+CAMERA: 활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행
+ENVIRONMENT: 시애틀 시간대는 해질녘/저조도, 임의 폭우 과장 금지
+REVEAL: 6초 돈/낙하산을 싣는 작업의 시작을 보여줌
+USED EXIT: 차량 위 검은 돈가방의 실루엣
+VOICE SLOT IN USED CLIP: 0.400-7.164s; narration: 시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다.
+SOUND DESIGN: 엔진 정지→바퀴·짐 손잡이; 공항 방송은 알아들을 수 없게
+HANDOFF: BIBLE_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

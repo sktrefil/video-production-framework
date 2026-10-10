@@ -1,0 +1,21 @@
+D.B. COOPER | CL05 | SC02 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 폭발 장면/타이머/기폭장치 연출 금지; 실제 폭탄 확증 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL05. Editor uses 9 seconds at timeline 36-45 seconds.
+START: assets/CL05_START.png (PREVIOUS_USED_EXIT from CL04).
+END/TARGET: assets/CL05_END_TARGET.png
+ACTION: 쿠퍼 손이 가방 뚜껑을 조금 들어 보일 뿐, 조립/작동 묘사 없음
+CAMERA: 가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL
+ENVIRONMENT: 객실의 다른 영역은 먹선 암부에 감춰 공포 유지
+REVEAL: 5초 내용물이 처음 보이나 정체는 단정하지 않음
+USED EXIT: 검은 가방 모서리에서 승무원 손으로 동선 이동
+VOICE SLOT IN USED CLIP: 0.800-6.909s; narration: 승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다.
+SOUND DESIGN: 걸쇠 클릭 뒤 주변 소리 감소; 폭발·작동음 금지
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

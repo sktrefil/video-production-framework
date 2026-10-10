@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL12 | SCENE SC03 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 가방/낙하산 기하학 불변, 직접적인 추락 장면 없음
+SOURCE: assets/CL12_START.png (PREVIOUS_USED_EXIT from CL11)
+END/TARGET: assets/CL12_END_TARGET.png
+Generate one 10-second 16:9 clip. Intended editor window: timeline 102-112 seconds; use only the first 10 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 10-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL12, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 기내 좌석 위 돈가방·낙하산 줄, 쿠퍼 손만 프레임. CAMERA PATH: 가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe. SUBJECT MOTION: 쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘. ENVIRONMENT MOTION: 기내 조명은 어둡고 엔진진동을 그린 잉크 선만. KEY REVEAL: 5초 매듭의 고정, 7~9초 커튼 완전 차폐. TARGET FRAME: 결속된 돈가방 너머 후방 커튼이 닫혀 전경을 채움. EXIT FRAME: 커튼의 검은 수직 주름이 전체 프레임을 덮음. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: EXIT_MATCH; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

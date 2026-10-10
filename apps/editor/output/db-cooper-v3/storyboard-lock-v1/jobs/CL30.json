@@ -1,0 +1,53 @@
+{
+  "id": "CL30",
+  "scene": "SC07",
+  "ordinal": 30,
+  "timeline_start": 262,
+  "timeline_end": 270,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL29"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL30_START.png",
+  "end_target_asset": "assets/CL30_END_TARGET.png",
+  "video_asset": "clips/CL30.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL30_v2_END.prompt.txt",
+    "video": "prompts/CL30_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "STAIR-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "기체와 계단에서 멀어지며 질문만 남기고 암전",
+  "action": "인물/낙하산/착지 흔적은 새로 생기지 않음",
+  "camera": "안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전",
+  "reveal": "5~6초 기체 소실, 6~8초 검은 하늘+정적",
+  "exit": "완전한 검정 프레임 (편집 최종 홀드)",
+  "sound": "엔진음 감쇠→짧은 저역 잔향→거의 무음",
+  "narrator_text": "그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 8.945,
+    "scene_audio_end_seconds": 13.964,
+    "spoken_window_seconds": 5.018
+  },
+  "voice_slot_relative": {
+    "start": 0.6,
+    "end": 5.618
+  },
+  "voice_slot_timeline": {
+    "start": 262.6,
+    "end": 267.618
+  },
+  "pre_voice_seconds": 0.6,
+  "post_voice_seconds": 2.382,
+  "nonvoice_seconds": 2.982
+}

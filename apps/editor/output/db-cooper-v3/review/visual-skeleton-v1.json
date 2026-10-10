@@ -1,0 +1,484 @@
+{
+  "schema": "db-cooper-visual-skeleton.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "revision": "visual-skeleton-v1-script-aligned",
+  "status": "DEVELOPMENT_REVIEW_PASS_MANAGER_ONLY_NOT_CANONICAL",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "script_revision": "v3",
+  "input_script_sha256": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "source_scene_graph_sha256": "61f1774fbd72e88e21a5860e15c21d0ba90b4405ed8b420ce6718b86f93bcb1b",
+  "source_shot_manifest_sha256": "2642a89bd86e0b882f8b138c095abc35b5e8f5d1da14a74903ff4eb3e06d8148",
+  "source_directing_plan_sha256": "64ea1e4a8db576753d3e2c1fd42aee1cb759f0b160cbb4c671fe1ac34e518013",
+  "scene_ids": [
+    "SC01",
+    "SC02",
+    "SC03",
+    "SC04",
+    "SC05",
+    "SC06",
+    "SC07"
+  ],
+  "scenes": [
+    {
+      "id": "SC01",
+      "sequence_id": "SQ01",
+      "expected_duration_seconds": 18,
+      "story_event": "night 727 rear stair reveal, then empty landed cabin",
+      "attention_events": [
+        "ventral airstair structure revealed at 6-8 seconds",
+        "CL01 ends in stairwell darkness at 10 seconds",
+        "CL02 intentionally cuts to empty cabin"
+      ],
+      "identity_anchors": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL01",
+          "expected_duration_seconds": 10,
+          "story_event": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지",
+          "attention_event": "비행 중인 727의 후방 하부에 계단이 있음을 처음 인지",
+          "transition_handoff": "EXIT_MATCH: 검은 계단 공간의 완전 차폐",
+          "abstraction_handling": "이 클립만 원본 10초 전체 사용. 직접 점프 인물·낙하·도달한 지면 금지",
+          "sound_cue": "엔진 저음→금속 떨림→바람 급확대; 인물 추락음 금지"
+        },
+        {
+          "id": "CL02",
+          "expected_duration_seconds": 8,
+          "story_event": "착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.",
+          "visual_mode": "SINGLE",
+          "scale_intent": "중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지",
+          "attention_event": "착륙 뒤 사람과 돈가방이 모두 없다는 결과",
+          "transition_handoff": "STORY_CUT: 좌석의 검은 프레임/탑승권 검은 잉크 면으로 편집 컷",
+          "abstraction_handling": "실제 당시 객실 배치가 완전 검증된 도면처럼 보이지 않게; 장면상 빈 자리 표현만",
+          "sound_cue": "바람을 끊고 낮은 객실 룸톤과 멀어진 기체 울림"
+        }
+      ]
+    },
+    {
+      "id": "SC02",
+      "sequence_id": "SQ02",
+      "expected_duration_seconds": 44,
+      "story_event": "note passes, partial briefcase reveal, separate demand note reaches cockpit",
+      "attention_events": [
+        "first note transfer",
+        "red sticks and wires shown without confirming real bomb",
+        "separate written demands"
+      ],
+      "identity_anchors": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL03",
+          "expected_duration_seconds": 9,
+          "story_event": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회",
+          "attention_event": "시간을 되돌려 익명의 탑승자를 본다",
+          "transition_handoff": "BIBLE_MATCH: 접힌 종이의 밝은 면을 프레임 끝에 유지",
+          "abstraction_handling": "실제 얼굴 확정 금지, 과장된 수상한 행동·모자 추가 금지",
+          "sound_cue": "탑승권 종이 스침→안정된 엔진음; 주변 대사는 불명료"
+        },
+        {
+          "id": "CL04",
+          "expected_duration_seconds": 9,
+          "story_event": "이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN",
+          "attention_event": "첫 협박 쪽지가 승무원에게 실제로 넘어간다",
+          "transition_handoff": "CONTINUATION: 쪽지가 화면을 가리는 아이보리 차폐",
+          "abstraction_handling": "읽을 수 있는 협박 문구 생성 금지, 쪽지 실제 원문으로 주장 금지",
+          "sound_cue": "엔진을 낮추고 종이 접힘만 전경화; 가짜 대사 금지"
+        },
+        {
+          "id": "CL05",
+          "expected_duration_seconds": 9,
+          "story_event": "승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL",
+          "attention_event": "폭탄처럼 보이는 물체와 폭탄 진위의 구분",
+          "transition_handoff": "EXIT_MATCH: 검은 가방 모서리에서 승무원 손으로 동선 이동",
+          "abstraction_handling": "폭발 장면/타이머/기폭장치 연출 금지; 실제 폭탄 확증 금지",
+          "sound_cue": "걸쇠 클릭 뒤 주변 소리 감소; 폭발·작동음 금지"
+        },
+        {
+          "id": "CL06",
+          "expected_duration_seconds": 9,
+          "story_event": "남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "메모지 위를 근접 PUSH-IN → 손목을 따라 우측 이동 → 클로즈로 종료",
+          "attention_event": "첫 쪽지와 별도로 몸값 요구가 기록된다",
+          "transition_handoff": "CONTINUATION: 손에 잡힌 종이를 화면 오른쪽에 배치",
+          "abstraction_handling": "20만 달러 및 낙하산 4개 내용은 TTS 또는 편집 텍스트에서만",
+          "sound_cue": "연필 마찰→발걸음; 읽히는 임의 글자는 후반 합성만"
+        },
+        {
+          "id": "CL07",
+          "expected_duration_seconds": 8,
+          "story_event": "쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "뒤에서 낮게 FOLLOW → 승무원 어깨 너머 조종실 문으로 짧게 PUSH-IN",
+          "attention_event": "요구가 객실에서 조종실로 전달돼 사건 범위가 커진다",
+          "transition_handoff": "STORY_CUT: 닫히는 조종실 문/어두운 벽으로 완전 차폐",
+          "abstraction_handling": "불가능한 조종실 구조와 실제 원문인 척하는 읽기 가능한 문구 금지",
+          "sound_cue": "발걸음→문 잠금→활주로 저음; 대화 내용 생성 금지"
+        }
+      ]
+    },
+    {
+      "id": "SC03",
+      "sequence_id": "SQ03",
+      "expected_duration_seconds": 50,
+      "story_event": "ransom and parachutes exchanged for passengers, then second takeoff and curtain closure",
+      "attention_events": [
+        "money and four parachutes",
+        "passengers leave",
+        "curtain closes after takeoff"
+      ],
+      "identity_anchors": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL08",
+          "expected_duration_seconds": 10,
+          "story_event": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행",
+          "attention_event": "시애틀에서 돈과 낙하산이 기체로 들어온다",
+          "transition_handoff": "BIBLE_MATCH: 차량 위 검은 돈가방의 실루엣",
+          "abstraction_handling": "항공기 도장/꼬리 문양 AIR-01 반복, 지상 후미 계단은 맥락에 따라 닫힘",
+          "sound_cue": "엔진 정지→바퀴·짐 손잡이; 공항 방송은 알아들을 수 없게"
+        },
+        {
+          "id": "CL09",
+          "expected_duration_seconds": 10,
+          "story_event": "승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "승객 하차 흐름과 반대 방향으로 트랙해 남은 쿠퍼에서 조종실 문까지 시선을 이동",
+          "attention_event": "36명 하차와 쿠퍼의 재이륙·멕시코시티 요구가 한 교환 안에서 연결된다",
+          "transition_handoff": "CONTINUATION: 조종실 문과 남은 쿠퍼를 한 축에 두는 방향",
+          "abstraction_handling": "승객 정확히 36명을 화면에 모두 표현할 필요 없음, 대사 수치만 고정",
+          "sound_cue": "발걸음 증가→문턱 금속음→발소리 급감"
+        },
+        {
+          "id": "CL10",
+          "expected_duration_seconds": 10,
+          "story_event": "그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "빈 객실에서 기체 측면으로 그래픽 전환→착륙장치·속도선·닫힌 후방 계단을 순서대로 스케일 변경",
+          "attention_event": "낮은 속도·내린 착륙장치·열린 후방 계단을 요구했다는 세 비행 조건",
+          "transition_handoff": "BIBLE_MATCH: 이륙 전 닫힌 후방 계단의 윤곽",
+          "abstraction_handling": "당시 대사 임의 인용, 입모양 싱크 동작 과장 금지",
+          "sound_cue": "객실 룸톤→엔진 저음 감속→닫힌 계단의 금속음; 실제 비행 조건의 수치·가짜 교신 대사 금지"
+        },
+        {
+          "id": "CL11",
+          "expected_duration_seconds": 10,
+          "story_event": "그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "닫힌 후방 계단 로우앵글→기체 전체 PULL-BACK→활주와 상승 FOLLOW",
+          "attention_event": "계단을 내린 채 이륙할 수 없어서 이륙 뒤에 내리기로 하고 다시 밤하늘로 오른다",
+          "transition_handoff": "STORY_CUT: 밤하늘 기체 암부에서 돈가방 쪽으로 내부 컷",
+          "abstraction_handling": "재이륙 때 후방 계단이 열린 화면 금지, 실제 경고등 문구 생성 금지",
+          "sound_cue": "터빈 상승→기내 엔진 저음; 계단이 열린 채 이륙하는 음향·화면 금지"
+        },
+        {
+          "id": "CL12",
+          "expected_duration_seconds": 10,
+          "story_event": "쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe",
+          "attention_event": "돈가방 결속 뒤 커튼이 닫혀 후방 객실이 고립된다",
+          "transition_handoff": "EXIT_MATCH: 커튼의 검은 수직 주름이 전체 프레임을 덮음",
+          "abstraction_handling": "가방/낙하산 기하학 불변, 직접적인 추락 장면 없음",
+          "sound_cue": "줄 마찰→발걸음→커튼 긁힘→후방 바람 저음"
+        }
+      ]
+    },
+    {
+      "id": "SC04",
+      "sequence_id": "SQ04",
+      "expected_duration_seconds": 73,
+      "story_event": "crew learns about rear-stair change without witnessing the departure",
+      "attention_events": [
+        "stair difficulty and warning indicator",
+        "no witnessed jump",
+        "Reno landing followed by empty cabin and tie"
+      ],
+      "identity_anchors": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL13",
+          "expected_duration_seconds": 9,
+          "story_event": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "손·레버 TIGHT PUSH-IN→반응 없는 계단 상태→인터폰 신호로 그래픽 이동",
+          "attention_event": "쿠퍼의 후방 계단 조작이 잘되지 않아 조종실에 연락한다",
+          "transition_handoff": "CONTINUATION: 조종실 인터폰으로 이어지는 신호",
+          "abstraction_handling": "실제 계단 장치 조작 절차의 기술적 재현으로 오인되지 않게",
+          "sound_cue": "불규칙 바람과 금속 떨림→인터폰 연결음; 임의 조작 절차나 정확한 대사 금지"
+        },
+        {
+          "id": "CL14",
+          "expected_duration_seconds": 9,
+          "story_event": "계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다.",
+          "visual_mode": "SINGLE",
+          "scale_intent": "인터폰 CLOSE→조종실 표시등으로 짧은 컷→점등 순간 PUSH-IN",
+          "attention_event": "조종실이 어려움을 듣고, 이어 계단 경고등이 켜지지만 인물 행방은 알 수 없다",
+          "transition_handoff": "STORY_CUT: 표시등 빛이 닫힌 커튼 주름으로 넘어감",
+          "abstraction_handling": "확인되지 않은 구체적 대화 내용·정확한 멘트 생성 금지",
+          "sound_cue": "인터폰 잡음→짧은 금속음→표시등 클릭 한 번; 경보 사이렌 금지"
+        },
+        {
+          "id": "CL15",
+          "expected_duration_seconds": 9,
+          "story_event": "하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "표시등 빛과 커튼 주름을 GRAPHIC MATCH→닫힌 커튼을 따라 측면 TRACK",
+          "attention_event": "커튼 때문에 조종실에서는 뒤편을 볼 수 없고 시간이 흐른다",
+          "transition_handoff": "EXIT_MATCH: 커튼 암부에서 인터폰 쪽으로 시선 이동",
+          "abstraction_handling": "계기판의 정확한 영어 경고문구를 생성하지 말고 필요 시 편집 합성",
+          "sound_cue": "표시등 클릭 소거→커튼 천 스침→시간 경과를 암시하는 엔진 저음; 과장된 경고음 금지"
+        },
+        {
+          "id": "CL16",
+          "expected_duration_seconds": 9,
+          "story_event": "조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "인터폰으로 FAST PUSH-IN→응답 신호와 함께 정지→조용한 계기판으로 짧은 TRUCK",
+          "attention_event": "조종실의 질문에 답이 오지만 이것이 마지막 확인된 교신이다",
+          "transition_handoff": "CONTINUATION: 조용한 계기판 한 곳에 시선 고정",
+          "abstraction_handling": "쿠퍼의 실제 행동을 임의로 카메라 뒤에서 보여주지 않음",
+          "sound_cue": "질문 신호→짧은 응답 잡음→연결 종료→기체 저음만; 가짜 음성 대사 금지"
+        },
+        {
+          "id": "CL17",
+          "expected_duration_seconds": 9,
+          "story_event": "밤 여덟 시 십 분 무렵. 조종실의 계기 바늘이 흔들립니다. 계단에 무게가 실리거나 움직일 때 나타날 수 있는 변화였습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "계기 바늘 CLOSE→한 번의 미세 진동에서 급정지→검은 링으로 MATCH CUT",
+          "attention_event": "20시 10분 무렵의 계기 변화는 움직임의 단서일 뿐 점프를 목격한 기록이 아니다",
+          "transition_handoff": "CONTINUATION: 계기 링의 검은 면",
+          "abstraction_handling": "마지막 교신 원문 대사 임의 창작 금지",
+          "sound_cue": "기체 저음→미세한 진동 1회→짧은 절제; 점프·충돌 효과음 금지"
+        },
+        {
+          "id": "CL18",
+          "expected_duration_seconds": 9,
+          "story_event": "하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "인물 없는 계단 외부 PARALLAX→기체 장거리 FOLLOW→리노 착륙에 맞춰 컷",
+          "attention_event": "누구도 계단 끝을 직접 보지 못했고 비행기는 계속 남쪽으로 가 리노에 착륙한다",
+          "transition_handoff": "STORY_CUT: 착륙 뒤 빈 객실의 입구",
+          "abstraction_handling": "당시 정확한 계기 종류/값 표기를 단정하지 않는 연출적 압력 변화 표현",
+          "sound_cue": "바람과 엔진→착륙 후 기계음; 직접 점프·착지 소리 금지"
+        },
+        {
+          "id": "CL19",
+          "expected_duration_seconds": 9,
+          "story_event": "뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "착륙 후 객실 통로 FAST PUSH→빈 좌석·돈자리·넥타이 QUICK CUT→빈 계단으로 이동",
+          "attention_event": "리노에서 쿠퍼·돈가방이 없고 넥타이와 열린 계단이 남았다",
+          "transition_handoff": "STORY_CUT: 넥타이 검은 선이 수색할 숲 능선으로 연결",
+          "abstraction_handling": "쿠퍼가 뛰어내리는 장면/낙하산 펼치는 장면은 보여주지 않음",
+          "sound_cue": "착륙 후 기계음→비어 있는 객실 룸톤→원거리 바람"
+        },
+        {
+          "id": "CL20",
+          "expected_duration_seconds": 10,
+          "story_event": "그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "넥타이 선에서 낙하산·구두의 그래픽 인서트로 MATCH→불확실한 넓은 수색 영역으로 PULL-BACK",
+          "attention_event": "낙하산의 조종 한계·구두·불확실한 위치가 수색을 어렵게 만든다",
+          "transition_handoff": "EXIT_MATCH: 확정 표시 없는 넓은 수색 영역",
+          "abstraction_handling": "구두/낙하산을 실제 회수된 증거처럼 보이지 않게 인서트 분리",
+          "sound_cue": "객실 룸톤 감쇠→종이 넘김→넓은 바람; 생존·사망 암시 효과음 금지"
+        }
+      ]
+    },
+    {
+      "id": "SC05",
+      "sequence_id": "SQ05",
+      "expected_duration_seconds": 26,
+      "story_event": "search expands from aircraft clues to stylized forest and river map space",
+      "attention_events": [
+        "search without conclusive trace",
+        "transition toward later river discovery"
+      ],
+      "identity_anchors": [
+        "TIE-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL21",
+          "expected_duration_seconds": 9,
+          "story_event": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND",
+          "attention_event": "수사가 기체에서 광활한 지상으로 옮겨가며 어려워진다",
+          "transition_handoff": "STORY_CUT: 나무 사이의 좁은 광선으로 이동",
+          "abstraction_handling": "이동 거리/강 경로를 실제 수사 지도처럼 단정하지 않음",
+          "sound_cue": "짧은 무전 잡음→넓은 바람; 허구의 무전 대사 금지"
+        },
+        {
+          "id": "CL22",
+          "expected_duration_seconds": 9,
+          "story_event": "그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지",
+          "attention_event": "수색 광선이 지나가도 사람·낙하산 흔적은 없다",
+          "transition_handoff": "CONTINUATION: 고요한 빈 강변 지면",
+          "abstraction_handling": "특정 수색일·인원·장소 재현 주장 금지",
+          "sound_cue": "가지·자갈→멀어지는 무전→강물"
+        },
+        {
+          "id": "CL23",
+          "expected_duration_seconds": 8,
+          "story_event": "그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+          "visual_mode": "SINGLE",
+          "scale_intent": "천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION",
+          "attention_event": "수색의 공백이 1980년 강변 발견으로 이어진다",
+          "transition_handoff": "STORY_CUT: 모래 질감으로 SC06에 편집 매치컷",
+          "abstraction_handling": "시간 경과는 편집 자막에서 연도 표기; 지도나 실제 위치 경로를 그리지 않음",
+          "sound_cue": "무전 완전 소거→강물; 시간 경과를 대사로 꾸미지 않음"
+        }
+      ]
+    },
+    {
+      "id": "SC06",
+      "sequence_id": "SQ06",
+      "expected_duration_seconds": 35,
+      "story_event": "small damaged money edge becomes linked evidence, then river emptiness",
+      "attention_events": [
+        "1980 riverside discovery",
+        "damaged 20-dollar bundles totaling 5800 dollars",
+        "serial number connection",
+        "money path remains unknown"
+      ],
+      "identity_anchors": [
+        "CASH80-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL24",
+          "expected_duration_seconds": 9,
+          "story_event": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "수면 LOW SKIM→모래톱 PARALLAX→발견 지점에 맞춰 지폐 묶음 부분 PUSH-IN",
+          "attention_event": "1980년 강변에서 소년이 낡은 지폐 뭉치를 발견한다",
+          "transition_handoff": "STORY_CUT: 액수·번호가 보이지 않는 낡은 지폐 묶음",
+          "abstraction_handling": "모래톱 발견=점프 장소라는 인과 암시 금지",
+          "sound_cue": "잔잔한 강물→물결 근접→젖은 종이 마찰; 발견자의 대사·손동작은 추가하지 않는다"
+        },
+        {
+          "id": "CL25",
+          "expected_duration_seconds": 9,
+          "story_event": "물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "훼손된 지폐 묶음 REVEAL→합계 편집 글자→옆 기록지 번호 열로 LATERAL TRACK",
+          "attention_event": "훼손된 20달러권의 총액 5,800달러를 확인하고 일련번호 대조가 시작된다",
+          "transition_handoff": "CONTINUATION: 번호 대조 결과를 아직 숨긴 두 표면",
+          "abstraction_handling": "돈은 5,800달러, 전량 20만 달러가 아님; 새 돈/현대 지폐 디자인 금지",
+          "sound_cue": "젖은 종이 마찰→기록지 펼침→번호 대조의 연필 한 획; 가짜 역사적 일련번호 금지"
+        },
+        {
+          "id": "CL26",
+          "expected_duration_seconds": 9,
+          "story_event": "쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "지폐와 기록지의 번호 열 MATCH→일치 확인 뒤 강변으로 빠른 PULL-BACK",
+          "attention_event": "번호 일치로 몸값 일부임은 확인되지만 발견 장소가 착륙 지점은 아니다",
+          "transition_handoff": "STORY_CUT: 경로가 비어 있는 강변의 넓은 공간",
+          "abstraction_handling": "실제 serial을 생성/일치 숫자를 꾸미지 않음; 숫자 확인은 편집 데이터 합성",
+          "sound_cue": "짧은 종이 맞물림→원거리 강물; 확정 착륙음을 만들지 않는다"
+        },
+        {
+          "id": "CL27",
+          "expected_duration_seconds": 8,
+          "story_event": "그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경",
+          "attention_event": "돈의 이동 경로는 여전히 미해결",
+          "transition_handoff": "EXIT_MATCH: 물의 검은 영역이 SC07 서류 암부로 자연 이어짐",
+          "abstraction_handling": "실제 돈이 이동한 경로·물살 방향을 증명하는 그래픽 금지",
+          "sound_cue": "강물 공간감 증가→저음 절제"
+        }
+      ]
+    },
+    {
+      "id": "SC07",
+      "sequence_id": "SQ07",
+      "expected_duration_seconds": 24,
+      "story_event": "file closes, visible stair from CL01 is revisited, camera retreats",
+      "attention_events": [
+        "no solved identity",
+        "CL29 starts from visible stair geometry, not CL01 black exit",
+        "retreat leaves unresolved night sky"
+      ],
+      "identity_anchors": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "visual_mode": "GRAPHIC_2D_INK_NOIR_WITH_KINETIC_CAMERA_AND_ABSTRACT_UNCERTAINTY",
+      "shots": [
+        {
+          "id": "CL28",
+          "expected_duration_seconds": 8,
+          "story_event": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION",
+          "attention_event": "2016년 수사 자원 재배분은 사건 해결이 아니다",
+          "transition_handoff": "STORY_CUT: 표지의 먹색이 1971년 계단의 어둠으로 연결",
+          "abstraction_handling": "FBI 수사 종료=사건 해결 아니며 공식 문서 원문 복제 금지",
+          "sound_cue": "종이 덮임→조용한 룸톤; 승리·종결 효과음 금지"
+        },
+        {
+          "id": "CL29",
+          "expected_duration_seconds": 8,
+          "story_event": "다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다.",
+          "visual_mode": "SINGLE",
+          "scale_intent": "SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK",
+          "attention_event": "첫 계단은 같은 구조지만 이제 탈출 성공이 아니라 질문이다",
+          "transition_handoff": "BIBLE_MATCH: 후방 3/4 기체의 같은 축, 빈 하늘이 확대",
+          "abstraction_handling": "CL01 프레임 기하학을 고정한 채 공간 뒤집기 금지; 점프한 인물 생성 금지",
+          "sound_cue": "첫 장면 엔진 저음이 약하게 복귀; CL01 검은 종료 프레임 재사용 금지"
+        },
+        {
+          "id": "CL30",
+          "expected_duration_seconds": 8,
+          "story_event": "그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+          "visual_mode": "START_TARGET",
+          "scale_intent": "안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전",
+          "attention_event": "생존·사망 어느 쪽도 단정하지 않는 마지막 질문",
+          "transition_handoff": "CONTINUATION: 완전한 검정 프레임 (편집 최종 홀드)",
+          "abstraction_handling": "살아있음/죽음 어느 쪽도 시각적으로 확정 금지",
+          "sound_cue": "엔진음 감쇠→짧은 저역 잔향→거의 무음"
+        }
+      ]
+    }
+  ],
+  "canonical_approval": false
+}

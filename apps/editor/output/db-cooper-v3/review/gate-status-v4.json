@@ -1,0 +1,23 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "report_revision": "review-v4-270s-directing-candidate",
+  "style_start_notice": "DECLARED_VALIDATED",
+  "tts_preview": "COMPLETE_SEVEN_SCENES_NONCANONICAL",
+  "planned_total_seconds": 270,
+  "preview_1p1_total_seconds": 162.544,
+  "directed_nonvoice_seconds": 107.456,
+  "directing_replan": "30_SHOT_CANDIDATE_COMPLETE_NOT_APPROVED",
+  "directing_replan_path": "review/270s-motion-sound-replan-v1.json",
+  "sequence_qc": "AWAITING_CONNECTED_AUDIO_AND_VISUAL_PLAYBACK",
+  "script_directing_lock": null,
+  "manager_story_gate": "NOT_ADVANCED",
+  "final_tts_allowed": false,
+  "production_approved": false,
+  "unresolved": [
+    "Per-shot voice slots are a design: current seven preview MP3s are continuous per scene and require verified splitting or a revised segmented recording plan",
+    "CL01 END v2 and CL29 START v2 must be incorporated into a revised manifest and checked for visual continuity",
+    "The 270-second sequence needs connected audio and image playback QC before timing can be locked",
+    "Canonical D.B. Cooper project.db Story Gate and specialist self-QC remain absent"
+  ],
+  "next_stage": "VERIFY_SHOT_BOUNDARIES_AND_CONNECTED_SEQUENCE_THEN_SCRIPT_DIRECTING_LOCK_CANDIDATE"
+}

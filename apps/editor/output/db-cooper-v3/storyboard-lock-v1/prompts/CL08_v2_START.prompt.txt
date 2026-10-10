@@ -1,0 +1,15 @@
+D.B. COOPER | CL08 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 항공기 도장/꼬리 문양 AIR-01 반복, 지상 후미 계단은 맥락에 따라 닫힘
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL08.
+STORY: 기체는 멈췄고 공항 차량이 돈과 낙하산을 가져옴
+START FRAME: 시애틀 공항 주기장의 동일 727-100을 측면 원경에서 관찰
+FUTURE CAMERA SPACE: 활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행
+REVEAL TO RESERVE: 6초 돈/낙하산을 싣는 작업의 시작을 보여줌
+Keep the revealed state out of the START composition. One frame, one information state.

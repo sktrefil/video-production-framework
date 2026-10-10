@@ -1,0 +1,15 @@
+{
+    "project_id":  "db_cooper_1971_4m30_v3",
+    "clip_id":  "CL05",
+    "source_path":  "clips/CL05.mp4",
+    "source_sha256":  "ff2a768a3ede6caab97ca64fc3a8596bbdc364e7d539b037850e6936d478aecb",
+    "keep_seconds":  9,
+    "edit_fps":  30,
+    "last_editor_frame_time_sec":  8.9666666666666668,
+    "selected_source_frame_index":  215,
+    "selected_source_frame_time_sec":  8.958333,
+    "exit_path":  "exits/CL05_USED_EXIT.png",
+    "exit_sha256":  "b185935b1051d6a10c4ea07a8e70765d899db5dcfc9b6eab331128b5dc305604",
+    "status":  "EXTRACTED_UNREVIEWED",
+    "canonical_approval":  false
+}

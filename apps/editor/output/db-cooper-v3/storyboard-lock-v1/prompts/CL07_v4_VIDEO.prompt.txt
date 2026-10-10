@@ -1,0 +1,19 @@
+CL07 | AISLE FOLLOW TO DOOR WIPE | VIDEO PROMPT v4
+
+Create one 10-second horizontal 16:9 NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir animation from the supplied START and END illustrations. The editor uses only seconds 0–8 at timeline 54–62 seconds. Begin exactly on assets/CL07_START.png, extracted from the actual used exit of CL06.mp4 near 8.958333 seconds. Reach assets/CL07_END_TARGET_v3.png before the 8-second boundary. The final 2 source seconds are discarded.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. In Google Flow, generate visuals only: no voice, narration, spoken words, dialogue, character speech, singing, humming, crowd voices, sound effects, music, ambience or automatic soundtrack. Do not create an audio track; export the video mute / without an audio stream if the tool supports it. Even if Flow offers automatic audio, disable it. The approved Korean TTS and all sound design are added separately during editing. Do not imitate or regenerate the approved narration.
+
+START: anonymous attendant viewed from behind at the left of the aisle, small unreadable ivory memo low in one hand, passengers seated normally, closed cockpit door ahead. Preserve her position, the seat rows, amber ceiling lights, perspective and ink-noir palette at the first frame. Do not restart at a memo close-up or suitcase. Preserve the apparent direction toward the cockpit.
+
+0–1.5 s: the attendant takes her first brisk step toward the door. Camera starts behind and slightly right of her, low enough to let seat backs slide past with parallax. Show her moving away from the exact START pose, not a long still hold.
+1.5–4 s: follow down the narrow aisle with controlled speed change. The small note remains low and unreadable. Passengers continue ordinary seated movements; they do not react as if they know the hijacker's demand. Avoid showing new writing, a second note handoff or a repeated case reveal.
+4–6 s: push briefly over the attendant's shoulder toward the closed cockpit door. Her hand with the note moves toward the doorway and then leaves the frame; imply delivery without depicting an invented pilot, a visible exchange or cockpit interior. Redirect focus from her to the dark door.
+6–8 s: the camera closes on the door and adjacent wall. The closed dark surface fills at least 85 percent of the frame by the last USED frame, creating a natural dark wipe to CL08. Keep the last image readable as an aircraft doorway, then almost fully occlude the lens. Do not reopen it.
+8–10 s: optional held tail; the editor discards it. All required action and the END composition must already be complete by 8 s.
+
+AV_BEATS_JSON: [{"id":"note_moves_to_cockpit","narration_phrase":"쪽지가 좁은 통로를 지나 조종실로 들어갑니다","visual_window_seconds":[1.5,4.2]},{"id":"passengers_unaware","narration_phrase":"다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다","visual_window_seconds":[4.2,5.9]}]
+
+NARRATION SLOT in the USED clip: 1.500–5.864 s. Narration is added during editing, never burn it into the video. Footsteps, a restrained door latch and low runway rumble are EDITING NOTES ONLY; generate none of these sounds in Flow. No generated dialogue or readable historical text.
+
+Do not depict an open cockpit, a pilot, a visible exchange, a jump, money, parachutes, explosions, subtitles, logos, watermark or four-point generator mark. No photorealism, live action, documentary reenactment, hyperrealism or glossy 3D. Use the supplied project boards for linework, palette and motion, never as literal storyboard panels. Output clips/CL07.mp4; after generation inspect the actual frame near 7.958333 seconds before planning the CL08 cut.

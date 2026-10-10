@@ -1,0 +1,21 @@
+D.B. COOPER | SC01 | CL02 | VIDEO PROMPT v4
+Create ONE continuous 10-second horizontal 16:9 animated shot in NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. The editor will use ONLY 0–8 seconds on the 270-second timeline (CL02 occupies 10–18 seconds). The planned END state must be reached by 8 seconds; if the video tool binds the END image to 10 seconds, hold that same state from 8 to 10 seconds without another reveal.
+
+START IMAGE: assets/CL02_START_v3.png — the exact first-frame cabin identity and composition.
+END/TARGET IMAGE: assets/CL02_END_TARGET_v4.png — the planned 8-second used exit state, NOT a new scene.
+TRANSITION REFERENCE ONLY: exits/CL01_USED_EXIT.png — CL01's actual last frame. The CL01 stairwell's central darkness should match the cabin aisle's dark central shape at the edit cut. CL02 is after landing at Reno; do not animate a physical flight from the airborne rear stair into the cabin.
+STYLE/MOTION/SCENE REFERENCES: boards/BOARD01_STYLE.png, boards/BOARD02_MOTION.png, boards/BOARD03_SCENE.png. Use linework, palette, motion grammar and key objects; do not reproduce captions or board layout.
+
+0–1 s: Hold the new empty-cabin START just long enough for the viewer to recognize that the location and time have changed. The exterior wind falls away into low cabin room tone; the graphic cut from CL01 remains visually smooth.
+1–4 s: Push forward at low height through the same center aisle. Shadowed seat backs move past the lens with controlled parallax. Preserve the START's seat shapes, aisle axis, light direction and period stylization. No passengers or Cooper appear.
+4–6 s: Make one small camera turn toward the rear seating area. Aim toward a vacant seat and the space where a money bag would be, without showing the bag or inventing a specific historical cabin layout.
+6–8 s: Let the absence become clear through the unoccupied seat and empty floor space. Reach the END/TARGET composition by 8 seconds: a strong near-black seat frame or ink plane at one edge, weak warm light on a few seat edges, deep charcoal center. Do not add a new action after this reveal.
+8–10 s: If required for a 10-second source, maintain the same END state with only subtle ink texture and light movement. The editor discards this tail.
+
+VOICE SLOT IN USED 0–8 s: 1.200–6.364 s. Narration, placed later in editing: “착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.” Do not generate spoken narration or burned-in subtitles.
+SOUND INTENT: cut the exterior wind, then a low cabin room tone and distant aircraft resonance. Keep it quiet enough to support the narration. Audio can be edited separately.
+
+FACT/STYLE GUARDS: No eyewitness jump, falling person, landing of a person, survival or death. No photorealism, live action, documentary reenactment, glossy 3D, invented legible writing, titles, subtitles or watermark. The exact 1971 cabin layout is uncertain; express it through stylized seats and shadows.
+
+QC: One dominant low aisle camera path. START and END must be the same cabin and seat system. Check the ACTUAL source frame nearest 7.967 seconds at 30 fps before accepting the editor-used exit. The END still alone does not prove an 8-second match.
+SAVE AS: clips/CL02.mp4

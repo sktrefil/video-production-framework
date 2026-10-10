@@ -1,0 +1,78 @@
+{
+  "status": "NONCANONICAL_AV_TIMING_REVIEW_NOT_APPROVED",
+  "cl05_retime_candidate": true,
+  "duration_seconds": 45,
+  "frame_rate": 30,
+  "video": "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\review\\cl01-05-av-review-v1\\CL01-05_FINAL-TTS_retime-review.mp4",
+  "video_sha256": "c8f2a0c7f6f3705b722439c9be2be1a4ae2af4d6daf71c3b56bb4b1bcd594a5d",
+  "tts_timeline_sha256": "f676ae674ece0d6e16ccff0e017706621275ea9cb9781136c70a72e2a678b89f",
+  "plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "final_tts_manifest_sha256": "da11bc1bb9e661e02a0aa80a13d2ea33a407402890aeb7dad6d22f63698ce6b6",
+  "placements": [
+    {
+      "shot": "CL01",
+      "timeline_start": 0,
+      "keep_seconds": 10,
+      "clip_sha256": "d10376857a48d045e9f7d90ae72ac2ae2dd3e56dc8a3bc73b38de0db8fad2cdd",
+      "adopted_clip_sha256": "d10376857a48d045e9f7d90ae72ac2ae2dd3e56dc8a3bc73b38de0db8fad2cdd",
+      "final_tts_scene": "SC01",
+      "final_tts_sha256": "c91ce20e10be13629348d16a49367bbf2e82c1611fe8af06e2354e1561b9f700",
+      "voice_start": 0.3,
+      "voice_end_actual": 6.991,
+      "voice_end_planned": 6.991
+    },
+    {
+      "shot": "CL02",
+      "timeline_start": 10,
+      "keep_seconds": 8,
+      "clip_sha256": "a4c801e204bf98016ddb4cc96f34e960811a1ba592b92371d281929206b8e799",
+      "adopted_clip_sha256": "a4c801e204bf98016ddb4cc96f34e960811a1ba592b92371d281929206b8e799",
+      "final_tts_scene": "SC01",
+      "final_tts_sha256": "c91ce20e10be13629348d16a49367bbf2e82c1611fe8af06e2354e1561b9f700",
+      "voice_start": 11.2,
+      "voice_end_actual": 16.363,
+      "voice_end_planned": 16.364
+    },
+    {
+      "shot": "CL03",
+      "timeline_start": 18,
+      "keep_seconds": 9,
+      "clip_sha256": "361796d236cfeb92ae9c662bf2b3d5ba7b5eff26a5b36419dcfd4c173ae26e2c",
+      "adopted_clip_sha256": "361796d236cfeb92ae9c662bf2b3d5ba7b5eff26a5b36419dcfd4c173ae26e2c",
+      "final_tts_scene": "SC02",
+      "final_tts_sha256": "222fa4f64d937b32192584e7c4f198a0aa7bd4fc46280ada7c842311cc0bd97a",
+      "voice_start": 18.7,
+      "voice_end_actual": 24.518,
+      "voice_end_planned": 24.518
+    },
+    {
+      "shot": "CL04",
+      "timeline_start": 27,
+      "keep_seconds": 9,
+      "clip_sha256": "47019bf6519aa9c42ce982e7ac5760a10d2e5223f2857c1183ad51ce3430c6e4",
+      "adopted_clip_sha256": "47019bf6519aa9c42ce982e7ac5760a10d2e5223f2857c1183ad51ce3430c6e4",
+      "final_tts_scene": "SC02",
+      "final_tts_sha256": "222fa4f64d937b32192584e7c4f198a0aa7bd4fc46280ada7c842311cc0bd97a",
+      "voice_start": 28.8,
+      "voice_end_actual": 33.272,
+      "voice_end_planned": 33.273
+    },
+    {
+      "shot": "CL05",
+      "timeline_start": 36,
+      "keep_seconds": 9,
+      "clip_sha256": "ecd59569081b3240e8ed2fe2191f0821af35eff7b6ac7ef2b13c16d8cd8b94fd",
+      "adopted_clip_sha256": "ff2a768a3ede6caab97ca64fc3a8596bbdc364e7d539b037850e6936d478aecb",
+      "final_tts_scene": "SC02",
+      "final_tts_sha256": "222fa4f64d937b32192584e7c4f198a0aa7bd4fc46280ada7c842311cc0bd97a",
+      "voice_start": 36.8,
+      "voice_end_actual": 42.909,
+      "voice_end_planned": 42.909
+    }
+  ],
+  "limitations": [
+    "Generated clip audio is muted; only FINAL segmented TTS is heard.",
+    "Video source is 24 fps and was sampled to 30 fps for this review.",
+    "No sound effects or music are included; no production gate is advanced."
+  ]
+}

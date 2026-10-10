@@ -1,0 +1,12 @@
+D.B. COOPER | CL01 | SC01 | END/TARGET IMAGE | CREATIVE REVISION v4
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864. Use the APPROVED CL01_START_v4.png as the primary identity and geometry reference, plus the three project master boards.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+
+Create ONE planned END/TARGET image for the 10-second used exit. The camera has traveled around the right rear quarter of the SAME Boeing 727 and pushed low toward its integrated rear airstair. The stair has descended from its lower hinge. The camera is now so close that a near-black interior fills the center of the frame; only narrow edge light on the same stair rails and ink outlines remains at the sides.
+
+Preserve the approved START's physical axes, silhouette, palette and exact THREE-engine Boeing 727 identity. Do not add, duplicate or rearrange engines, wings, tail, stair rails or fuselage. This is the dark 10-second occlusion, not the brighter 6–8-second stair-reveal frame. No person, parachute, observed jump, landing, text, subtitle or watermark. No photorealism, live action, documentary reenactment or glossy 3D.
+
+This is a planned target, not proof of the generated video's actual exit frame.
+SAVE AS: assets/CL01_END_TARGET_v4.png

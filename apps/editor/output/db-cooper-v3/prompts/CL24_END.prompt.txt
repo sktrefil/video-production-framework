@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL24 | SCENE SC06 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: CASH80-01, ENV-RIVER
+FACT GUARD: 모래톱 발견=점프 장소라는 인과 암시 금지
+Create one planned END/TARGET still for CL24: 1980년 모래톱.
+Attach the reviewed CL24 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 1980년 낮, 한 소년이 강변에서 이상한 물체를 보게 되는 상황
+START STATE: 구름 낀 낮의 컬럼비아강 수면과 넓은 모래톱
+CAMERA PATH: 물 가장자리 LOW SKIM → 모래톱 PARALLAX → 지폐 모서리로 PUSH-IN
+DESIRED TARGET COMPOSITION: 모래에 묻힌 훼손 지폐의 아주 작은 모서리까지 시선 이동
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 모래에서 튀어나온 종이의 구겨진 가장자리
+SUBJECT ACTION: 소년은 먼 실루엣/손만; 신원과 표정 창작 금지
+ENVIRONMENT MOTION: 잔물결, 젖은 모래의 브러시 결
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

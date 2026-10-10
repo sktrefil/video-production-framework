@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL12 | SCENE SC03 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 가방/낙하산 기하학 불변, 직접적인 추락 장면 없음
+Create one planned END/TARGET still for CL12: 묶이는 돈, 닫히는 커튼.
+Attach the reviewed CL12 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 돈가방 결속과 마지막 승무원 퇴장, 후방 객실이 고립됨
+START STATE: 기내 좌석 위 돈가방·낙하산 줄, 쿠퍼 손만 프레임
+CAMERA PATH: 가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe
+DESIRED TARGET COMPOSITION: 결속된 돈가방 너머 후방 커튼이 닫혀 전경을 채움
+PLANNED EDITORIAL EXIT AT 10 SECONDS: 커튼의 검은 수직 주름이 전체 프레임을 덮음
+SUBJECT ACTION: 쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘
+ENVIRONMENT MOTION: 기내 조명은 어둡고 엔진진동을 그린 잉크 선만
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

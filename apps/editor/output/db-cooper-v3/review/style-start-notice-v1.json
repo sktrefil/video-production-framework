@@ -1,0 +1,13 @@
+{
+  "notice_id": "STYLE-db_cooper_1971_4m30_v3-v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "video_title_or_topic": "D.B. 쿠퍼 — 20만 달러를 들고 하늘에서 사라진 남자",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "visual_language": "strong stylized graphic animation with hand-drawn ink-noir texture",
+  "camera_language": ["kinetic camera motion", "foreground parallax", "scale shifts", "spatial traversal", "arc/orbit", "graphic match", "speed contrast"],
+  "prohibited_styles": ["PHOTOREALISTIC", "LIVE_ACTION", "DOCUMENTARY_REENACTMENT", "HYPERREAL", "REALISTIC_CINEMATIC_RECONSTRUCTION"],
+  "evidence_policy": "preserve verified facts and evidence; stylize, abstract, silhouette, omit or editorialize unknown details",
+  "user_visible_notice_ko": "쿠퍼 영상은 비실사 손그림 그래픽 애니메이션으로 제작하며, 실사·포토리얼·다큐 재연풍을 사용하지 않습니다. 목적 있는 카메라 이동으로 긴장감을 만들고, 불확실한 장면은 실루엣·추상 표현으로 처리합니다.",
+  "user_notice_rendered": true,
+  "status": "DECLARED"
+}

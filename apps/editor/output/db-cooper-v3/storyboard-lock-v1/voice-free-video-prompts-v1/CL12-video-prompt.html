@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D.B. Cooper CL12 | 음성 제외·효과음 포함 영상 프롬프트</title>
+<style>:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;background:#101a21;color:#f0eee8}body{margin:0;line-height:1.6}header{background:#1c303c;padding:32px max(22px,calc((100vw - 980px)/2));border-bottom:2px solid #b68a50}main{max-width:980px;margin:auto;padding:24px 22px 70px}h1{margin:0 0 6px}small,.meta{color:#cad1d1}.alert{border-left:4px solid #e7ae63;background:#24333a;padding:13px 17px;margin:18px 0}article{background:#1b2a33;border:1px solid #4c626c;border-radius:9px;padding:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c161b;border:1px solid #506471;border-radius:6px;padding:18px;font:14px/1.65 Consolas,monospace}button{border:0;border-radius:5px;background:#e5b371;color:#10202b;font-weight:800;padding:10px 14px;cursor:pointer}a{color:#f0c280}</style></head><body>
+<header><small>D.B. COOPER / CL12 / SC03 / VOICE-FREE PACK v1</small><h1>CL12 음성 제외·효과음 포함 영상 프롬프트</h1><span>생성 10초 · 편집 사용 10초 · 타임라인 102–112초</span></header>
+<main><p class="alert"><strong>Google Flow에서 사람 목소리만 생성 금지.</strong> 내레이션·대사·말소리는 만들지 않고 발걸음·문·기계·차량 등 비언어적 효과음과 환경음은 화면에 맞춰 생성합니다. 확정 TTS는 편집에서 넣습니다.</p><p class="alert">이 샷은 프롬프트 초안입니다. START·END 실제 이미지와 이전 클립의 사용 종료 프레임, 확정 TTS 타이밍을 확인한 뒤 생성하세요.</p>
+<article><button id="copy" type="button">프롬프트 복사</button><p class="meta">원본: <code>prompts/CL12_v2_VIDEO.prompt.txt</code><br>원본 SHA-256: <code>bdfc44640ae8476ed4601ad9eafc9943be1e48ba382a03cd7ea2fef85773cb8b</code><br>이 음성 제외 프롬프트 SHA-256: <code>64235b09c29bbbb65dbcc8b97fb46a963d68778b2b3129a3e9fc6a78c7279ef1</code></p><pre id="prompt">CL12 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL12_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+D.B. COOPER | CL12 | SC03 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 가방/낙하산 기하학 불변, 직접적인 추락 장면 없음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL12. Editor uses 10 seconds at timeline 102-112 seconds.
+START: assets/CL12_START.png (PREVIOUS_USED_EXIT from CL11).
+END/TARGET: assets/CL12_END_TARGET.png
+ACTION: 쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘
+CAMERA: 가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe
+ENVIRONMENT: 기내 조명은 어둡고 엔진진동을 그린 잉크 선만
+REVEAL: 5초 매듭의 고정, 7~9초 커튼 완전 차폐
+USED EXIT: 커튼의 검은 수직 주름이 전체 프레임을 덮음
+VOICE SLOT IN USED CLIP: 0.200-7.400s; narration: 쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.
+SOUND DESIGN: 줄 마찰→발걸음→커튼 긁힘→후방 바람 저음
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.
+</pre><a href="CL12_VIDEO.prompt.txt">프롬프트 TXT 열기</a></article><p><a href="index.html">전체 30샷 목록</a></p></main>
+<script>document.getElementById('copy').addEventListener('click',async()=>{let b=document.getElementById('copy'),v=document.getElementById('prompt').textContent;try{await navigator.clipboard.writeText(v)}catch{let a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()}b.textContent='복사 완료';setTimeout(()=>b.textContent='프롬프트 복사',1600)});</script></body></html>

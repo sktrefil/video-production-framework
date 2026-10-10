@@ -1,0 +1,53 @@
+{
+  "id": "CL25",
+  "scene": "SC06",
+  "ordinal": 25,
+  "timeline_start": 220,
+  "timeline_end": 229,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL24"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL25_START.png",
+  "end_target_asset": "assets/CL25_END_TARGET.png",
+  "video_asset": "clips/CL25.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL25_v2_END.prompt.txt",
+    "video": "prompts/CL25_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "CASH80-01",
+    "ENV-RIVER"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "20달러 지폐 세 묶음이 모래 속에서 드러나는 발견의 순간",
+  "action": "젖은 지폐와 조사 기록지를 한 축에 놓되 번호 일치 결과는 보류",
+  "camera": "훼손된 지폐 묶음 REVEAL→합계 편집 글자→옆 기록지 번호 열로 LATERAL TRACK",
+  "reveal": "훼손된 20달러권의 총액 5,800달러를 확인하고 일련번호 대조가 시작된다",
+  "exit": "번호 대조 결과를 아직 숨긴 두 표면",
+  "sound": "젖은 종이 마찰→기록지 펼침→번호 대조의 연필 한 획; 가짜 역사적 일련번호 금지",
+  "narrator_text": "물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 4.218,
+    "scene_audio_end_seconds": 8.945,
+    "spoken_window_seconds": 4.727
+  },
+  "voice_slot_relative": {
+    "start": 1.2,
+    "end": 5.927
+  },
+  "voice_slot_timeline": {
+    "start": 221.2,
+    "end": 225.927
+  },
+  "pre_voice_seconds": 1.2,
+  "post_voice_seconds": 3.073,
+  "nonvoice_seconds": 4.273
+}

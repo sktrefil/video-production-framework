@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "jobId": "tts-preview-SC06-0b7ca3d474ae",
+  "jobRevision": 1,
+  "projectId": "db_cooper_1971_4m30_v3_preview",
+  "provider": "ELEVENLABS",
+  "providerProfileVersion": "1.0.0",
+  "jobType": "TTS_GENERATION",
+  "executionMode": "AUTOMATED",
+  "attempt": 1,
+  "inputHash": "0b7ca3d474ae4054aaab9ed6e59c94193a24b1b4d22a0ac1f10252836ed9177e",
+  "secretRequirements": [
+    {
+      "envName": "ELEVENLABS_API_KEY",
+      "required": true
+    }
+  ],
+  "input": {
+    "schemaVersion": 1,
+    "providerProfile": {
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    "plan": {
+      "id": "preview-plan-SC06-0b7ca3d474ae",
+      "revision": 1,
+      "sourceScript": {
+        "id": "DB_Cooper_4min30_script_v3_TTS.txt",
+        "revision": 3,
+        "sha256": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac"
+      },
+      "contentFormat": "LONGFORM",
+      "endpoint": "/v1/text-to-speech/{voice_id}/with-timestamps",
+      "modelId": "eleven_v3",
+      "outputFormat": "mp3_44100_128",
+      "voiceIdResolution": "VOICE_PRESET_THEN_ENV",
+      "voiceIdFallbackEnv": "ELEVENLABS_VOICE_ID",
+      "voicePreset": "HISTORY_MYSTERY_LONGFORM",
+      "configuredVoiceSettings": {
+        "stability": 0.62,
+        "similarityBoost": 0.8,
+        "style": 0.04,
+        "speed": 1,
+        "useSpeakerBoost": true
+      },
+      "effectiveVoiceSettings": {
+        "stability": 0.62,
+        "style": 0.04
+      },
+      "droppedVoiceSettings": [
+        "similarity_boost",
+        "speed",
+        "use_speaker_boost"
+      ],
+      "preserveProviderCadence": true,
+      "narrationMode": "SEGMENTED",
+      "chunks": [
+        {
+          "index": 1,
+          "text": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다. 물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다. 쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다. 그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.",
+          "textCharacterCount": 250,
+          "outputRelativePath": "03_tts/sections/SC06_raw.mp3",
+          "sectionId": "preview-SC06",
+          "sectionIndex": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "preview-SC06",
+          "index": 1,
+          "sequenceId": "preview-SC06",
+          "sceneIds": [
+            "SC06"
+          ],
+          "text": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다. 물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다. 쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다. 그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.",
+          "textCharacterCount": 250,
+          "audioRelativePath": "03_tts/sections/SC06_raw.mp3",
+          "characterAlignmentRelativePath": "03_tts/alignment/SC06.json"
+        }
+      ],
+      "outputPaths": {
+        "narrationManifest": "03_tts/manifests/SC06.json",
+        "metadata": "03_tts/metadata/SC06.json",
+        "resolvedVoiceProfile": "03_tts/voice/SC06.json"
+      }
+    }
+  }
+}

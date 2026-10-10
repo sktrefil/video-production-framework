@@ -1,0 +1,30 @@
+{
+  "id": "CL18",
+  "scene": "SC04",
+  "ordinal": 18,
+  "timeline_start": 157,
+  "timeline_end": 166,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "start_asset": "assets/CL18_START.png",
+  "end_target_asset": "assets/CL18_END_TARGET.png",
+  "video_asset": "clips/CL18.mp4",
+  "prompts": {
+    "start": "prompts/CL18_START.prompt.txt",
+    "end": "prompts/CL18_END.prompt.txt",
+    "video": "prompts/CL18_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

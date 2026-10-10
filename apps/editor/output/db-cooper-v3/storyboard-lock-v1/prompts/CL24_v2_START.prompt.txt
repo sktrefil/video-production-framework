@@ -1,0 +1,15 @@
+D.B. COOPER | CL24 | SC06 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: CASH80-01, ENV-RIVER
+FACT GUARD: 모래톱 발견=점프 장소라는 인과 암시 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL24.
+STORY: 1980년 낮, 한 소년이 강변에서 이상한 물체를 보게 되는 상황
+START FRAME: 모래톱의 물결과 아직 드러나지 않은 지폐 모서리
+FUTURE CAMERA SPACE: 수면 LOW SKIM→모래톱 PARALLAX→발견 지점에 맞춰 지폐 묶음 부분 PUSH-IN
+REVEAL TO RESERVE: 1980년 강변에서 소년이 낡은 지폐 뭉치를 발견한다
+Keep the revealed state out of the START composition. One frame, one information state.

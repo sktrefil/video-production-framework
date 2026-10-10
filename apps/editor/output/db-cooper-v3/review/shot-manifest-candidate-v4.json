@@ -1,0 +1,3298 @@
+{
+  "schema": "vpf.codex.storyboard.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "language": "ko-KR",
+  "work_type": "LONGFORM_16_9",
+  "storyboard_version": "1.0",
+  "based_on_script": "DB_Cooper_4min30_script_v3.md",
+  "status": "DIRECTING_CANDIDATE_NOT_QC_APPROVED",
+  "target_duration_seconds": 270,
+  "tts_speed": 1.1,
+  "tts_timing_verified": false,
+  "i2v_source_duration_seconds": 10,
+  "source_clip_count": 30,
+  "source_total_seconds": 300,
+  "editor_total_trim_seconds": 30,
+  "style": "NON_REALISTIC_STYLIZED | hand-drawn 2D ink noir",
+  "palette": {
+    "charcoal": "#1A1A1A",
+    "steel_blue": "#2E4B6B",
+    "slate": "#6B7C8F",
+    "ivory": "#E8DCC6",
+    "amber": "#B58945"
+  },
+  "camera_principles": [
+    "Camera reveals new story information, not decorative movement.",
+    "Prefer deliberate Follow / Reveal / Push-in / Parallax / Occlusion / Reverse Pull-back.",
+    "Keep one dominant camera path per generated 10s shot; a secondary adjustment only if geometrically plausible.",
+    "Within 3–5 seconds, change information state, viewpoint or sonic expectation, not necessarily a hard cut.",
+    "Preserve physical space and temporal logic; make story cuts in the editor rather than impossible video model transitions.",
+    "SC01 and SC07 use the same geometry with inverse camera direction."
+  ],
+  "global_negative_prompt": "photorealism, real camera, glossy CGI, 3D render, depth-of-field blur, lens flare, HUD, UI, modern jet cabin, twin engines, underwing engines, side-door airstair, broken anatomy, new human faces, incorrect hand count, fake historical quote, readable fake serial number, DNA, speculative parachute deployment, eyewitness jump, confirmed survival, confirmed death, fabricated maps, watermarks, built-in subtitles",
+  "image_modes": {
+    "SINGLE": "고정 키 프레임 1장, 같은 컷 안의 제한적 모션",
+    "START_TARGET": "시작과 목표 프레임 각각 생성하여 모션 경로 고정",
+    "CONTINUATION": "이전 클립 EXIT에서 기하학을 계승하며 다음 움직임 생성",
+    "EXIT_REFERENCE": "이전에 확정한 EXIT 화면을 그대로 재참조"
+  },
+  "handoff_types": {
+    "BIBLE_MATCH": "공통 캐릭터·기체·공간 구조 일치. 다른 시간/시점이면 편집 STORY CUT",
+    "EXIT_MATCH": "이전 클립의 실제 마지막 사용 프레임을 다음 START 기준으로 재사용",
+    "CONTINUATION": "카메라 방향/물체 동일성을 유지하여 연속 행동을 이어감",
+    "STORY_CUT": "시간·장소가 달라지는 편집 컷. 같은 10초 I2V 내 억지 공간 이동 금지"
+  },
+  "board_files": {
+    "BOARD01_STYLE": "DB_Cooper_MasterBoard_01_style_v3.png",
+    "BOARD02_MOTION": "d.b._쿠퍼_카메라_모션보드.png",
+    "BOARD03_SCENE": "d.b._쿠퍼_미스터리_스토리보드.png"
+  },
+  "immutable_visual_locks": [
+    {
+      "id": "AIR-01",
+      "title": "Northwest Orient 727-100",
+      "rule": "T-tail, 측면 두 엔진 + 꼬리 중앙 엔진 흡입구. 기체 후미 하부 계단의 공간 관계 불변. 동체 도장·창문 반복.",
+      "negative": "주익 하부 엔진·2발 여객기·시대가 맞지 않는 도장"
+    },
+    {
+      "id": "STAIR-01",
+      "title": "Aft ventral airstair",
+      "rule": "후방 동체 하부에서 아래로 내려오는 내장식 계단. SC01↔SC07 START·TARGET·EXIT 지오메트리 참조 재사용.",
+      "negative": "측면 객실문에서 매달린 계단·비행 중 지상 탑승용 계단"
+    },
+    {
+      "id": "COO-01",
+      "title": "Dan Cooper 익명 인물",
+      "rule": "검은 정장·흰 셔츠·검은 넥타이, 주로 뒷모습·손·실루엣. 실제 확인된 얼굴처럼 묘사 금지.",
+      "negative": "임의 모자·얼굴 확정·현대 복장"
+    },
+    {
+      "id": "CAB-01",
+      "title": "1971년 기내",
+      "rule": "좌석 배열/중앙 통로/후방 커튼/조종실 상대 위치 고정. 커튼의 양면과 차폐 방향 공유.",
+      "negative": "같은 기내에서 출입구가 갑자기 좌우 반전되는 구조"
+    },
+    {
+      "id": "NOTE-01",
+      "title": "첫 협박 쪽지",
+      "rule": "폭탄이 있다는 위협을 알린 첫 종이. 실제 텍스트 재현하지 않음.",
+      "negative": "후속 금전·낙하산 요구 메모와 혼동"
+    },
+    {
+      "id": "NOTE-02",
+      "title": "승무원 요구 메모",
+      "rule": "승무원이 20만 달러/낙하산 네 개 조건을 별도 기록하여 조종실로 전달.",
+      "negative": "임의로 발명한 영어 대사를 사료 원문으로 제시"
+    },
+    {
+      "id": "BRF-01",
+      "title": "서류가방",
+      "rule": "1970년대 검은 단단한 briefcase, 빨간 막대와 전선은 폭탄처럼 보인 물건.",
+      "negative": "진짜 폭탄 확정/폭발/조립 시연"
+    },
+    {
+      "id": "MONEY-01",
+      "title": "20만 달러 몸값",
+      "rule": "20달러 지폐, 운반 가방, 낙하산 줄 결속.",
+      "negative": "100달러권·가방 종류 변경"
+    },
+    {
+      "id": "PARA-01",
+      "title": "낙하산",
+      "rule": "요청 4개, 남긴 장비와 가져간 장비 구분. 현대 스포츠형과 혼동 금지.",
+      "negative": "실물 발견됐다는 허위 장면"
+    },
+    {
+      "id": "TIE-01",
+      "title": "검은 넥타이",
+      "rule": "기내에 남은 단서, 검은 대각선 형태 매치컷에 활용.",
+      "negative": "생사 확정 증거처럼 표현"
+    },
+    {
+      "id": "CASH80-01",
+      "title": "1980년 강변 5,800달러",
+      "rule": "낡고 훼손된 20달러권 세 묶음, 강변 모래톱, 낮 시간, 발견 위치≠낙하 위치.",
+      "negative": "새 지폐·현금 전량·실제 일련번호 임의 생성"
+    },
+    {
+      "id": "ENV-FOREST",
+      "title": "북서부 산림 수색",
+      "rule": "침엽수림과 강의 공간 깊이. 시각적 지리 비유는 지도/실제 경로라고 단정하지 않음.",
+      "negative": "확인되지 않은 수색기 수·수색 장소 특정"
+    },
+    {
+      "id": "ENV-RIVER",
+      "title": "1980년 컬럼비아강",
+      "rule": "1971년 야간과 완전히 분리된 저채도 주간 모래톱.",
+      "negative": "강변이 쿠퍼 착륙지라는 인과 묘사"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "SC01",
+      "title": "열린 계단 — 결과부터 공개",
+      "start": 0,
+      "duration": 18,
+      "takes": [
+        10,
+        8
+      ],
+      "purpose": "첫 10초에 계단을 공간적으로 공개하고, 남자와 돈의 부재로 미스터리를 고정",
+      "color": "#B58A49",
+      "world": "1971년 / 야간 비행 → 리노 착륙 후",
+      "anchors": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "tts_full": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다. 착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다."
+    },
+    {
+      "id": "SC02",
+      "title": "쪽지 — 평범한 비행이 멈추다",
+      "start": 18,
+      "duration": 44,
+      "takes": [
+        9,
+        9,
+        9,
+        9,
+        8
+      ],
+      "purpose": "조용한 쪽지 전달을 폭탄 위협과 별도의 요구 기록으로 확장",
+      "color": "#6D91A5",
+      "world": "1971년 / 포틀랜드 출발 오후",
+      "anchors": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "tts_full": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼. 이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다. 승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다. 남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개. 쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다."
+    },
+    {
+      "id": "SC03",
+      "title": "인질은 내리고, 다시 이륙",
+      "start": 62,
+      "duration": 50,
+      "takes": [
+        10,
+        10,
+        10,
+        10,
+        10
+      ],
+      "purpose": "승객은 나오고 돈은 들어가는 방향 대비에서 고립된 후방 객실로 이동",
+      "color": "#C7A369",
+      "world": "1971년 / 시애틀 착륙 → 재이륙 밤",
+      "anchors": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "tts_full": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다. 승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티. 그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다. 그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편. 쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다."
+    },
+    {
+      "id": "SC04",
+      "title": "아무도 보지 못한 탈출",
+      "start": 112,
+      "duration": 73,
+      "takes": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        10
+      ],
+      "purpose": "계단 조작 난항·교신·경고등·계기 반응으로 최대 긴장 상승, 점프 목격은 없음",
+      "color": "#C06C45",
+      "world": "1971년 / 야간 비행 → 리노 착륙",
+      "anchors": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "tts_full": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다. 계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다. 하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다. 조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다. 밤 여덟 시 십 분 무렵. 조종실의 계기 바늘이 흔들립니다. 계단에 무게가 실리거나 움직일 때 나타날 수 있는 변화였습니다. 하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다. 뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림. 그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다."
+    },
+    {
+      "id": "SC05",
+      "title": "흔적 없는 수색",
+      "start": 185,
+      "duration": 26,
+      "takes": [
+        9,
+        9,
+        8
+      ],
+      "purpose": "하늘에서 지상으로 카메라 주도권 전환, 결국 발견되지 않는 사람",
+      "color": "#6A8D84",
+      "world": "1971년 이후 / 북서부 수색",
+      "anchors": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "tts_full": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다. 그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다. 그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다."
+    },
+    {
+      "id": "SC06",
+      "title": "강변의 5,800달러",
+      "start": 211,
+      "duration": 35,
+      "takes": [
+        9,
+        9,
+        9,
+        8
+      ],
+      "purpose": "1980년 강변의 지폐로 새로운 단서 공개, 증거가 답으로 연결되지 않는 역설",
+      "color": "#D6AD69",
+      "world": "1980년 / 컬럼비아강 낮",
+      "anchors": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "tts_full": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다. 물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다. 쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다. 그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다."
+    },
+    {
+      "id": "SC07",
+      "title": "탈출인가, 실종인가",
+      "start": 246,
+      "duration": 24,
+      "takes": [
+        8,
+        8,
+        8
+      ],
+      "purpose": "수사 자원 재배분 → 첫 계단 재등장 → 반대 방향으로 카메라 후퇴",
+      "color": "#94A4B4",
+      "world": "2016년 요약 → 1971년 야간 비행",
+      "anchors": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "tts_full": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다. 다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다. 그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다."
+    }
+  ],
+  "shots": [
+    {
+      "id": "CL01",
+      "scene": "SC01",
+      "title": "후미로 돌진하는 오프닝",
+      "story": "관객을 비행기 아래의 위험한 공간으로 끌어들여 계단을 최초 공개",
+      "start": "꼬리 아래 727을 먼 원경에서 후방 3/4로 관찰; 중앙 엔진 흡입구와 T-tail 구분",
+      "target": "10초 편집 종료 프레임: 계단 내부의 검은 공간이 화면을 차폐한다. 열린 계단의 하향 구조는 6~8초 도중에만 완전히 읽힌다.",
+      "camera": "원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지",
+      "subject_motion": "비행체는 진행 방향 유지; 계단은 하부 힌지에서만 하강",
+      "environment_motion": "잉크로 그린 바람 선과 구름의 전경 패럴랙스, 실제 날씨 확정 암시 금지",
+      "key_event": "6~8초 계단의 하향 구조 reveal, 8~10초 검은 내부가 화면을 채움",
+      "exit": "검은 계단 공간의 완전 차폐",
+      "transition": "EXIT_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "엔진의 저음·금속 진동 후 바람이 갑자기 커짐",
+      "fact_guard": "이 클립만 원본 10초 전체 사용. 직접 점프 인물·낙하·도달한 지면 금지",
+      "continuity": "비행기가 비행 중이라는 실루엣과 후방 하부 계단 위치를 반드시 같은 축으로 유지",
+      "ordinal": 1,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 0,
+      "timeline_end": 10,
+      "timecode": "00:00–00:10",
+      "tts": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.",
+      "tts_sentence_range": [
+        1,
+        3
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 46,
+      "tts_characters_per_kept_s": 4.6,
+      "sequence_priority": "OPENING_HOOK",
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL01_START.png",
+        "TARGET": "assets/CL01_TARGET.png",
+        "EXIT": "assets/CL01_EXIT.png",
+        "I2V": "assets/CL01_I2V_10s.mp4",
+        "AUDIO": "assets/CL01_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0–6s",
+          "action": "Approach under-tail area with continuous aircraft geometry"
+        },
+        {
+          "window": "6–8s",
+          "action": "Clearly reveal descending ventral stair structure"
+        },
+        {
+          "window": "8–10s",
+          "action": "Push into dark stairwell; used exit is black occlusion"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "10-second stylized 2D ink-noir flight shot. Begin at a distant rear-three-quarter Boeing 727 silhouette. Fast arc and low push toward the under-tail airstair. At 6–8 seconds reveal the descending stair geometry clearly; from 8 to 10 seconds move into its dark interior until the 10-second target is full black stairwell occlusion. Preserve the T-tail, center engine and stair hinge. No visible jumper, landing, or photorealism.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.764,
+      "preview_voice_slot_relative": {
+        "start": 0.3,
+        "end": 7.064
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "비행 중인 727의 후방 하부에 계단이 있음을 처음 인지",
+        "before_voice": "엔진 저음 위로 기체 후미가 밤하늘을 가른다",
+        "during_voice": "후방 3/4 추적에서 꼬리 아래로 아크 이동",
+        "after_voice": "6~8초 계단 하강을 읽힌 뒤 8~10초 검은 내부로 돌진",
+        "sound": "엔진 저음→금속 떨림→바람 급확대; 인물 추락음 금지"
+      }
+    },
+    {
+      "id": "CL02",
+      "scene": "SC01",
+      "title": "리노, 아무도 없는 객실",
+      "story": "후방 계단의 공백을 리노 착륙 후 빈 객실로 잇는 첫 의문",
+      "start": "검은 차폐 이후 착륙한 동일 기체의 어두운 객실 통로 정면",
+      "target": "후방 좌석과 돈가방이 있던 자리의 빈 공간, 사람은 없음",
+      "camera": "중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지",
+      "subject_motion": "승객과 쿠퍼는 등장하지 않음; 남겨진 소품만 최소한",
+      "environment_motion": "형광등이 아닌 1971년식 온기 있는 약한 객실 조명",
+      "key_event": "5~7초 돈가방의 부재를 빈 공간으로 느끼게 함",
+      "exit": "좌석의 검은 프레임/탑승권 검은 잉크 면으로 편집 컷",
+      "transition": "STORY_CUT",
+      "image_mode": "SINGLE",
+      "sfx": "착륙 후 정숙·희미한 기체 울림·빈 공간 잔향",
+      "fact_guard": "실제 당시 객실 배치가 완전 검증된 도면처럼 보이지 않게; 장면상 빈 자리 표현만",
+      "continuity": "SC02의 포틀랜드 탑승권으로 시간 역행 표지를 편집에서 삽입",
+      "ordinal": 2,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 10,
+      "timeline_end": 18,
+      "timecode": "00:10–00:18",
+      "tts": "착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.",
+      "tts_sentence_range": [
+        4,
+        5
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 42,
+      "tts_characters_per_kept_s": 5.25,
+      "sequence_priority": "OPENING_HOOK",
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL02_START.png",
+        "TARGET": "assets/CL02_TARGET.png",
+        "EXIT": "assets/CL02_EXIT.png",
+        "I2V": "assets/CL02_I2V_10s.mp4",
+        "AUDIO": "assets/CL02_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.6s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.6–5.4s",
+          "action": "중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지"
+        },
+        {
+          "window": "5.4–8s",
+          "action": "TARGET 핵심 정보 공개: 5~7초 돈가방의 부재를 빈 공간으로 느끼게 함"
+        },
+        {
+          "window": "8–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL02, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 검은 차폐 이후 착륙한 동일 기체의 어두운 객실 통로 정면. CAMERA PATH: 중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지. SUBJECT MOTION: 승객과 쿠퍼는 등장하지 않음; 남겨진 소품만 최소한. ENVIRONMENT MOTION: 형광등이 아닌 1971년식 온기 있는 약한 객실 조명. KEY REVEAL: 5~7초 돈가방의 부재를 빈 공간으로 느끼게 함. TARGET FRAME: 후방 좌석과 돈가방이 있던 자리의 빈 공간, 사람은 없음. EXIT FRAME: 좌석의 검은 프레임/탑승권 검은 잉크 면으로 편집 컷. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.163,
+      "preview_voice_slot_relative": {
+        "start": 1.2,
+        "end": 6.363
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "착륙 뒤 사람과 돈가방이 모두 없다는 결과",
+        "before_voice": "검은 계단 내부에서 착륙 후 객실로 의도적 하드컷",
+        "during_voice": "빈 좌석·가방 자리로 통로를 낮게 전진",
+        "after_voice": "사람이 없는 후방 공간을 확인하고 탑승권 암부로 컷",
+        "sound": "바람을 끊고 낮은 객실 룸톤과 멀어진 기체 울림"
+      }
+    },
+    {
+      "id": "CL03",
+      "scene": "SC02",
+      "title": "평범한 승객의 입장",
+      "story": "1971년 오후 포틀랜드, 가명의 탑승권에서 익명의 정장 남성을 따라감",
+      "start": "시대감 있는 탑승권과 어두운 정장 소매의 근접 샷",
+      "target": "1971년 항공기 좌석에 앉은 쿠퍼의 등/검은 넥타이 부분만 보여줌",
+      "camera": "탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회",
+      "subject_motion": "쿠퍼의 고개는 거의 정지, 천천히 손을 들어 쪽지를 준비",
+      "environment_motion": "오후 창밖 하늘을 절제된 스틸블루로 유지",
+      "key_event": "6초 이후 그의 손에서 접힌 종이 모서리가 보임",
+      "exit": "접힌 종이의 밝은 면을 프레임 끝에 유지",
+      "transition": "BIBLE_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "종이 스침·이륙 후 일정한 엔진음",
+      "fact_guard": "실제 얼굴 확정 금지, 과장된 수상한 행동·모자 추가 금지",
+      "continuity": "1971년 낮↔이륙 후 객실의 광량 변화는 편집컷으로 처리",
+      "ordinal": 3,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 18,
+      "timeline_end": 27,
+      "timecode": "00:18–00:27",
+      "tts": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼.",
+      "tts_sentence_range": [
+        1,
+        3
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 48,
+      "tts_characters_per_kept_s": 5.33,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL03_START.png",
+        "TARGET": "assets/CL03_TARGET.png",
+        "EXIT": "assets/CL03_EXIT.png",
+        "I2V": "assets/CL03_I2V_10s.mp4",
+        "AUDIO": "assets/CL03_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6초 이후 그의 손에서 접힌 종이 모서리가 보임"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL03, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 시대감 있는 탑승권과 어두운 정장 소매의 근접 샷. CAMERA PATH: 탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회. SUBJECT MOTION: 쿠퍼의 고개는 거의 정지, 천천히 손을 들어 쪽지를 준비. ENVIRONMENT MOTION: 오후 창밖 하늘을 절제된 스틸블루로 유지. KEY REVEAL: 6초 이후 그의 손에서 접힌 종이 모서리가 보임. TARGET FRAME: 1971년 항공기 좌석에 앉은 쿠퍼의 등/검은 넥타이 부분만 보여줌. EXIT FRAME: 접힌 종이의 밝은 면을 프레임 끝에 유지. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.855,
+      "preview_voice_slot_relative": {
+        "start": 0.7,
+        "end": 6.555
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "시간을 되돌려 익명의 탑승자를 본다",
+        "before_voice": "탑승권 가장자리와 정장 소매를 빠르게 연결",
+        "during_voice": "검은 넥타이를 따라 객실 안쪽으로 이동",
+        "after_voice": "손의 접힌 종이 모서리를 처음 보여 다음 행동 예고",
+        "sound": "탑승권 종이 스침→안정된 엔진음; 주변 대사는 불명료"
+      }
+    },
+    {
+      "id": "CL04",
+      "scene": "SC02",
+      "title": "쪽지 하나가 이동한다",
+      "story": "첫 협박 쪽지를 쿠퍼의 손에서 승무원 손으로 직접 추적",
+      "start": "검은 정장 소매 아래 접힌 종이, 객실 창문·좌석 위치 앵커",
+      "target": "종이가 승무원의 손에 완전히 전달됨",
+      "camera": "손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN",
+      "subject_motion": "손 2쌍만 자연스러운 1회의 인계 동작; 손가락 수 고정",
+      "environment_motion": "배경 승객은 움직임 최소, 시대감 있는 객실 바람/빛",
+      "key_event": "5~7초 쪽지가 넘어가며 긴장 장치 발생",
+      "exit": "쪽지가 화면을 가리는 아이보리 차폐",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "엔진소리를 낮추고 종이 접히는 소리만 전경화",
+      "fact_guard": "읽을 수 있는 협박 문구 생성 금지, 쪽지 실제 원문으로 주장 금지",
+      "continuity": "앞 클립의 동일 종이/좌석/승무원 팔 각도 유지",
+      "ordinal": 4,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 27,
+      "timeline_end": 36,
+      "timecode": "00:27–00:36",
+      "tts": "이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다.",
+      "tts_sentence_range": [
+        4,
+        5
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 42,
+      "tts_characters_per_kept_s": 4.67,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL04_START.png",
+        "TARGET": "assets/CL04_TARGET.png",
+        "EXIT": "assets/CL04_EXIT.png",
+        "I2V": "assets/CL04_I2V_10s.mp4",
+        "AUDIO": "assets/CL04_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5~7초 쪽지가 넘어가며 긴장 장치 발생"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL04, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 검은 정장 소매 아래 접힌 종이, 객실 창문·좌석 위치 앵커. CAMERA PATH: 손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN. SUBJECT MOTION: 손 2쌍만 자연스러운 1회의 인계 동작; 손가락 수 고정. ENVIRONMENT MOTION: 배경 승객은 움직임 최소, 시대감 있는 객실 바람/빛. KEY REVEAL: 5~7초 쪽지가 넘어가며 긴장 장치 발생. TARGET FRAME: 종이가 승무원의 손에 완전히 전달됨. EXIT FRAME: 쪽지가 화면을 가리는 아이보리 차폐. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.545,
+      "preview_voice_slot_relative": {
+        "start": 1.8,
+        "end": 6.345
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "첫 협박 쪽지가 승무원에게 실제로 넘어간다",
+        "before_voice": "손 사이 간격을 좁히며 관객이 종이를 먼저 발견",
+        "during_voice": "한 번의 인계 동작을 손높이에서 따라간다",
+        "after_voice": "종이 면이 프레임을 가려 다음 가방 공개를 지연",
+        "sound": "엔진을 낮추고 종이 접힘만 전경화; 가짜 대사 금지"
+      }
+    },
+    {
+      "id": "CL05",
+      "scene": "SC02",
+      "title": "서류가방 속 붉은 막대",
+      "story": "보인 것은 전선과 붉은 막대, 폭탄의 진위는 미확인",
+      "start": "쪽지의 아이보리 차폐 이후 검은 서류가방 힌지",
+      "target": "가방이 조금 열리며 붉은 막대와 전선만 부분적으로 드러남",
+      "camera": "가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL",
+      "subject_motion": "쿠퍼 손이 가방 뚜껑을 조금 들어 보일 뿐, 조립/작동 묘사 없음",
+      "environment_motion": "객실의 다른 영역은 먹선 암부에 감춰 공포 유지",
+      "key_event": "5초 내용물이 처음 보이나 정체는 단정하지 않음",
+      "exit": "검은 가방 모서리에서 승무원 손으로 동선 이동",
+      "transition": "EXIT_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "가방 걸쇠의 딸깍·주변 소리 한순간 약화",
+      "fact_guard": "폭발 장면/타이머/기폭장치 연출 금지; 실제 폭탄 확증 금지",
+      "continuity": "소품 BRF-01, 검은 단단한 1970년대식 가방 고정",
+      "ordinal": 5,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 36,
+      "timeline_end": 45,
+      "timecode": "00:36–00:45",
+      "tts": "승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다.",
+      "tts_sentence_range": [
+        6,
+        8
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 55,
+      "tts_characters_per_kept_s": 6.11,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL05_START.png",
+        "TARGET": "assets/CL05_TARGET.png",
+        "EXIT": "assets/CL05_EXIT.png",
+        "I2V": "assets/CL05_I2V_10s.mp4",
+        "AUDIO": "assets/CL05_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5초 내용물이 처음 보이나 정체는 단정하지 않음"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL05, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 쪽지의 아이보리 차폐 이후 검은 서류가방 힌지. CAMERA PATH: 가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL. SUBJECT MOTION: 쿠퍼 손이 가방 뚜껑을 조금 들어 보일 뿐, 조립/작동 묘사 없음. ENVIRONMENT MOTION: 객실의 다른 영역은 먹선 암부에 감춰 공포 유지. KEY REVEAL: 5초 내용물이 처음 보이나 정체는 단정하지 않음. TARGET FRAME: 가방이 조금 열리며 붉은 막대와 전선만 부분적으로 드러남. EXIT FRAME: 검은 가방 모서리에서 승무원 손으로 동선 이동. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.218,
+      "preview_voice_slot_relative": {
+        "start": 0.8,
+        "end": 7.018
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "폭탄처럼 보이는 물체와 폭탄 진위의 구분",
+        "before_voice": "가방 걸쇠 위에서 짧게 멈춰 기대 형성",
+        "during_voice": "뚜껑을 조금 열어 붉은 막대·전선 일부만 공개",
+        "after_voice": "승무원 손의 움직임을 따라 요구 메모로 이동",
+        "sound": "걸쇠 클릭 뒤 주변 소리 감소; 폭발·작동음 금지"
+      }
+    },
+    {
+      "id": "CL06",
+      "scene": "SC02",
+      "title": "두 번째 쪽지는 요구 사항",
+      "story": "승무원이 쿠퍼의 구두 지시를 별도의 종이에 적는 행위를 공개",
+      "start": "승무원의 손과 비어 있는 메모지, 쿠퍼의 정장 소매 가장자리",
+      "target": "작성된 종이가 승무원의 손에 쥐어진 상태",
+      "camera": "메모지 위를 근접 PUSH-IN → 손목을 따라 우측 이동 → 클로즈로 종료",
+      "subject_motion": "손이 글씨를 적는 제스처; 실제 읽을 수 있는 글자는 생성하지 않음",
+      "environment_motion": "승객 배경은 평온하게 움직여 상황의 대비 생성",
+      "key_event": "5~7초 종이가 실제 요구 사항을 전달할 도구로 바뀜",
+      "exit": "손에 잡힌 종이를 화면 오른쪽에 배치",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "연필 긁힘과 멀어진 객실 웅성거림",
+      "fact_guard": "20만 달러 및 낙하산 4개 내용은 TTS 또는 편집 텍스트에서만",
+      "continuity": "첫 폭탄 통지 쪽지(NOTE-01)와 요구 메모(NOTE-02) 혼동 금지",
+      "ordinal": 6,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 45,
+      "timeline_end": 54,
+      "timecode": "00:45–00:54",
+      "tts": "남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개.",
+      "tts_sentence_range": [
+        9,
+        11
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 51,
+      "tts_characters_per_kept_s": 5.67,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL06_START.png",
+        "TARGET": "assets/CL06_TARGET.png",
+        "EXIT": "assets/CL06_EXIT.png",
+        "I2V": "assets/CL06_I2V_10s.mp4",
+        "AUDIO": "assets/CL06_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "메모지 위를 근접 PUSH-IN → 손목을 따라 우측 이동 → 클로즈로 종료"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5~7초 종이가 실제 요구 사항을 전달할 도구로 바뀜"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL06, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 승무원의 손과 비어 있는 메모지, 쿠퍼의 정장 소매 가장자리. CAMERA PATH: 메모지 위를 근접 PUSH-IN → 손목을 따라 우측 이동 → 클로즈로 종료. SUBJECT MOTION: 손이 글씨를 적는 제스처; 실제 읽을 수 있는 글자는 생성하지 않음. ENVIRONMENT MOTION: 승객 배경은 평온하게 움직여 상황의 대비 생성. KEY REVEAL: 5~7초 종이가 실제 요구 사항을 전달할 도구로 바뀜. TARGET FRAME: 작성된 종이가 승무원의 손에 쥐어진 상태. EXIT FRAME: 손에 잡힌 종이를 화면 오른쪽에 배치. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.855,
+      "preview_voice_slot_relative": {
+        "start": 1.1,
+        "end": 6.955
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "첫 쪽지와 별도로 몸값 요구가 기록된다",
+        "before_voice": "빈 종이와 연필 끝을 잡아 첫 쪽지와 공간 분리",
+        "during_voice": "승무원 손이 요구 사항을 적는 행동을 추적",
+        "after_voice": "종이를 집어 들어 조종실 방향으로 빠르게 이동",
+        "sound": "연필 마찰→발걸음; 읽히는 임의 글자는 후반 합성만"
+      }
+    },
+    {
+      "id": "CL07",
+      "scene": "SC02",
+      "title": "요구 사항, 조종실로",
+      "story": "요구 메모가 객실을 통과해 조종실로 들어가며 납치 상황 확대",
+      "start": "승무원의 손이 작은 메모를 잡고 좁은 객실 통로 앞에 섬",
+      "target": "조종실 출입구 어두운 면이 프레임을 채움",
+      "camera": "뒤에서 낮게 FOLLOW → 승무원 어깨 너머 조종실 문으로 짧게 PUSH-IN",
+      "subject_motion": "승무원이 통로를 따라 걷고 문 쪽으로 몸을 돌림",
+      "environment_motion": "승객들은 여전히 일반적인 좌석 움직임만",
+      "key_event": "4~6초 메모가 조종실로 이동, 권력이 넘어감",
+      "exit": "닫히는 조종실 문/어두운 벽으로 완전 차폐",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "발걸음·문 잠금 소리 → 활주로 노이즈",
+      "fact_guard": "불가능한 조종실 구조와 실제 원문인 척하는 읽기 가능한 문구 금지",
+      "continuity": "다음 장면 시애틀의 정지한 기체로 시간 경과 컷",
+      "ordinal": 7,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 54,
+      "timeline_end": 62,
+      "timecode": "00:54–01:02",
+      "tts": "쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+      "tts_sentence_range": [
+        12,
+        13
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 42,
+      "tts_characters_per_kept_s": 5.25,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL07_START.png",
+        "TARGET": "assets/CL07_TARGET.png",
+        "EXIT": "assets/CL07_EXIT.png",
+        "I2V": "assets/CL07_I2V_10s.mp4",
+        "AUDIO": "assets/CL07_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.6s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.6–5.4s",
+          "action": "뒤에서 낮게 FOLLOW → 승무원 어깨 너머 조종실 문으로 짧게 PUSH-IN"
+        },
+        {
+          "window": "5.4–8s",
+          "action": "TARGET 핵심 정보 공개: 4~6초 메모가 조종실로 이동, 권력이 넘어감"
+        },
+        {
+          "window": "8–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL07, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 승무원의 손이 작은 메모를 잡고 좁은 객실 통로 앞에 섬. CAMERA PATH: 뒤에서 낮게 FOLLOW → 승무원 어깨 너머 조종실 문으로 짧게 PUSH-IN. SUBJECT MOTION: 승무원이 통로를 따라 걷고 문 쪽으로 몸을 돌림. ENVIRONMENT MOTION: 승객들은 여전히 일반적인 좌석 움직임만. KEY REVEAL: 4~6초 메모가 조종실로 이동, 권력이 넘어감. TARGET FRAME: 조종실 출입구 어두운 면이 프레임을 채움. EXIT FRAME: 닫히는 조종실 문/어두운 벽으로 완전 차폐. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.363,
+      "preview_voice_slot_relative": {
+        "start": 1.5,
+        "end": 5.863
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "요구가 객실에서 조종실로 전달돼 사건 범위가 커진다",
+        "before_voice": "종이와 함께 좁은 통로를 따라 움직인다",
+        "during_voice": "평온한 승객을 스쳐 조종실 문에 도착",
+        "after_voice": "문이 닫히며 화면 차폐, 다음 활주로로 소리 선행",
+        "sound": "발걸음→문 잠금→활주로 저음; 대화 내용 생성 금지"
+      }
+    },
+    {
+      "id": "CL08",
+      "scene": "SC03",
+      "title": "시애틀에 멈춘 305편",
+      "story": "기체는 멈췄고 공항 차량이 돈과 낙하산을 가져옴",
+      "start": "시애틀 공항 주기장의 동일 727-100을 측면 원경에서 관찰",
+      "target": "공항 차량과 전달되는 짐이 항공기 아래 가까이 옴",
+      "camera": "활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행",
+      "subject_motion": "지상 차량이 느리게 이동, 승객 하차는 다음 샷에서 분리",
+      "environment_motion": "시애틀 시간대는 해질녘/저조도, 임의 폭우 과장 금지",
+      "key_event": "6초 돈/낙하산을 싣는 작업의 시작을 보여줌",
+      "exit": "차량 위 검은 돈가방의 실루엣",
+      "transition": "BIBLE_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "엔진 정지·차량 바퀴·멀리서 공항 방송(불명료)",
+      "fact_guard": "항공기 도장/꼬리 문양 AIR-01 반복, 지상 후미 계단은 맥락에 따라 닫힘",
+      "continuity": "같은 기체와 공항 탑승 동선 연결",
+      "ordinal": 8,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 62,
+      "timeline_end": 72,
+      "timecode": "01:02–01:12",
+      "tts": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다.",
+      "tts_sentence_range": [
+        1,
+        3
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 64,
+      "tts_characters_per_kept_s": 6.4,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL08_START.png",
+        "TARGET": "assets/CL08_TARGET.png",
+        "EXIT": "assets/CL08_EXIT.png",
+        "I2V": "assets/CL08_I2V_10s.mp4",
+        "AUDIO": "assets/CL08_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–3.2s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "3.2–6.8s",
+          "action": "활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행"
+        },
+        {
+          "window": "6.8–10s",
+          "action": "TARGET 핵심 정보 공개: 6초 돈/낙하산을 싣는 작업의 시작을 보여줌"
+        },
+        {
+          "window": "10–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL08, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 시애틀 공항 주기장의 동일 727-100을 측면 원경에서 관찰. CAMERA PATH: 활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행. SUBJECT MOTION: 지상 차량이 느리게 이동, 승객 하차는 다음 샷에서 분리. ENVIRONMENT MOTION: 시애틀 시간대는 해질녘/저조도, 임의 폭우 과장 금지. KEY REVEAL: 6초 돈/낙하산을 싣는 작업의 시작을 보여줌. TARGET FRAME: 공항 차량과 전달되는 짐이 항공기 아래 가까이 옴. EXIT FRAME: 차량 위 검은 돈가방의 실루엣. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.836,
+      "preview_voice_slot_relative": {
+        "start": 0.4,
+        "end": 7.236
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "시애틀에서 돈과 낙하산이 기체로 들어온다",
+        "before_voice": "차량 바퀴가 정지한 기체 앞에 들어온다",
+        "during_voice": "돈가방·낙하산의 실루엣을 한 화면에서 분리해 읽힌다",
+        "after_voice": "짐을 싣는 손 동작이 끝나며 돈가방으로 시선 고정",
+        "sound": "엔진 정지→바퀴·짐 손잡이; 공항 방송은 알아들을 수 없게"
+      }
+    },
+    {
+      "id": "CL09",
+      "scene": "SC03",
+      "title": "돈은 들어오고 사람은 나온다",
+      "story": "돈과 낙하산의 유입 방향과 승객들의 하차 방향을 충돌시켜 보여줌",
+      "start": "공항 차량 상단의 몸값 묶음 및 낙하산 짐",
+      "target": "승객들이 하나씩 나오는 기체 외부 계단/출구, 두 흐름의 반대 방향",
+      "camera": "돈가방을 FOLLOW → 프레임 왼쪽으로 승객들 역방향 이동 드러남",
+      "subject_motion": "전달 인력은 서두르되 과장하지 않음, 탑승 구조는 사전에 확인",
+      "environment_motion": "젖은 활주로의 작은 반사광은 연출; 폭우 확정 금지",
+      "key_event": "6초쯤 승객 36명 풀려났다는 사건 정보가 시각화됨",
+      "exit": "하차하는 사람들 뒤로 여전히 멈춘 기체",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "서둘러 걷는 발소리·금속 손잡이 부딪힘",
+      "fact_guard": "승객 정확히 36명을 화면에 모두 표현할 필요 없음, 대사 수치만 고정",
+      "continuity": "돈가방은 CL08과 같은 BRF/MONEY 오브젝트",
+      "ordinal": 9,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 72,
+      "timeline_end": 82,
+      "timecode": "01:12–01:22",
+      "tts": "승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티.",
+      "tts_sentence_range": [
+        4,
+        7
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 59,
+      "tts_characters_per_kept_s": 5.9,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL09_START.png",
+        "TARGET": "assets/CL09_TARGET.png",
+        "EXIT": "assets/CL09_EXIT.png",
+        "I2V": "assets/CL09_I2V_10s.mp4",
+        "AUDIO": "assets/CL09_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–3.2s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "3.2–6.8s",
+          "action": "돈가방을 FOLLOW → 프레임 왼쪽으로 승객들 역방향 이동 드러남"
+        },
+        {
+          "window": "6.8–10s",
+          "action": "TARGET 핵심 정보 공개: 6초쯤 승객 36명 풀려났다는 사건 정보가 시각화됨"
+        },
+        {
+          "window": "10–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL09, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 공항 차량 상단의 몸값 묶음 및 낙하산 짐. CAMERA PATH: 돈가방을 FOLLOW → 프레임 왼쪽으로 승객들 역방향 이동 드러남. SUBJECT MOTION: 전달 인력은 서두르되 과장하지 않음, 탑승 구조는 사전에 확인. ENVIRONMENT MOTION: 젖은 활주로의 작은 반사광은 연출; 폭우 확정 금지. KEY REVEAL: 6초쯤 승객 36명 풀려났다는 사건 정보가 시각화됨. TARGET FRAME: 승객들이 하나씩 나오는 기체 외부 계단/출구, 두 흐름의 반대 방향. EXIT FRAME: 하차하는 사람들 뒤로 여전히 멈춘 기체. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.497,
+      "preview_voice_slot_relative": {
+        "start": 0.7,
+        "end": 7.197
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "돈은 안으로, 승객은 밖으로 이동하는 교환",
+        "before_voice": "돈가방은 기체 쪽, 승객은 바깥쪽으로 반대 방향 설정",
+        "during_voice": "두 흐름을 한 축에서 교차시켜 교환을 읽힌다",
+        "after_voice": "하차 행렬 끝에도 기체는 멈춰 있고 쿠퍼는 남는다",
+        "sound": "발걸음 증가→문턱 금속음→발소리 급감"
+      }
+    },
+    {
+      "id": "CL10",
+      "scene": "SC03",
+      "title": "남자는 내리지 않는다",
+      "story": "다른 사람들과 반대로 남아 있는 쿠퍼, 비행을 다시 요구",
+      "start": "착륙한 항공기 객실의 비워진 좌석 중 한쪽 쿠퍼의 등",
+      "target": "쿠퍼만 남은 후방 방향의 객실과 객실 승무원 실루엣",
+      "camera": "빈 통로를 따라 쿠퍼의 뒷모습으로 PUSH-IN → 그의 시선 방향에 계단 없는 후방 벽",
+      "subject_motion": "쿠퍼는 몸을 작게 돌려 앞쪽 승무원에게 말하는 제스처",
+      "environment_motion": "해질녘 조명에서 다음 야간 상태로 명암 변환은 하드컷",
+      "key_event": "7초 상대방이 사라지자 남아 있는 남자/빈 좌석 대비",
+      "exit": "비행기 후방으로 향한 시선",
+      "transition": "BIBLE_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "객실 앰비언스 사라지고 엔진 예열 저음으로 변화",
+      "fact_guard": "당시 대사 임의 인용, 입모양 싱크 동작 과장 금지",
+      "continuity": "SC03 클립 간 좌석/커튼 축 고정",
+      "ordinal": 10,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 82,
+      "timeline_end": 92,
+      "timecode": "01:22–01:32",
+      "tts": "그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다.",
+      "tts_sentence_range": [
+        8,
+        9
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 48,
+      "tts_characters_per_kept_s": 4.8,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL10_START.png",
+        "TARGET": "assets/CL10_TARGET.png",
+        "EXIT": "assets/CL10_EXIT.png",
+        "I2V": "assets/CL10_I2V_10s.mp4",
+        "AUDIO": "assets/CL10_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–3.2s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "3.2–6.8s",
+          "action": "빈 통로를 따라 쿠퍼의 뒷모습으로 PUSH-IN → 그의 시선 방향에 계단 없는 후방 벽"
+        },
+        {
+          "window": "6.8–10s",
+          "action": "TARGET 핵심 정보 공개: 7초 상대방이 사라지자 남아 있는 남자/빈 좌석 대비"
+        },
+        {
+          "window": "10–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL10, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 착륙한 항공기 객실의 비워진 좌석 중 한쪽 쿠퍼의 등. CAMERA PATH: 빈 통로를 따라 쿠퍼의 뒷모습으로 PUSH-IN → 그의 시선 방향에 계단 없는 후방 벽. SUBJECT MOTION: 쿠퍼는 몸을 작게 돌려 앞쪽 승무원에게 말하는 제스처. ENVIRONMENT MOTION: 해질녘 조명에서 다음 야간 상태로 명암 변환은 하드컷. KEY REVEAL: 7초 상대방이 사라지자 남아 있는 남자/빈 좌석 대비. TARGET FRAME: 쿠퍼만 남은 후방 방향의 객실과 객실 승무원 실루엣. EXIT FRAME: 비행기 후방으로 향한 시선. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.139,
+      "preview_voice_slot_relative": {
+        "start": 1.8,
+        "end": 6.939
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "다른 사람이 떠나도 쿠퍼는 남아 재이륙을 요구한다",
+        "before_voice": "하차한 빈 좌석 사이로 한 실루엣만 남긴다",
+        "during_voice": "비어가는 객실과 쿠퍼의 부동 자세를 역방향 트랙",
+        "after_voice": "5.0초부터 좌석 등받이 세 줄이 빠르게 화면을 가리며 시선이 객실 뒤쪽으로 이동한다. 마지막에는 쿠퍼의 검은 넥타이만 남겨 다음 후방 계단 위치로 그래픽 매치한다.",
+        "sound": "객실 룸톤을 좌석 차폐마다 단계적으로 낮추고 마지막엔 엔진 저음만 남긴다; 가짜 대사 금지"
+      }
+    },
+    {
+      "id": "CL11",
+      "scene": "SC03",
+      "title": "후방 계단이라는 계획",
+      "story": "무리한 요구: 계단을 내린 채 이륙하라고 했으나 이륙 뒤 조작하기로 변경",
+      "start": "공항에 정지한 727 후방 하부 계단을 닫힌 상태로 표시",
+      "target": "기체가 활주로에서 이륙을 시작, 후방 계단은 닫힌 채 유지",
+      "camera": "후방 하부 CLOSE → 천천히 PULL-BACK해 전체 기체와 추력 이동 공개",
+      "subject_motion": "계단은 비행 전 열리지 않음, 기체만 활주·상승",
+      "environment_motion": "하부 반사광이 빠르게 뒤로 흐르고 엔진 3기 실루엣 유지",
+      "key_event": "6~8초 계단이 닫힌 채 날아오르는 상황의 역설",
+      "exit": "어두운 항공기 동체로 다음 실내 장면 차폐",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "터빈 상승음→기내 엔진 저음으로 크로스",
+      "fact_guard": "재이륙 때 후방 계단이 열린 화면 금지, 실제 경고등 문구 생성 금지",
+      "continuity": "다음 컷 재이륙한 기내로 공간 전환",
+      "ordinal": 11,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 92,
+      "timeline_end": 102,
+      "timecode": "01:32–01:42",
+      "tts": "그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편.",
+      "tts_sentence_range": [
+        10,
+        12
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 51,
+      "tts_characters_per_kept_s": 5.1,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL11_START.png",
+        "TARGET": "assets/CL11_TARGET.png",
+        "EXIT": "assets/CL11_EXIT.png",
+        "I2V": "assets/CL11_I2V_10s.mp4",
+        "AUDIO": "assets/CL11_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–3.2s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "3.2–6.8s",
+          "action": "후방 하부 CLOSE → 천천히 PULL-BACK해 전체 기체와 추력 이동 공개"
+        },
+        {
+          "window": "6.8–10s",
+          "action": "TARGET 핵심 정보 공개: 6~8초 계단이 닫힌 채 날아오르는 상황의 역설"
+        },
+        {
+          "window": "10–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL11, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 공항에 정지한 727 후방 하부 계단을 닫힌 상태로 표시. CAMERA PATH: 후방 하부 CLOSE → 천천히 PULL-BACK해 전체 기체와 추력 이동 공개. SUBJECT MOTION: 계단은 비행 전 열리지 않음, 기체만 활주·상승. ENVIRONMENT MOTION: 하부 반사광이 빠르게 뒤로 흐르고 엔진 3기 실루엣 유지. KEY REVEAL: 6~8초 계단이 닫힌 채 날아오르는 상황의 역설. TARGET FRAME: 기체가 활주로에서 이륙을 시작, 후방 계단은 닫힌 채 유지. EXIT FRAME: 어두운 항공기 동체로 다음 실내 장면 차폐. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.455,
+      "preview_voice_slot_relative": {
+        "start": 1,
+        "end": 6.455
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "후방 계단은 이륙 중 닫혀 있어야 한다는 제약",
+        "before_voice": "하부 계단의 닫힌 경첩을 가까이 본다",
+        "during_voice": "기체 아래에서 계단 위치를 따라 상승 경로를 잡는다",
+        "after_voice": "닫힌 계단 상태로 이륙한 기체를 확인하고 암부로 진입",
+        "sound": "터빈 상승→기내 엔진 저음; 계단이 열린 채 이륙하는 음향·화면 금지"
+      }
+    },
+    {
+      "id": "CL12",
+      "scene": "SC03",
+      "title": "묶이는 돈, 닫히는 커튼",
+      "story": "돈가방 결속과 마지막 승무원 퇴장, 후방 객실이 고립됨",
+      "start": "기내 좌석 위 돈가방·낙하산 줄, 쿠퍼 손만 프레임",
+      "target": "결속된 돈가방 너머 후방 커튼이 닫혀 전경을 채움",
+      "camera": "가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe",
+      "subject_motion": "쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘",
+      "environment_motion": "기내 조명은 어둡고 엔진진동을 그린 잉크 선만",
+      "key_event": "5초 매듭의 고정, 7~9초 커튼 완전 차폐",
+      "exit": "커튼의 검은 수직 주름이 전체 프레임을 덮음",
+      "transition": "EXIT_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "매듭 줄 소리·금속 발걸음·커튼 마찰음",
+      "fact_guard": "가방/낙하산 기하학 불변, 직접적인 추락 장면 없음",
+      "continuity": "다음 클립은 커튼 뒤 후방 조작부의 어둠으로",
+      "ordinal": 12,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 102,
+      "timeline_end": 112,
+      "timecode": "01:42–01:52",
+      "tts": "쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.",
+      "tts_sentence_range": [
+        13,
+        15
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 67,
+      "tts_characters_per_kept_s": 6.7,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL12_START.png",
+        "TARGET": "assets/CL12_TARGET.png",
+        "EXIT": "assets/CL12_EXIT.png",
+        "I2V": "assets/CL12_I2V_10s.mp4",
+        "AUDIO": "assets/CL12_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–3.2s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "3.2–6.8s",
+          "action": "가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe"
+        },
+        {
+          "window": "6.8–10s",
+          "action": "TARGET 핵심 정보 공개: 5초 매듭의 고정, 7~9초 커튼 완전 차폐"
+        },
+        {
+          "window": "10–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL12, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 기내 좌석 위 돈가방·낙하산 줄, 쿠퍼 손만 프레임. CAMERA PATH: 가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe. SUBJECT MOTION: 쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘. ENVIRONMENT MOTION: 기내 조명은 어둡고 엔진진동을 그린 잉크 선만. KEY REVEAL: 5초 매듭의 고정, 7~9초 커튼 완전 차폐. TARGET FRAME: 결속된 돈가방 너머 후방 커튼이 닫혀 전경을 채움. EXIT FRAME: 커튼의 검은 수직 주름이 전체 프레임을 덮음. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 7.2,
+      "preview_voice_slot_relative": {
+        "start": 0.2,
+        "end": 7.4
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "돈가방 결속 뒤 커튼이 닫혀 후방 객실이 고립된다",
+        "before_voice": "줄 끝을 돈가방에 걸어 행동 시작",
+        "during_voice": "매듭 고정→마지막 승무원의 전방 이동→커튼 닫힘",
+        "after_voice": "검은 커튼이 프레임을 덮은 채 뒤편 소리만 남긴다",
+        "sound": "줄 마찰→발걸음→커튼 긁힘→후방 바람 저음"
+      }
+    },
+    {
+      "id": "CL13",
+      "scene": "SC04",
+      "title": "계단을 내리려는 손",
+      "story": "쿠퍼가 후방 계단 조작에 어려움을 겪는 시각적 조짐",
+      "start": "커튼을 지나 어두운 기체 후방 조작부에 닿는 손·정장 소매",
+      "target": "조작부는 반응이 불완전해 보이고 손이 잠시 멈춤",
+      "camera": "조작부를 향한 TIGHT PUSH-IN → 손을 FOLLOW → 살짝 흔들리는 구조 위에서 멈춤",
+      "subject_motion": "손이 한 번 조작, 다시 시도하는 모습만; 정확한 메커니즘 추측 금지",
+      "environment_motion": "객실 조명과 진동·차폐 강조",
+      "key_event": "6초쯤 기대와 달리 계단이 쉽게 내려가지 않는 분위기",
+      "exit": "손 뒤편 전화/인터폰의 어두운 윤곽으로 시선 이동",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "금속 레버 움직임·불규칙한 바람 진동",
+      "fact_guard": "실제 계단 장치 조작 절차의 기술적 재현으로 오인되지 않게",
+      "continuity": "계단 잠금/힌지는 AIR-01과 모순 없어야 함",
+      "ordinal": 13,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 112,
+      "timeline_end": 121,
+      "timecode": "01:52–02:01",
+      "tts": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다.",
+      "tts_sentence_range": [
+        1,
+        3
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 46,
+      "tts_characters_per_kept_s": 5.11,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL13_START.png",
+        "TARGET": "assets/CL13_TARGET.png",
+        "EXIT": "assets/CL13_EXIT.png",
+        "I2V": "assets/CL13_I2V_10s.mp4",
+        "AUDIO": "assets/CL13_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "조작부를 향한 TIGHT PUSH-IN → 손을 FOLLOW → 살짝 흔들리는 구조 위에서 멈춤"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6초쯤 기대와 달리 계단이 쉽게 내려가지 않는 분위기"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL13, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 커튼을 지나 어두운 기체 후방 조작부에 닿는 손·정장 소매. CAMERA PATH: 조작부를 향한 TIGHT PUSH-IN → 손을 FOLLOW → 살짝 흔들리는 구조 위에서 멈춤. SUBJECT MOTION: 손이 한 번 조작, 다시 시도하는 모습만; 정확한 메커니즘 추측 금지. ENVIRONMENT MOTION: 객실 조명과 진동·차폐 강조. KEY REVEAL: 6초쯤 기대와 달리 계단이 쉽게 내려가지 않는 분위기. TARGET FRAME: 조작부는 반응이 불완전해 보이고 손이 잠시 멈춤. EXIT FRAME: 손 뒤편 전화/인터폰의 어두운 윤곽으로 시선 이동. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.945,
+      "preview_voice_slot_relative": {
+        "start": 1.3,
+        "end": 6.245
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "계단 조작이 순조롭지 않다",
+        "before_voice": "손·레버 실루엣을 잡되 실제 조작 구조를 확정하지 않는다",
+        "during_voice": "손이 움직이고도 계단 상태가 즉시 바뀌지 않는다",
+        "after_voice": "불규칙 진동을 듣고 인터폰 윤곽으로 시선 이동",
+        "sound": "작은 금속 충격→불규칙 바람; 임의 조작 절차 금지"
+      }
+    },
+    {
+      "id": "CL14",
+      "scene": "SC04",
+      "title": "조종실로 이어지는 연락",
+      "story": "계단 조작 난항 소식이 객실에서 조종실로 전달됨",
+      "start": "객실의 오래된 인터폰과 손/정장 소매",
+      "target": "조종실에서 연락을 받은 승무원 또는 계기판 가장자리",
+      "camera": "인터폰 CLOSE → 좁은 케이블 길을 도식화하지 않고 조종실로 편집 컷",
+      "subject_motion": "조종실 승무원이 인터폰을 받는 작은 행동",
+      "environment_motion": "기내 저음 증가, 인물 표정은 불확정적",
+      "key_event": "5초 이후 조종실이 문제를 인지",
+      "exit": "조종실 패널의 어두운 일부",
+      "transition": "STORY_CUT",
+      "image_mode": "SINGLE",
+      "sfx": "인터폰 벨·먹먹한 응답음(실제 원문 인용 없음)",
+      "fact_guard": "확인되지 않은 구체적 대화 내용·정확한 멘트 생성 금지",
+      "continuity": "조종실 장비는 시대/기체에 맞는 추상화",
+      "ordinal": 14,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 121,
+      "timeline_end": 130,
+      "timecode": "02:01–02:10",
+      "tts": "계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다.",
+      "tts_sentence_range": [
+        4,
+        6
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 49,
+      "tts_characters_per_kept_s": 5.44,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL14_START.png",
+        "TARGET": "assets/CL14_TARGET.png",
+        "EXIT": "assets/CL14_EXIT.png",
+        "I2V": "assets/CL14_I2V_10s.mp4",
+        "AUDIO": "assets/CL14_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "인터폰 CLOSE → 좁은 케이블 길을 도식화하지 않고 조종실로 편집 컷"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5초 이후 조종실이 문제를 인지"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL14, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 객실의 오래된 인터폰과 손/정장 소매. CAMERA PATH: 인터폰 CLOSE → 좁은 케이블 길을 도식화하지 않고 조종실로 편집 컷. SUBJECT MOTION: 조종실 승무원이 인터폰을 받는 작은 행동. ENVIRONMENT MOTION: 기내 저음 증가, 인물 표정은 불확정적. KEY REVEAL: 5초 이후 조종실이 문제를 인지. TARGET FRAME: 조종실에서 연락을 받은 승무원 또는 계기판 가장자리. EXIT FRAME: 조종실 패널의 어두운 일부. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.182,
+      "preview_voice_slot_relative": {
+        "start": 1,
+        "end": 6.182
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "후방의 어려움이 조종실에 전달된다",
+        "before_voice": "인터폰 신호가 어두운 객실에서 조종실로 전달",
+        "during_voice": "조종실 인물이 뒷부분을 볼 수 없음을 구도로 표현",
+        "after_voice": "패널 암부에서 다음 작은 경고등을 기다린다",
+        "sound": "인터폰 벨→먹먹한 응답→엔진 저음; 정확한 원문 대사 금지"
+      }
+    },
+    {
+      "id": "CL15",
+      "scene": "SC04",
+      "title": "계단 경고등",
+      "story": "후방 계단의 부분적 하강을 알려주는 기체 경고 반응",
+      "start": "1971년형 항공기 조종실 패널의 작은 등화, 손과 시선은 부분만",
+      "target": "한 개의 앰버/적색 계열 경고등이 켜진 모습",
+      "camera": "느린 패널 트럭 → 경고등에 FAST PUSH-IN → 손가락 근처에서 정지",
+      "subject_motion": "승무원은 계기 쪽으로 고개를 짧게 돌림",
+      "environment_motion": "기체 흔들림은 미세한 잉크 진동에 한정",
+      "key_event": "5~7초 불이 켜지는 단서 공개",
+      "exit": "작은 경고등의 빛 → 커튼 암부",
+      "transition": "EXIT_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "신호 클릭·저음 강화, 과한 경보음 배제",
+      "fact_guard": "계기판의 정확한 영어 경고문구를 생성하지 말고 필요 시 편집 합성",
+      "continuity": "부분 개방/계단 신호이지 점프 목격 아님",
+      "ordinal": 15,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 130,
+      "timeline_end": 139,
+      "timecode": "02:10–02:19",
+      "tts": "하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다.",
+      "tts_sentence_range": [
+        7,
+        8
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 34,
+      "tts_characters_per_kept_s": 3.78,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL15_START.png",
+        "TARGET": "assets/CL15_TARGET.png",
+        "EXIT": "assets/CL15_EXIT.png",
+        "I2V": "assets/CL15_I2V_10s.mp4",
+        "AUDIO": "assets/CL15_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "느린 패널 트럭 → 경고등에 FAST PUSH-IN → 손가락 근처에서 정지"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5~7초 불이 켜지는 단서 공개"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL15, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 1971년형 항공기 조종실 패널의 작은 등화, 손과 시선은 부분만. CAMERA PATH: 느린 패널 트럭 → 경고등에 FAST PUSH-IN → 손가락 근처에서 정지. SUBJECT MOTION: 승무원은 계기 쪽으로 고개를 짧게 돌림. ENVIRONMENT MOTION: 기체 흔들림은 미세한 잉크 진동에 한정. KEY REVEAL: 5~7초 불이 켜지는 단서 공개. TARGET FRAME: 한 개의 앰버/적색 계열 경고등이 켜진 모습. EXIT FRAME: 작은 경고등의 빛 → 커튼 암부. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 3.691,
+      "preview_voice_slot_relative": {
+        "start": 1.8,
+        "end": 5.491
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "경고등이 계단의 변화만 알리고 인물의 행방은 말하지 않는다",
+        "before_voice": "어두운 계기판에 한 점의 빈 공간을 남긴다",
+        "during_voice": "계단 경고등 점등을 5~7초에 한 번만 공개",
+        "after_voice": "5.5초 경고등 1회 점등→6.5초 그림자가 패널을 가림→8초 점등 모양이 커튼 주름으로 그래픽 매치된다. 세 정보 변화가 끝날 때까지 경고등만 반복하지 않는다.",
+        "sound": "경고등 클릭 한 번→엔진 저음이 짧게 비워짐→커튼 쪽 바람으로 연결; 사이렌 금지"
+      }
+    },
+    {
+      "id": "CL16",
+      "scene": "SC04",
+      "title": "보이지 않는 뒤편",
+      "story": "조종실과 후방 사이에 닫힌 커튼이 있어 누구도 그 장면을 보지 못함",
+      "start": "조종실 방향에서 본 깊은 객실 통로, 끝에는 닫힌 커튼",
+      "target": "카메라는 커튼에 가까워지지만 끝내 그 뒤로 넘어가지 않음",
+      "camera": "빈 좌석 사이 LOW TRACK → 커튼 초근접 → 움직임 완전 정지",
+      "subject_motion": "커튼은 바람에 거의 흔들리지 않음, 인물 등장 금지",
+      "environment_motion": "멀리서 들리는 금속음만 시각적 어둠에 대응",
+      "key_event": "6~8초 관객이 보고 싶어도 못 본다는 결핍",
+      "exit": "커튼 어두운 주름에 정지",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "먼 인터폰 잡음 후 소리 급절제",
+      "fact_guard": "쿠퍼의 실제 행동을 임의로 카메라 뒤에서 보여주지 않음",
+      "continuity": "후방을 보지 못하는 조종실의 시야 제한 고정",
+      "ordinal": 16,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 139,
+      "timeline_end": 148,
+      "timecode": "02:19–02:28",
+      "tts": "조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다.",
+      "tts_sentence_range": [
+        9,
+        10
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 42,
+      "tts_characters_per_kept_s": 4.67,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL16_START.png",
+        "TARGET": "assets/CL16_TARGET.png",
+        "EXIT": "assets/CL16_EXIT.png",
+        "I2V": "assets/CL16_I2V_10s.mp4",
+        "AUDIO": "assets/CL16_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "빈 좌석 사이 LOW TRACK → 커튼 초근접 → 움직임 완전 정지"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6~8초 관객이 보고 싶어도 못 본다는 결핍"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL16, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 조종실 방향에서 본 깊은 객실 통로, 끝에는 닫힌 커튼. CAMERA PATH: 빈 좌석 사이 LOW TRACK → 커튼 초근접 → 움직임 완전 정지. SUBJECT MOTION: 커튼은 바람에 거의 흔들리지 않음, 인물 등장 금지. ENVIRONMENT MOTION: 멀리서 들리는 금속음만 시각적 어둠에 대응. KEY REVEAL: 6~8초 관객이 보고 싶어도 못 본다는 결핍. TARGET FRAME: 카메라는 커튼에 가까워지지만 끝내 그 뒤로 넘어가지 않음. EXIT FRAME: 커튼 어두운 주름에 정지. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.582,
+      "preview_voice_slot_relative": {
+        "start": 1.2,
+        "end": 5.782
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "관객과 조종실 모두 뒤편을 확인할 수 없다",
+        "before_voice": "조종실 시점에서 닫힌 커튼까지 빠르게 접근",
+        "during_voice": "커튼의 틈을 끝내 열지 않아 정보 결핍 유지",
+        "after_voice": "커튼 앞 정지 뒤 바람에 천이 한 번 부풀고 다시 닫힌다. 관객에게 안쪽을 보여주지 않은 채 인터폰의 마지막 잡음만 남겨 다음 컷의 교신 단절로 넘긴다.",
+        "sound": "빠른 발소리 감쇠→천 스침 1회→인터폰 잡음 1회→짧은 절제; 뒤편 인물 소리 금지"
+      }
+    },
+    {
+      "id": "CL17",
+      "scene": "SC04",
+      "title": "마지막 교신 이후 정적",
+      "story": "조종실에서 상태를 확인하고 마지막 응답 이후 연락이 끊기는 구간",
+      "start": "조종석 인터폰과 승무원의 손, 어두운 전방 창",
+      "target": "인터폰에 답신이 끝난 뒤 움직임이 멈추는 조종실",
+      "camera": "수신기 쪽 PUSH-IN → 승무원 손에서 계기판으로 미세 TRUCK → 정적",
+      "subject_motion": "손이 내려가고 승무원은 앞쪽 계기를 봄",
+      "environment_motion": "창밖 지나가는 구름과 흔들림 없는 얕은 잉크 빛",
+      "key_event": "5초 전후 답신이 끝나며 긴장 유지",
+      "exit": "정적인 계기판 하나로 후속 변화 대비",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "인터폰 잡음 → 1초에 가까운 효과음 절제",
+      "fact_guard": "마지막 교신 원문 대사 임의 창작 금지",
+      "continuity": "다음 계기 변화까지 연속된 야간 비행 상황",
+      "ordinal": 17,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 148,
+      "timeline_end": 157,
+      "timecode": "02:28–02:37",
+      "tts": "밤 여덟 시 십 분 무렵. 조종실의 계기 바늘이 흔들립니다. 계단에 무게가 실리거나 움직일 때 나타날 수 있는 변화였습니다.",
+      "tts_sentence_range": [
+        11,
+        13
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 51,
+      "tts_characters_per_kept_s": 5.67,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL17_START.png",
+        "TARGET": "assets/CL17_TARGET.png",
+        "EXIT": "assets/CL17_EXIT.png",
+        "I2V": "assets/CL17_I2V_10s.mp4",
+        "AUDIO": "assets/CL17_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "수신기 쪽 PUSH-IN → 승무원 손에서 계기판으로 미세 TRUCK → 정적"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5초 전후 답신이 끝나며 긴장 유지"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL17, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 조종석 인터폰과 승무원의 손, 어두운 전방 창. CAMERA PATH: 수신기 쪽 PUSH-IN → 승무원 손에서 계기판으로 미세 TRUCK → 정적. SUBJECT MOTION: 손이 내려가고 승무원은 앞쪽 계기를 봄. ENVIRONMENT MOTION: 창밖 지나가는 구름과 흔들림 없는 얕은 잉크 빛. KEY REVEAL: 5초 전후 답신이 끝나며 긴장 유지. TARGET FRAME: 인터폰에 답신이 끝난 뒤 움직임이 멈추는 조종실. EXIT FRAME: 정적인 계기판 하나로 후속 변화 대비. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.327,
+      "preview_voice_slot_relative": {
+        "start": 0.8,
+        "end": 6.127
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "마지막 답신 뒤 정보가 끊긴다",
+        "before_voice": "움직이지 않는 인터폰과 계기판 사이를 짧게 교차",
+        "during_voice": "답신이 끝나는 지점에 맞춰 화면 이동도 멈춘다",
+        "after_voice": "짧은 정적 뒤 계기판 바늘에 시선 유도",
+        "sound": "인터폰 잡음 소거→약 1초 절제된 정적→기체 저음"
+      }
+    },
+    {
+      "id": "CL18",
+      "scene": "SC04",
+      "title": "20시 10분, 계기가 흔들린다",
+      "story": "지상에서 확인할 수 없는 사건의 유일한 기체 반응 중 하나",
+      "start": "조종실 바늘형 계기(개념적 시각화), 화면 중앙에 바늘",
+      "target": "압력 변화를 암시하는 바늘의 작은 움직임과 승무원 반응",
+      "camera": "바늘을 보도록 점진적 PUSH-IN → 짧은 흔들림 → 카메라 급정지",
+      "subject_motion": "계기 바늘만 미세 변화, 인물 얼굴 재현 불필요",
+      "environment_motion": "강풍을 직접 객실 안으로 그리지 않음",
+      "key_event": "6초 바늘의 변화가 극히 짧게 일어남",
+      "exit": "계기 검은 링을 이용해 기체 외부 어둠으로 컷",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "작은 금속 떨림 → 저역음 컷아웃",
+      "fact_guard": "당시 정확한 계기 종류/값 표기를 단정하지 않는 연출적 압력 변화 표현",
+      "continuity": "시간 8시 10분은 내레이션; 글자는 후반 편집에서만",
+      "ordinal": 18,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 157,
+      "timeline_end": 166,
+      "timecode": "02:37–02:46",
+      "tts": "하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다.",
+      "tts_sentence_range": [
+        14,
+        15
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 56,
+      "tts_characters_per_kept_s": 6.22,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL18_START.png",
+        "TARGET": "assets/CL18_TARGET.png",
+        "EXIT": "assets/CL18_EXIT.png",
+        "I2V": "assets/CL18_I2V_10s.mp4",
+        "AUDIO": "assets/CL18_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "바늘을 보도록 점진적 PUSH-IN → 짧은 흔들림 → 카메라 급정지"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6초 바늘의 변화가 극히 짧게 일어남"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL18, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 조종실 바늘형 계기(개념적 시각화), 화면 중앙에 바늘. CAMERA PATH: 바늘을 보도록 점진적 PUSH-IN → 짧은 흔들림 → 카메라 급정지. SUBJECT MOTION: 계기 바늘만 미세 변화, 인물 얼굴 재현 불필요. ENVIRONMENT MOTION: 강풍을 직접 객실 안으로 그리지 않음. KEY REVEAL: 6초 바늘의 변화가 극히 짧게 일어남. TARGET FRAME: 압력 변화를 암시하는 바늘의 작은 움직임과 승무원 반응. EXIT FRAME: 계기 검은 링을 이용해 기체 외부 어둠으로 컷. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.236,
+      "preview_voice_slot_relative": {
+        "start": 0.4,
+        "end": 6.636
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "20시 10분 무렵의 미세한 계기 변화는 단서일 뿐이다",
+        "before_voice": "계기 링과 바늘을 분리해 보이게 한다",
+        "during_voice": "6초 전후 바늘이 한 번 흔들린 뒤 카메라 급정지",
+        "after_voice": "검은 링을 기체 외부 밤하늘로 매치 컷",
+        "sound": "금속 미세 떨림→저역음 컷아웃; 추락음·충돌음 금지"
+      }
+    },
+    {
+      "id": "CL19",
+      "scene": "SC04",
+      "title": "직접 보지 못한 후방 계단",
+      "story": "인물을 보여주지 않고 비행 중 열린 계단 자체만으로 실종을 표현",
+      "start": "꼬리 아래에서 보이는 열린 내장식 계단, CL01 AIR-01와 일치",
+      "target": "계단 밖에 빈 어둠과 멀리 지나가는 숲의 질감만 존재",
+      "camera": "기체 후방 바깥을 짧게 PARALLAX → 계단 가장자리로 접근 → 인물 없이 EMPTY HOLD",
+      "subject_motion": "사람 낙하·낙하산 실루엣·착지 장면 없음",
+      "environment_motion": "달·별·기상은 극화 요소로 사용하되 실제 위치 증거처럼 제시 금지",
+      "key_event": "6~8초 카메라가 계단을 보지만 아무도 없는 상태",
+      "exit": "어두운 기체 표면에서 리노 착륙 후 컷",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "바람·엔진 소리 급확대 후 순간 정적",
+      "fact_guard": "쿠퍼가 뛰어내리는 장면/낙하산 펼치는 장면은 보여주지 않음",
+      "continuity": "CL01 재사용 가능한 STAIRS 축을 유지하되 완전 똑같은 프레임은 SC07에 예약",
+      "ordinal": 19,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 166,
+      "timeline_end": 175,
+      "timecode": "02:46–02:55",
+      "tts": "뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림.",
+      "tts_sentence_range": [
+        16,
+        19
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 56,
+      "tts_characters_per_kept_s": 6.22,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL19_START.png",
+        "TARGET": "assets/CL19_TARGET.png",
+        "EXIT": "assets/CL19_EXIT.png",
+        "I2V": "assets/CL19_I2V_10s.mp4",
+        "AUDIO": "assets/CL19_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "기체 후방 바깥을 짧게 PARALLAX → 계단 가장자리로 접근 → 인물 없이 EMPTY HOLD"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6~8초 카메라가 계단을 보지만 아무도 없는 상태"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL19, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 꼬리 아래에서 보이는 열린 내장식 계단, CL01 AIR-01와 일치. CAMERA PATH: 기체 후방 바깥을 짧게 PARALLAX → 계단 가장자리로 접근 → 인물 없이 EMPTY HOLD. SUBJECT MOTION: 사람 낙하·낙하산 실루엣·착지 장면 없음. ENVIRONMENT MOTION: 달·별·기상은 극화 요소로 사용하되 실제 위치 증거처럼 제시 금지. KEY REVEAL: 6~8초 카메라가 계단을 보지만 아무도 없는 상태. TARGET FRAME: 계단 밖에 빈 어둠과 멀리 지나가는 숲의 질감만 존재. EXIT FRAME: 어두운 기체 표면에서 리노 착륙 후 컷. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.255,
+      "preview_voice_slot_relative": {
+        "start": 0.7,
+        "end": 6.955
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "열린 계단은 보이나 누가 어떻게 나갔는지는 보이지 않는다",
+        "before_voice": "기체 후방으로 빠른 외부 시점 전환",
+        "during_voice": "계단 구조와 빈 공간만 읽히게 한다",
+        "after_voice": "사람 없는 계단을 스친 뒤 리노 착륙의 어둠으로 전환",
+        "sound": "바람·엔진 급확대→순간 절제; 인물 점프 효과음 금지"
+      }
+    },
+    {
+      "id": "CL20",
+      "scene": "SC04",
+      "title": "리노의 빈자리, 생존은 불명",
+      "story": "착륙 후 쿠퍼와 돈이 없는 사실, 이후 낙하산과 복장의 위험을 관객에게 남김",
+      "start": "리노 착륙 후 기내의 빈 좌석과 검은 넥타이를 작은 증거물로 배치",
+      "target": "비어 있는 통로와 객실 끝의 후방 방향을 넓게 보여줌",
+      "camera": "통로를 빠르게 FOLLOW → 넥타이 CLOSE → 다시 빈 객실로 PULL-BACK",
+      "subject_motion": "사람·돈가방 미등장, 신발과 낙하산은 개념적 그래픽 인서트로만 가능",
+      "environment_motion": "착륙 후 승무원의 멀어진 발소리, 시각적으로 인물 없음",
+      "key_event": "3초 부재 확정, 6초 넥타이, 8초 빈 공간 회수",
+      "exit": "넥타이의 검은 대각선을 숲 능선으로 연결",
+      "transition": "EXIT_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "착륙 후 기계 소음 → 텅 빈 객실 룸톤",
+      "fact_guard": "구두/낙하산을 실제 회수된 증거처럼 보이지 않게 인서트 분리",
+      "continuity": "다음 장면 SC05 능선으로 선형 매치컷",
+      "ordinal": 20,
+      "keep_seconds": 10,
+      "source_seconds": 10,
+      "timeline_start": 175,
+      "timeline_end": 185,
+      "timecode": "02:55–03:05",
+      "tts": "그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다.",
+      "tts_sentence_range": [
+        20,
+        21
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 54,
+      "tts_characters_per_kept_s": 5.4,
+      "sequence_priority": "SC04_TENSION",
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL20_START.png",
+        "TARGET": "assets/CL20_TARGET.png",
+        "EXIT": "assets/CL20_EXIT.png",
+        "I2V": "assets/CL20_I2V_10s.mp4",
+        "AUDIO": "assets/CL20_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–3.2s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "3.2–6.8s",
+          "action": "통로를 빠르게 FOLLOW → 넥타이 CLOSE → 다시 빈 객실로 PULL-BACK"
+        },
+        {
+          "window": "6.8–10s",
+          "action": "TARGET 핵심 정보 공개: 3초 부재 확정, 6초 넥타이, 8초 빈 공간 회수"
+        },
+        {
+          "window": "10–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL20, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 리노 착륙 후 기내의 빈 좌석과 검은 넥타이를 작은 증거물로 배치. CAMERA PATH: 통로를 빠르게 FOLLOW → 넥타이 CLOSE → 다시 빈 객실로 PULL-BACK. SUBJECT MOTION: 사람·돈가방 미등장, 신발과 낙하산은 개념적 그래픽 인서트로만 가능. ENVIRONMENT MOTION: 착륙 후 승무원의 멀어진 발소리, 시각적으로 인물 없음. KEY REVEAL: 3초 부재 확정, 6초 넥타이, 8초 빈 공간 회수. TARGET FRAME: 비어 있는 통로와 객실 끝의 후방 방향을 넓게 보여줌. EXIT FRAME: 넥타이의 검은 대각선을 숲 능선으로 연결. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.6,
+      "preview_voice_slot_relative": {
+        "start": 0.3,
+        "end": 5.9
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "리노의 빈자리와 넥타이는 확인되지만 생존 여부는 불명",
+        "before_voice": "착륙 후 열린 빈 객실로 빠르게 진입",
+        "during_voice": "쿠퍼·돈가방 부재→넥타이→빈 후방 공간의 순서로 확인",
+        "after_voice": "넥타이의 검은 선을 숲 능선으로 연결",
+        "sound": "착륙 후 기계음→비어 있는 객실 룸톤"
+      }
+    },
+    {
+      "id": "CL21",
+      "scene": "SC05",
+      "title": "공중에서 지상으로",
+      "story": "FBI 수사가 비행기의 자취를 따라 땅으로 내려옴",
+      "start": "증거 넥타이의 검은 선이 차폐; 이어 침엽수림 높은 능선",
+      "target": "수색 중인 광활한 북서부 침엽수림의 원경",
+      "camera": "검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND",
+      "subject_motion": "수색대는 멀리 작은 실루엣으로만",
+      "environment_motion": "절제된 안개·비대칭 침엽수림 패럴랙스",
+      "key_event": "6초 숲의 광활함이 인물 부재를 압도",
+      "exit": "나무 사이의 좁은 광선으로 이동",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "시대감 있는 수색 무전 잡음(허구 대사 금지)·바람",
+      "fact_guard": "이동 거리/강 경로를 실제 수사 지도처럼 단정하지 않음",
+      "continuity": "1971년·1980년 밝기 구분, 수색 기체/헬기 대수 지어내지 않음",
+      "ordinal": 21,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 185,
+      "timeline_end": 194,
+      "timecode": "03:05–03:14",
+      "tts": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다.",
+      "tts_sentence_range": [
+        1,
+        2
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 60,
+      "tts_characters_per_kept_s": 6.67,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL21_START.png",
+        "TARGET": "assets/CL21_TARGET.png",
+        "EXIT": "assets/CL21_EXIT.png",
+        "I2V": "assets/CL21_I2V_10s.mp4",
+        "AUDIO": "assets/CL21_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6초 숲의 광활함이 인물 부재를 압도"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL21, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 증거 넥타이의 검은 선이 차폐; 이어 침엽수림 높은 능선. CAMERA PATH: 검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND. SUBJECT MOTION: 수색대는 멀리 작은 실루엣으로만. ENVIRONMENT MOTION: 절제된 안개·비대칭 침엽수림 패럴랙스. KEY REVEAL: 6초 숲의 광활함이 인물 부재를 압도. TARGET FRAME: 수색 중인 광활한 북서부 침엽수림의 원경. EXIT FRAME: 나무 사이의 좁은 광선으로 이동. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.545,
+      "preview_voice_slot_relative": {
+        "start": 0.5,
+        "end": 7.045
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "수사가 기체에서 광활한 지상으로 옮겨가며 어려워진다",
+        "before_voice": "넥타이 선을 숲 능선 그래픽으로 잇는다",
+        "during_voice": "숲 위에서 강 쪽으로 규모를 크게 바꿔 이동",
+        "after_voice": "작은 수색 광선 하나가 넓은 공간에 묻힌다",
+        "sound": "짧은 무전 잡음→넓은 바람; 허구의 무전 대사 금지"
+      }
+    },
+    {
+      "id": "CL22",
+      "scene": "SC05",
+      "title": "빛을 따라도 아무것도 없다",
+      "story": "숲과 강을 탐색하지만 아무런 사람/낙하산 증거가 나오지 않음",
+      "start": "큰 나무 뒤로 짧은 수색 손전등 빛",
+      "target": "빛을 따라 강가 빈 수풀과 잔돌을 발견",
+      "camera": "나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지",
+      "subject_motion": "멀리서 수색 인원이 걷되 얼굴/대사 불필요",
+      "environment_motion": "안개와 강물의 움직임은 억제",
+      "key_event": "6초 불빛 끝에 아무것도 없음",
+      "exit": "고요한 빈 강변 지면",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "가지 스침·자갈 밟는 소리·멀어지는 무전",
+      "fact_guard": "특정 수색일·인원·장소 재현 주장 금지",
+      "continuity": "다음 샷 빈 강변, 1980년으로 시간 건너뛰기 준비",
+      "ordinal": 22,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 194,
+      "timeline_end": 203,
+      "timecode": "03:14–03:23",
+      "tts": "그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다.",
+      "tts_sentence_range": [
+        3,
+        4
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 48,
+      "tts_characters_per_kept_s": 5.33,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL22_START.png",
+        "TARGET": "assets/CL22_TARGET.png",
+        "EXIT": "assets/CL22_EXIT.png",
+        "I2V": "assets/CL22_I2V_10s.mp4",
+        "AUDIO": "assets/CL22_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6초 불빛 끝에 아무것도 없음"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL22, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 큰 나무 뒤로 짧은 수색 손전등 빛. CAMERA PATH: 나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지. SUBJECT MOTION: 멀리서 수색 인원이 걷되 얼굴/대사 불필요. ENVIRONMENT MOTION: 안개와 강물의 움직임은 억제. KEY REVEAL: 6초 불빛 끝에 아무것도 없음. TARGET FRAME: 빛을 따라 강가 빈 수풀과 잔돌을 발견. EXIT FRAME: 고요한 빈 강변 지면. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.309,
+      "preview_voice_slot_relative": {
+        "start": 1.1,
+        "end": 6.409
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "수색 광선이 지나가도 사람·낙하산 흔적은 없다",
+        "before_voice": "광선을 나무·자갈 위로 이동시켜 관객 시선 선행",
+        "during_voice": "광선을 따라 숲에서 강변으로 저공 이동",
+        "after_voice": "광선 끝의 빈 지면을 확인하고 무전음을 멀리 보낸다",
+        "sound": "가지·자갈→멀어지는 무전→강물"
+      }
+    },
+    {
+      "id": "CL23",
+      "scene": "SC05",
+      "title": "8년여의 공백",
+      "story": "수색 실패와 시간 경과를 시각적 공간의 비어 있음으로 전달",
+      "start": "수색 불빛이 사라진 숲 가장자리",
+      "target": "어둠에서 밝아지는 강변 모래의 추상적 질감",
+      "camera": "천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION",
+      "subject_motion": "인물·새로운 증거 등장 없음",
+      "environment_motion": "회색에서 옅은 1980년 주광으로는 컷 후 바뀌게",
+      "key_event": "6~7초 화면에서 수색 흔적마저 사라짐",
+      "exit": "모래 질감으로 SC06에 편집 매치컷",
+      "transition": "STORY_CUT",
+      "image_mode": "SINGLE",
+      "sfx": "무전 사라짐·강물 소리 등장",
+      "fact_guard": "시간 경과는 편집 자막에서 연도 표기; 지도나 실제 위치 경로를 그리지 않음",
+      "continuity": "1980년 강변과 수색 숲이 동일 위치인 것처럼 오인시키지 않기",
+      "ordinal": 23,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 203,
+      "timeline_end": 211,
+      "timecode": "03:23–03:31",
+      "tts": "그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+      "tts_sentence_range": [
+        5,
+        5
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 25,
+      "tts_characters_per_kept_s": 3.12,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL23_START.png",
+        "TARGET": "assets/CL23_TARGET.png",
+        "EXIT": "assets/CL23_EXIT.png",
+        "I2V": "assets/CL23_I2V_10s.mp4",
+        "AUDIO": "assets/CL23_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.6s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.6–5.4s",
+          "action": "천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION"
+        },
+        {
+          "window": "5.4–8s",
+          "action": "TARGET 핵심 정보 공개: 6~7초 화면에서 수색 흔적마저 사라짐"
+        },
+        {
+          "window": "8–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL23, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 수색 불빛이 사라진 숲 가장자리. CAMERA PATH: 천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION. SUBJECT MOTION: 인물·새로운 증거 등장 없음. ENVIRONMENT MOTION: 회색에서 옅은 1980년 주광으로는 컷 후 바뀌게. KEY REVEAL: 6~7초 화면에서 수색 흔적마저 사라짐. TARGET FRAME: 어둠에서 밝아지는 강변 모래의 추상적 질감. EXIT FRAME: 모래 질감으로 SC06에 편집 매치컷. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 2.691,
+      "preview_voice_slot_relative": {
+        "start": 2,
+        "end": 4.691
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "수색의 공백이 1980년 강변 발견으로 이어진다",
+        "before_voice": "수색 흔적이 사라진 강변을 보여 시간 경과 시작",
+        "during_voice": "그늘·물길·모래의 그래픽 변화로 연도 전환 암시",
+        "after_voice": "지면 질감으로 1980년 모래톱에 도달",
+        "sound": "무전 완전 소거→강물; 시간 경과를 대사로 꾸미지 않음"
+      }
+    },
+    {
+      "id": "CL24",
+      "scene": "SC06",
+      "title": "1980년 모래톱",
+      "story": "1980년 낮, 한 소년이 강변에서 이상한 물체를 보게 되는 상황",
+      "start": "구름 낀 낮의 컬럼비아강 수면과 넓은 모래톱",
+      "target": "모래에 묻힌 훼손 지폐의 아주 작은 모서리까지 시선 이동",
+      "camera": "물 가장자리 LOW SKIM → 모래톱 PARALLAX → 지폐 모서리로 PUSH-IN",
+      "subject_motion": "소년은 먼 실루엣/손만; 신원과 표정 창작 금지",
+      "environment_motion": "잔물결, 젖은 모래의 브러시 결",
+      "key_event": "6~7초 최초의 아이보리 종이 모서리 발견",
+      "exit": "모래에서 튀어나온 종이의 구겨진 가장자리",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "낮의 강물·작은 자갈 구르는 소리",
+      "fact_guard": "모래톱 발견=점프 장소라는 인과 암시 금지",
+      "continuity": "CASH80-01: 1980년 저채도 낮, 강변 젖은 종이·훼손 상태",
+      "ordinal": 24,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 211,
+      "timeline_end": 220,
+      "timecode": "03:31–03:40",
+      "tts": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다.",
+      "tts_sentence_range": [
+        1,
+        2
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 35,
+      "tts_characters_per_kept_s": 3.89,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL24_START.png",
+        "TARGET": "assets/CL24_TARGET.png",
+        "EXIT": "assets/CL24_EXIT.png",
+        "I2V": "assets/CL24_I2V_10s.mp4",
+        "AUDIO": "assets/CL24_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "물 가장자리 LOW SKIM → 모래톱 PARALLAX → 지폐 모서리로 PUSH-IN"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6~7초 최초의 아이보리 종이 모서리 발견"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL24, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 구름 낀 낮의 컬럼비아강 수면과 넓은 모래톱. CAMERA PATH: 물 가장자리 LOW SKIM → 모래톱 PARALLAX → 지폐 모서리로 PUSH-IN. SUBJECT MOTION: 소년은 먼 실루엣/손만; 신원과 표정 창작 금지. ENVIRONMENT MOTION: 잔물결, 젖은 모래의 브러시 결. KEY REVEAL: 6~7초 최초의 아이보리 종이 모서리 발견. TARGET FRAME: 모래에 묻힌 훼손 지폐의 아주 작은 모서리까지 시선 이동. EXIT FRAME: 모래에서 튀어나온 종이의 구겨진 가장자리. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.218,
+      "preview_voice_slot_relative": {
+        "start": 1.3,
+        "end": 5.518
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "낮의 강변에서 아주 작은 지폐 모서리를 발견",
+        "before_voice": "수면을 낮게 스치며 밝은 모래톱으로 이동",
+        "during_voice": "소년은 먼 실루엣/손만; 지폐는 숨겨 둔다",
+        "after_voice": "6초 전에는 젖은 모래의 색 차만 보인다. 6~7초 물결이 덮었다 걷히고, 7~9초에 지폐 모서리가 또렷해지며 다음 묶음 컷으로 빠르게 넘어간다.",
+        "sound": "잔잔한 강물→물결 근접→젖은 종이 마찰; 발견자의 대사·손동작은 추가하지 않는다"
+      }
+    },
+    {
+      "id": "CL25",
+      "scene": "SC06",
+      "title": "5,800달러 드러나다",
+      "story": "20달러 지폐 세 묶음이 모래 속에서 드러나는 발견의 순간",
+      "start": "손이 구겨진 젖은 지폐 모서리 가까이 있음",
+      "target": "낡고 손상된 $20 세 묶음이 부분적으로 모래 위로 노출",
+      "camera": "지폐 모서리 REVEAL → 조심스러운 아래쪽 ARC → 세 묶음의 규모를 확인",
+      "subject_motion": "손은 지폐를 천천히 들어 올리되 변형 없이 유지",
+      "environment_motion": "물기·모래 알갱이 작은 움직임",
+      "key_event": "5~7초 여러 묶음이 한 번에 읽힘",
+      "exit": "가장 선명한 한 장의 지폐 번호 위치로 접근",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "젖은 종이 떼어지는 소리·강물",
+      "fact_guard": "돈은 5,800달러, 전량 20만 달러가 아님; 새 돈/현대 지폐 디자인 금지",
+      "continuity": "세 묶음 유지, 실제 일련번호 생성하지 않음",
+      "ordinal": 25,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 220,
+      "timeline_end": 229,
+      "timecode": "03:40–03:49",
+      "tts": "물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다.",
+      "tts_sentence_range": [
+        3,
+        5
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 41,
+      "tts_characters_per_kept_s": 4.56,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL25_START.png",
+        "TARGET": "assets/CL25_TARGET.png",
+        "EXIT": "assets/CL25_EXIT.png",
+        "I2V": "assets/CL25_I2V_10s.mp4",
+        "AUDIO": "assets/CL25_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "지폐 모서리 REVEAL → 조심스러운 아래쪽 ARC → 세 묶음의 규모를 확인"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 5~7초 여러 묶음이 한 번에 읽힘"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL25, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 손이 구겨진 젖은 지폐 모서리 가까이 있음. CAMERA PATH: 지폐 모서리 REVEAL → 조심스러운 아래쪽 ARC → 세 묶음의 규모를 확인. SUBJECT MOTION: 손은 지폐를 천천히 들어 올리되 변형 없이 유지. ENVIRONMENT MOTION: 물기·모래 알갱이 작은 움직임. KEY REVEAL: 5~7초 여러 묶음이 한 번에 읽힘. TARGET FRAME: 낡고 손상된 $20 세 묶음이 부분적으로 모래 위로 노출. EXIT FRAME: 가장 선명한 한 장의 지폐 번호 위치로 접근. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.873,
+      "preview_voice_slot_relative": {
+        "start": 1.2,
+        "end": 6.073
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "한 장이 아니라 훼손된 20달러권 세 묶음이라는 규모",
+        "before_voice": "손이 종이 모서리에 접근해 크기 대비 제공",
+        "during_voice": "모래를 걷어 세 묶음을 5~7초에 읽히게 한다",
+        "after_voice": "한 장의 인쇄 가장자리로 접근해 번호 대조 예고",
+        "sound": "젖은 종이 분리음→강물 약화"
+      }
+    },
+    {
+      "id": "CL26",
+      "scene": "SC06",
+      "title": "번호가 일치한다",
+      "story": "일련번호 대조가 몸값의 일부임을 확인하지만 지리적 결론은 유보",
+      "start": "지폐 한 장의 인쇄 가장자리와 수사 기록 양식(내용은 공백)",
+      "target": "두 종이를 나란히 본 손, 편집 자막으로 일치 제시 가능",
+      "camera": "지폐 위 PUSH-IN → 검은 인쇄선에서 별도 기록지 MATCH CUT → 번호 부분에서 정지",
+      "subject_motion": "손이 지폐와 기록을 정렬하는 행동 1회",
+      "environment_motion": "밝은 증거 테이블과 어두운 테두리 대비",
+      "key_event": "6~7초 두 표면이 시각적으로 나란해지며 증거 연결",
+      "exit": "기록지의 어두운 잉크 면을 강의 그림자로 전환",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "한 장 넘김·펜으로 표시하는 소리",
+      "fact_guard": "실제 serial을 생성/일치 숫자를 꾸미지 않음; 숫자 확인은 편집 데이터 합성",
+      "continuity": "증거 확인이 곧 범인의 생존 또는 착륙 지점 확인을 뜻하지 않음",
+      "ordinal": 26,
+      "keep_seconds": 9,
+      "source_seconds": 10,
+      "timeline_start": 229,
+      "timeline_end": 238,
+      "timecode": "03:49–03:58",
+      "tts": "쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다.",
+      "tts_sentence_range": [
+        6,
+        8
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 64,
+      "tts_characters_per_kept_s": 7.11,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL26_START.png",
+        "TARGET": "assets/CL26_TARGET.png",
+        "EXIT": "assets/CL26_EXIT.png",
+        "I2V": "assets/CL26_I2V_10s.mp4",
+        "AUDIO": "assets/CL26_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.9s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.9–6.1s",
+          "action": "지폐 위 PUSH-IN → 검은 인쇄선에서 별도 기록지 MATCH CUT → 번호 부분에서 정지"
+        },
+        {
+          "window": "6.1–9s",
+          "action": "TARGET 핵심 정보 공개: 6~7초 두 표면이 시각적으로 나란해지며 증거 연결"
+        },
+        {
+          "window": "9–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL26, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 지폐 한 장의 인쇄 가장자리와 수사 기록 양식(내용은 공백). CAMERA PATH: 지폐 위 PUSH-IN → 검은 인쇄선에서 별도 기록지 MATCH CUT → 번호 부분에서 정지. SUBJECT MOTION: 손이 지폐와 기록을 정렬하는 행동 1회. ENVIRONMENT MOTION: 밝은 증거 테이블과 어두운 테두리 대비. KEY REVEAL: 6~7초 두 표면이 시각적으로 나란해지며 증거 연결. TARGET FRAME: 두 종이를 나란히 본 손, 편집 자막으로 일치 제시 가능. EXIT FRAME: 기록지의 어두운 잉크 면을 강의 그림자로 전환. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 7.127,
+      "preview_voice_slot_relative": {
+        "start": 0.3,
+        "end": 7.427
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "일련번호가 몸값 일부와 연결되나 착륙 지점은 아니다",
+        "before_voice": "지폐와 빈 조사 기록지를 한 축에 배치",
+        "during_voice": "두 표면의 위치를 맞춰 증거 연결을 시각화",
+        "after_voice": "정확한 일치 문구·번호는 편집 합성으로 짧게 읽힌다",
+        "sound": "종이 넘김→펜 점 하나; 가짜 일련번호 생성 금지"
+      }
+    },
+    {
+      "id": "CL27",
+      "scene": "SC06",
+      "title": "발견이 답을 주지는 않는다",
+      "story": "돈은 나왔지만 돈이 왜 이곳에 있는지는 증명되지 않음",
+      "start": "1980년 강변 모래톱의 좁은 프레임",
+      "target": "카메라가 멀리 물러나 사람 없는 광활한 강변만 남음",
+      "camera": "지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경",
+      "subject_motion": "사람과 낙하산 실루엣은 새로 등장하지 않음",
+      "environment_motion": "강바람과 물결·구름 움직임만",
+      "key_event": "5~7초 증거가 작아지고 빈 공간이 주제가 됨",
+      "exit": "물의 검은 영역이 SC07 서류 암부로 자연 이어짐",
+      "transition": "EXIT_MATCH",
+      "image_mode": "START_TARGET",
+      "sfx": "강물 넓어지는 소리 → 저음 정적",
+      "fact_guard": "실제 돈이 이동한 경로·물살 방향을 증명하는 그래픽 금지",
+      "continuity": "후속 SC07은 수사 자원 재배분을 설명, 사건 해결 선언 아님",
+      "ordinal": 27,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 238,
+      "timeline_end": 246,
+      "timecode": "03:58–04:06",
+      "tts": "그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.",
+      "tts_sentence_range": [
+        9,
+        10
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 56,
+      "tts_characters_per_kept_s": 7,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL27_START.png",
+        "TARGET": "assets/CL27_TARGET.png",
+        "EXIT": "assets/CL27_EXIT.png",
+        "I2V": "assets/CL27_I2V_10s.mp4",
+        "AUDIO": "assets/CL27_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "motion_events": [
+        {
+          "window": "0.0–2.6s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.6–5.4s",
+          "action": "지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경"
+        },
+        {
+          "window": "5.4–8s",
+          "action": "TARGET 핵심 정보 공개: 5~7초 증거가 작아지고 빈 공간이 주제가 됨"
+        },
+        {
+          "window": "8–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL27, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 1980년 강변 모래톱의 좁은 프레임. CAMERA PATH: 지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경. SUBJECT MOTION: 사람과 낙하산 실루엣은 새로 등장하지 않음. ENVIRONMENT MOTION: 강바람과 물결·구름 움직임만. KEY REVEAL: 5~7초 증거가 작아지고 빈 공간이 주제가 됨. TARGET FRAME: 카메라가 멀리 물러나 사람 없는 광활한 강변만 남음. EXIT FRAME: 물의 검은 영역이 SC07 서류 암부로 자연 이어짐. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 6.109,
+      "preview_voice_slot_relative": {
+        "start": 0.5,
+        "end": 6.609
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "돈의 이동 경로는 여전히 미해결",
+        "before_voice": "증거의 크기에서 넓은 강변으로 후퇴 시작",
+        "during_voice": "돈의 위치가 화면에서 점점 작아진다",
+        "after_voice": "물의 검은 면이 조사 파일의 암부로 이어진다",
+        "sound": "강물 공간감 증가→저음 절제"
+      }
+    },
+    {
+      "id": "CL28",
+      "scene": "SC07",
+      "title": "2016년, 파일은 닫히지만",
+      "story": "FBI는 수사 자원을 재배분했으며 사건이 해결된 것은 아님",
+      "start": "실제 문서의 복제가 아닌 중립적 조사 파일 아이보리 표지",
+      "target": "파일이 덮여 화면을 어둡게 가림",
+      "camera": "문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION",
+      "subject_motion": "손 하나가 파일을 덮는 작은 동작",
+      "environment_motion": "배경은 특정 기관 사무실로 단정하지 않은 에디토리얼 공간",
+      "key_event": "6초 서류가 덮이고 판단 보류의 정적",
+      "exit": "표지의 먹색이 1971년 계단의 어둠으로 연결",
+      "transition": "STORY_CUT",
+      "image_mode": "START_TARGET",
+      "sfx": "종이 덮임·거의 무음",
+      "fact_guard": "FBI 수사 종료=사건 해결 아니며 공식 문서 원문 복제 금지",
+      "continuity": "1971년으로 되돌리는 자막만 후반 편집에서 별도",
+      "ordinal": 28,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 246,
+      "timeline_end": 254,
+      "timecode": "04:06–04:14",
+      "tts": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다.",
+      "tts_sentence_range": [
+        1,
+        2
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 42,
+      "tts_characters_per_kept_s": 5.25,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL28_START.png",
+        "TARGET": "assets/CL28_TARGET.png",
+        "EXIT": "assets/CL28_EXIT.png",
+        "I2V": "assets/CL28_I2V_10s.mp4",
+        "AUDIO": "assets/CL28_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.6s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.6–5.4s",
+          "action": "문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION"
+        },
+        {
+          "window": "5.4–8s",
+          "action": "TARGET 핵심 정보 공개: 6초 서류가 덮이고 판단 보류의 정적"
+        },
+        {
+          "window": "8–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK & BOARD03_SCENE",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL28, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 실제 문서의 복제가 아닌 중립적 조사 파일 아이보리 표지. CAMERA PATH: 문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION. SUBJECT MOTION: 손 하나가 파일을 덮는 작은 동작. ENVIRONMENT MOTION: 배경은 특정 기관 사무실로 단정하지 않은 에디토리얼 공간. KEY REVEAL: 6초 서류가 덮이고 판단 보류의 정적. TARGET FRAME: 파일이 덮여 화면을 어둡게 가림. EXIT FRAME: 표지의 먹색이 1971년 계단의 어둠으로 연결. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.873,
+      "preview_voice_slot_relative": {
+        "start": 1.2,
+        "end": 6.073
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "2016년 수사 자원 재배분은 사건 해결이 아니다",
+        "before_voice": "중립적 조사 파일을 연도 그래픽과 함께 보여준다",
+        "during_voice": "파일을 덮되 해결 도장·종결 문구는 만들지 않는다",
+        "after_voice": "먹색 표지가 첫 계단 장면으로 연결되는 시각적 문",
+        "sound": "종이 덮임→조용한 룸톤; 승리·종결 효과음 금지"
+      }
+    },
+    {
+      "id": "CL29",
+      "scene": "SC07",
+      "title": "처음의 계단으로 되돌아오다",
+      "story": "SC01 계단과 동일 기체·같은 계단 구조를 관점만 바꿔 재등장",
+      "start": "열린 후방 계단의 6~8초 공개 상태를 시각 참조로 삼아 별도 생성한 START. 같은 T-tail·중앙 엔진·계단 축을 유지하며 10초 검은 EXIT와 혼동하지 않는다.",
+      "target": "8초 사용 종료 전에 같은 후방 3/4 축의 기체가 뒤로 물러나며 빈 밤하늘이 더 넓게 드러난다.",
+      "camera": "SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK",
+      "subject_motion": "계단/기체 구조/날씨의 스타일은 CL01과 동일",
+      "environment_motion": "구름과 바람잉크는 뒤로 멀어지고 계단은 계속 비어 있음",
+      "key_event": "4~6초 첫 장면인 것을 관객이 알아차림",
+      "exit": "후방 3/4 기체의 같은 축, 빈 하늘이 확대",
+      "transition": "BIBLE_MATCH",
+      "image_mode": "SINGLE",
+      "sfx": "익숙한 엔진음이 잔잔하게 복귀",
+      "fact_guard": "CL01 프레임 기하학을 고정한 채 공간 뒤집기 금지; 점프한 인물 생성 금지",
+      "continuity": "반전은 의미의 변화이지 신원/사망에 대한 새 사실 아님",
+      "ordinal": 29,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 254,
+      "timeline_end": 262,
+      "timecode": "04:14–04:22",
+      "tts": "다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다.",
+      "tts_sentence_range": [
+        3,
+        4
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 33,
+      "tts_characters_per_kept_s": 4.12,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL29_START.png",
+        "TARGET": "assets/CL29_TARGET.png",
+        "EXIT": "assets/CL29_EXIT.png",
+        "I2V": "assets/CL29_I2V_10s.mp4",
+        "AUDIO": "assets/CL29_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0–4s",
+          "action": "Visible stair identity re-established"
+        },
+        {
+          "window": "4–6s",
+          "action": "Recognition of opening geometry"
+        },
+        {
+          "window": "6–8s",
+          "action": "Pullback reaches editorial used exit"
+        },
+        {
+          "window": "8–10s",
+          "action": "Discarded source tail; no essential reveal"
+        }
+      ],
+      "start_source": "GENERATE_START using reviewed CL01 6–8s stair-reveal frame as identity/geometry reference; do not copy CL01 10s black used exit",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "10-second stylized 2D ink-noir return shot. Use a newly generated START guided by a reviewed CL01 6–8 second visible-stair frame, preserving Boeing 727 tail, center engine and under-tail stair geometry. Never use CL01 dark 10-second exit as this START. Slowly reverse-dolly from the empty stair; the recognition of the opening shot must occur by seconds 4–6 and the pullback must read within the first 8 used seconds. No figure jumping, no definitive outcome, no photorealism.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 4.073,
+      "preview_voice_slot_relative": {
+        "start": 1.4,
+        "end": 5.473
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "첫 계단은 같은 구조지만 이제 탈출 성공이 아니라 질문이다",
+        "before_voice": "CL01의 6~8초 계단 공개 프레임을 참조해 동일 기체 재등장",
+        "during_voice": "계단에서 천천히 멀어지며 관객이 반복을 인식",
+        "after_voice": "후방 3/4 기체와 빈 하늘의 면적을 늘린다",
+        "sound": "첫 장면 엔진 저음이 약하게 복귀; CL01 검은 종료 프레임 재사용 금지"
+      }
+    },
+    {
+      "id": "CL30",
+      "scene": "SC07",
+      "title": "남은 것은 빈 하늘",
+      "story": "기체와 계단에서 멀어지며 질문만 남기고 암전",
+      "start": "CL29 EXIT의 후방 기체 원경, 계단은 작게 남아 있음",
+      "target": "밤하늘 검은 면이 전체 화면을 차지함",
+      "camera": "안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전",
+      "subject_motion": "인물/낙하산/착지 흔적은 새로 생기지 않음",
+      "environment_motion": "구름은 완만한 패럴랙스, 번쩍이는 UFO·반전 시각화 금지",
+      "key_event": "5~6초 기체 소실, 6~8초 검은 하늘+정적",
+      "exit": "완전한 검정 프레임 (편집 최종 홀드)",
+      "transition": "CONTINUATION",
+      "image_mode": "START_TARGET",
+      "sfx": "엔진음 서서히 작아짐, 마지막 2초 거의 무음",
+      "fact_guard": "살아있음/죽음 어느 쪽도 시각적으로 확정 금지",
+      "continuity": "이전 SC01과 같은 비행기/계단과 동일 세계의 종료",
+      "ordinal": 30,
+      "keep_seconds": 8,
+      "source_seconds": 10,
+      "timeline_start": 262,
+      "timeline_end": 270,
+      "timecode": "04:22–04:30",
+      "tts": "그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+      "tts_sentence_range": [
+        5,
+        6
+      ],
+      "tts_speed": 1.1,
+      "tts_assigned_estimate_only": false,
+      "tts_characters": 46,
+      "tts_characters_per_kept_s": 5.75,
+      "sequence_priority": "STORY",
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "reference_boards": [
+        "BOARD01_STYLE",
+        "BOARD02_MOTION",
+        "BOARD03_SCENE"
+      ],
+      "asset_paths": {
+        "START": "assets/CL30_START.png",
+        "TARGET": "assets/CL30_TARGET.png",
+        "EXIT": "assets/CL30_EXIT.png",
+        "I2V": "assets/CL30_I2V_10s.mp4",
+        "AUDIO": "assets/CL30_TTS_SEGMENT.wav"
+      },
+      "production_state": "SPEC_ONLY_NOT_GENERATED",
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "motion_events": [
+        {
+          "window": "0.0–2.6s",
+          "action": "START 공간·물체 식별 및 움직임 유도"
+        },
+        {
+          "window": "2.6–5.4s",
+          "action": "안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전"
+        },
+        {
+          "window": "5.4–8s",
+          "action": "TARGET 핵심 정보 공개: 5~6초 기체 소실, 6~8초 검은 하늘+정적"
+        },
+        {
+          "window": "8–10.0s",
+          "action": "SOURCE TAIL / 편집에서 사용하지 않음 (최종 EXIT는 유지 종료점에 맞춰 재추출)"
+        }
+      ],
+      "start_source": "MASTER_BOARD_01_LOCK plus prior EXIT",
+      "frame_instructions": {
+        "aspect": "16:9",
+        "resolution": "1536x864 (or project locked exact 16:9)",
+        "source_lock": "NON_REALISTIC_STYLIZED hand-drawn 2D ink noir",
+        "single_event_one_frame": true,
+        "frame_text_policy": "NO baked-in titles, invented writing or HUD"
+      },
+      "i2v_prompt_en": "Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL30, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: CL29 EXIT의 후방 기체 원경, 계단은 작게 남아 있음. CAMERA PATH: 안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전. SUBJECT MOTION: 인물/낙하산/착지 흔적은 새로 생기지 않음. ENVIRONMENT MOTION: 구름은 완만한 패럴랙스, 번쩍이는 UFO·반전 시각화 금지. KEY REVEAL: 5~6초 기체 소실, 6~8초 검은 하늘+정적. TARGET FRAME: 밤하늘 검은 면이 전체 화면을 차지함. EXIT FRAME: 완전한 검정 프레임 (편집 최종 홀드). Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.",
+      "motion_qc": [
+        "START↔TARGET 기체/객실 축 일치",
+        "프레임 내 임의 레터링/얼굴 변형 없음",
+        "8초 이전 주요 정보 공개 (10초 편집 시 적용은 제외)",
+        "정보 변화와 카메라 이동 목적이 명확",
+        "EXIT ↔ 다음 START의 물체/명암 일치"
+      ],
+      "preview_voice_at_1p1_seconds": 5.018,
+      "preview_voice_slot_relative": {
+        "start": 0.6,
+        "end": 5.618
+      },
+      "directing_cues_v2": {
+        "viewer_gain": "생존·사망 어느 쪽도 단정하지 않는 마지막 질문",
+        "before_voice": "이미 멀어진 기체를 더 작게 만든다",
+        "during_voice": "기체와 계단을 하늘 속으로 물린다",
+        "after_voice": "6초 이후 검은 하늘, 마지막 약 2초는 거의 무음",
+        "sound": "엔진음 감쇠→짧은 저역 잔향→거의 무음"
+      }
+    }
+  ],
+  "fact_sources": [
+    {
+      "name": "FBI case history",
+      "url": "https://www.fbi.gov/history/cases-and-criminals/db-cooper-hijacking"
+    },
+    {
+      "name": "FBI plane ticket",
+      "url": "https://www.fbi.gov/history/artifacts/d-b-cooper-plane-ticket"
+    },
+    {
+      "name": "FBI 2016 resource redirection",
+      "url": "https://www.fbi.gov/contact-us/field-offices/seattle/news/press-releases/update-on-investigation-of-1971-hijacking-by-d.b.-cooper"
+    }
+  ],
+  "factual_guardrails": [
+    "No eyewitness of Cooper physically jumping. Never animate a witnessed jump, parachute opening or a landing as fact.",
+    "The first note alleged a bomb; a flight attendant separately recorded demands. No fake primary-source transcription.",
+    "The FBI reports $5,800 recovered in 1980, not all $200,000. The route to the riverbank is unknown.",
+    "The FBI reallocated investigative resources in 2016; the case is not solved.",
+    "Nightly jump weather conditions and exact location are not visual proofs; render as illustrative atmosphere.",
+    "Any reconstructed cockpit gauge visuals must avoid fabricated precise label/data and be treated as editorial depiction."
+  ],
+  "approval_gates": {
+    "status": "NOT_TESTED",
+    "score_threshold": 95,
+    "non_negotiable_hard_gates": [
+      "same Boeing 727 geometry and rear ventral airstair",
+      "no witnessed jump/landing",
+      "no fake documents/serials",
+      "TTS 1.1 speed actual waveform measured",
+      "final timeline = 270 seconds",
+      "START/TARGET/EXIT continuity and 10s source QC",
+      "SC01/SC07 visual axis match",
+      "historical facts vs editorial metaphors marked"
+    ]
+  },
+  "codex_execution_order": [
+    "Read this HTML and parse embedded application/json manifest; ignore decorative layout as authority.",
+    "Validate TTS concatenation matches locked v3 per scene verbatim, all clip IDs unique, scene time sum=270.",
+    "Use BOARD01 style and locks; treat existing boards as reference, not as historically verified equipment drawings.",
+    "Generate START/TARGET for one shot at a time, verify identity + exit match, then produce 10s I2V.",
+    "Keep designated edit duration; trim source tails and extract actual trimmed EXIT for next continuation.",
+    "For STORY_CUT, render independent worlds and cut in edit, never require a 10s spatial teleport.",
+    "Generate TTS, apply 1.1x, measure exact words/scene, redistribute safe pauses and edit lengths before approval.",
+    "Run historical, visual, motion, physical continuity and overall score >=95 QC gates before declaring ready."
+  ],
+  "revision": "v4-directing-candidate",
+  "canonical_approval": false,
+  "parent_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "directing_plan_sha256": "c15d0af1efb07724f205fd37b27264d9b3ac0a33143c5d347be7ac10710b3138"
+}

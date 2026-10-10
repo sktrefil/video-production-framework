@@ -1,0 +1,18 @@
+CL06 | ILLUSTRATED MEMO TRANSITION | VIDEO PROMPT v3
+
+Create one 10-second horizontal 16:9 animated clip using the supplied START and END illustrations as the first frame and target composition.
+START: assets/CL06_START.png — CL05's actual last used frame: a dark case fills the foreground and a hand holds its lid at the right.
+END TARGET: assets/CL06_END_TARGET_v3.png — a separate ivory memo is held on the right side of the same cabin, with no readable text.
+
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir with bold graphic shadows and controlled speed changes. Preserve the case, cabin, lighting direction, screen axis and anonymous hand proportions from START. No photorealism, live action, hyperrealism, glossy 3D, documentary reenactment or identifiable facial likeness.
+
+ACTION AND CAMERA:
+0–2 s: Begin exactly from the START frame. The case remains in view as the camera shifts right along its rim toward the aisle-side hand space; this is one continuous move, not a cut. The hand already holding the lid remains attached to it.
+2–5 s: The camera passes the case edge and discovers a different, cropped attendant's hand with a separate blank ivory memo sheet. Keep the hand and sheet spatially anchored in the same cabin. Start a modest push-in toward the paper.
+5–7 s: Show one brief, clear writing gesture. The pen or pencil touches the sheet, but the resulting marks remain abstract and unreadable. The information changes hands visually without inventing on-screen words or speech.
+7–9 s: Follow the memo as the attendant lifts and holds it toward the right side of frame. Keep a narrow dark case or seat edge at the left as a continuity anchor. Reach the END composition before the 9-second edit boundary.
+9–10 s: Hold the reached END composition with subtle drawn motion only. This last source second is removed in editing.
+
+Do not show readable amounts, numbers, names, documents, labels, or handwritten sentences. No extra hands, floating objects, operating device, explosion, synthetic dialogue, narration, subtitles, logos or watermark. The approved narration is added separately during 1.100–6.882 s of the editor-used clip. Add pencil friction and the beginning of footsteps separately in editing, below the narration.
+
+OUTPUT: clips/CL06.mp4. The editor uses 0–9 seconds at timeline 45–54 seconds. Review the actual used exit frame near 8.967 seconds at 30 fps; the target still alone does not establish continuity.

@@ -1,0 +1,31 @@
+CL18 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL18_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+D.B. COOPER | CL18 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 당시 정확한 계기 종류/값 표기를 단정하지 않는 연출적 압력 변화 표현
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL18. Editor uses 9 seconds at timeline 157-166 seconds.
+START: assets/CL18_START.png (GENERATE_START).
+END/TARGET: assets/CL18_END_TARGET.png
+ACTION: 기체와 계단만 보이며 점프 인물·낙하산·착지 장면 없음
+CAMERA: 인물 없는 계단 외부 PARALLAX→기체 장거리 FOLLOW→리노 착륙에 맞춰 컷
+ENVIRONMENT: 강풍을 직접 객실 안으로 그리지 않음
+REVEAL: 누구도 계단 끝을 직접 보지 못했고 비행기는 계속 남쪽으로 가 리노에 착륙한다
+USED EXIT: 착륙 뒤 빈 객실의 입구
+VOICE SLOT IN USED CLIP: 0.400-6.564s; narration: 하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다.
+SOUND DESIGN: 바람과 엔진→착륙 후 기계음; 직접 점프·착지 소리 금지
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.

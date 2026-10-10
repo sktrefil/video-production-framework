@@ -1,0 +1,55 @@
+{
+  "id": "CL08",
+  "scene": "SC03",
+  "ordinal": 8,
+  "timeline_start": 62,
+  "timeline_end": 72,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "BIBLE_MATCH",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL08_START.png",
+  "end_target_asset": "assets/CL08_END_TARGET.png",
+  "video_asset": "clips/CL08.mp4",
+  "prompts": {
+    "start": "prompts/CL08_v2_START.prompt.txt",
+    "end": "prompts/CL08_v2_END.prompt.txt",
+    "video": "prompts/CL08_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "MONEY-01",
+    "PARA-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "기체는 멈췄고 공항 차량이 돈과 낙하산을 가져옴",
+  "action": "지상 차량이 느리게 이동, 승객 하차는 다음 샷에서 분리",
+  "camera": "활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행",
+  "reveal": "6초 돈/낙하산을 싣는 작업의 시작을 보여줌",
+  "exit": "차량 위 검은 돈가방의 실루엣",
+  "sound": "엔진 정지→바퀴·짐 손잡이; 공항 방송은 알아들을 수 없게",
+  "narrator_text": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 0,
+    "scene_audio_end_seconds": 6.764,
+    "spoken_window_seconds": 6.764
+  },
+  "voice_slot_relative": {
+    "start": 0.4,
+    "end": 7.164
+  },
+  "voice_slot_timeline": {
+    "start": 62.4,
+    "end": 69.164
+  },
+  "pre_voice_seconds": 0.4,
+  "post_voice_seconds": 2.836,
+  "nonvoice_seconds": 3.236
+}

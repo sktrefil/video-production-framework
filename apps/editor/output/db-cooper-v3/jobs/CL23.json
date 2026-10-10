@@ -1,0 +1,29 @@
+{
+  "id": "CL23",
+  "scene": "SC05",
+  "ordinal": 23,
+  "timeline_start": 203,
+  "timeline_end": 211,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "SINGLE",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "start_asset": "assets/CL23_START.png",
+  "end_target_asset": null,
+  "video_asset": "clips/CL23.mp4",
+  "prompts": {
+    "start": "prompts/CL23_START.prompt.txt",
+    "end": null,
+    "video": "prompts/CL23_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "TIE-01",
+    "ENV-FOREST"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D.B. Cooper CL05 | 음성 제외·효과음 포함 영상 프롬프트</title>
+<style>:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;background:#101a21;color:#f0eee8}body{margin:0;line-height:1.6}header{background:#1c303c;padding:32px max(22px,calc((100vw - 980px)/2));border-bottom:2px solid #b68a50}main{max-width:980px;margin:auto;padding:24px 22px 70px}h1{margin:0 0 6px}small,.meta{color:#cad1d1}.alert{border-left:4px solid #e7ae63;background:#24333a;padding:13px 17px;margin:18px 0}article{background:#1b2a33;border:1px solid #4c626c;border-radius:9px;padding:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c161b;border:1px solid #506471;border-radius:6px;padding:18px;font:14px/1.65 Consolas,monospace}button{border:0;border-radius:5px;background:#e5b371;color:#10202b;font-weight:800;padding:10px 14px;cursor:pointer}a{color:#f0c280}</style></head><body>
+<header><small>D.B. COOPER / CL05 / SC02 / VOICE-FREE PACK v1</small><h1>CL05 음성 제외·효과음 포함 영상 프롬프트</h1><span>생성 10초 · 편집 사용 9초 · 타임라인 36–45초</span></header>
+<main><p class="alert"><strong>Google Flow에서 사람 목소리만 생성 금지.</strong> 내레이션·대사·말소리는 만들지 않고 발걸음·문·기계·차량 등 비언어적 효과음과 환경음은 화면에 맞춰 생성합니다. 확정 TTS는 편집에서 넣습니다.</p><p class="alert">이전 클립의 실제 사용 종료 프레임과 현재 START·END 자산을 확인한 뒤 사용하세요. 기존 제작 클립의 원본 프롬프트·해시는 보존됩니다.</p>
+<article><button id="copy" type="button">프롬프트 복사</button><p class="meta">원본: <code>prompts/CL05_v3_VIDEO.prompt.txt</code><br>원본 SHA-256: <code>bbe2cbc6eafd5252584cd65a4df0cd9d07f2ad47605fd5948e4063d874663936</code><br>이 음성 제외 프롬프트 SHA-256: <code>fa8ba329e7d55820916edac5398978c741b49c44597bd3eafc8a4cc5b2e4a15e</code></p><pre id="prompt">CL05 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL05_v3_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+CL05 | ILLUSTRATED BRIEFCASE REVEAL | VIDEO PROMPT v3
+
+Create one 10-second horizontal 16:9 animated clip using the supplied START and END illustrations as the first frame and target composition.
+START: assets/CL05_START.png — an ivory folded note fills almost all the frame, with a thumb at the right and dark cabin edges.
+END TARGET: assets/CL05_END_TARGET_v3.png — a dark briefcase is open only slightly; its rim points toward an attendant's cropped hand.
+
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, bold graphic shadows and controlled parallax. Preserve the paper texture, cabin geometry, seat and window direction, anonymous hands, charcoal/steel-blue palette and warm ivory highlights. No photorealism, live action, hyperrealism, glossy 3D or documentary reenactment. No identifiable face or likeness.
+
+ACTION AND CAMERA:
+0–1 s: Begin exactly from the START paper occlusion. The folded note moves aside while the camera pulls back just enough to reveal the same cabin space. Do not cut to another room.
+1–4 s: Continue the camera along the dark edge of a briefcase on the passenger's lap. Use a short, readable lateral arc and increasing parallax. The case remains closed until the camera reaches its hinge.
+4–6 s: A cropped hand raises the lid slightly. Around 5 seconds, the narrow opening gives the first incomplete glimpse of red cylindrical shapes and dark loose wires. Keep most of the interior in shadow and never explain or demonstrate how anything works.
+6–9 s: Hold the incomplete reveal briefly, then redirect the camera along the black case rim toward the attendant's hand at the right. Reach the supplied END composition before the 9-second edit boundary. Maintain one continuous cabin axis and stable case geometry.
+9–10 s: Hold the END composition with subtle drawn motion only. The editor removes this source second.
+
+The objects' purpose is uncertain. Do not show a functioning device, timer, trigger, assembly, explosion, readable labels or invented writing. Keep human faces outside frame. No speech, synthetic narration, captions, subtitles, logos or watermark. The approved narration will be added separately in editing during 0.800–6.909 s of the used clip. Generate one quiet case-latch click and reduced cabin ambience with the video, without any operating or explosive sound.
+
+OUTPUT: clips/CL05.mp4. The editor uses 0–9 seconds at project timeline 36–45 seconds. Inspect the actual used exit frame near 8.967 seconds at 30 fps before deriving CL06 START; a target image alone does not prove this state was reached.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.
+</pre><a href="CL05_VIDEO.prompt.txt">프롬프트 TXT 열기</a></article><p><a href="index.html">전체 30샷 목록</a></p></main>
+<script>document.getElementById('copy').addEventListener('click',async()=>{let b=document.getElementById('copy'),v=document.getElementById('prompt').textContent;try{await navigator.clipboard.writeText(v)}catch{let a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()}b.textContent='복사 완료';setTimeout(()=>b.textContent='프롬프트 복사',1600)});</script></body></html>

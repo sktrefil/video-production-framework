@@ -1,0 +1,18 @@
+SC02 | CL06 | END/TARGET IMAGE | v4 | aisle handoff after the briefcase
+
+Create one 1536x864 horizontal 16:9 illustration in the project's NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir style. Bold charcoal and steel-blue ink shadows, a few restrained warm cabin lights, visible drawn texture and a dynamic spatial composition. No photorealism, live action, documentary reenactment, hyperrealism or glossy 3D.
+
+PRIMARY SAME-SEQUENCE REFERENCE: assets/CL06_START.png | SHA-256 b185935b1051d6a10c4ea07a8e70765d899db5dcfc9b6eab331128b5dc305604. This is the actual last used CL05 video frame at 8.958333 seconds. It shows a dark briefcase large in the foreground, a narrow gap beneath its lid, two knees below, a hand at the far right holding the lid, and the same aircraft cabin behind it. Preserve the case and cabin geometry, light direction, screen direction and ink drawing language. This END is reached after the camera travels from the case toward the aisle; it is not a new location.
+
+PROJECT STYLE BOARD: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+PROJECT MOTION BOARD: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+PROJECT SCENE BOARD: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Use these for visual grammar only, not board panels, lettering or imagined facial likenesses.
+
+TARGET AT CL06'S EDITOR-USED 9-SECOND EXIT: Pull back to a medium-wide low view from behind and slightly beside an anonymous attendant as she rises from the adjacent seat into the narrow cabin aisle. The attendant is still at the seat edge, poised to walk; the aisle extends ahead toward a distant closed cockpit door, reserved for CL07. Her hand carries a SMALL separate ivory memo low by her side. The memo is a minor prop, not the image's focus; its face is turned away or unreadable. Place a dark sliver of the same briefcase or seat at the lower-left edge as a graphic continuity anchor from START. Strong converging seat lines, restrained overhead amber light and a controlled scale change make the direction of the next move clear. No face or identifiable likeness is visible.
+
+The attendant made only a brief note-taking gesture earlier in CL06; do not return to a paper close-up here. Do not show readable amounts, numbers, names, written sentences, an actual money pile, parachutes physically inside the cabin, a device, an explosion, subtitles, title, watermark or panel borders. Do not show the attendant already inside the cockpit or reveal its interior.
+
+TIMING: The planned source video is 10 seconds, while the editor uses only 0–9 seconds. Reach this standing-at-the-aisle END composition by 9 seconds and hold it during 9–10 seconds if the video generator requires a full-duration target. Inspect the generated CL06.mp4 actual used exit near 8.967 seconds before choosing the independent CL07 START image. The planned END is not evidence of the actual video exit.
+
+SAVE AS: assets/CL06_END_TARGET_v4.png

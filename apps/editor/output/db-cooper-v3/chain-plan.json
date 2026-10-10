@@ -1,0 +1,938 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "PROMPTS_PREPARED_NOT_PRODUCTION_APPROVED",
+  "canonical_approval": false,
+  "script_directing_lock": null,
+  "manager_story_gate": null,
+  "final_tts_allowed": false,
+  "tts_timing_verified": false,
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "input_hashes": {
+    "manifest": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+    "script": "4a383ede0cb13ce8641919464ddaec85cd62afb8b0d6b60ab8d8ad3828ab86c1",
+    "tts": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac",
+    "bible": "a5c6567ea1953699734a8355dc6ba9931b39767e5512b745895eb7b811ee7d04"
+  },
+  "boards": {
+    "BOARD01_STYLE": {
+      "path": "boards/BOARD01_STYLE.png",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160",
+      "original_name": "D.B.COOPER 마스터 보드 v3.1.png"
+    },
+    "BOARD02_MOTION": {
+      "path": "boards/BOARD02_MOTION.png",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7",
+      "original_name": "D.B.COOPER 마스터 보드 v3.2.png"
+    },
+    "BOARD03_SCENE": {
+      "path": "boards/BOARD03_SCENE.png",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79",
+      "original_name": "D.B.COOPER 마스터 보드 v3.3.png"
+    }
+  },
+  "target_duration_seconds": 270,
+  "editor_fps": 30,
+  "source_clip_count": 30,
+  "shots": [
+    {
+      "id": "CL01",
+      "scene": "SC01",
+      "ordinal": 1,
+      "timeline_start": 0,
+      "timeline_end": 10,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL01_START.png",
+      "end_target_asset": "assets/CL01_END_TARGET.png",
+      "video_asset": "clips/CL01.mp4",
+      "prompts": {
+        "start": "prompts/CL01_START.prompt.txt",
+        "end": "prompts/CL01_END.prompt.txt",
+        "video": "prompts/CL01_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL02",
+      "scene": "SC01",
+      "ordinal": 2,
+      "timeline_start": 10,
+      "timeline_end": 18,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "SINGLE",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL02_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL02.mp4",
+      "prompts": {
+        "start": "prompts/CL02_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL02_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL03",
+      "scene": "SC02",
+      "ordinal": 3,
+      "timeline_start": 18,
+      "timeline_end": 27,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL03_START.png",
+      "end_target_asset": "assets/CL03_END_TARGET.png",
+      "video_asset": "clips/CL03.mp4",
+      "prompts": {
+        "start": "prompts/CL03_START.prompt.txt",
+        "end": "prompts/CL03_END.prompt.txt",
+        "video": "prompts/CL03_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL04",
+      "scene": "SC02",
+      "ordinal": 4,
+      "timeline_start": 27,
+      "timeline_end": 36,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL03"
+      },
+      "start_asset": "assets/CL04_START.png",
+      "end_target_asset": "assets/CL04_END_TARGET.png",
+      "video_asset": "clips/CL04.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL04_END.prompt.txt",
+        "video": "prompts/CL04_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL05",
+      "scene": "SC02",
+      "ordinal": 5,
+      "timeline_start": 36,
+      "timeline_end": 45,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL04"
+      },
+      "start_asset": "assets/CL05_START.png",
+      "end_target_asset": "assets/CL05_END_TARGET.png",
+      "video_asset": "clips/CL05.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL05_END.prompt.txt",
+        "video": "prompts/CL05_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL06",
+      "scene": "SC02",
+      "ordinal": 6,
+      "timeline_start": 45,
+      "timeline_end": 54,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL05"
+      },
+      "start_asset": "assets/CL06_START.png",
+      "end_target_asset": "assets/CL06_END_TARGET.png",
+      "video_asset": "clips/CL06.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL06_END.prompt.txt",
+        "video": "prompts/CL06_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL07",
+      "scene": "SC02",
+      "ordinal": 7,
+      "timeline_start": 54,
+      "timeline_end": 62,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL07_START.png",
+      "end_target_asset": "assets/CL07_END_TARGET.png",
+      "video_asset": "clips/CL07.mp4",
+      "prompts": {
+        "start": "prompts/CL07_START.prompt.txt",
+        "end": "prompts/CL07_END.prompt.txt",
+        "video": "prompts/CL07_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL08",
+      "scene": "SC03",
+      "ordinal": 8,
+      "timeline_start": 62,
+      "timeline_end": 72,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL08_START.png",
+      "end_target_asset": "assets/CL08_END_TARGET.png",
+      "video_asset": "clips/CL08.mp4",
+      "prompts": {
+        "start": "prompts/CL08_START.prompt.txt",
+        "end": "prompts/CL08_END.prompt.txt",
+        "video": "prompts/CL08_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL09",
+      "scene": "SC03",
+      "ordinal": 9,
+      "timeline_start": 72,
+      "timeline_end": 82,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL08"
+      },
+      "start_asset": "assets/CL09_START.png",
+      "end_target_asset": "assets/CL09_END_TARGET.png",
+      "video_asset": "clips/CL09.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL09_END.prompt.txt",
+        "video": "prompts/CL09_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL10",
+      "scene": "SC03",
+      "ordinal": 10,
+      "timeline_start": 82,
+      "timeline_end": 92,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL10_START.png",
+      "end_target_asset": "assets/CL10_END_TARGET.png",
+      "video_asset": "clips/CL10.mp4",
+      "prompts": {
+        "start": "prompts/CL10_START.prompt.txt",
+        "end": "prompts/CL10_END.prompt.txt",
+        "video": "prompts/CL10_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL11",
+      "scene": "SC03",
+      "ordinal": 11,
+      "timeline_start": 92,
+      "timeline_end": 102,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL11_START.png",
+      "end_target_asset": "assets/CL11_END_TARGET.png",
+      "video_asset": "clips/CL11.mp4",
+      "prompts": {
+        "start": "prompts/CL11_START.prompt.txt",
+        "end": "prompts/CL11_END.prompt.txt",
+        "video": "prompts/CL11_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL12",
+      "scene": "SC03",
+      "ordinal": 12,
+      "timeline_start": 102,
+      "timeline_end": 112,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL11"
+      },
+      "start_asset": "assets/CL12_START.png",
+      "end_target_asset": "assets/CL12_END_TARGET.png",
+      "video_asset": "clips/CL12.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL12_END.prompt.txt",
+        "video": "prompts/CL12_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL13",
+      "scene": "SC04",
+      "ordinal": 13,
+      "timeline_start": 112,
+      "timeline_end": 121,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL12"
+      },
+      "start_asset": "assets/CL13_START.png",
+      "end_target_asset": "assets/CL13_END_TARGET.png",
+      "video_asset": "clips/CL13.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL13_END.prompt.txt",
+        "video": "prompts/CL13_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL14",
+      "scene": "SC04",
+      "ordinal": 14,
+      "timeline_start": 121,
+      "timeline_end": 130,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "SINGLE",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL14_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL14.mp4",
+      "prompts": {
+        "start": "prompts/CL14_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL14_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL15",
+      "scene": "SC04",
+      "ordinal": 15,
+      "timeline_start": 130,
+      "timeline_end": 139,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL14"
+      },
+      "start_asset": "assets/CL15_START.png",
+      "end_target_asset": "assets/CL15_END_TARGET.png",
+      "video_asset": "clips/CL15.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL15_END.prompt.txt",
+        "video": "prompts/CL15_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL16",
+      "scene": "SC04",
+      "ordinal": 16,
+      "timeline_start": 139,
+      "timeline_end": 148,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL15"
+      },
+      "start_asset": "assets/CL16_START.png",
+      "end_target_asset": "assets/CL16_END_TARGET.png",
+      "video_asset": "clips/CL16.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL16_END.prompt.txt",
+        "video": "prompts/CL16_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL17",
+      "scene": "SC04",
+      "ordinal": 17,
+      "timeline_start": 148,
+      "timeline_end": 157,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL16"
+      },
+      "start_asset": "assets/CL17_START.png",
+      "end_target_asset": "assets/CL17_END_TARGET.png",
+      "video_asset": "clips/CL17.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL17_END.prompt.txt",
+        "video": "prompts/CL17_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL18",
+      "scene": "SC04",
+      "ordinal": 18,
+      "timeline_start": 157,
+      "timeline_end": 166,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL18_START.png",
+      "end_target_asset": "assets/CL18_END_TARGET.png",
+      "video_asset": "clips/CL18.mp4",
+      "prompts": {
+        "start": "prompts/CL18_START.prompt.txt",
+        "end": "prompts/CL18_END.prompt.txt",
+        "video": "prompts/CL18_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL19",
+      "scene": "SC04",
+      "ordinal": 19,
+      "timeline_start": 166,
+      "timeline_end": 175,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL19_START.png",
+      "end_target_asset": "assets/CL19_END_TARGET.png",
+      "video_asset": "clips/CL19.mp4",
+      "prompts": {
+        "start": "prompts/CL19_START.prompt.txt",
+        "end": "prompts/CL19_END.prompt.txt",
+        "video": "prompts/CL19_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL20",
+      "scene": "SC04",
+      "ordinal": 20,
+      "timeline_start": 175,
+      "timeline_end": 185,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL19"
+      },
+      "start_asset": "assets/CL20_START.png",
+      "end_target_asset": "assets/CL20_END_TARGET.png",
+      "video_asset": "clips/CL20.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL20_END.prompt.txt",
+        "video": "prompts/CL20_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL21",
+      "scene": "SC05",
+      "ordinal": 21,
+      "timeline_start": 185,
+      "timeline_end": 194,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL21_START.png",
+      "end_target_asset": "assets/CL21_END_TARGET.png",
+      "video_asset": "clips/CL21.mp4",
+      "prompts": {
+        "start": "prompts/CL21_START.prompt.txt",
+        "end": "prompts/CL21_END.prompt.txt",
+        "video": "prompts/CL21_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL22",
+      "scene": "SC05",
+      "ordinal": 22,
+      "timeline_start": 194,
+      "timeline_end": 203,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL21"
+      },
+      "start_asset": "assets/CL22_START.png",
+      "end_target_asset": "assets/CL22_END_TARGET.png",
+      "video_asset": "clips/CL22.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL22_END.prompt.txt",
+        "video": "prompts/CL22_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL23",
+      "scene": "SC05",
+      "ordinal": 23,
+      "timeline_start": 203,
+      "timeline_end": 211,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "SINGLE",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL23_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL23.mp4",
+      "prompts": {
+        "start": "prompts/CL23_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL23_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL24",
+      "scene": "SC06",
+      "ordinal": 24,
+      "timeline_start": 211,
+      "timeline_end": 220,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL24_START.png",
+      "end_target_asset": "assets/CL24_END_TARGET.png",
+      "video_asset": "clips/CL24.mp4",
+      "prompts": {
+        "start": "prompts/CL24_START.prompt.txt",
+        "end": "prompts/CL24_END.prompt.txt",
+        "video": "prompts/CL24_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL25",
+      "scene": "SC06",
+      "ordinal": 25,
+      "timeline_start": 220,
+      "timeline_end": 229,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL24"
+      },
+      "start_asset": "assets/CL25_START.png",
+      "end_target_asset": "assets/CL25_END_TARGET.png",
+      "video_asset": "clips/CL25.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL25_END.prompt.txt",
+        "video": "prompts/CL25_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL26",
+      "scene": "SC06",
+      "ordinal": 26,
+      "timeline_start": 229,
+      "timeline_end": 238,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL26_START.png",
+      "end_target_asset": "assets/CL26_END_TARGET.png",
+      "video_asset": "clips/CL26.mp4",
+      "prompts": {
+        "start": "prompts/CL26_START.prompt.txt",
+        "end": "prompts/CL26_END.prompt.txt",
+        "video": "prompts/CL26_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL27",
+      "scene": "SC06",
+      "ordinal": 27,
+      "timeline_start": 238,
+      "timeline_end": 246,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL26"
+      },
+      "start_asset": "assets/CL27_START.png",
+      "end_target_asset": "assets/CL27_END_TARGET.png",
+      "video_asset": "clips/CL27.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL27_END.prompt.txt",
+        "video": "prompts/CL27_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL28",
+      "scene": "SC07",
+      "ordinal": 28,
+      "timeline_start": 246,
+      "timeline_end": 254,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "start_asset": "assets/CL28_START.png",
+      "end_target_asset": "assets/CL28_END_TARGET.png",
+      "video_asset": "clips/CL28.mp4",
+      "prompts": {
+        "start": "prompts/CL28_START.prompt.txt",
+        "end": "prompts/CL28_END.prompt.txt",
+        "video": "prompts/CL28_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL29",
+      "scene": "SC07",
+      "ordinal": 29,
+      "timeline_start": 254,
+      "timeline_end": 262,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "EXIT_REFERENCE",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "EARLIER_USED_EXIT",
+        "source_clip": "CL01"
+      },
+      "start_asset": "assets/CL29_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL29.mp4",
+      "prompts": {
+        "start": null,
+        "end": null,
+        "video": "prompts/CL29_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    },
+    {
+      "id": "CL30",
+      "scene": "SC07",
+      "ordinal": 30,
+      "timeline_start": 262,
+      "timeline_end": 270,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL29"
+      },
+      "start_asset": "assets/CL30_START.png",
+      "end_target_asset": "assets/CL30_END_TARGET.png",
+      "video_asset": "clips/CL30.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL30_END.prompt.txt",
+        "video": "prompts/CL30_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "SPEC_ONLY_NOT_GENERATED"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "CL09",
+  "scene": "SC03",
+  "ordinal": 9,
+  "timeline_start": 72,
+  "timeline_end": 82,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL08"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL09_START.png",
+  "end_target_asset": "assets/CL09_END_TARGET.png",
+  "video_asset": "clips/CL09.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL09_v2_END.prompt.txt",
+    "video": "prompts/CL09_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "MONEY-01",
+    "PARA-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "돈과 낙하산의 유입 방향과 승객들의 하차 방향을 충돌시켜 보여줌",
+  "action": "승객은 내리고 쿠퍼는 남아 조종실 방향으로 요구를 전달하는 실루엣",
+  "camera": "승객 하차 흐름과 반대 방향으로 트랙해 남은 쿠퍼에서 조종실 문까지 시선을 이동",
+  "reveal": "36명 하차와 쿠퍼의 재이륙·멕시코시티 요구가 한 교환 안에서 연결된다",
+  "exit": "조종실 문과 남은 쿠퍼를 한 축에 두는 방향",
+  "sound": "발걸음 증가→문턱 금속음→발소리 급감",
+  "narrator_text": "승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 6.836,
+    "scene_audio_end_seconds": 13.236,
+    "spoken_window_seconds": 6.4
+  },
+  "voice_slot_relative": {
+    "start": 0.7,
+    "end": 7.1
+  },
+  "voice_slot_timeline": {
+    "start": 72.7,
+    "end": 79.1
+  },
+  "pre_voice_seconds": 0.7,
+  "post_voice_seconds": 2.9,
+  "nonvoice_seconds": 3.6
+}

@@ -1,0 +1,15 @@
+D.B. COOPER | CL26 | SC06 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: CASH80-01, ENV-RIVER
+FACT GUARD: 실제 serial을 생성/일치 숫자를 꾸미지 않음; 숫자 확인은 편집 데이터 합성
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL26.
+STORY: 일련번호 대조가 몸값의 일부임을 확인하지만 지리적 결론은 유보
+START FRAME: 지폐와 기록지의 번호 열이 같은 축에 놓인 상태
+FUTURE CAMERA SPACE: 지폐와 기록지의 번호 열 MATCH→일치 확인 뒤 강변으로 빠른 PULL-BACK
+REVEAL TO RESERVE: 번호 일치로 몸값 일부임은 확인되지만 발견 장소가 착륙 지점은 아니다
+Keep the revealed state out of the START composition. One frame, one information state.

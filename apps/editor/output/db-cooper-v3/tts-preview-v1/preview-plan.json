@@ -1,0 +1,284 @@
+{
+  "schema": "db-cooper-tts-preview.v1",
+  "status": "PREVIEW_ONLY_NOT_FINAL_TTS",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "source_tts_sha256": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac",
+  "provider_profile_sha256": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2",
+  "playback_speed": 1.1,
+  "scenes": [
+    {
+      "id": "SC01",
+      "text_sha256": "92ca156aba6764efce9e4316b4d21b456aeb0bdd3e57f3ba13a3f4bc840a9d83",
+      "text": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다. 착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.",
+      "planned_seconds": 18,
+      "shots": [
+        {
+          "shot_id": "CL01",
+          "start_character": 0,
+          "end_character": 60,
+          "planned_keep_seconds": 10
+        },
+        {
+          "shot_id": "CL02",
+          "start_character": 61,
+          "end_character": 114,
+          "planned_keep_seconds": 8
+        }
+      ],
+      "job": "jobs/SC01.json",
+      "result": "results/SC01.json",
+      "audio": "03_tts/sections/SC01_raw.mp3",
+      "alignment": "03_tts/alignment/SC01.json",
+      "playback_1p1": "playback/SC01_1p1.mp3"
+    },
+    {
+      "id": "SC02",
+      "text_sha256": "edb92356049fb72426faf25ae583dbfd5ac295d76a58452bff31ccc5ee742574",
+      "text": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼. 이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다. 승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다. 남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개. 쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+      "planned_seconds": 44,
+      "shots": [
+        {
+          "shot_id": "CL03",
+          "start_character": 0,
+          "end_character": 64,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL04",
+          "start_character": 65,
+          "end_character": 119,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL05",
+          "start_character": 120,
+          "end_character": 189,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL06",
+          "start_character": 190,
+          "end_character": 256,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL07",
+          "start_character": 257,
+          "end_character": 311,
+          "planned_keep_seconds": 8
+        }
+      ],
+      "job": "jobs/SC02.json",
+      "result": "results/SC02.json",
+      "audio": "03_tts/sections/SC02_raw.mp3",
+      "alignment": "03_tts/alignment/SC02.json",
+      "playback_1p1": "playback/SC02_1p1.mp3"
+    },
+    {
+      "id": "SC03",
+      "text_sha256": "0485528d70b3e5ce5866547a1d5e4ab804a981b6f1b624fc408316f9da5f704d",
+      "text": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다. 승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티. 그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다. 그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편. 쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.",
+      "planned_seconds": 50,
+      "shots": [
+        {
+          "shot_id": "CL08",
+          "start_character": 0,
+          "end_character": 82,
+          "planned_keep_seconds": 10
+        },
+        {
+          "shot_id": "CL09",
+          "start_character": 83,
+          "end_character": 157,
+          "planned_keep_seconds": 10
+        },
+        {
+          "shot_id": "CL10",
+          "start_character": 158,
+          "end_character": 219,
+          "planned_keep_seconds": 10
+        },
+        {
+          "shot_id": "CL11",
+          "start_character": 220,
+          "end_character": 285,
+          "planned_keep_seconds": 10
+        },
+        {
+          "shot_id": "CL12",
+          "start_character": 286,
+          "end_character": 372,
+          "planned_keep_seconds": 10
+        }
+      ],
+      "job": "jobs/SC03.json",
+      "result": "results/SC03.json",
+      "audio": "03_tts/sections/SC03_raw.mp3",
+      "alignment": "03_tts/alignment/SC03.json",
+      "playback_1p1": "playback/SC03_1p1.mp3"
+    },
+    {
+      "id": "SC04",
+      "text_sha256": "414c49c5cdeb72bc6c0539f254df74c8db86008cedf78cad055718a8ce98463c",
+      "text": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다. 계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다. 하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다. 조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다. 밤 여덟 시 십 분 무렵. 조종실의 계기 바늘이 흔들립니다. 계단에 무게가 실리거나 움직일 때 나타날 수 있는 변화였습니다. 하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다. 뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림. 그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다.",
+      "planned_seconds": 73,
+      "shots": [
+        {
+          "shot_id": "CL13",
+          "start_character": 0,
+          "end_character": 59,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL14",
+          "start_character": 60,
+          "end_character": 123,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL15",
+          "start_character": 124,
+          "end_character": 168,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL16",
+          "start_character": 169,
+          "end_character": 221,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL17",
+          "start_character": 222,
+          "end_character": 291,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL18",
+          "start_character": 292,
+          "end_character": 365,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL19",
+          "start_character": 366,
+          "end_character": 440,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL20",
+          "start_character": 441,
+          "end_character": 509,
+          "planned_keep_seconds": 10
+        }
+      ],
+      "job": "jobs/SC04.json",
+      "result": "results/SC04.json",
+      "audio": "03_tts/sections/SC04_raw.mp3",
+      "alignment": "03_tts/alignment/SC04.json",
+      "playback_1p1": "playback/SC04_1p1.mp3"
+    },
+    {
+      "id": "SC05",
+      "text_sha256": "45acdd0c66795920fd043394b9455c9b19a959986296d3ed74b21c246b34e43a",
+      "text": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다. 그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다. 그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+      "planned_seconds": 26,
+      "shots": [
+        {
+          "shot_id": "CL21",
+          "start_character": 0,
+          "end_character": 77,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL22",
+          "start_character": 78,
+          "end_character": 139,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL23",
+          "start_character": 140,
+          "end_character": 172,
+          "planned_keep_seconds": 8
+        }
+      ],
+      "job": "jobs/SC05.json",
+      "result": "results/SC05.json",
+      "audio": "03_tts/sections/SC05_raw.mp3",
+      "alignment": "03_tts/alignment/SC05.json",
+      "playback_1p1": "playback/SC05_1p1.mp3"
+    },
+    {
+      "id": "SC06",
+      "text_sha256": "0b7ca3d474ae4054aaab9ed6e59c94193a24b1b4d22a0ac1f10252836ed9177e",
+      "text": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다. 물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다. 쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다. 그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.",
+      "planned_seconds": 35,
+      "shots": [
+        {
+          "shot_id": "CL24",
+          "start_character": 0,
+          "end_character": 43,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL25",
+          "start_character": 44,
+          "end_character": 94,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL26",
+          "start_character": 95,
+          "end_character": 178,
+          "planned_keep_seconds": 9
+        },
+        {
+          "shot_id": "CL27",
+          "start_character": 179,
+          "end_character": 250,
+          "planned_keep_seconds": 8
+        }
+      ],
+      "job": "jobs/SC06.json",
+      "result": "results/SC06.json",
+      "audio": "03_tts/sections/SC06_raw.mp3",
+      "alignment": "03_tts/alignment/SC06.json",
+      "playback_1p1": "playback/SC06_1p1.mp3"
+    },
+    {
+      "id": "SC07",
+      "text_sha256": "a09102a57635e252104dc2ffd67fb0197db906b8c0a0cf0c88999d3731528cd1",
+      "text": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다. 다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다. 그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+      "planned_seconds": 24,
+      "shots": [
+        {
+          "shot_id": "CL28",
+          "start_character": 0,
+          "end_character": 52,
+          "planned_keep_seconds": 8
+        },
+        {
+          "shot_id": "CL29",
+          "start_character": 53,
+          "end_character": 95,
+          "planned_keep_seconds": 8
+        },
+        {
+          "shot_id": "CL30",
+          "start_character": 96,
+          "end_character": 155,
+          "planned_keep_seconds": 8
+        }
+      ],
+      "job": "jobs/SC07.json",
+      "result": "results/SC07.json",
+      "audio": "03_tts/sections/SC07_raw.mp3",
+      "alignment": "03_tts/alignment/SC07.json",
+      "playback_1p1": "playback/SC07_1p1.mp3"
+    }
+  ],
+  "canonical_approval": false,
+  "project_db_mutated": false
+}

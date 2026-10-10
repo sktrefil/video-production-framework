@@ -1,0 +1,15 @@
+D.B. COOPER | CL23 | SC05 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: TIE-01, ENV-FOREST
+FACT GUARD: 시간 경과는 편집 자막에서 연도 표기; 지도나 실제 위치 경로를 그리지 않음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL23.
+STORY: 수색 실패와 시간 경과를 시각적 공간의 비어 있음으로 전달
+START FRAME: 수색 불빛이 사라진 숲 가장자리
+FUTURE CAMERA SPACE: 천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION
+REVEAL TO RESERVE: 6~7초 화면에서 수색 흔적마저 사라짐
+Keep the revealed state out of the START composition. One frame, one information state.

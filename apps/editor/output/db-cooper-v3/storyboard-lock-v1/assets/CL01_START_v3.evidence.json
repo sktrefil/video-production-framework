@@ -1,0 +1,25 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "shot_id": "CL01",
+  "kind": "START",
+  "prompt_sha256": "8e50d7d1fc1e9c50bc33266ce858ddda1dd48d89e77a49e80160cdec58f4645a",
+  "reference_sha256": [
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    {
+      "role": "BOARD02_MOTION",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    {
+      "role": "BOARD03_SCENE",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  ],
+  "output_path": "assets/CL01_START.png",
+  "output_sha256": "7bd0fe68681046e142932aef4a564d224dcbbfec1593a103d4d73ef46efc0b9e",
+  "provider_request_ids": [],
+  "generated_at": "2026-10-09T12:18:48.061Z",
+  "state": "GENERATED_UNREVIEWED"
+}

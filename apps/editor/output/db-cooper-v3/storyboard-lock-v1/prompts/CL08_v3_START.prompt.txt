@@ -1,0 +1,14 @@
+SC03 | CL08 | INDEPENDENT START IMAGE | v3 | SEATTLE TARMAC
+
+Create ONE 1536x864 horizontal 16:9 full-frame illustration: a NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir Seattle airport stop in 1971. Strong charcoal and steel-blue shapes, restrained amber apron lamps, rough paper grain, bold readable linework, dynamic graphic perspective. No photorealism, live action, documentary reenactment, hyperrealism or glossy 3D.
+
+This is a NEW exterior scene after CL07's near-black CLOSED cockpit-door wipe. Do not reproduce the cabin or its door. Match the transition by placing a dark aircraft wing or terminal shadow in the far-left foreground; the rest of the frame opens onto the airport apron. Use the same amber light direction and ink palette. The previous CL07 frame is a transition description only, not an attached visual reference and not a START image to copy.
+
+PRIMARY COMPOSITION: a stationary Boeing 727-100 consistent with the project's AIR-01 shape and era, seen in a clear three-quarter side view on the Seattle apron. Its distinctive T-tail and rear-mounted engines must be legible; grounded wheels and idle posture are visible. Hold the airplane large enough to identify, with runway perspective allowing a low camera track along the apron. One small airport service vehicle may be distant at the edge, approaching but not yet at the plane. Low-light dusk/night with damp reflections, without exaggerated downpour. The parked aircraft and empty ground space are the single information state.
+
+RESERVE FOR LATER IN CL08: the $200,000 and four parachutes are not yet visible in this START frame. No money bag close-up, no loading, no passenger disembarkation, no Cooper face and no open cabin or cockpit. CL08 movement will bring the service vehicle closer and begin the transfer. CL09 handles passengers leaving.
+
+Project reference boards are attached: BOARD03_SCENE (Seattle stop and aircraft staging), BOARD01_STYLE (AIR-01 aircraft and ink language), BOARD02_MOTION (lateral track). Use them as design and geometry references, not literal panels. Do not copy titles, labels, captions, registration numbers or other lettering from the boards. No invented readable text, subtitles, logos, watermark or four-point generator mark.
+BOARD03_SCENE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+BOARD01_STYLE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7

@@ -1,0 +1,28 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "report_revision": "review-v1",
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "style_mode": "NON_REALISTIC_STYLIZED",
+  "style_start_notice": "DECLARED_VALIDATED",
+  "script_draft": "REVIEWED_V3",
+  "directing_preflight": "REVISION_REQUIRED",
+  "specialist_role_preflight": "NOT_RUN_TOOL_MODEL_ERROR",
+  "script_revision_round": 0,
+  "directing_revision_round": 1,
+  "visual_skeleton": "CANDIDATE_REVIEWED_NOT_PASS",
+  "sequence_qc": "REVISION_REQUIRED",
+  "script_directing_lock": null,
+  "manager_story_gate": "NOT_ADVANCED",
+  "canonical_project_db_found": false,
+  "final_tts_allowed": false,
+  "preview_tts_plan": "output/db-cooper-v3/tts-preview-v1/preview-plan.json",
+  "production_approved": false,
+  "unresolved": [
+    "CL01 v2 END/video prompts are not yet integrated into the canonical shot plan",
+    "SC06 CL26-CL27 narration allocation is estimated and needs timing review",
+    "CL29 v1 auto-binding to the dark CL01 used exit conflicts with the visible-stair reprise",
+    "Dedicated story_audio/visual_image role self-QC has not run",
+    "No canonical D.B. Cooper project.db with approved FINAL script and Scene graph"
+  ],
+  "next_stage": "REVISE_SHOT_MANIFEST_AND_SEQUENCE_QC"
+}

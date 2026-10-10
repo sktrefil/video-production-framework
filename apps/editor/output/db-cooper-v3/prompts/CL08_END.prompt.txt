@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL08 | SCENE SC03 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 항공기 도장/꼬리 문양 AIR-01 반복, 지상 후미 계단은 맥락에 따라 닫힘
+Create one planned END/TARGET still for CL08: 시애틀에 멈춘 305편.
+Attach the reviewed CL08 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 기체는 멈췄고 공항 차량이 돈과 낙하산을 가져옴
+START STATE: 시애틀 공항 주기장의 동일 727-100을 측면 원경에서 관찰
+CAMERA PATH: 활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행
+DESIRED TARGET COMPOSITION: 공항 차량과 전달되는 짐이 항공기 아래 가까이 옴
+PLANNED EDITORIAL EXIT AT 10 SECONDS: 차량 위 검은 돈가방의 실루엣
+SUBJECT ACTION: 지상 차량이 느리게 이동, 승객 하차는 다음 샷에서 분리
+ENVIRONMENT MOTION: 시애틀 시간대는 해질녘/저조도, 임의 폭우 과장 금지
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

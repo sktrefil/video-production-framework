@@ -1,0 +1,27 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "report_revision": "review-v2-after-sc06-preview",
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "style_start_notice": "DECLARED_VALIDATED",
+  "script_draft": "REVIEWED_V3",
+  "directing_preflight": "REVISION_REQUIRED",
+  "sc06_timing": "MEASURED_PREVIEW_1P1_22.327_SECONDS_OF_35_PLANNED",
+  "sc06_narration_shortening_candidate": "DEFERRED_NOT_NEEDED_FOR_TIMING",
+  "sc06_pacing_qc": "PENDING_AUDIO_AND_CONNECTED_VISUAL_REVIEW",
+  "other_scene_tts_preview": "NOT_GENERATED",
+  "visual_skeleton": "CANDIDATE_REVIEWED_NOT_PASS",
+  "sequence_qc": "REVISION_REQUIRED",
+  "script_directing_lock": null,
+  "manager_story_gate": "NOT_ADVANCED",
+  "canonical_project_db_found": false,
+  "final_tts_allowed": false,
+  "production_approved": false,
+  "unresolved": [
+    "CL01 v2 END/video prompts are not integrated into the shot plan",
+    "CL29 v1 automatic binding conflicts with the visible-stair reprise",
+    "SC06 12.673-second visual/sound allocation needs connected playback QC",
+    "Other six scenes need preview duration review before a 270-second timing decision",
+    "Dedicated role self-QC and canonical D.B. Cooper project.db Story Gate are absent"
+  ],
+  "next_stage": "GENERATE_REMAINING_PREVIEW_SCENES_AND_REVISE_SHOT_PLAN"
+}

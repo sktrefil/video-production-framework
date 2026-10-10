@@ -1,0 +1,54 @@
+{
+  "id": "CL18",
+  "scene": "SC04",
+  "ordinal": 18,
+  "timeline_start": 157,
+  "timeline_end": 166,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL18_START.png",
+  "end_target_asset": "assets/CL18_END_TARGET.png",
+  "video_asset": "clips/CL18.mp4",
+  "prompts": {
+    "start": "prompts/CL18_v2_START.prompt.txt",
+    "end": "prompts/CL18_v2_END.prompt.txt",
+    "video": "prompts/CL18_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "지상에서 확인할 수 없는 사건의 유일한 기체 반응 중 하나",
+  "action": "기체와 계단만 보이며 점프 인물·낙하산·착지 장면 없음",
+  "camera": "인물 없는 계단 외부 PARALLAX→기체 장거리 FOLLOW→리노 착륙에 맞춰 컷",
+  "reveal": "누구도 계단 끝을 직접 보지 못했고 비행기는 계속 남쪽으로 가 리노에 착륙한다",
+  "exit": "착륙 뒤 빈 객실의 입구",
+  "sound": "바람과 엔진→착륙 후 기계음; 직접 점프·착지 소리 금지",
+  "narrator_text": "하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 23.727,
+    "scene_audio_end_seconds": 29.891,
+    "spoken_window_seconds": 6.164
+  },
+  "voice_slot_relative": {
+    "start": 0.4,
+    "end": 6.564
+  },
+  "voice_slot_timeline": {
+    "start": 157.4,
+    "end": 163.564
+  },
+  "pre_voice_seconds": 0.4,
+  "post_voice_seconds": 2.436,
+  "nonvoice_seconds": 2.836
+}

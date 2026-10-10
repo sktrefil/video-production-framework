@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL05 | SCENE SC02 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 폭발 장면/타이머/기폭장치 연출 금지; 실제 폭탄 확증 금지
+Create one planned END/TARGET still for CL05: 서류가방 속 붉은 막대.
+Attach the reviewed CL05 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 보인 것은 전선과 붉은 막대, 폭탄의 진위는 미확인
+START STATE: 쪽지의 아이보리 차폐 이후 검은 서류가방 힌지
+CAMERA PATH: 가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL
+DESIRED TARGET COMPOSITION: 가방이 조금 열리며 붉은 막대와 전선만 부분적으로 드러남
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 검은 가방 모서리에서 승무원 손으로 동선 이동
+SUBJECT ACTION: 쿠퍼 손이 가방 뚜껑을 조금 들어 보일 뿐, 조립/작동 묘사 없음
+ENVIRONMENT MOTION: 객실의 다른 영역은 먹선 암부에 감춰 공포 유지
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

@@ -1,0 +1,15 @@
+D.B. COOPER | SC01 | CL02 | START IMAGE | v3 graphic-match revision
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, horizontal 16:9, 1536x864. Preserve the steel-blue/charcoal ink world, rough linework, strong readable shadows and restrained amber practical lights. No photorealism, live action, documentary reenactment or glossy 3D.
+
+PRIMARY TRANSITION REFERENCE: exits/CL01_USED_EXIT.png | SHA-256 22bf57e66a004ef4444c3aac5f623881687b53350101df396fca981a48b0438e. This is the ACTUAL last used frame of CL01.mp4 at frame 239/240. Use only its dark central silhouette, ink texture, edge-light direction and visual weight as a GRAPHIC MATCH. Do not copy the exterior staircase, sky, engines or moon into the cabin. CL02 changes time and location after a deliberate cut.
+PROJECT STYLE BOARD: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+PROJECT MOTION BOARD: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+PROJECT SCENE BOARD: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board panels, captions or lettering into the image.
+
+Create ONE new START image for CL02. STORY STATE: the same aircraft has landed in Reno; the camera now faces down a dark, empty passenger-cabin aisle. No passenger or Cooper is visible. The composition is a frontal, low aisle view: shadowed seat backs on both sides form a narrowing black central corridor. Let the central void match the shape and darkness of the CL01 stairwell opening at the cut, while the surrounding stair rails become cabin seat-edge lines. This is a visual rhyme, not a physically continuous camera move.
+
+Keep the aisle's vanishing point readable so the next 8-second used clip can push forward, make a small check toward the rear, and stop at an empty seat. Use weak warm cabin lamps against steel-blue shadows. The exact historical seat layout is unverified; avoid crisp blueprint-like specificity or invented labels. Do not place a money bag, cash or tie prominently in this START frame; reserve the felt absence of the money bag for seconds 5–7 of the following video. No text, titles, boarding-pass lettering, subtitles or watermark.
+
+FACT GUARD: Do not show a witnessed jump, landing of a person, or a definitive account of Cooper's fate. One still image, one information state. Distinguish the landed cabin from CL01's night exterior without losing the graphic cut connection.
+SAVE AS: assets/CL02_START_v3.png

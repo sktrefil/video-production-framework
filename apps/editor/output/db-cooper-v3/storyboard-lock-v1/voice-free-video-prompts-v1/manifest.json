@@ -1,0 +1,310 @@
+{
+  "schema": "db-cooper-voice-free-video-prompts.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "PROMPT_PACKAGE_NOT_CANONICAL_APPROVAL",
+  "voice_generation": "FORBIDDEN",
+  "nonverbal_sfx_generation": "REQUIRED",
+  "generated_from_locked_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "entries": [
+    {
+      "clip_id": "CL01",
+      "scene": "SC01",
+      "source_prompt": "prompts/CL01_v4_VIDEO.prompt.txt",
+      "source_sha256": "26eac8637fcb27e9320bec81e372bb744c777feedeb6160722c7030d85a55ecc",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL01_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "1e661d88969c021291851803d10e350ffb3061e1852466a056185318dca4dd55",
+      "html": "voice-free-video-prompts-v1/CL01-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL02",
+      "scene": "SC01",
+      "source_prompt": "prompts/CL02_v4_VIDEO.prompt.txt",
+      "source_sha256": "ff51328150df518964e712c3e9dc5c2881c544c01b022c34c2e816a4180196d9",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL02_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "c4227e66d85f6d1173b43f421974b159ab7db43dacf309461c0a442e4c7e35ec",
+      "html": "voice-free-video-prompts-v1/CL02-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL03",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL03_v4_VIDEO.prompt.txt",
+      "source_sha256": "2346f5eecd98357f751d29783246d7172e4910c23fac901f56eb99abeec03288",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL03_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "c839d302205ee0dce6d86b566efe063b5675e4f8859a5672d76c749c8cde7784",
+      "html": "voice-free-video-prompts-v1/CL03-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL04",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL04_v3_VIDEO.prompt.txt",
+      "source_sha256": "11c332ce23e245fafb68c0540c8a06fc358e0c284af4d3ef57ceec41062950b0",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL04_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "9ab4065b181a1478646e5d78aa43614e051bed39d4e2de050270585f10095aac",
+      "html": "voice-free-video-prompts-v1/CL04-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL05",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL05_v3_VIDEO.prompt.txt",
+      "source_sha256": "bbe2cbc6eafd5252584cd65a4df0cd9d07f2ad47605fd5948e4063d874663936",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL05_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "fa8ba329e7d55820916edac5398978c741b49c44597bd3eafc8a4cc5b2e4a15e",
+      "html": "voice-free-video-prompts-v1/CL05-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL06",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL06_v5_VIDEO.prompt.txt",
+      "source_sha256": "6c53b531eb9280b066f6b61758e421724154ae195234aa45f781d9baa80e3daa",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL06_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "25efc2c947f3ea4943ba79134a1d270f9f722720fd4ec3a7e1349925b45764f2",
+      "html": "voice-free-video-prompts-v1/CL06-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL07",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL07_v5_VIDEO.prompt.txt",
+      "source_sha256": "bc0f4dbb7aa2ec5dc492e3d30e06057ddd1fc2d3047bbd9a88cef9b61efd6360",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL07_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "bc0f4dbb7aa2ec5dc492e3d30e06057ddd1fc2d3047bbd9a88cef9b61efd6360",
+      "html": "voice-free-video-prompts-v1/CL07-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL08",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL08_v4_VIDEO.prompt.txt",
+      "source_sha256": "c606ff85c5f50607fd3c803e099e16e643676d7466115a95eebb493a4eded4dc",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL08_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "c606ff85c5f50607fd3c803e099e16e643676d7466115a95eebb493a4eded4dc",
+      "html": "voice-free-video-prompts-v1/CL08-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL09",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL09_v2_VIDEO.prompt.txt",
+      "source_sha256": "79f1c1611f4b626bd65bca525bfac9a1b85e794339bce4ae220aa4ee650b66a6",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL09_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "32e50294add9d922b2e16a68960421fd34b6bb314b6e4fb296acf34ac7df0c2f",
+      "html": "voice-free-video-prompts-v1/CL09-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL10",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL10_v2_VIDEO.prompt.txt",
+      "source_sha256": "32b2820401ce81b7033c0cf70fe6d1bf6559ab3d416cc191a135a52a7cfabf93",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL10_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "999ab6cf7ffc0baacde02fd3108634c1c9402949ca4360a083044aa992103719",
+      "html": "voice-free-video-prompts-v1/CL10-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL11",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL11_v2_VIDEO.prompt.txt",
+      "source_sha256": "114cd7f413ebfc8e16212ff072d98b5ac2aed84466af30f1c101316fde0cdf92",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL11_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "22d1b8e9c6fff233d04b699594e6ce86da8e4f55e091b42012d171e338b5fc44",
+      "html": "voice-free-video-prompts-v1/CL11-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL12",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL12_v2_VIDEO.prompt.txt",
+      "source_sha256": "bdfc44640ae8476ed4601ad9eafc9943be1e48ba382a03cd7ea2fef85773cb8b",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL12_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "64235b09c29bbbb65dbcc8b97fb46a963d68778b2b3129a3e9fc6a78c7279ef1",
+      "html": "voice-free-video-prompts-v1/CL12-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL13",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL13_v2_VIDEO.prompt.txt",
+      "source_sha256": "76e3bffe0b2bf091cc39a0bd27b3d5542ba94c7474a758355728c9a7c8cffff7",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL13_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "bdb3e2631f350cbd278bcefd1ae7da51a41d37845fbf174d66b5e182505db7bb",
+      "html": "voice-free-video-prompts-v1/CL13-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL14",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL14_v2_VIDEO.prompt.txt",
+      "source_sha256": "38958db635dd625f3bb61c7a230444a9c5005772c25dba89a5fc44c0d16aa9fa",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL14_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "1701aa2cb98ced591781d9224184967691e58afce6ba47e822d82088bda26e15",
+      "html": "voice-free-video-prompts-v1/CL14-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL15",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL15_v2_VIDEO.prompt.txt",
+      "source_sha256": "22077c6e3ad8487c343be71eaebd440f30f4d0558250ed7335bceb7ccfeefa45",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL15_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "6bcfa27317cd7bdf62fae954c7b5fba081de4b5341bb3ffa48077a36ec60077d",
+      "html": "voice-free-video-prompts-v1/CL15-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL16",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL16_v2_VIDEO.prompt.txt",
+      "source_sha256": "5e86ea579e31ac9faa2bdf0e7fb4f5659a5a9347c6c203f8fb69f58deaa61c0c",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL16_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "c68c87796f1e2634d441d34dab8d9397aa279b681f680c32d076609f053b9805",
+      "html": "voice-free-video-prompts-v1/CL16-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL17",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL17_v2_VIDEO.prompt.txt",
+      "source_sha256": "5e092718b3d3ac895851cc4cc2a801d9e2600f8ca4497964f5b005d327d10d19",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL17_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "a9536a78730b1f333297d5301e0206b83e955ce8cdb554247f011a04324ce3be",
+      "html": "voice-free-video-prompts-v1/CL17-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL18",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL18_v2_VIDEO.prompt.txt",
+      "source_sha256": "a83233a8009718af4f00dfafd6d4a17030d641c637cf59a66880e79e3570f74b",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL18_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "c830dd225c3b136af1245ac2d2ceb2ffa6ebc3bb2a17c8976f7645a2d7d61269",
+      "html": "voice-free-video-prompts-v1/CL18-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL19",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL19_v2_VIDEO.prompt.txt",
+      "source_sha256": "995704e7426ab1e0832df616980c88115e05fa14718d9ba426658adfcb6f9d67",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL19_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "d556abc73758b80b2d4a08e361eabf6e82515a6b5d6bb261739a322d27991cb2",
+      "html": "voice-free-video-prompts-v1/CL19-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL20",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL20_v2_VIDEO.prompt.txt",
+      "source_sha256": "901df7b89bd715bfbdfdefe465dddcb38828baec40e9987c3c933a65601d5b21",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL20_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "758e84cbc663eb66cac1d0ce455e848997fadf36691bae5f4ba5dcb3e364b85d",
+      "html": "voice-free-video-prompts-v1/CL20-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL21",
+      "scene": "SC05",
+      "source_prompt": "prompts/CL21_v2_VIDEO.prompt.txt",
+      "source_sha256": "f1beb08152085576fdbf88ab0bdd23e26ffea82d0d92b054f5ebb9a022882477",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL21_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "03b2a9079cd646c2a731f35d98a4f142296cea62a92d610eb62b5a80a0447541",
+      "html": "voice-free-video-prompts-v1/CL21-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL22",
+      "scene": "SC05",
+      "source_prompt": "prompts/CL22_v2_VIDEO.prompt.txt",
+      "source_sha256": "5944abec85eff9e76b1d8289ddf33e1d9b591983a05c2467f249533e24baa719",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL22_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "2c1fa21d50e7ad90e51f90a4b4391f52e75d7c577248340d2a99ebcdd9074126",
+      "html": "voice-free-video-prompts-v1/CL22-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL23",
+      "scene": "SC05",
+      "source_prompt": "prompts/CL23_v2_VIDEO.prompt.txt",
+      "source_sha256": "d2abbddda63f8839b3a1524061c4372aef12d231dcfc6d2d3c99e0d4cc9d334f",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL23_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "17af280d48e4e81ed98a8ce3a12a824a89dabdfcb693cbcca4c6375cec6987b3",
+      "html": "voice-free-video-prompts-v1/CL23-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL24",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL24_v2_VIDEO.prompt.txt",
+      "source_sha256": "5833d7ea68a51a5879477bca0bf07c3328162f4b3694389620da435238465b52",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL24_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "129c04f90286faa7efaa7b57526f8665473f5d6d0ce9676ffa3a62bfbca791b8",
+      "html": "voice-free-video-prompts-v1/CL24-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL25",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL25_v2_VIDEO.prompt.txt",
+      "source_sha256": "565a1525814388994610e800d889a87f7fdb60b0d0102b103359749ffc843430",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL25_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "076ca6d5ca2d804607a380ecd2b9fe9b7019bae830f45fb9100fecec93c0cbf7",
+      "html": "voice-free-video-prompts-v1/CL25-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL26",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL26_v2_VIDEO.prompt.txt",
+      "source_sha256": "d7b6582c3bc79a3d719783fd4f95b997831bb21cbfc22353da8c8c8cbe5d2252",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL26_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "d79bcc3d091063a0ae806c6152615e032beda1d9a0117af2879d05ac9b1e7e47",
+      "html": "voice-free-video-prompts-v1/CL26-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL27",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL27_v2_VIDEO.prompt.txt",
+      "source_sha256": "74cfeba1d463165c4a0934e04f6e7929dfef6a91d92f09373b1bcf964669436f",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL27_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "9db0da70a595d33812fbf027b8c49b540b852eed7187a901984dc90160878031",
+      "html": "voice-free-video-prompts-v1/CL27-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL28",
+      "scene": "SC07",
+      "source_prompt": "prompts/CL28_v2_VIDEO.prompt.txt",
+      "source_sha256": "580e77eb711fc16ad5d2c0e45dec12276c658cfd26f6c47470b7f3f57aaccbec",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL28_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "30d6c8679a578a7c7376ec833de9e8d714aa3b0aaa67eba19125858c4fe7caeb",
+      "html": "voice-free-video-prompts-v1/CL28-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL29",
+      "scene": "SC07",
+      "source_prompt": "prompts/CL29_v2_VIDEO.prompt.txt",
+      "source_sha256": "7178b9d53668a658305970e9182e911690fa8086fc25124430ea2886677a3aa2",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL29_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "b7e9b87d801108aa16a095c97387b54e9a6e8039019a37bb206cb5956ac75ea6",
+      "html": "voice-free-video-prompts-v1/CL29-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL30",
+      "scene": "SC07",
+      "source_prompt": "prompts/CL30_v2_VIDEO.prompt.txt",
+      "source_sha256": "979dc66e8e0adaab03030f354ca26f5663b9adab7042cf6be66f402b6b6b61d3",
+      "voice_free_prompt": "voice-free-video-prompts-v1/CL30_VIDEO.prompt.txt",
+      "voice_free_prompt_sha256": "65a1fe2d3ec9c982f44d444a5d9304b9f8f16cd71e03f55e907958490d696119",
+      "html": "voice-free-video-prompts-v1/CL30-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    }
+  ]
+}

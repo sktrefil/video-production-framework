@@ -1,0 +1,54 @@
+{
+  "id": "CL13",
+  "scene": "SC04",
+  "ordinal": 13,
+  "timeline_start": 112,
+  "timeline_end": 121,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL12"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL13_START.png",
+  "end_target_asset": "assets/CL13_END_TARGET.png",
+  "video_asset": "clips/CL13.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL13_v2_END.prompt.txt",
+    "video": "prompts/CL13_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "쿠퍼가 후방 계단 조작에 어려움을 겪는 시각적 조짐",
+  "action": "손이 한 번 조작하고 인터폰 연락으로 넘어가되 실제 조작 절차는 만들지 않음",
+  "camera": "손·레버 TIGHT PUSH-IN→반응 없는 계단 상태→인터폰 신호로 그래픽 이동",
+  "reveal": "쿠퍼의 후방 계단 조작이 잘되지 않아 조종실에 연락한다",
+  "exit": "조종실 인터폰으로 이어지는 신호",
+  "sound": "불규칙 바람과 금속 떨림→인터폰 연결음; 임의 조작 절차나 정확한 대사 금지",
+  "narrator_text": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 0,
+    "scene_audio_end_seconds": 4.873,
+    "spoken_window_seconds": 4.873
+  },
+  "voice_slot_relative": {
+    "start": 1.3,
+    "end": 6.173
+  },
+  "voice_slot_timeline": {
+    "start": 113.3,
+    "end": 118.173
+  },
+  "pre_voice_seconds": 1.3,
+  "post_voice_seconds": 2.827,
+  "nonvoice_seconds": 4.127
+}

@@ -1,0 +1,28 @@
+D.B. COOPER | SC02 | CL03 | VIDEO PROMPT | v3
+
+Create one 10-second horizontal 16:9 animated video from START image assets/CL03_START_v3.png toward END/TARGET image assets/CL03_END_TARGET_v3.png. The editor uses only the first 9 seconds at project timeline 18–27 seconds. Reach the END composition by 9.0 seconds; if the video tool requires a 10-second endpoint, hold that composition from 9.0 to 10.0 seconds. The final frame actually used in a 30 fps edit is near 8.967 seconds. Do not save a reveal for the discarded tenth second.
+
+STYLE LOCK: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, boldly graphic and clearly animated. Charcoal and steel-blue shadows, restrained warm paper highlights, visible drawn texture, strong readable silhouettes and parallax. No photorealism, live action, documentary reenactment, hyperreal imagery, or glossy 3D. Keep the START image's paper, sleeve, black tie, seat geometry, lighting direction and camera axis consistent as the camera travels.
+
+SCENE: Several hours earlier in 1971, an anonymous suited passenger aboard the flight associated with the Portland departure. This is a distinct scene after CL02's graphic time cut, not a continuous flight through the CL02 cabin. Begin on a period boarding pass beside a dark suit sleeve. Keep all ticket printing blank or unreadable; the verified name can be added in editing. Show Cooper through cropped hands, black tie and side/back silhouette only. Do not invent a definite face, specific private behavior, or a documented exchange that the script does not establish.
+
+ONE CAMERA PATH AND ACTION:
+0.0–0.7 s: Start exactly from CL03_START_v3.png. A small ticket rustle and a slight paper tilt establish the boarding pass. Give the audience time to read the object, not invented writing.
+0.7–3.5 s: Follow the ticket left to right with a smooth, deliberate lateral camera move. Seat backs create layered parallax and briefly occlude the view. Maintain spatial direction and a clear path toward the suited man's seat.
+3.5–6.0 s: Pass the seat back into the darker aisle-side composition. The man remains anonymous. Use a modest push-in and shifting shadows to build tension while the boarding pass leaves frame.
+6.0–9.0 s: His hand rises slowly with one small folded note. Only after 6 seconds does its pale edge enter the frame. Continue the same camera axis and finish at the CL03_END_TARGET_v3.png composition by the 9-second edit exit. Keep the note folded and its contents unreadable; its bright edge is the visual handoff to CL04.
+9.0–10.0 s: Hold the reached END composition with only subtle drawn motion. This second is source padding and will be removed in editing.
+
+VOICE AND SOUND: Reserve 0.700–6.518 s of the used clip for the approved SC02 segmented narration: “몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼.” Place the existing TTS in editing; do not synthesize speech in the video. Sound design in editing: brief ticket-paper rustle, a steady low aircraft-engine bed, and indistinct passenger murmur. Let the paper rustle return quietly when the folded note appears. Keep effects below narration.
+
+TRANSITION AND REVIEW: CL02_END_TARGET_v4.png is a planned graphic-match reference for CL03 START, not evidence of CL02's actual used exit. After CL02.mp4 exists, compare its actual 8-second used exit with CL03's first frame before locking the transition. After CL03.mp4 exists, inspect its actual frame near 8.967 seconds before creating or binding CL04 START. A target image alone does not prove the video reached it.
+
+PROJECT BOARDS:
+boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Use the boards for visual grammar, not their typography, panel layouts or unverified faces.
+
+CONTINUITY: COO-01 anonymous suited man; NOTE-01 folded paper; BRF-01 briefcase; CAB-01 cabin. Do not add a bomb device, money, parachute, weapon, readable invented historical text, titles, subtitles, or watermark. Do not depict an unwitnessed jump or landing.
+
+OUTPUT: clips/CL03.mp4

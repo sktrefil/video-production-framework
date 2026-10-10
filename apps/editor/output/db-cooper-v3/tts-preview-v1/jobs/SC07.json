@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "jobId": "tts-preview-SC07-a09102a57635",
+  "jobRevision": 1,
+  "projectId": "db_cooper_1971_4m30_v3_preview",
+  "provider": "ELEVENLABS",
+  "providerProfileVersion": "1.0.0",
+  "jobType": "TTS_GENERATION",
+  "executionMode": "AUTOMATED",
+  "attempt": 1,
+  "inputHash": "a09102a57635e252104dc2ffd67fb0197db906b8c0a0cf0c88999d3731528cd1",
+  "secretRequirements": [
+    {
+      "envName": "ELEVENLABS_API_KEY",
+      "required": true
+    }
+  ],
+  "input": {
+    "schemaVersion": 1,
+    "providerProfile": {
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    "plan": {
+      "id": "preview-plan-SC07-a09102a57635",
+      "revision": 1,
+      "sourceScript": {
+        "id": "DB_Cooper_4min30_script_v3_TTS.txt",
+        "revision": 3,
+        "sha256": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac"
+      },
+      "contentFormat": "LONGFORM",
+      "endpoint": "/v1/text-to-speech/{voice_id}/with-timestamps",
+      "modelId": "eleven_v3",
+      "outputFormat": "mp3_44100_128",
+      "voiceIdResolution": "VOICE_PRESET_THEN_ENV",
+      "voiceIdFallbackEnv": "ELEVENLABS_VOICE_ID",
+      "voicePreset": "HISTORY_MYSTERY_LONGFORM",
+      "configuredVoiceSettings": {
+        "stability": 0.62,
+        "similarityBoost": 0.8,
+        "style": 0.04,
+        "speed": 1,
+        "useSpeakerBoost": true
+      },
+      "effectiveVoiceSettings": {
+        "stability": 0.62,
+        "style": 0.04
+      },
+      "droppedVoiceSettings": [
+        "similarity_boost",
+        "speed",
+        "use_speaker_boost"
+      ],
+      "preserveProviderCadence": true,
+      "narrationMode": "SEGMENTED",
+      "chunks": [
+        {
+          "index": 1,
+          "text": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다. 다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다. 그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+          "textCharacterCount": 155,
+          "outputRelativePath": "03_tts/sections/SC07_raw.mp3",
+          "sectionId": "preview-SC07",
+          "sectionIndex": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "preview-SC07",
+          "index": 1,
+          "sequenceId": "preview-SC07",
+          "sceneIds": [
+            "SC07"
+          ],
+          "text": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다. 다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다. 그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+          "textCharacterCount": 155,
+          "audioRelativePath": "03_tts/sections/SC07_raw.mp3",
+          "characterAlignmentRelativePath": "03_tts/alignment/SC07.json"
+        }
+      ],
+      "outputPaths": {
+        "narrationManifest": "03_tts/manifests/SC07.json",
+        "metadata": "03_tts/metadata/SC07.json",
+        "resolvedVoiceProfile": "03_tts/voice/SC07.json"
+      }
+    }
+  }
+}

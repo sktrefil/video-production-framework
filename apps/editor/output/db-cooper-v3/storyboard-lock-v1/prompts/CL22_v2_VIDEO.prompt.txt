@@ -1,0 +1,21 @@
+D.B. COOPER | CL22 | SC05 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: TIE-01, ENV-FOREST
+FACT GUARD: 특정 수색일·인원·장소 재현 주장 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL22. Editor uses 9 seconds at timeline 194-203 seconds.
+START: assets/CL22_START.png (PREVIOUS_USED_EXIT from CL21).
+END/TARGET: assets/CL22_END_TARGET.png
+ACTION: 멀리서 수색 인원이 걷되 얼굴/대사 불필요
+CAMERA: 나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지
+ENVIRONMENT: 안개와 강물의 움직임은 억제
+REVEAL: 6초 불빛 끝에 아무것도 없음
+USED EXIT: 고요한 빈 강변 지면
+VOICE SLOT IN USED CLIP: 1.100-6.336s; narration: 그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다.
+SOUND DESIGN: 가지·자갈→멀어지는 무전→강물
+HANDOFF: CONTINUATION
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

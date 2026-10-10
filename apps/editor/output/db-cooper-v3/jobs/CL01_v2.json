@@ -1,0 +1,16 @@
+{
+  "id": "CL01",
+  "revision": "v2_directing_candidate",
+  "state": "DRAFT_NOT_APPROVED",
+  "change_reason": "Align the planned END image with the 10-second dark stairwell exit; keep the stair reveal at 6–8 seconds.",
+  "start_asset": "assets/CL01_START.png",
+  "end_target_asset": "assets/CL01_END_TARGET_v2.png",
+  "source_video_asset": "clips/CL01.mp4",
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "start_prompt": "prompts/CL01_START.prompt.txt",
+  "end_prompt": "prompts/CL01_END_v2.prompt.txt",
+  "video_prompt": "prompts/CL01_VIDEO_v2.prompt.txt",
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "canonical_approval": false
+}

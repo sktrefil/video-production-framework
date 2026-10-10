@@ -1,0 +1,309 @@
+{
+  "schema": "db-cooper-silent-video-prompts.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "PROMPT_PACKAGE_NOT_CANONICAL_APPROVAL",
+  "audio_generation": "FORBIDDEN",
+  "generated_from_locked_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "entries": [
+    {
+      "clip_id": "CL01",
+      "scene": "SC01",
+      "source_prompt": "prompts/CL01_v4_VIDEO.prompt.txt",
+      "source_sha256": "26eac8637fcb27e9320bec81e372bb744c777feedeb6160722c7030d85a55ecc",
+      "silent_prompt": "silent-video-prompts-v1/CL01_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "eebfc37df2352fd14dfea23ea0ae2fbc65023b158523b62e676d5311d3bce6d5",
+      "html": "silent-video-prompts-v1/CL01-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL02",
+      "scene": "SC01",
+      "source_prompt": "prompts/CL02_v4_VIDEO.prompt.txt",
+      "source_sha256": "ff51328150df518964e712c3e9dc5c2881c544c01b022c34c2e816a4180196d9",
+      "silent_prompt": "silent-video-prompts-v1/CL02_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "afaea02f48b21256a13387518512c80ff7e884d9e4c51ffb5939512f3632d159",
+      "html": "silent-video-prompts-v1/CL02-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL03",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL03_v4_VIDEO.prompt.txt",
+      "source_sha256": "2346f5eecd98357f751d29783246d7172e4910c23fac901f56eb99abeec03288",
+      "silent_prompt": "silent-video-prompts-v1/CL03_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "62e0c7944b565ecdfe9abc4e92004f902a0c5bd52c1a9804f89e3d4a7b97c0f2",
+      "html": "silent-video-prompts-v1/CL03-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL04",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL04_v3_VIDEO.prompt.txt",
+      "source_sha256": "11c332ce23e245fafb68c0540c8a06fc358e0c284af4d3ef57ceec41062950b0",
+      "silent_prompt": "silent-video-prompts-v1/CL04_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "d45b912b01d6d69ad16b8009a3fbbcabe18966b868086b2af3ca58d0064e5c60",
+      "html": "silent-video-prompts-v1/CL04-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL05",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL05_v3_VIDEO.prompt.txt",
+      "source_sha256": "bbe2cbc6eafd5252584cd65a4df0cd9d07f2ad47605fd5948e4063d874663936",
+      "silent_prompt": "silent-video-prompts-v1/CL05_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "4ac8d56e5e23ea56dd0f550f9d4b3aa6b4433589cab6c09b4b46d4e112233296",
+      "html": "silent-video-prompts-v1/CL05-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL06",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL06_v5_VIDEO.prompt.txt",
+      "source_sha256": "6c53b531eb9280b066f6b61758e421724154ae195234aa45f781d9baa80e3daa",
+      "silent_prompt": "silent-video-prompts-v1/CL06_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "cb8d77ab46647768e3a557f1625b12a1d81b13a5a8bb0a5baf08fd6e4113beb9",
+      "html": "silent-video-prompts-v1/CL06-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL07",
+      "scene": "SC02",
+      "source_prompt": "prompts/CL07_v4_VIDEO.prompt.txt",
+      "source_sha256": "35a36b2e2a2e391e67b4a93fe27ca14ce328e6a89845ed9baa8bc9db0ca812c2",
+      "silent_prompt": "silent-video-prompts-v1/CL07_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "35a36b2e2a2e391e67b4a93fe27ca14ce328e6a89845ed9baa8bc9db0ca812c2",
+      "html": "silent-video-prompts-v1/CL07-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL08",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL08_v3_VIDEO.prompt.txt",
+      "source_sha256": "d86757d78afb07d95cf79251d764c6a30d2a3b3b7bb11eb5e7e8b4f6ed627072",
+      "silent_prompt": "silent-video-prompts-v1/CL08_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "d86757d78afb07d95cf79251d764c6a30d2a3b3b7bb11eb5e7e8b4f6ed627072",
+      "html": "silent-video-prompts-v1/CL08-video-prompt.html",
+      "media_production_status": "REVISED_PROMPT_FOR_FUTURE_GENERATION"
+    },
+    {
+      "clip_id": "CL09",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL09_v2_VIDEO.prompt.txt",
+      "source_sha256": "79f1c1611f4b626bd65bca525bfac9a1b85e794339bce4ae220aa4ee650b66a6",
+      "silent_prompt": "silent-video-prompts-v1/CL09_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "a9aa65fe3d763e2ed56a425896efa0f718153b9807ae40b68b077ac9dc94c457",
+      "html": "silent-video-prompts-v1/CL09-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL10",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL10_v2_VIDEO.prompt.txt",
+      "source_sha256": "32b2820401ce81b7033c0cf70fe6d1bf6559ab3d416cc191a135a52a7cfabf93",
+      "silent_prompt": "silent-video-prompts-v1/CL10_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "85613075c1b3592e4959fa90dae3ce885da16214a8188374f6befe855ebb9a80",
+      "html": "silent-video-prompts-v1/CL10-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL11",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL11_v2_VIDEO.prompt.txt",
+      "source_sha256": "114cd7f413ebfc8e16212ff072d98b5ac2aed84466af30f1c101316fde0cdf92",
+      "silent_prompt": "silent-video-prompts-v1/CL11_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "b4aa24d857c6204b4e994784f1dd4ef225d12a6ad56be43d791d47d3e745a2f4",
+      "html": "silent-video-prompts-v1/CL11-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL12",
+      "scene": "SC03",
+      "source_prompt": "prompts/CL12_v2_VIDEO.prompt.txt",
+      "source_sha256": "bdfc44640ae8476ed4601ad9eafc9943be1e48ba382a03cd7ea2fef85773cb8b",
+      "silent_prompt": "silent-video-prompts-v1/CL12_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "f6e6e780249318b47bd2113f15431213589962a52863743f83ae1db281a816a4",
+      "html": "silent-video-prompts-v1/CL12-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL13",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL13_v2_VIDEO.prompt.txt",
+      "source_sha256": "76e3bffe0b2bf091cc39a0bd27b3d5542ba94c7474a758355728c9a7c8cffff7",
+      "silent_prompt": "silent-video-prompts-v1/CL13_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "6af094a2045fea65bee4ff4655874db0011703317c1273ea4196b151133521ab",
+      "html": "silent-video-prompts-v1/CL13-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL14",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL14_v2_VIDEO.prompt.txt",
+      "source_sha256": "38958db635dd625f3bb61c7a230444a9c5005772c25dba89a5fc44c0d16aa9fa",
+      "silent_prompt": "silent-video-prompts-v1/CL14_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "7da71b7c7b94e53db67f3d13019deefde9c4cf6285edcad38b91f7d893db59c2",
+      "html": "silent-video-prompts-v1/CL14-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL15",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL15_v2_VIDEO.prompt.txt",
+      "source_sha256": "22077c6e3ad8487c343be71eaebd440f30f4d0558250ed7335bceb7ccfeefa45",
+      "silent_prompt": "silent-video-prompts-v1/CL15_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "fb938bb919724399e6494265b6153021a42f423753784fe4b64fdcf309a0defa",
+      "html": "silent-video-prompts-v1/CL15-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL16",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL16_v2_VIDEO.prompt.txt",
+      "source_sha256": "5e86ea579e31ac9faa2bdf0e7fb4f5659a5a9347c6c203f8fb69f58deaa61c0c",
+      "silent_prompt": "silent-video-prompts-v1/CL16_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "d0c62f5f6963310a94ba4aa7a98a1319606bd590eaf2ad77117b103931268f88",
+      "html": "silent-video-prompts-v1/CL16-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL17",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL17_v2_VIDEO.prompt.txt",
+      "source_sha256": "5e092718b3d3ac895851cc4cc2a801d9e2600f8ca4497964f5b005d327d10d19",
+      "silent_prompt": "silent-video-prompts-v1/CL17_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "510f3b0621784b54345ceb1fc6f091bf9530b32265e7afdc27f6388e39b377b0",
+      "html": "silent-video-prompts-v1/CL17-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL18",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL18_v2_VIDEO.prompt.txt",
+      "source_sha256": "a83233a8009718af4f00dfafd6d4a17030d641c637cf59a66880e79e3570f74b",
+      "silent_prompt": "silent-video-prompts-v1/CL18_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "1ca5faa8827119ec63fdd82c0e89f8fb33ee3468fb46196f422e3c70d9f5b523",
+      "html": "silent-video-prompts-v1/CL18-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL19",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL19_v2_VIDEO.prompt.txt",
+      "source_sha256": "995704e7426ab1e0832df616980c88115e05fa14718d9ba426658adfcb6f9d67",
+      "silent_prompt": "silent-video-prompts-v1/CL19_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "4f6c5e5136f2041561c5e0e26897bc7093af3bb82f7904d1c69969663e2fe512",
+      "html": "silent-video-prompts-v1/CL19-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL20",
+      "scene": "SC04",
+      "source_prompt": "prompts/CL20_v2_VIDEO.prompt.txt",
+      "source_sha256": "901df7b89bd715bfbdfdefe465dddcb38828baec40e9987c3c933a65601d5b21",
+      "silent_prompt": "silent-video-prompts-v1/CL20_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "737603f659ea3a86f015566d5cf719f56520e4678b0b6fbc01def266028a1c61",
+      "html": "silent-video-prompts-v1/CL20-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL21",
+      "scene": "SC05",
+      "source_prompt": "prompts/CL21_v2_VIDEO.prompt.txt",
+      "source_sha256": "f1beb08152085576fdbf88ab0bdd23e26ffea82d0d92b054f5ebb9a022882477",
+      "silent_prompt": "silent-video-prompts-v1/CL21_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "b445680777d172092b226185e2dd9d3dd2c29984d03328c4182e217117f8c699",
+      "html": "silent-video-prompts-v1/CL21-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL22",
+      "scene": "SC05",
+      "source_prompt": "prompts/CL22_v2_VIDEO.prompt.txt",
+      "source_sha256": "5944abec85eff9e76b1d8289ddf33e1d9b591983a05c2467f249533e24baa719",
+      "silent_prompt": "silent-video-prompts-v1/CL22_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "a5786b16cf10a7187c2c82e6e4cbfc1bbec24eaf14b4481b15252ab10f39bcdc",
+      "html": "silent-video-prompts-v1/CL22-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL23",
+      "scene": "SC05",
+      "source_prompt": "prompts/CL23_v2_VIDEO.prompt.txt",
+      "source_sha256": "d2abbddda63f8839b3a1524061c4372aef12d231dcfc6d2d3c99e0d4cc9d334f",
+      "silent_prompt": "silent-video-prompts-v1/CL23_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "e506b1e0fc03f909d12031c51f570d57829ed3261c4c958331573570796bcead",
+      "html": "silent-video-prompts-v1/CL23-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL24",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL24_v2_VIDEO.prompt.txt",
+      "source_sha256": "5833d7ea68a51a5879477bca0bf07c3328162f4b3694389620da435238465b52",
+      "silent_prompt": "silent-video-prompts-v1/CL24_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "74e411fb6d3d5692c8a16c963825e3a7a9a5223532bea46f91b2fbe45f869aa3",
+      "html": "silent-video-prompts-v1/CL24-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL25",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL25_v2_VIDEO.prompt.txt",
+      "source_sha256": "565a1525814388994610e800d889a87f7fdb60b0d0102b103359749ffc843430",
+      "silent_prompt": "silent-video-prompts-v1/CL25_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "787a1eeb77db25835f4c91927d1105feab7589489826307d089dc8ec8ea3a277",
+      "html": "silent-video-prompts-v1/CL25-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL26",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL26_v2_VIDEO.prompt.txt",
+      "source_sha256": "d7b6582c3bc79a3d719783fd4f95b997831bb21cbfc22353da8c8c8cbe5d2252",
+      "silent_prompt": "silent-video-prompts-v1/CL26_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "09369d1d87df39dea3d87ada8dbd7340120e731137ee55ef3f2ca8e2eb10eac3",
+      "html": "silent-video-prompts-v1/CL26-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL27",
+      "scene": "SC06",
+      "source_prompt": "prompts/CL27_v2_VIDEO.prompt.txt",
+      "source_sha256": "74cfeba1d463165c4a0934e04f6e7929dfef6a91d92f09373b1bcf964669436f",
+      "silent_prompt": "silent-video-prompts-v1/CL27_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "52dba4692442ca8a0ae2fea8350bfc7ff147a87db79aa5f6f55b0bcb551e83a5",
+      "html": "silent-video-prompts-v1/CL27-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL28",
+      "scene": "SC07",
+      "source_prompt": "prompts/CL28_v2_VIDEO.prompt.txt",
+      "source_sha256": "580e77eb711fc16ad5d2c0e45dec12276c658cfd26f6c47470b7f3f57aaccbec",
+      "silent_prompt": "silent-video-prompts-v1/CL28_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "1ab5815d217d8495a3246a994e6a218c15e8bdad0607f7f27162fd991e536359",
+      "html": "silent-video-prompts-v1/CL28-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL29",
+      "scene": "SC07",
+      "source_prompt": "prompts/CL29_v2_VIDEO.prompt.txt",
+      "source_sha256": "7178b9d53668a658305970e9182e911690fa8086fc25124430ea2886677a3aa2",
+      "silent_prompt": "silent-video-prompts-v1/CL29_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "435d4829fd1a9218b168194b6966b0c518985dc83a426a5b54ed686e083d6b88",
+      "html": "silent-video-prompts-v1/CL29-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    },
+    {
+      "clip_id": "CL30",
+      "scene": "SC07",
+      "source_prompt": "prompts/CL30_v2_VIDEO.prompt.txt",
+      "source_sha256": "979dc66e8e0adaab03030f354ca26f5663b9adab7042cf6be66f402b6b6b61d3",
+      "silent_prompt": "silent-video-prompts-v1/CL30_VIDEO.prompt.txt",
+      "silent_prompt_sha256": "e0d850feb1bdda45ff45fb31c1fbedf75bbfce4051da23b652c146214d554768",
+      "html": "silent-video-prompts-v1/CL30-video-prompt.html",
+      "media_production_status": "PROMPT_ONLY_REVIEW_REQUIRED"
+    }
+  ]
+}

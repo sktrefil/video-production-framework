@@ -1,0 +1,19 @@
+D.B. COOPER v3 | CL11 | SCENE SC03 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 재이륙 때 후방 계단이 열린 화면 금지, 실제 경고등 문구 생성 금지
+Create one START still for CL11: 후방 계단이라는 계획.
+STORY EVENT: 무리한 요구: 계단을 내린 채 이륙하라고 했으나 이륙 뒤 조작하기로 변경
+START COMPOSITION: 공항에 정지한 727 후방 하부 계단을 닫힌 상태로 표시
+TARGET PATH (for geometry only): 기체가 활주로에서 이륙을 시작, 후방 계단은 닫힌 채 유지
+CAMERA'S NEXT MOVE: 후방 하부 CLOSE → 천천히 PULL-BACK해 전체 기체와 추력 이동 공개
+SUBJECT IDENTITY/ACTION: 계단은 비행 전 열리지 않음, 기체만 활주·상승
+MOTION SPACE TO RESERVE: 6~8초 계단이 닫힌 채 날아오르는 상황의 역설
+Keep unknown faces, behavior and exact historical interiors stylized, silhouetted or abstract. No invented readable documents, serial numbers, baked-in text, captions or UI.
+This is a candidate START still, subject to visual QC and manager approval. Do not infer that a board panel is a project-specific approved frame.

@@ -1,0 +1,23 @@
+{
+  "projectId": "db_cooper_1971_4m30_v3",
+  "status": "PASS",
+  "gateId": "FTG-db_cooper_1971_4m30_v3-r1",
+  "planId": "tts-plan_3c3aa78843564ae39676505a41c347fb",
+  "planRevision": 2,
+  "resultId": "tts-result_c5c0bc22f8b246c584032721379e6228",
+  "sourcePreviewSectionCount": 7,
+  "reusedSectionCount": 7,
+  "regeneratedSceneIds": [],
+  "totalAudioDurationMs": 162601,
+  "canonicalProjectDb": "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\project.db",
+  "canonicalNarrationManifest": "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\narration_manifest.json",
+  "sectionAudioPaths": [
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_001.mp3",
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_002.mp3",
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_003.mp3",
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_004.mp3",
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_005.mp3",
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_006.mp3",
+    "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\03_tts\\sections\\section_007.mp3"
+  ]
+}

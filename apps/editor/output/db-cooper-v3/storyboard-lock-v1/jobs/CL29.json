@@ -1,0 +1,60 @@
+{
+  "id": "CL29",
+  "scene": "SC07",
+  "ordinal": 29,
+  "timeline_start": 254,
+  "timeline_end": 262,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "SINGLE",
+  "transition": "BIBLE_MATCH",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": {
+    "source_clip": "CL01",
+    "frame_window_seconds": [
+      6,
+      8
+    ],
+    "rule": "Use a reviewed stair-reveal frame for geometry only; never use CL01's black 10-second used exit as the START."
+  },
+  "start_asset": "assets/CL29_START.png",
+  "end_target_asset": null,
+  "video_asset": "clips/CL29.mp4",
+  "prompts": {
+    "start": "prompts/CL29_v2_START.prompt.txt",
+    "end": null,
+    "video": "prompts/CL29_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "STAIR-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "SC01 계단과 동일 기체·같은 계단 구조를 관점만 바꿔 재등장",
+  "action": "계단/기체 구조/날씨의 스타일은 CL01과 동일",
+  "camera": "SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK",
+  "reveal": "4~6초 첫 장면인 것을 관객이 알아차림",
+  "exit": "후방 3/4 기체의 같은 축, 빈 하늘이 확대",
+  "sound": "첫 장면 엔진 저음이 약하게 복귀; CL01 검은 종료 프레임 재사용 금지",
+  "narrator_text": "다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 4.873,
+    "scene_audio_end_seconds": 8.873,
+    "spoken_window_seconds": 4.0
+  },
+  "voice_slot_relative": {
+    "start": 1.4,
+    "end": 5.4
+  },
+  "voice_slot_timeline": {
+    "start": 255.4,
+    "end": 259.4
+  },
+  "pre_voice_seconds": 1.4,
+  "post_voice_seconds": 2.6,
+  "nonvoice_seconds": 4.0
+}

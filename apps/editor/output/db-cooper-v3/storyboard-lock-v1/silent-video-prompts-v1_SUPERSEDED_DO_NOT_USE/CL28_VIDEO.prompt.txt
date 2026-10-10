@@ -1,0 +1,31 @@
+CL28 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL28_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | CL28 | SC07 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01
+FACT GUARD: FBI 수사 종료=사건 해결 아니며 공식 문서 원문 복제 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL28. Editor uses 8 seconds at timeline 246-254 seconds.
+START: assets/CL28_START.png (GENERATE_START).
+END/TARGET: assets/CL28_END_TARGET.png
+ACTION: 손 하나가 파일을 덮는 작은 동작
+CAMERA: 문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION
+ENVIRONMENT: 배경은 특정 기관 사무실로 단정하지 않은 에디토리얼 공간
+REVEAL: 6초 서류가 덮이고 판단 보류의 정적
+USED EXIT: 표지의 먹색이 1971년 계단의 어둠으로 연결
+VOICE SLOT IN USED CLIP: 1.200-6.000s; narration: 2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다.
+SOUND DESIGN: 종이 덮임→조용한 룸톤; 승리·종결 효과음 금지
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

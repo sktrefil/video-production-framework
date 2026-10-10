@@ -1,0 +1,19 @@
+CL07 | AISLE FOLLOW TO CLOSED DOOR | VIDEO PROMPT v6 | VOICES FORBIDDEN, EFFECTS REQUIRED
+
+Create a NEW 10-second horizontal 16:9 NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir animated video. Attach assets/CL07_START.png as the exact first frame and assets/CL07_END_TARGET_v3.png as the target composition. Preserve the approved cabin axis, seat rows, anonymous attendant, small unreadable memo, amber ceiling lights, steel-blue shadows and rough ink linework. CL07_START.png is the actual CL06 used-exit frame at 8.958333 seconds. The editor will use only CL07 source seconds 0–8 at timeline 54–62 seconds. Reach the closed-door END state before the 8-second cut; seconds 8–10 are discarded.
+
+AUDIO RULE — NO HUMAN VOICE, KEEP SOUND EFFECTS: Generate no narration, dialogue, spoken words, whispers, shouts, singing, humming, crowd voices, airport announcement or other human vocalization. Do not read, speak or imitate any text in this prompt. Do not create a synthetic narrator. Generate only synchronized NONVERBAL effects and ambience: brisk cabin footsteps as the attendant moves, subtle clothing/seat movement, one restrained door-latch click near the doorway, then low aircraft/runway rumble. Keep the effects clear but restrained; the approved Korean narration will be added later in editing. Do not export a silent video or remove its effects audio track. Do not add music unless separately directed in the edit.
+
+0–1.5 s: Start on the supplied START image without a jump cut. The attendant, seen from behind and slightly left, takes the first brisk step down the aisle. Camera follows from behind/right at low height. Let seat backs slide past for strong parallax. The small memo stays below waist height and unreadable. Sound: the first two quick, soft cabin footsteps.
+
+1.5–4 s: Accelerate down the narrow aisle on the same screen axis. The attendant moves farther toward the closed cockpit door; passengers remain seated with ordinary movement and no informed reaction. Keep the note low and small. Sound: continuing footsteps and slight cloth/seat rustle, with no voices or intelligible murmurs.
+
+4–6 s: Push over the attendant's shoulder toward the dark CLOSED cockpit door. The memo-bearing hand moves near the doorway, then out of frame. Suggest the note's passage through the shot's direction and occlusion without showing a pilot, an open cockpit or an invented face-to-face exchange. Redirect focus from the hand to the door. Sound: one restrained latch click, no speech.
+
+6–8 s: Continue toward the closed door and adjacent wall until their near-black surfaces fill at least 85 percent of the frame, creating the dark wipe into CL08. Keep a thin strip of cabin light at one side, then almost fully occlude the lens. The END composition must be visible by the last editor-used frame near 7.958333 s. Sound: footsteps stop; low aircraft/runway rumble continues beneath the cut.
+
+8–10 s: Hold the completed dark-door state with only subtle drawn motion and nonverbal ambience. The editor discards this tail. Do not introduce another reveal.
+
+No memo close-up, suitcase return, readable writing, open cockpit, visible pilot, visible handoff, jump, money, parachutes, explosion, subtitles, captions, logos, watermark or four-point generator mark. No photorealism, live action, documentary reenactment, hyperrealism or glossy 3D. Use the project boards only for linework, palette and motion, never as literal panels or text.
+
+OUTPUT: clips/CL07_v6_voice_free.mp4. Keep the existing clips/CL07.mp4 unchanged. Review the newly generated clip's actual frame near 7.958333 seconds before choosing it for editing.

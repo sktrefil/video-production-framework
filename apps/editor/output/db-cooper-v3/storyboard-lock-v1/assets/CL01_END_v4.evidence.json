@@ -1,0 +1,29 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "shot_id": "CL01",
+  "kind": "END",
+  "prompt_sha256": "fde8a25e5fb6d76e2283525ac690298e602f5ae0a688c04f4f50e4e1fdd00799",
+  "reference_sha256": [
+    {
+      "role": "APPROVED_CL01_START_PRIMARY",
+      "sha256": "bb7a4d97635e4cbf47d647e756ac37485b4fa26aa3df683d642a28d2bc7eb055"
+    },
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    {
+      "role": "BOARD02_MOTION",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    {
+      "role": "BOARD03_SCENE",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  ],
+  "output_path": "assets/CL01_END_TARGET_v4.png",
+  "output_sha256": "cdf7db72cb7ccae99ca03859cdca32ee65a02c954d7a8a5079199bf13f4f39a5",
+  "provider_request_ids": [],
+  "generated_at": "2026-10-09T12:52:09.298Z",
+  "state": "GENERATED_UNREVIEWED"
+}

@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL04 | SCENE SC02 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 읽을 수 있는 협박 문구 생성 금지, 쪽지 실제 원문으로 주장 금지
+SOURCE: assets/CL04_START.png (PREVIOUS_USED_EXIT from CL03)
+END/TARGET: assets/CL04_END_TARGET.png
+Generate one 10-second 16:9 clip. Intended editor window: timeline 27-36 seconds; use only the first 9 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 9-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL04, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 검은 정장 소매 아래 접힌 종이, 객실 창문·좌석 위치 앵커. CAMERA PATH: 손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN. SUBJECT MOTION: 손 2쌍만 자연스러운 1회의 인계 동작; 손가락 수 고정. ENVIRONMENT MOTION: 배경 승객은 움직임 최소, 시대감 있는 객실 바람/빛. KEY REVEAL: 5~7초 쪽지가 넘어가며 긴장 장치 발생. TARGET FRAME: 종이가 승무원의 손에 완전히 전달됨. EXIT FRAME: 쪽지가 화면을 가리는 아이보리 차폐. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: CONTINUATION; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

@@ -1,0 +1,6 @@
+D.B. COOPER | SC04 | CL14 START | v3
+Create one horizontal 16:9, 1536x864 image in NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. This is an INDEPENDENT STORY CUT into the Boeing 727 cockpit, not a frame extracted from CL13 and not a visual continuation of the rear-cabin interphone.
+
+One stable close composition: a plain cockpit interphone speaker/receiver unit is fixed at the left of a dark instrument panel, and ONE simple stair-warning indicator is visible but UNLIT at center right. Both objects are stationary and spatially distinct. There are no hands, no second receiver, no human face, no curtain, and no readable labels. Leave a clear camera path for a short forward push toward the unlit indicator. Do not show the warning information in the START; reserve the lamp lighting for the video.
+
+Use charcoal black and steel blue with sparse paper-ivory edge light, restrained amber only in dormant panel reflections, coarse paper grain and expressive graphic ink lines. Use the approved BOARD01_STYLE, BOARD02_MOTION and BOARD03_SCENE only for style and aircraft-era shape. Unknown cockpit layout details remain symbolic; do not assert an exact historical panel configuration. No photorealism, live action, documentary reenactment, glossy 3D, text, caption, UI, invented dialogue, extra phone, hands, logo, watermark or generator mark.

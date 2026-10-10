@@ -1,0 +1,1687 @@
+{
+  "schema": "db-cooper-final-tts-shot-chain.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "CL06_V4_DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "script_directing_lock": "SDL-db_cooper_1971_4m30_v3-r2",
+  "manager_story_gate": "PASS",
+  "final_tts_allowed": true,
+  "tts_timing_verified": true,
+  "final_tts_plan_id": "tts-plan_3c3aa78843564ae39676505a41c347fb",
+  "final_tts_plan_revision": 2,
+  "final_tts_result_id": "tts-result_c5c0bc22f8b246c584032721379e6228",
+  "final_tts_manifest_sha256": "da11bc1bb9e661e02a0aa80a13d2ea33a407402890aeb7dad6d22f63698ce6b6",
+  "final_tts_total_audio_duration_ms": 162601,
+  "approved_script_sha256": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "scene_graph_sha256": "61f1774fbd72e88e21a5860e15c21d0ba90b4405ed8b420ce6718b86f93bcb1b",
+  "shot_manifest_sha256": "2642a89bd86e0b882f8b138c095abc35b5e8f5d1da14a74903ff4eb3e06d8148",
+  "directing_plan_sha256": "64ea1e4a8db576753d3e2c1fd42aee1cb759f0b160cbb4c671fe1ac34e518013",
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "input_hashes": {
+    "manifest": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+    "script": "4a383ede0cb13ce8641919464ddaec85cd62afb8b0d6b60ab8d8ad3828ab86c1",
+    "tts": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac",
+    "bible": "a5c6567ea1953699734a8355dc6ba9931b39767e5512b745895eb7b811ee7d04"
+  },
+  "boards": {
+    "BOARD01_STYLE": {
+      "path": "boards/BOARD01_STYLE.png",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160",
+      "original_name": "D.B.COOPER 마스터 보드 v3.1.png"
+    },
+    "BOARD02_MOTION": {
+      "path": "boards/BOARD02_MOTION.png",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7",
+      "original_name": "D.B.COOPER 마스터 보드 v3.2.png"
+    },
+    "BOARD03_SCENE": {
+      "path": "boards/BOARD03_SCENE.png",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79",
+      "original_name": "D.B.COOPER 마스터 보드 v3.3.png"
+    }
+  },
+  "target_duration_seconds": 270,
+  "editor_fps": 30,
+  "source_clip_count": 30,
+  "source_total_seconds": 300,
+  "editor_keep_total_seconds": 270,
+  "shot_plan_revision": "storyboard-lock-v1-CL06-v4-candidate",
+  "production_hold_reasons": [
+    "CURRENT_CI_EVIDENCE_NOT_GREEN_FOR_REAL_PILOT",
+    "NO_APPROVED_CL01_IMAGE_OR_VIDEO_MEDIA"
+  ],
+  "shots": [
+    {
+      "id": "CL01",
+      "scene": "SC01",
+      "ordinal": 1,
+      "timeline_start": 0,
+      "timeline_end": 10,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL01_START.png",
+      "end_target_asset": "assets/CL01_END_TARGET.png",
+      "video_asset": "clips/CL01.mp4",
+      "prompts": {
+        "start": "prompts/CL01_v2_START.prompt.txt",
+        "end": "prompts/CL01_v2_END.prompt.txt",
+        "video": "prompts/CL01_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "관객을 비행기 아래의 위험한 공간으로 끌어들여 계단을 최초 공개",
+      "action": "비행체는 진행 방향 유지; 계단은 하부 힌지에서만 하강",
+      "camera": "원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지",
+      "reveal": "6~8초 계단의 하향 구조 reveal, 8~10초 검은 내부가 화면을 채움",
+      "exit": "검은 계단 공간의 완전 차폐",
+      "sound": "엔진 저음→금속 떨림→바람 급확대; 인물 추락음 금지",
+      "narrator_text": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 6.691,
+        "spoken_window_seconds": 6.691
+      },
+      "voice_slot_relative": {
+        "start": 0.3,
+        "end": 6.991
+      },
+      "voice_slot_timeline": {
+        "start": 0.3,
+        "end": 6.991
+      },
+      "pre_voice_seconds": 0.3,
+      "post_voice_seconds": 3.009,
+      "nonvoice_seconds": 3.309
+    },
+    {
+      "id": "CL02",
+      "scene": "SC01",
+      "ordinal": 2,
+      "timeline_start": 10,
+      "timeline_end": 18,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "SINGLE",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL02_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL02.mp4",
+      "prompts": {
+        "start": "prompts/CL02_v2_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL02_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01",
+        "CAB-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "후방 계단의 공백을 리노 착륙 후 빈 객실로 잇는 첫 의문",
+      "action": "승객과 쿠퍼는 등장하지 않음; 남겨진 소품만 최소한",
+      "camera": "중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지",
+      "reveal": "5~7초 돈가방의 부재를 빈 공간으로 느끼게 함",
+      "exit": "좌석의 검은 프레임/탑승권 검은 잉크 면으로 편집 컷",
+      "sound": "바람을 끊고 낮은 객실 룸톤과 멀어진 기체 울림",
+      "narrator_text": "착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 6.764,
+        "scene_audio_end_seconds": 11.927,
+        "spoken_window_seconds": 5.164
+      },
+      "voice_slot_relative": {
+        "start": 1.2,
+        "end": 6.364
+      },
+      "voice_slot_timeline": {
+        "start": 11.2,
+        "end": 16.364
+      },
+      "pre_voice_seconds": 1.2,
+      "post_voice_seconds": 1.636,
+      "nonvoice_seconds": 2.836
+    },
+    {
+      "id": "CL03",
+      "scene": "SC02",
+      "ordinal": 3,
+      "timeline_start": 18,
+      "timeline_end": 27,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL03_START.png",
+      "end_target_asset": "assets/CL03_END_TARGET.png",
+      "video_asset": "clips/CL03.mp4",
+      "prompts": {
+        "start": "prompts/CL03_v2_START.prompt.txt",
+        "end": "prompts/CL03_v2_END.prompt.txt",
+        "video": "prompts/CL03_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "1971년 오후 포틀랜드, 가명의 탑승권에서 익명의 정장 남성을 따라감",
+      "action": "쿠퍼의 고개는 거의 정지, 천천히 손을 들어 쪽지를 준비",
+      "camera": "탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회",
+      "reveal": "6초 이후 그의 손에서 접힌 종이 모서리가 보임",
+      "exit": "접힌 종이의 밝은 면을 프레임 끝에 유지",
+      "sound": "탑승권 종이 스침→안정된 엔진음; 주변 대사는 불명료",
+      "narrator_text": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 5.818,
+        "spoken_window_seconds": 5.818
+      },
+      "voice_slot_relative": {
+        "start": 0.7,
+        "end": 6.518
+      },
+      "voice_slot_timeline": {
+        "start": 18.7,
+        "end": 24.518
+      },
+      "pre_voice_seconds": 0.7,
+      "post_voice_seconds": 2.482,
+      "nonvoice_seconds": 3.182
+    },
+    {
+      "id": "CL04",
+      "scene": "SC02",
+      "ordinal": 4,
+      "timeline_start": 27,
+      "timeline_end": 36,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL03"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL04_START.png",
+      "end_target_asset": "assets/CL04_END_TARGET.png",
+      "video_asset": "clips/CL04.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL04_v2_END.prompt.txt",
+        "video": "prompts/CL04_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "첫 협박 쪽지를 쿠퍼의 손에서 승무원 손으로 직접 추적",
+      "action": "손 2쌍만 자연스러운 1회의 인계 동작; 손가락 수 고정",
+      "camera": "손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN",
+      "reveal": "5~7초 쪽지가 넘어가며 긴장 장치 발생",
+      "exit": "쪽지가 화면을 가리는 아이보리 차폐",
+      "sound": "엔진을 낮추고 종이 접힘만 전경화; 가짜 대사 금지",
+      "narrator_text": "이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 5.855,
+        "scene_audio_end_seconds": 10.327,
+        "spoken_window_seconds": 4.473
+      },
+      "voice_slot_relative": {
+        "start": 1.8,
+        "end": 6.273
+      },
+      "voice_slot_timeline": {
+        "start": 28.8,
+        "end": 33.273
+      },
+      "pre_voice_seconds": 1.8,
+      "post_voice_seconds": 2.727,
+      "nonvoice_seconds": 4.527
+    },
+    {
+      "id": "CL05",
+      "scene": "SC02",
+      "ordinal": 5,
+      "timeline_start": 36,
+      "timeline_end": 45,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL04"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL05_START.png",
+      "end_target_asset": "assets/CL05_END_TARGET.png",
+      "video_asset": "clips/CL05.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL05_v2_END.prompt.txt",
+        "video": "prompts/CL05_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "보인 것은 전선과 붉은 막대, 폭탄의 진위는 미확인",
+      "action": "쿠퍼 손이 가방 뚜껑을 조금 들어 보일 뿐, 조립/작동 묘사 없음",
+      "camera": "가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL",
+      "reveal": "5초 내용물이 처음 보이나 정체는 단정하지 않음",
+      "exit": "검은 가방 모서리에서 승무원 손으로 동선 이동",
+      "sound": "걸쇠 클릭 뒤 주변 소리 감소; 폭발·작동음 금지",
+      "narrator_text": "승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 10.4,
+        "scene_audio_end_seconds": 16.509,
+        "spoken_window_seconds": 6.109
+      },
+      "voice_slot_relative": {
+        "start": 0.8,
+        "end": 6.909
+      },
+      "voice_slot_timeline": {
+        "start": 36.8,
+        "end": 42.909
+      },
+      "pre_voice_seconds": 0.8,
+      "post_voice_seconds": 2.091,
+      "nonvoice_seconds": 2.891
+    },
+    {
+      "id": "CL06",
+      "scene": "SC02",
+      "ordinal": 6,
+      "timeline_start": 45,
+      "timeline_end": 54,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL05"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL06_START.png",
+      "end_target_asset": "assets/CL06_END_TARGET_v4.png",
+      "video_asset": "clips/CL06.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL06_v4_END.prompt.txt",
+        "video": "prompts/CL06_v4_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "CL06_V4_DIRECTING_CANDIDATE_MEDIA_NOT_GENERATED",
+      "story": "??? ???? ???? ???? ?? ?? ?? ??? ?? ??? ?? ??? ??? ??",
+      "action": "?? ??? ??? ???? ?? ?? ??? ? ? ??? ? ???? ???",
+      "camera": "?? ?????? ?? ??? ??? ?? ???? ?? ??? ?? ???? ??",
+      "reveal": "2~4? ?? ?? ??, 4~7? ??? ??, 7~9? ??? ?? ?? ??",
+      "exit": "??? ?? ? ???? ?? ? ??? ? ??? ??; CL07?? ?? ??",
+      "sound": "연필 마찰→발걸음; 읽히는 임의 글자는 후반 합성만",
+      "narrator_text": "남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 16.618,
+        "scene_audio_end_seconds": 22.4,
+        "spoken_window_seconds": 5.782
+      },
+      "voice_slot_relative": {
+        "start": 1.1,
+        "end": 6.882
+      },
+      "voice_slot_timeline": {
+        "start": 46.1,
+        "end": 51.882
+      },
+      "pre_voice_seconds": 1.1,
+      "post_voice_seconds": 2.118,
+      "nonvoice_seconds": 3.218
+    },
+    {
+      "id": "CL07",
+      "scene": "SC02",
+      "ordinal": 7,
+      "timeline_start": 54,
+      "timeline_end": 62,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL07_START.png",
+      "end_target_asset": "assets/CL07_END_TARGET.png",
+      "video_asset": "clips/CL07.mp4",
+      "prompts": {
+        "start": "prompts/CL07_v2_START.prompt.txt",
+        "end": "prompts/CL07_v2_END.prompt.txt",
+        "video": "prompts/CL07_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "COO-01",
+        "NOTE-01",
+        "BRF-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "요구 메모가 객실을 통과해 조종실로 들어가며 납치 상황 확대",
+      "action": "승무원이 통로를 따라 걷고 문 쪽으로 몸을 돌림",
+      "camera": "뒤에서 낮게 FOLLOW → 승무원 어깨 너머 조종실 문으로 짧게 PUSH-IN",
+      "reveal": "4~6초 메모가 조종실로 이동, 권력이 넘어감",
+      "exit": "닫히는 조종실 문/어두운 벽으로 완전 차폐",
+      "sound": "발걸음→문 잠금→활주로 저음; 대화 내용 생성 금지",
+      "narrator_text": "쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 22.473,
+        "scene_audio_end_seconds": 26.836,
+        "spoken_window_seconds": 4.364
+      },
+      "voice_slot_relative": {
+        "start": 1.5,
+        "end": 5.864
+      },
+      "voice_slot_timeline": {
+        "start": 55.5,
+        "end": 59.864
+      },
+      "pre_voice_seconds": 1.5,
+      "post_voice_seconds": 2.136,
+      "nonvoice_seconds": 3.636
+    },
+    {
+      "id": "CL08",
+      "scene": "SC03",
+      "ordinal": 8,
+      "timeline_start": 62,
+      "timeline_end": 72,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL08_START.png",
+      "end_target_asset": "assets/CL08_END_TARGET.png",
+      "video_asset": "clips/CL08.mp4",
+      "prompts": {
+        "start": "prompts/CL08_v2_START.prompt.txt",
+        "end": "prompts/CL08_v2_END.prompt.txt",
+        "video": "prompts/CL08_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "기체는 멈췄고 공항 차량이 돈과 낙하산을 가져옴",
+      "action": "지상 차량이 느리게 이동, 승객 하차는 다음 샷에서 분리",
+      "camera": "활주로를 따라 수평 트래킹 → 차량을 붙잡고 기체 후방으로 교차 진행",
+      "reveal": "6초 돈/낙하산을 싣는 작업의 시작을 보여줌",
+      "exit": "차량 위 검은 돈가방의 실루엣",
+      "sound": "엔진 정지→바퀴·짐 손잡이; 공항 방송은 알아들을 수 없게",
+      "narrator_text": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 6.764,
+        "spoken_window_seconds": 6.764
+      },
+      "voice_slot_relative": {
+        "start": 0.4,
+        "end": 7.164
+      },
+      "voice_slot_timeline": {
+        "start": 62.4,
+        "end": 69.164
+      },
+      "pre_voice_seconds": 0.4,
+      "post_voice_seconds": 2.836,
+      "nonvoice_seconds": 3.236
+    },
+    {
+      "id": "CL09",
+      "scene": "SC03",
+      "ordinal": 9,
+      "timeline_start": 72,
+      "timeline_end": 82,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL08"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL09_START.png",
+      "end_target_asset": "assets/CL09_END_TARGET.png",
+      "video_asset": "clips/CL09.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL09_v2_END.prompt.txt",
+        "video": "prompts/CL09_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "돈과 낙하산의 유입 방향과 승객들의 하차 방향을 충돌시켜 보여줌",
+      "action": "승객은 내리고 쿠퍼는 남아 조종실 방향으로 요구를 전달하는 실루엣",
+      "camera": "승객 하차 흐름과 반대 방향으로 트랙해 남은 쿠퍼에서 조종실 문까지 시선을 이동",
+      "reveal": "36명 하차와 쿠퍼의 재이륙·멕시코시티 요구가 한 교환 안에서 연결된다",
+      "exit": "조종실 문과 남은 쿠퍼를 한 축에 두는 방향",
+      "sound": "발걸음 증가→문턱 금속음→발소리 급감",
+      "narrator_text": "승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 6.836,
+        "scene_audio_end_seconds": 13.236,
+        "spoken_window_seconds": 6.4
+      },
+      "voice_slot_relative": {
+        "start": 0.7,
+        "end": 7.1
+      },
+      "voice_slot_timeline": {
+        "start": 72.7,
+        "end": 79.1
+      },
+      "pre_voice_seconds": 0.7,
+      "post_voice_seconds": 2.9,
+      "nonvoice_seconds": 3.6
+    },
+    {
+      "id": "CL10",
+      "scene": "SC03",
+      "ordinal": 10,
+      "timeline_start": 82,
+      "timeline_end": 92,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL10_START.png",
+      "end_target_asset": "assets/CL10_END_TARGET.png",
+      "video_asset": "clips/CL10.mp4",
+      "prompts": {
+        "start": "prompts/CL10_v2_START.prompt.txt",
+        "end": "prompts/CL10_v2_END.prompt.txt",
+        "video": "prompts/CL10_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "다른 사람들과 반대로 남아 있는 쿠퍼, 비행을 다시 요구",
+      "action": "기체 조건 세 가지를 추상 도식으로 제시하고 실제로 열린 계단 이륙은 보여주지 않음",
+      "camera": "빈 객실에서 기체 측면으로 그래픽 전환→착륙장치·속도선·닫힌 후방 계단을 순서대로 스케일 변경",
+      "reveal": "낮은 속도·내린 착륙장치·열린 후방 계단을 요구했다는 세 비행 조건",
+      "exit": "이륙 전 닫힌 후방 계단의 윤곽",
+      "sound": "객실 룸톤→엔진 저음 감속→닫힌 계단의 금속음; 실제 비행 조건의 수치·가짜 교신 대사 금지",
+      "narrator_text": "그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 13.334,
+        "scene_audio_end_seconds": 18.4,
+        "spoken_window_seconds": 5.066
+      },
+      "voice_slot_relative": {
+        "start": 1.8,
+        "end": 6.866
+      },
+      "voice_slot_timeline": {
+        "start": 83.8,
+        "end": 88.866
+      },
+      "pre_voice_seconds": 1.8,
+      "post_voice_seconds": 3.134,
+      "nonvoice_seconds": 4.934
+    },
+    {
+      "id": "CL11",
+      "scene": "SC03",
+      "ordinal": 11,
+      "timeline_start": 92,
+      "timeline_end": 102,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL11_START.png",
+      "end_target_asset": "assets/CL11_END_TARGET.png",
+      "video_asset": "clips/CL11.mp4",
+      "prompts": {
+        "start": "prompts/CL11_v2_START.prompt.txt",
+        "end": "prompts/CL11_v2_END.prompt.txt",
+        "video": "prompts/CL11_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "무리한 요구: 계단을 내린 채 이륙하라고 했으나 이륙 뒤 조작하기로 변경",
+      "action": "계단은 닫힌 채 유지하고 기체만 활주·상승",
+      "camera": "닫힌 후방 계단 로우앵글→기체 전체 PULL-BACK→활주와 상승 FOLLOW",
+      "reveal": "계단을 내린 채 이륙할 수 없어서 이륙 뒤에 내리기로 하고 다시 밤하늘로 오른다",
+      "exit": "밤하늘 기체 암부에서 돈가방 쪽으로 내부 컷",
+      "sound": "터빈 상승→기내 엔진 저음; 계단이 열린 채 이륙하는 음향·화면 금지",
+      "narrator_text": "그러나 그런 이륙은 불가능하다는 답이 돌아옵니다. 계단은 이륙한 뒤에 내리기로 합니다. 다시 밤하늘로 오른 305편.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 18.473,
+        "scene_audio_end_seconds": 23.782,
+        "spoken_window_seconds": 5.309
+      },
+      "voice_slot_relative": {
+        "start": 1,
+        "end": 6.309
+      },
+      "voice_slot_timeline": {
+        "start": 93,
+        "end": 98.309
+      },
+      "pre_voice_seconds": 1,
+      "post_voice_seconds": 3.691,
+      "nonvoice_seconds": 4.691
+    },
+    {
+      "id": "CL12",
+      "scene": "SC03",
+      "ordinal": 12,
+      "timeline_start": 102,
+      "timeline_end": 112,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL11"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL12_START.png",
+      "end_target_asset": "assets/CL12_END_TARGET.png",
+      "video_asset": "clips/CL12.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL12_v2_END.prompt.txt",
+        "video": "prompts/CL12_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "MONEY-01",
+        "PARA-01",
+        "CAB-01"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "돈가방 결속과 마지막 승무원 퇴장, 후방 객실이 고립됨",
+      "action": "쿠퍼는 줄을 단단히 묶고 승무원은 조종실 쪽으로 이동, 커튼이 닫힘",
+      "camera": "가방 매듭 PUSH-IN → 손을 따라 우측 트럭 → 커튼이 화면을 가리는 WIPe",
+      "reveal": "5초 매듭의 고정, 7~9초 커튼 완전 차폐",
+      "exit": "커튼의 검은 수직 주름이 전체 프레임을 덮음",
+      "sound": "줄 마찰→발걸음→커튼 긁힘→후방 바람 저음",
+      "narrator_text": "쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 23.927,
+        "scene_audio_end_seconds": 31.127,
+        "spoken_window_seconds": 7.2
+      },
+      "voice_slot_relative": {
+        "start": 0.2,
+        "end": 7.4
+      },
+      "voice_slot_timeline": {
+        "start": 102.2,
+        "end": 109.4
+      },
+      "pre_voice_seconds": 0.2,
+      "post_voice_seconds": 2.6,
+      "nonvoice_seconds": 2.8
+    },
+    {
+      "id": "CL13",
+      "scene": "SC04",
+      "ordinal": 13,
+      "timeline_start": 112,
+      "timeline_end": 121,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL12"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL13_START.png",
+      "end_target_asset": "assets/CL13_END_TARGET.png",
+      "video_asset": "clips/CL13.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL13_v2_END.prompt.txt",
+        "video": "prompts/CL13_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "쿠퍼가 후방 계단 조작에 어려움을 겪는 시각적 조짐",
+      "action": "손이 한 번 조작하고 인터폰 연락으로 넘어가되 실제 조작 절차는 만들지 않음",
+      "camera": "손·레버 TIGHT PUSH-IN→반응 없는 계단 상태→인터폰 신호로 그래픽 이동",
+      "reveal": "쿠퍼의 후방 계단 조작이 잘되지 않아 조종실에 연락한다",
+      "exit": "조종실 인터폰으로 이어지는 신호",
+      "sound": "불규칙 바람과 금속 떨림→인터폰 연결음; 임의 조작 절차나 정확한 대사 금지",
+      "narrator_text": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 4.873,
+        "spoken_window_seconds": 4.873
+      },
+      "voice_slot_relative": {
+        "start": 1.3,
+        "end": 6.173
+      },
+      "voice_slot_timeline": {
+        "start": 113.3,
+        "end": 118.173
+      },
+      "pre_voice_seconds": 1.3,
+      "post_voice_seconds": 2.827,
+      "nonvoice_seconds": 4.127
+    },
+    {
+      "id": "CL14",
+      "scene": "SC04",
+      "ordinal": 14,
+      "timeline_start": 121,
+      "timeline_end": 130,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "SINGLE",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL14_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL14.mp4",
+      "prompts": {
+        "start": "prompts/CL14_v2_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL14_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "계단 조작 난항 소식이 객실에서 조종실로 전달됨",
+      "action": "인터폰을 받는 움직임과 표시등 한 번 점등만 보여줌",
+      "camera": "인터폰 CLOSE→조종실 표시등으로 짧은 컷→점등 순간 PUSH-IN",
+      "reveal": "조종실이 어려움을 듣고, 이어 계단 경고등이 켜지지만 인물 행방은 알 수 없다",
+      "exit": "표시등 빛이 닫힌 커튼 주름으로 넘어감",
+      "sound": "인터폰 잡음→짧은 금속음→표시등 클릭 한 번; 경보 사이렌 금지",
+      "narrator_text": "계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 4.945,
+        "scene_audio_end_seconds": 10.036,
+        "spoken_window_seconds": 5.091
+      },
+      "voice_slot_relative": {
+        "start": 1,
+        "end": 6.091
+      },
+      "voice_slot_timeline": {
+        "start": 122,
+        "end": 127.091
+      },
+      "pre_voice_seconds": 1,
+      "post_voice_seconds": 2.909,
+      "nonvoice_seconds": 3.909
+    },
+    {
+      "id": "CL15",
+      "scene": "SC04",
+      "ordinal": 15,
+      "timeline_start": 130,
+      "timeline_end": 139,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL14"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL15_START.png",
+      "end_target_asset": "assets/CL15_END_TARGET.png",
+      "video_asset": "clips/CL15.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL15_v2_END.prompt.txt",
+        "video": "prompts/CL15_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "후방 계단의 부분적 하강을 알려주는 기체 경고 반응",
+      "action": "커튼 뒤 인물은 숨기고 천·조명·진동만 변화",
+      "camera": "표시등 빛과 커튼 주름을 GRAPHIC MATCH→닫힌 커튼을 따라 측면 TRACK",
+      "reveal": "커튼 때문에 조종실에서는 뒤편을 볼 수 없고 시간이 흐른다",
+      "exit": "커튼 암부에서 인터폰 쪽으로 시선 이동",
+      "sound": "표시등 클릭 소거→커튼 천 스침→시간 경과를 암시하는 엔진 저음; 과장된 경고음 금지",
+      "narrator_text": "하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 10.127,
+        "scene_audio_end_seconds": 13.745,
+        "spoken_window_seconds": 3.618
+      },
+      "voice_slot_relative": {
+        "start": 1.8,
+        "end": 5.418
+      },
+      "voice_slot_timeline": {
+        "start": 131.8,
+        "end": 135.418
+      },
+      "pre_voice_seconds": 1.8,
+      "post_voice_seconds": 3.582,
+      "nonvoice_seconds": 5.382
+    },
+    {
+      "id": "CL16",
+      "scene": "SC04",
+      "ordinal": 16,
+      "timeline_start": 139,
+      "timeline_end": 148,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL15"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL16_START.png",
+      "end_target_asset": "assets/CL16_END_TARGET.png",
+      "video_asset": "clips/CL16.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL16_v2_END.prompt.txt",
+        "video": "prompts/CL16_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "조종실과 후방 사이에 닫힌 커튼이 있어 누구도 그 장면을 보지 못함",
+      "action": "보이지 않는 쿠퍼는 재현하지 않고 인터폰의 신호 변화만 사용",
+      "camera": "인터폰으로 FAST PUSH-IN→응답 신호와 함께 정지→조용한 계기판으로 짧은 TRUCK",
+      "reveal": "조종실의 질문에 답이 오지만 이것이 마지막 확인된 교신이다",
+      "exit": "조용한 계기판 한 곳에 시선 고정",
+      "sound": "질문 신호→짧은 응답 잡음→연결 종료→기체 저음만; 가짜 음성 대사 금지",
+      "narrator_text": "조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 13.818,
+        "scene_audio_end_seconds": 18.327,
+        "spoken_window_seconds": 4.509
+      },
+      "voice_slot_relative": {
+        "start": 1.2,
+        "end": 5.709
+      },
+      "voice_slot_timeline": {
+        "start": 140.2,
+        "end": 144.709
+      },
+      "pre_voice_seconds": 1.2,
+      "post_voice_seconds": 3.291,
+      "nonvoice_seconds": 4.491
+    },
+    {
+      "id": "CL17",
+      "scene": "SC04",
+      "ordinal": 17,
+      "timeline_start": 148,
+      "timeline_end": 157,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL16"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL17_START.png",
+      "end_target_asset": "assets/CL17_END_TARGET.png",
+      "video_asset": "clips/CL17.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL17_v2_END.prompt.txt",
+        "video": "prompts/CL17_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "조종실에서 상태를 확인하고 마지막 응답 이후 연락이 끊기는 구간",
+      "action": "정확한 계기 형식·원인을 특정하지 않고 바늘 변화만 추상화",
+      "camera": "계기 바늘 CLOSE→한 번의 미세 진동에서 급정지→검은 링으로 MATCH CUT",
+      "reveal": "20시 10분 무렵의 계기 변화는 움직임의 단서일 뿐 점프를 목격한 기록이 아니다",
+      "exit": "계기 링의 검은 면",
+      "sound": "기체 저음→미세한 진동 1회→짧은 절제; 점프·충돌 효과음 금지",
+      "narrator_text": "밤 여덟 시 십 분 무렵. 조종실의 계기 바늘이 흔들립니다. 계단에 무게가 실리거나 움직일 때 나타날 수 있는 변화였습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 18.4,
+        "scene_audio_end_seconds": 23.636,
+        "spoken_window_seconds": 5.236
+      },
+      "voice_slot_relative": {
+        "start": 0.8,
+        "end": 6.036
+      },
+      "voice_slot_timeline": {
+        "start": 148.8,
+        "end": 154.036
+      },
+      "pre_voice_seconds": 0.8,
+      "post_voice_seconds": 2.964,
+      "nonvoice_seconds": 3.764
+    },
+    {
+      "id": "CL18",
+      "scene": "SC04",
+      "ordinal": 18,
+      "timeline_start": 157,
+      "timeline_end": 166,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL18_START.png",
+      "end_target_asset": "assets/CL18_END_TARGET.png",
+      "video_asset": "clips/CL18.mp4",
+      "prompts": {
+        "start": "prompts/CL18_v2_START.prompt.txt",
+        "end": "prompts/CL18_v2_END.prompt.txt",
+        "video": "prompts/CL18_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "지상에서 확인할 수 없는 사건의 유일한 기체 반응 중 하나",
+      "action": "기체와 계단만 보이며 점프 인물·낙하산·착지 장면 없음",
+      "camera": "인물 없는 계단 외부 PARALLAX→기체 장거리 FOLLOW→리노 착륙에 맞춰 컷",
+      "reveal": "누구도 계단 끝을 직접 보지 못했고 비행기는 계속 남쪽으로 가 리노에 착륙한다",
+      "exit": "착륙 뒤 빈 객실의 입구",
+      "sound": "바람과 엔진→착륙 후 기계음; 직접 점프·착지 소리 금지",
+      "narrator_text": "하지만 그 순간 누가 계단 끝에 있었는지, 직접 본 사람은 없었습니다. 비행기는 계속 남쪽으로 날아가 네바다주의 리노에 착륙합니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 23.727,
+        "scene_audio_end_seconds": 29.891,
+        "spoken_window_seconds": 6.164
+      },
+      "voice_slot_relative": {
+        "start": 0.4,
+        "end": 6.564
+      },
+      "voice_slot_timeline": {
+        "start": 157.4,
+        "end": 163.564
+      },
+      "pre_voice_seconds": 0.4,
+      "post_voice_seconds": 2.436,
+      "nonvoice_seconds": 2.836
+    },
+    {
+      "id": "CL19",
+      "scene": "SC04",
+      "ordinal": 19,
+      "timeline_start": 166,
+      "timeline_end": 175,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL19_START.png",
+      "end_target_asset": "assets/CL19_END_TARGET.png",
+      "video_asset": "clips/CL19.mp4",
+      "prompts": {
+        "start": "prompts/CL19_v2_START.prompt.txt",
+        "end": "prompts/CL19_v2_END.prompt.txt",
+        "video": "prompts/CL19_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "인물을 보여주지 않고 비행 중 열린 계단 자체만으로 실종을 표현",
+      "action": "쿠퍼·돈가방 없이 남은 넥타이와 후방 계단만 보여줌",
+      "camera": "착륙 후 객실 통로 FAST PUSH→빈 좌석·돈자리·넥타이 QUICK CUT→빈 계단으로 이동",
+      "reveal": "리노에서 쿠퍼·돈가방이 없고 넥타이와 열린 계단이 남았다",
+      "exit": "넥타이 검은 선이 수색할 숲 능선으로 연결",
+      "sound": "착륙 후 기계음→비어 있는 객실 룸톤→원거리 바람",
+      "narrator_text": "뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 29.964,
+        "scene_audio_end_seconds": 36.145,
+        "spoken_window_seconds": 6.182
+      },
+      "voice_slot_relative": {
+        "start": 0.7,
+        "end": 6.882
+      },
+      "voice_slot_timeline": {
+        "start": 166.7,
+        "end": 172.882
+      },
+      "pre_voice_seconds": 0.7,
+      "post_voice_seconds": 2.118,
+      "nonvoice_seconds": 2.818
+    },
+    {
+      "id": "CL20",
+      "scene": "SC04",
+      "ordinal": 20,
+      "timeline_start": 175,
+      "timeline_end": 185,
+      "source_seconds": 10,
+      "keep_seconds": 10,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL19"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL20_START.png",
+      "end_target_asset": "assets/CL20_END_TARGET.png",
+      "video_asset": "clips/CL20.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL20_v2_END.prompt.txt",
+        "video": "prompts/CL20_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "STAIR-01",
+        "CAB-01",
+        "TIE-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "착륙 후 쿠퍼와 돈이 없는 사실, 이후 낙하산과 복장의 위험을 관객에게 남김",
+      "action": "실제 착륙이나 생존 장면 대신 기록물 실루엣과 빈 지도만 사용",
+      "camera": "넥타이 선에서 낙하산·구두의 그래픽 인서트로 MATCH→불확실한 넓은 수색 영역으로 PULL-BACK",
+      "reveal": "낙하산의 조종 한계·구두·불확실한 위치가 수색을 어렵게 만든다",
+      "exit": "확정 표시 없는 넓은 수색 영역",
+      "sound": "객실 룸톤 감쇠→종이 넘김→넓은 바람; 생존·사망 암시 효과음 금지",
+      "narrator_text": "그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 36.218,
+        "scene_audio_end_seconds": 41.818,
+        "spoken_window_seconds": 5.6
+      },
+      "voice_slot_relative": {
+        "start": 0.3,
+        "end": 5.9
+      },
+      "voice_slot_timeline": {
+        "start": 175.3,
+        "end": 180.9
+      },
+      "pre_voice_seconds": 0.3,
+      "post_voice_seconds": 4.1,
+      "nonvoice_seconds": 4.4
+    },
+    {
+      "id": "CL21",
+      "scene": "SC05",
+      "ordinal": 21,
+      "timeline_start": 185,
+      "timeline_end": 194,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL21_START.png",
+      "end_target_asset": "assets/CL21_END_TARGET.png",
+      "video_asset": "clips/CL21.mp4",
+      "prompts": {
+        "start": "prompts/CL21_v2_START.prompt.txt",
+        "end": "prompts/CL21_v2_END.prompt.txt",
+        "video": "prompts/CL21_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "FBI 수사가 비행기의 자취를 따라 땅으로 내려옴",
+      "action": "수색대는 멀리 작은 실루엣으로만",
+      "camera": "검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND",
+      "reveal": "6초 숲의 광활함이 인물 부재를 압도",
+      "exit": "나무 사이의 좁은 광선으로 이동",
+      "sound": "짧은 무전 잡음→넓은 바람; 허구의 무전 대사 금지",
+      "narrator_text": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 6.473,
+        "spoken_window_seconds": 6.473
+      },
+      "voice_slot_relative": {
+        "start": 0.5,
+        "end": 6.973
+      },
+      "voice_slot_timeline": {
+        "start": 185.5,
+        "end": 191.973
+      },
+      "pre_voice_seconds": 0.5,
+      "post_voice_seconds": 2.027,
+      "nonvoice_seconds": 2.527
+    },
+    {
+      "id": "CL22",
+      "scene": "SC05",
+      "ordinal": 22,
+      "timeline_start": 194,
+      "timeline_end": 203,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL21"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL22_START.png",
+      "end_target_asset": "assets/CL22_END_TARGET.png",
+      "video_asset": "clips/CL22.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL22_v2_END.prompt.txt",
+        "video": "prompts/CL22_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "숲과 강을 탐색하지만 아무런 사람/낙하산 증거가 나오지 않음",
+      "action": "멀리서 수색 인원이 걷되 얼굴/대사 불필요",
+      "camera": "나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지",
+      "reveal": "6초 불빛 끝에 아무것도 없음",
+      "exit": "고요한 빈 강변 지면",
+      "sound": "가지·자갈→멀어지는 무전→강물",
+      "narrator_text": "그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 6.545,
+        "scene_audio_end_seconds": 11.782,
+        "spoken_window_seconds": 5.236
+      },
+      "voice_slot_relative": {
+        "start": 1.1,
+        "end": 6.336
+      },
+      "voice_slot_timeline": {
+        "start": 195.1,
+        "end": 200.336
+      },
+      "pre_voice_seconds": 1.1,
+      "post_voice_seconds": 2.664,
+      "nonvoice_seconds": 3.764
+    },
+    {
+      "id": "CL23",
+      "scene": "SC05",
+      "ordinal": 23,
+      "timeline_start": 203,
+      "timeline_end": 211,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "SINGLE",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL23_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL23.mp4",
+      "prompts": {
+        "start": "prompts/CL23_v2_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL23_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "TIE-01",
+        "ENV-FOREST"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "수색 실패와 시간 경과를 시각적 공간의 비어 있음으로 전달",
+      "action": "인물·새로운 증거 등장 없음",
+      "camera": "천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION",
+      "reveal": "6~7초 화면에서 수색 흔적마저 사라짐",
+      "exit": "모래 질감으로 SC06에 편집 매치컷",
+      "sound": "무전 완전 소거→강물; 시간 경과를 대사로 꾸미지 않음",
+      "narrator_text": "그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 11.855,
+        "scene_audio_end_seconds": 14.545,
+        "spoken_window_seconds": 2.691
+      },
+      "voice_slot_relative": {
+        "start": 2,
+        "end": 4.691
+      },
+      "voice_slot_timeline": {
+        "start": 205,
+        "end": 207.691
+      },
+      "pre_voice_seconds": 2,
+      "post_voice_seconds": 3.309,
+      "nonvoice_seconds": 5.309
+    },
+    {
+      "id": "CL24",
+      "scene": "SC06",
+      "ordinal": 24,
+      "timeline_start": 211,
+      "timeline_end": 220,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL24_START.png",
+      "end_target_asset": "assets/CL24_END_TARGET.png",
+      "video_asset": "clips/CL24.mp4",
+      "prompts": {
+        "start": "prompts/CL24_v2_START.prompt.txt",
+        "end": "prompts/CL24_v2_END.prompt.txt",
+        "video": "prompts/CL24_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "1980년 낮, 한 소년이 강변에서 이상한 물체를 보게 되는 상황",
+      "action": "소년은 먼 실루엣으로만 두고 지폐는 내레이션의 발견 시점에 드러냄",
+      "camera": "수면 LOW SKIM→모래톱 PARALLAX→발견 지점에 맞춰 지폐 묶음 부분 PUSH-IN",
+      "reveal": "1980년 강변에서 소년이 낡은 지폐 뭉치를 발견한다",
+      "exit": "액수·번호가 보이지 않는 낡은 지폐 묶음",
+      "sound": "잔잔한 강물→물결 근접→젖은 종이 마찰; 발견자의 대사·손동작은 추가하지 않는다",
+      "narrator_text": "1980년. 컬럼비아강의 모래톱에서 놀던 소년이 낡은 지폐 뭉치를 발견합니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 4.145,
+        "spoken_window_seconds": 4.145
+      },
+      "voice_slot_relative": {
+        "start": 1.3,
+        "end": 5.445
+      },
+      "voice_slot_timeline": {
+        "start": 212.3,
+        "end": 216.445
+      },
+      "pre_voice_seconds": 1.3,
+      "post_voice_seconds": 3.555,
+      "nonvoice_seconds": 4.855
+    },
+    {
+      "id": "CL25",
+      "scene": "SC06",
+      "ordinal": 25,
+      "timeline_start": 220,
+      "timeline_end": 229,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL24"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL25_START.png",
+      "end_target_asset": "assets/CL25_END_TARGET.png",
+      "video_asset": "clips/CL25.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL25_v2_END.prompt.txt",
+        "video": "prompts/CL25_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "20달러 지폐 세 묶음이 모래 속에서 드러나는 발견의 순간",
+      "action": "젖은 지폐와 조사 기록지를 한 축에 놓되 번호 일치 결과는 보류",
+      "camera": "훼손된 지폐 묶음 REVEAL→합계 편집 글자→옆 기록지 번호 열로 LATERAL TRACK",
+      "reveal": "훼손된 20달러권의 총액 5,800달러를 확인하고 일련번호 대조가 시작된다",
+      "exit": "번호 대조 결과를 아직 숨긴 두 표면",
+      "sound": "젖은 종이 마찰→기록지 펼침→번호 대조의 연필 한 획; 가짜 역사적 일련번호 금지",
+      "narrator_text": "물에 젖고 훼손된 20달러 지폐. 액수는 5,800달러. 수사관들이 일련번호를 대조합니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 4.218,
+        "scene_audio_end_seconds": 8.945,
+        "spoken_window_seconds": 4.727
+      },
+      "voice_slot_relative": {
+        "start": 1.2,
+        "end": 5.927
+      },
+      "voice_slot_timeline": {
+        "start": 221.2,
+        "end": 225.927
+      },
+      "pre_voice_seconds": 1.2,
+      "post_voice_seconds": 3.073,
+      "nonvoice_seconds": 4.273
+    },
+    {
+      "id": "CL26",
+      "scene": "SC06",
+      "ordinal": 26,
+      "timeline_start": 229,
+      "timeline_end": 238,
+      "source_seconds": 10,
+      "keep_seconds": 9,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL26_START.png",
+      "end_target_asset": "assets/CL26_END_TARGET.png",
+      "video_asset": "clips/CL26.mp4",
+      "prompts": {
+        "start": "prompts/CL26_v2_START.prompt.txt",
+        "end": "prompts/CL26_v2_END.prompt.txt",
+        "video": "prompts/CL26_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "일련번호 대조가 몸값의 일부임을 확인하지만 지리적 결론은 유보",
+      "action": "번호 연결은 추상 선·편집 글자로만 보이고 착륙 지점은 그리지 않음",
+      "camera": "지폐와 기록지의 번호 열 MATCH→일치 확인 뒤 강변으로 빠른 PULL-BACK",
+      "reveal": "번호 일치로 몸값 일부임은 확인되지만 발견 장소가 착륙 지점은 아니다",
+      "exit": "경로가 비어 있는 강변의 넓은 공간",
+      "sound": "짧은 종이 맞물림→원거리 강물; 확정 착륙음을 만들지 않는다",
+      "narrator_text": "쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 9.091,
+        "scene_audio_end_seconds": 16.145,
+        "spoken_window_seconds": 7.055
+      },
+      "voice_slot_relative": {
+        "start": 0.3,
+        "end": 7.355
+      },
+      "voice_slot_timeline": {
+        "start": 229.3,
+        "end": 236.355
+      },
+      "pre_voice_seconds": 0.3,
+      "post_voice_seconds": 1.645,
+      "nonvoice_seconds": 1.945
+    },
+    {
+      "id": "CL27",
+      "scene": "SC06",
+      "ordinal": 27,
+      "timeline_start": 238,
+      "timeline_end": 246,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "EXIT_MATCH",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL26"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL27_START.png",
+      "end_target_asset": "assets/CL27_END_TARGET.png",
+      "video_asset": "clips/CL27.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL27_v2_END.prompt.txt",
+        "video": "prompts/CL27_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "CASH80-01",
+        "ENV-RIVER"
+      ],
+      "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "돈은 나왔지만 돈이 왜 이곳에 있는지는 증명되지 않음",
+      "action": "사람과 낙하산 실루엣은 새로 등장하지 않음",
+      "camera": "지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경",
+      "reveal": "5~7초 증거가 작아지고 빈 공간이 주제가 됨",
+      "exit": "물의 검은 영역이 SC07 서류 암부로 자연 이어짐",
+      "sound": "강물 공간감 증가→저음 절제",
+      "narrator_text": "그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 16.218,
+        "scene_audio_end_seconds": 22.327,
+        "spoken_window_seconds": 6.109
+      },
+      "voice_slot_relative": {
+        "start": 0.5,
+        "end": 6.609
+      },
+      "voice_slot_timeline": {
+        "start": 238.5,
+        "end": 244.609
+      },
+      "pre_voice_seconds": 0.5,
+      "post_voice_seconds": 1.391,
+      "nonvoice_seconds": 1.891
+    },
+    {
+      "id": "CL28",
+      "scene": "SC07",
+      "ordinal": 28,
+      "timeline_start": 246,
+      "timeline_end": 254,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "STORY_CUT",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL28_START.png",
+      "end_target_asset": "assets/CL28_END_TARGET.png",
+      "video_asset": "clips/CL28.mp4",
+      "prompts": {
+        "start": "prompts/CL28_v2_START.prompt.txt",
+        "end": "prompts/CL28_v2_END.prompt.txt",
+        "video": "prompts/CL28_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "FBI는 수사 자원을 재배분했으며 사건이 해결된 것은 아님",
+      "action": "손 하나가 파일을 덮는 작은 동작",
+      "camera": "문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION",
+      "reveal": "6초 서류가 덮이고 판단 보류의 정적",
+      "exit": "표지의 먹색이 1971년 계단의 어둠으로 연결",
+      "sound": "종이 덮임→조용한 룸톤; 승리·종결 효과음 금지",
+      "narrator_text": "2016년, FBI는 수사 자원을 다른 사건으로 돌렸습니다. 사건이 해결됐기 때문은 아닙니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 0,
+        "scene_audio_end_seconds": 4.8,
+        "spoken_window_seconds": 4.8
+      },
+      "voice_slot_relative": {
+        "start": 1.2,
+        "end": 6.0
+      },
+      "voice_slot_timeline": {
+        "start": 247.2,
+        "end": 252.0
+      },
+      "pre_voice_seconds": 1.2,
+      "post_voice_seconds": 2.0,
+      "nonvoice_seconds": 3.2
+    },
+    {
+      "id": "CL29",
+      "scene": "SC07",
+      "ordinal": 29,
+      "timeline_start": 254,
+      "timeline_end": 262,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "SINGLE",
+      "transition": "BIBLE_MATCH",
+      "start_binding": {
+        "kind": "GENERATE_START",
+        "source_clip": null
+      },
+      "reference_dependency": {
+        "source_clip": "CL01",
+        "frame_window_seconds": [
+          6,
+          8
+        ],
+        "rule": "Use a reviewed stair-reveal frame for geometry only; never use CL01's black 10-second used exit as the START."
+      },
+      "start_asset": "assets/CL29_START.png",
+      "end_target_asset": null,
+      "video_asset": "clips/CL29.mp4",
+      "prompts": {
+        "start": "prompts/CL29_v2_START.prompt.txt",
+        "end": null,
+        "video": "prompts/CL29_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "SC01 계단과 동일 기체·같은 계단 구조를 관점만 바꿔 재등장",
+      "action": "계단/기체 구조/날씨의 스타일은 CL01과 동일",
+      "camera": "SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK",
+      "reveal": "4~6초 첫 장면인 것을 관객이 알아차림",
+      "exit": "후방 3/4 기체의 같은 축, 빈 하늘이 확대",
+      "sound": "첫 장면 엔진 저음이 약하게 복귀; CL01 검은 종료 프레임 재사용 금지",
+      "narrator_text": "다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 4.873,
+        "scene_audio_end_seconds": 8.873,
+        "spoken_window_seconds": 4.0
+      },
+      "voice_slot_relative": {
+        "start": 1.4,
+        "end": 5.4
+      },
+      "voice_slot_timeline": {
+        "start": 255.4,
+        "end": 259.4
+      },
+      "pre_voice_seconds": 1.4,
+      "post_voice_seconds": 2.6,
+      "nonvoice_seconds": 4.0
+    },
+    {
+      "id": "CL30",
+      "scene": "SC07",
+      "ordinal": 30,
+      "timeline_start": 262,
+      "timeline_end": 270,
+      "source_seconds": 10,
+      "keep_seconds": 8,
+      "image_mode": "START_TARGET",
+      "transition": "CONTINUATION",
+      "start_binding": {
+        "kind": "PREVIOUS_USED_EXIT",
+        "source_clip": "CL29"
+      },
+      "reference_dependency": null,
+      "start_asset": "assets/CL30_START.png",
+      "end_target_asset": "assets/CL30_END_TARGET.png",
+      "video_asset": "clips/CL30.mp4",
+      "prompts": {
+        "start": null,
+        "end": "prompts/CL30_v2_END.prompt.txt",
+        "video": "prompts/CL30_v2_VIDEO.prompt.txt"
+      },
+      "reference_locks": [
+        "AIR-01",
+        "STAIR-01"
+      ],
+      "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+      "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+      "story": "기체와 계단에서 멀어지며 질문만 남기고 암전",
+      "action": "인물/낙하산/착지 흔적은 새로 생기지 않음",
+      "camera": "안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전",
+      "reveal": "5~6초 기체 소실, 6~8초 검은 하늘+정적",
+      "exit": "완전한 검정 프레임 (편집 최종 홀드)",
+      "sound": "엔진음 감쇠→짧은 저역 잔향→거의 무음",
+      "narrator_text": "그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.",
+      "final_tts_scene_audio_window": {
+        "scene_audio_start_seconds": 8.945,
+        "scene_audio_end_seconds": 13.964,
+        "spoken_window_seconds": 5.018
+      },
+      "voice_slot_relative": {
+        "start": 0.6,
+        "end": 5.618
+      },
+      "voice_slot_timeline": {
+        "start": 262.6,
+        "end": 267.618
+      },
+      "pre_voice_seconds": 0.6,
+      "post_voice_seconds": 2.382,
+      "nonvoice_seconds": 2.982
+    }
+  ],
+  "derived_from_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "cl06_prompt_hashes": {
+    "end": "8d76bc331f9824e4e370cf1695912fbb1ed67be06ef3c44d5256febc2a11d636",
+    "video": "e0b49eaf564cbbcb2daec910f655033cdbc4a4f36fbaa0eac935619bb89415ca"
+  }
+}

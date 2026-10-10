@@ -1,0 +1,21 @@
+D.B. COOPER | CL16 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 쿠퍼의 실제 행동을 임의로 카메라 뒤에서 보여주지 않음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL16. Editor uses 9 seconds at timeline 139-148 seconds.
+START: assets/CL16_START.png (PREVIOUS_USED_EXIT from CL15).
+END/TARGET: assets/CL16_END_TARGET.png
+ACTION: 보이지 않는 쿠퍼는 재현하지 않고 인터폰의 신호 변화만 사용
+CAMERA: 인터폰으로 FAST PUSH-IN→응답 신호와 함께 정지→조용한 계기판으로 짧은 TRUCK
+ENVIRONMENT: 멀리서 들리는 금속음만 시각적 어둠에 대응
+REVEAL: 조종실의 질문에 답이 오지만 이것이 마지막 확인된 교신이다
+USED EXIT: 조용한 계기판 한 곳에 시선 고정
+VOICE SLOT IN USED CLIP: 1.200-5.709s; narration: 조종실에서 상태를 묻자, 쿠퍼는 문제없다는 뜻으로 답합니다. 이것이 확인된 마지막 교신입니다.
+SOUND DESIGN: 질문 신호→짧은 응답 잡음→연결 종료→기체 저음만; 가짜 음성 대사 금지
+HANDOFF: CONTINUATION
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 2,
+  "status": "COMPLETE_REUSED_EXISTING_AUDIO",
+  "provider": "ELEVENLABS",
+  "modelId": "eleven_v3",
+  "sourcePreviewPlan": "output/db-cooper-v3/tts-preview-v1/preview-plan.json",
+  "finalTtsGateId": "FTG-db_cooper_1971_4m30_v3-r1",
+  "planId": "tts-plan_3c3aa78843564ae39676505a41c347fb",
+  "sceneCount": 7,
+  "regeneratedScenes": [],
+  "originalProviderRequestIds": [
+    "m1uuBcQ2JEgkwQt3gE9i",
+    "IycqYJp50HR6oN9G0vQH",
+    "DPWPRER0V43u5rth5yun",
+    "K22zohNXkbJLieB5OetV",
+    "VmQH9tubLN00v6JOce7r",
+    "kZKKJB4qrehNYh0hFrox",
+    "mD7YvGUYJkFVQQFz5Df7"
+  ],
+  "speedTransform": 1.1
+}

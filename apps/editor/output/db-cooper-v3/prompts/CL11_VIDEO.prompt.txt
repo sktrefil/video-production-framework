@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL11 | SCENE SC03 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 재이륙 때 후방 계단이 열린 화면 금지, 실제 경고등 문구 생성 금지
+SOURCE: assets/CL11_START.png (GENERATE_START)
+END/TARGET: assets/CL11_END_TARGET.png
+Generate one 10-second 16:9 clip. Intended editor window: timeline 92-102 seconds; use only the first 10 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 10-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL11, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 공항에 정지한 727 후방 하부 계단을 닫힌 상태로 표시. CAMERA PATH: 후방 하부 CLOSE → 천천히 PULL-BACK해 전체 기체와 추력 이동 공개. SUBJECT MOTION: 계단은 비행 전 열리지 않음, 기체만 활주·상승. ENVIRONMENT MOTION: 하부 반사광이 빠르게 뒤로 흐르고 엔진 3기 실루엣 유지. KEY REVEAL: 6~8초 계단이 닫힌 채 날아오르는 상황의 역설. TARGET FRAME: 기체가 활주로에서 이륙을 시작, 후방 계단은 닫힌 채 유지. EXIT FRAME: 어두운 항공기 동체로 다음 실내 장면 차폐. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 10 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: STORY_CUT; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

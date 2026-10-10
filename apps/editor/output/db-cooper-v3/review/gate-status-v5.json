@@ -1,0 +1,28 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "report_revision": "review-v5-connected-preview-and-sequence-qc",
+  "style_start_notice": "DECLARED_VALIDATED",
+  "tts_preview": "SEVEN_SCENES_ALIGNED_AND_PLACED_THIRTY_SHOTS_NONCANONICAL",
+  "planned_total_seconds": 270,
+  "rendered_preview_video_seconds": 270,
+  "rendered_preview_audio_seconds": 270,
+  "preview_voice_seconds": 162.544,
+  "directed_nonvoice_seconds": 107.456,
+  "directing_replan": "V2_CANDIDATE_NOT_APPROVED",
+  "connected_preview": "V2_EDITORIAL_CUE_CARDS_RENDERED",
+  "connected_preview_path": "review/270s-connected-preview-v2/db-cooper-270s-timing-preview.mp4",
+  "shot_manifest": "V4_CANDIDATE_NOT_APPROVED",
+  "scene_graph": "V3_CANDIDATE_NOT_APPROVED",
+  "sequence_qc": "STRUCTURAL_REVIEW_COMPLETE_VISUAL_AND_SFX_QC_PENDING",
+  "script_directing_lock": null,
+  "manager_story_gate": "NOT_ADVANCED",
+  "final_tts_allowed": false,
+  "production_approved": false,
+  "unresolved": [
+    "No moving stylized shot footage or authored sound effects exist to verify whether long nonvoice passages sustain attention",
+    "CL01 and CL29 actual visual identity and edit-boundary continuity have not been reviewed",
+    "The previous Directing Preflight was REVISION_REQUIRED and independent specialist self-QC has not completed",
+    "No canonical D.B. Cooper project.db Story Gate record exists"
+  ],
+  "next_stage": "REVIEW_REAL_MOTION_AND_SOUND_SAMPLE_THEN_REPEAT_PREFLIGHT_AND_SEQUENCE_QC"
+}

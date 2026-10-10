@@ -1,0 +1,31 @@
+CL27 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL27_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+D.B. COOPER | CL27 | SC06 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: CASH80-01, ENV-RIVER
+FACT GUARD: 실제 돈이 이동한 경로·물살 방향을 증명하는 그래픽 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL27. Editor uses 8 seconds at timeline 238-246 seconds.
+START: assets/CL27_START.png (PREVIOUS_USED_EXIT from CL26).
+END/TARGET: assets/CL27_END_TARGET.png
+ACTION: 사람과 낙하산 실루엣은 새로 등장하지 않음
+CAMERA: 지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경
+ENVIRONMENT: 강바람과 물결·구름 움직임만
+REVEAL: 5~7초 증거가 작아지고 빈 공간이 주제가 됨
+USED EXIT: 물의 검은 영역이 SC07 서류 암부로 자연 이어짐
+VOICE SLOT IN USED CLIP: 0.500-6.609s; narration: 그 돈이 강변까지 어떻게 이동했는지조차 확인되지 않았습니다. 돈은 나타났지만, 그 돈을 가져간 남자는 끝내 나타나지 않았습니다.
+SOUND DESIGN: 강물 공간감 증가→저음 절제
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.

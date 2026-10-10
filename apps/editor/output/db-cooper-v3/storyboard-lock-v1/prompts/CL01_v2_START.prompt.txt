@@ -1,0 +1,15 @@
+D.B. COOPER | CL01 | SC01 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01, CAB-01
+FACT GUARD: 이 클립만 원본 10초 전체 사용. 직접 점프 인물·낙하·도달한 지면 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL01.
+STORY: 관객을 비행기 아래의 위험한 공간으로 끌어들여 계단을 최초 공개
+START FRAME: 꼬리 아래 727을 먼 원경에서 후방 3/4로 관찰; 중앙 엔진 흡입구와 T-tail 구분
+FUTURE CAMERA SPACE: 원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지
+REVEAL TO RESERVE: 6~8초 계단의 하향 구조 reveal, 8~10초 검은 내부가 화면을 채움
+Keep the revealed state out of the START composition. One frame, one information state.

@@ -1,0 +1,16 @@
+{
+  "schema": "db-cooper-production-readiness-pass.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "verified_at": "2026-10-09T12:37:22.874Z",
+  "basis": "full_gate_pass_recorded_by_prior_generator",
+  "checks": [
+    "build",
+    "typecheck",
+    "tests",
+    "LONGFORM E2E",
+    "pilot-readiness CI",
+    "Cooper project preflight"
+  ],
+  "status": "PASS"
+}

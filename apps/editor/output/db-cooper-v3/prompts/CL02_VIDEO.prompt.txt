@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL02 | SCENE SC01 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, STAIR-01, CAB-01
+FACT GUARD: 실제 당시 객실 배치가 완전 검증된 도면처럼 보이지 않게; 장면상 빈 자리 표현만
+SOURCE: assets/CL02_START.png (GENERATE_START)
+END/TARGET: none; use the reviewed START and motion path
+Generate one 10-second 16:9 clip. Intended editor window: timeline 10-18 seconds; use only the first 8 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 8-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL02, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 검은 차폐 이후 착륙한 동일 기체의 어두운 객실 통로 정면. CAMERA PATH: 중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지. SUBJECT MOTION: 승객과 쿠퍼는 등장하지 않음; 남겨진 소품만 최소한. ENVIRONMENT MOTION: 형광등이 아닌 1971년식 온기 있는 약한 객실 조명. KEY REVEAL: 5~7초 돈가방의 부재를 빈 공간으로 느끼게 함. TARGET FRAME: 후방 좌석과 돈가방이 있던 자리의 빈 공간, 사람은 없음. EXIT FRAME: 좌석의 검은 프레임/탑승권 검은 잉크 면으로 편집 컷. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 8 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: STORY_CUT; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

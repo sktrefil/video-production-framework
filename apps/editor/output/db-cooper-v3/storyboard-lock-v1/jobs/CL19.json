@@ -1,0 +1,54 @@
+{
+  "id": "CL19",
+  "scene": "SC04",
+  "ordinal": 19,
+  "timeline_start": 166,
+  "timeline_end": 175,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL19_START.png",
+  "end_target_asset": "assets/CL19_END_TARGET.png",
+  "video_asset": "clips/CL19.mp4",
+  "prompts": {
+    "start": "prompts/CL19_v2_START.prompt.txt",
+    "end": "prompts/CL19_v2_END.prompt.txt",
+    "video": "prompts/CL19_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "인물을 보여주지 않고 비행 중 열린 계단 자체만으로 실종을 표현",
+  "action": "쿠퍼·돈가방 없이 남은 넥타이와 후방 계단만 보여줌",
+  "camera": "착륙 후 객실 통로 FAST PUSH→빈 좌석·돈자리·넥타이 QUICK CUT→빈 계단으로 이동",
+  "reveal": "리노에서 쿠퍼·돈가방이 없고 넥타이와 열린 계단이 남았다",
+  "exit": "넥타이 검은 선이 수색할 숲 능선으로 연결",
+  "sound": "착륙 후 기계음→비어 있는 객실 룸톤→원거리 바람",
+  "narrator_text": "뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 29.964,
+    "scene_audio_end_seconds": 36.145,
+    "spoken_window_seconds": 6.182
+  },
+  "voice_slot_relative": {
+    "start": 0.7,
+    "end": 6.882
+  },
+  "voice_slot_timeline": {
+    "start": 166.7,
+    "end": 172.882
+  },
+  "pre_voice_seconds": 0.7,
+  "post_voice_seconds": 2.118,
+  "nonvoice_seconds": 2.818
+}

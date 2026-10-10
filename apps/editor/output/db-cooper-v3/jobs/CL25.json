@@ -1,0 +1,29 @@
+{
+  "id": "CL25",
+  "scene": "SC06",
+  "ordinal": 25,
+  "timeline_start": 220,
+  "timeline_end": 229,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL24"
+  },
+  "start_asset": "assets/CL25_START.png",
+  "end_target_asset": "assets/CL25_END_TARGET.png",
+  "video_asset": "clips/CL25.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL25_END.prompt.txt",
+    "video": "prompts/CL25_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "CASH80-01",
+    "ENV-RIVER"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

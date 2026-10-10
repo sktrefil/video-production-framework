@@ -1,0 +1,45 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL08",
+  "scene": "SC03",
+  "timeline_start": 62,
+  "timeline_end": 72,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "editor_fps": 30,
+  "transition": "INDEPENDENT_START_AFTER_CL07_DARK_DOOR_WIPE",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null,
+    "start_path": "assets/CL08_START.png"
+  },
+  "cl07_transition_reference": {
+    "clip_path": "clips/CL07.mp4",
+    "clip_sha256": "5a23ddfb6d15452e4c38553e3ada8315e2e43dc4798b55221cd5facbaf36f97d",
+    "used_exit_frame_index": 191,
+    "used_exit_time_seconds": 7.958333,
+    "review_frame_path": "exits/CL07_USED_EXIT_REVIEW.png",
+    "review_frame_sha256": "48ad9e0fd8d4c4e94a9c54a6f2ce756d31c3bdceeaf9a4c041e34afb1867dd25",
+    "image_reference_for_generation": false
+  },
+  "end_target_path": "assets/CL08_END_TARGET_v3.png",
+  "video_path": "clips/CL08.mp4",
+  "prompts": {
+    "start": "prompts/CL08_v3_START.prompt.txt",
+    "end": "prompts/CL08_v3_END.prompt.txt",
+    "video": "prompts/CL08_v4_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "start": "7a1a0b9cc4f5ccfbef770cc9654d0604e8477b35c4f96c9a264b04896aa749ea",
+    "end": "3e6f56c2f63c91922d2a966f34469f4f61c06737042759e9a43c9a1a4952b7b4",
+    "video": "c606ff85c5f50607fd3c803e099e16e643676d7466115a95eebb493a4eded4dc"
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "시애틀의 활주로. 비행기는 멈췄지만, 가장 위험한 승객은 내리지 않습니다. 공항 차량이 다가오고, 20만 달러와 낙하산 네 개가 기내로 들어옵니다.",
+  "voice_slot_relative_seconds": [0.4, 7.164],
+  "next_clip_handoff": "CL09 START must be extracted from CL08's actual 10-second used exit, not from its planned END target."
+}

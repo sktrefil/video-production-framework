@@ -1,0 +1,118 @@
+{
+  "schema": "db-cooper-directing-preflight-structural-validation.v1",
+  "status": "STRUCTURAL_PASS_SEMANTIC_REVIEW_SEPARATE",
+  "source_sha256": {
+    "script": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+    "tts": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac",
+    "preview": "1839cd0bc4145b7d5b972e3ecdbe2fa246cbdc3b0ab40f0ed0ef10b625a3e23f",
+    "timing": "88d4edc43e43a2bab80ccb287d66dc76d5a88cf264a45bb71f4ae36ef19480a5",
+    "manifest": "2642a89bd86e0b882f8b138c095abc35b5e8f5d1da14a74903ff4eb3e06d8148",
+    "plan": "64ea1e4a8db576753d3e2c1fd42aee1cb759f0b160cbb4c671fe1ac34e518013",
+    "scenes": "61f1774fbd72e88e21a5860e15c21d0ba90b4405ed8b420ce6718b86f93bcb1b"
+  },
+  "checks_passed": 87,
+  "windows": [
+    {
+      "start": 0,
+      "end": 30,
+      "shot_ids": [
+        "CL01",
+        "CL02",
+        "CL03",
+        "CL04"
+      ],
+      "attention_events": 4
+    },
+    {
+      "start": 30,
+      "end": 60,
+      "shot_ids": [
+        "CL04",
+        "CL05",
+        "CL06",
+        "CL07"
+      ],
+      "attention_events": 4
+    },
+    {
+      "start": 60,
+      "end": 90,
+      "shot_ids": [
+        "CL07",
+        "CL08",
+        "CL09",
+        "CL10"
+      ],
+      "attention_events": 4
+    },
+    {
+      "start": 90,
+      "end": 120,
+      "shot_ids": [
+        "CL10",
+        "CL11",
+        "CL12",
+        "CL13"
+      ],
+      "attention_events": 4
+    },
+    {
+      "start": 120,
+      "end": 150,
+      "shot_ids": [
+        "CL13",
+        "CL14",
+        "CL15",
+        "CL16",
+        "CL17"
+      ],
+      "attention_events": 5
+    },
+    {
+      "start": 150,
+      "end": 180,
+      "shot_ids": [
+        "CL17",
+        "CL18",
+        "CL19",
+        "CL20"
+      ],
+      "attention_events": 4
+    },
+    {
+      "start": 180,
+      "end": 210,
+      "shot_ids": [
+        "CL20",
+        "CL21",
+        "CL22",
+        "CL23"
+      ],
+      "attention_events": 4
+    },
+    {
+      "start": 210,
+      "end": 240,
+      "shot_ids": [
+        "CL23",
+        "CL24",
+        "CL25",
+        "CL26",
+        "CL27"
+      ],
+      "attention_events": 5
+    },
+    {
+      "start": 240,
+      "end": 270,
+      "shot_ids": [
+        "CL27",
+        "CL28",
+        "CL29",
+        "CL30"
+      ],
+      "attention_events": 4
+    }
+  ],
+  "no_final_tts_or_canonical_gate_change": true
+}

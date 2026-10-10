@@ -1,0 +1,55 @@
+{
+  "id": "CL05",
+  "scene": "SC02",
+  "ordinal": 5,
+  "timeline_start": 36,
+  "timeline_end": 45,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL04"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL05_START.png",
+  "end_target_asset": "assets/CL05_END_TARGET.png",
+  "video_asset": "clips/CL05.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL05_v2_END.prompt.txt",
+    "video": "prompts/CL05_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "보인 것은 전선과 붉은 막대, 폭탄의 진위는 미확인",
+  "action": "쿠퍼 손이 가방 뚜껑을 조금 들어 보일 뿐, 조립/작동 묘사 없음",
+  "camera": "가방 테두리를 따라 짧은 측면 아크 → 힌지 CLOSE → 내용물 PARTIAL REVEAL",
+  "reveal": "5초 내용물이 처음 보이나 정체는 단정하지 않음",
+  "exit": "검은 가방 모서리에서 승무원 손으로 동선 이동",
+  "sound": "걸쇠 클릭 뒤 주변 소리 감소; 폭발·작동음 금지",
+  "narrator_text": "승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 10.4,
+    "scene_audio_end_seconds": 16.509,
+    "spoken_window_seconds": 6.109
+  },
+  "voice_slot_relative": {
+    "start": 0.8,
+    "end": 6.909
+  },
+  "voice_slot_timeline": {
+    "start": 36.8,
+    "end": 42.909
+  },
+  "pre_voice_seconds": 0.8,
+  "post_voice_seconds": 2.091,
+  "nonvoice_seconds": 2.891
+}

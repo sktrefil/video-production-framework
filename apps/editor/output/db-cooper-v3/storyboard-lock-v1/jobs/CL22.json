@@ -1,0 +1,53 @@
+{
+  "id": "CL22",
+  "scene": "SC05",
+  "ordinal": 22,
+  "timeline_start": 194,
+  "timeline_end": 203,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL21"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL22_START.png",
+  "end_target_asset": "assets/CL22_END_TARGET.png",
+  "video_asset": "clips/CL22.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL22_v2_END.prompt.txt",
+    "video": "prompts/CL22_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "TIE-01",
+    "ENV-FOREST"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "숲과 강을 탐색하지만 아무런 사람/낙하산 증거가 나오지 않음",
+  "action": "멀리서 수색 인원이 걷되 얼굴/대사 불필요",
+  "camera": "나무 전경을 활용한 FAST REVEAL → 손전등 FOLLOW → 자갈밭에서 정지",
+  "reveal": "6초 불빛 끝에 아무것도 없음",
+  "exit": "고요한 빈 강변 지면",
+  "sound": "가지·자갈→멀어지는 무전→강물",
+  "narrator_text": "그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 6.545,
+    "scene_audio_end_seconds": 11.782,
+    "spoken_window_seconds": 5.236
+  },
+  "voice_slot_relative": {
+    "start": 1.1,
+    "end": 6.336
+  },
+  "voice_slot_timeline": {
+    "start": 195.1,
+    "end": 200.336
+  },
+  "pre_voice_seconds": 1.1,
+  "post_voice_seconds": 2.664,
+  "nonvoice_seconds": 3.764
+}

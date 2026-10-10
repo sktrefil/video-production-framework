@@ -1,0 +1,250 @@
+{
+  "schema": "db-cooper-existing-audio-reuse-qc.v1",
+  "scope": "technical_provenance_text_alignment_codec_duration_signal",
+  "human_listening_qc": "NOT_PERFORMED",
+  "source_plan_status": "PREVIEW_ONLY_NOT_FINAL_TTS",
+  "approved_final_script_sha256": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "voice_profile_consistent": true,
+  "reuse_count": 7,
+  "regenerate_scene_ids": [],
+  "scenes": [
+    {
+      "scene_id": "SC01",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "9b10cca681f9dafc7c21b06bbb368e729fca3c3198e89300e1469753bdbcc4f9",
+      "playback_audio_sha256": "c91ce20e10be13629348d16a49367bbf2e82c1611fe8af06e2354e1561b9f700",
+      "raw_duration_seconds": 13.12,
+      "playback_duration_seconds": 11.936,
+      "planned_scene_seconds": 18,
+      "provider_request_ids": [
+        "m1uuBcQ2JEgkwQt3gE9i"
+      ],
+      "signal": {
+        "peak_dbfs": -1.35,
+        "rms_dbfs": -19.59,
+        "clipped_sample_fraction": 0.0
+      }
+    },
+    {
+      "scene_id": "SC02",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "9e2ddffe9b6401ab17c2feb8ad4cf5c5dfedb14763b43d58d56f862dc8d6aa7f",
+      "playback_audio_sha256": "222fa4f64d937b32192584e7c4f198a0aa7bd4fc46280ada7c842311cc0bd97a",
+      "raw_duration_seconds": 29.52,
+      "playback_duration_seconds": 26.845,
+      "planned_scene_seconds": 44,
+      "provider_request_ids": [
+        "IycqYJp50HR6oN9G0vQH"
+      ],
+      "signal": {
+        "peak_dbfs": -2.01,
+        "rms_dbfs": -19.39,
+        "clipped_sample_fraction": 0.0
+      }
+    },
+    {
+      "scene_id": "SC03",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "a9061b55ec76d8cf693330695cf1610f7883bf78d986c97834832ceb36bf95e7",
+      "playback_audio_sha256": "2463edefb0e322912b0ec68a8ddb29dfa9005952eea1b23db2ba77141914e8c0",
+      "raw_duration_seconds": 34.24,
+      "playback_duration_seconds": 31.126,
+      "planned_scene_seconds": 50,
+      "provider_request_ids": [
+        "DPWPRER0V43u5rth5yun"
+      ],
+      "signal": {
+        "peak_dbfs": -0.82,
+        "rms_dbfs": -18.85,
+        "clipped_sample_fraction": 0.0
+      }
+    },
+    {
+      "scene_id": "SC04",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "14f29bef8606c9e715a687b7cf87725fe55a070f3b0f9714322c593ec428c539",
+      "playback_audio_sha256": "1bb1a3be17c13c84e09d9982682c2ad4b6a25783d070c6eb3024c058455c48cb",
+      "raw_duration_seconds": 46.0,
+      "playback_duration_seconds": 41.828,
+      "planned_scene_seconds": 73,
+      "provider_request_ids": [
+        "K22zohNXkbJLieB5OetV"
+      ],
+      "signal": {
+        "peak_dbfs": -1.99,
+        "rms_dbfs": -19.19,
+        "clipped_sample_fraction": 0.0
+      }
+    },
+    {
+      "scene_id": "SC05",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "f8bfc534af24a7294adff6ba7d5d67949135b012eaee4cd49b5e994620c96ec8",
+      "playback_audio_sha256": "2320fd890e1209d940c6cae8539d431b62a56a533db2d4b70adde900700b1804",
+      "raw_duration_seconds": 16.0,
+      "playback_duration_seconds": 14.562,
+      "planned_scene_seconds": 26,
+      "provider_request_ids": [
+        "VmQH9tubLN00v6JOce7r"
+      ],
+      "signal": {
+        "peak_dbfs": -2.55,
+        "rms_dbfs": -19.11,
+        "clipped_sample_fraction": 0.0
+      }
+    },
+    {
+      "scene_id": "SC06",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "7f7c60462378ea04d7091ce3cb1e5f083b54c01ec35ce8e384e7ccbd5e163e5e",
+      "playback_audio_sha256": "66d0e1a7ac96cfecde1f0e937161f3bc49acb0085133e92fd4be8ac85a9eb198",
+      "raw_duration_seconds": 24.56,
+      "playback_duration_seconds": 22.327,
+      "planned_scene_seconds": 35,
+      "provider_request_ids": [
+        "kZKKJB4qrehNYh0hFrox"
+      ],
+      "signal": {
+        "peak_dbfs": -2.81,
+        "rms_dbfs": -19.42,
+        "clipped_sample_fraction": 0.0
+      }
+    },
+    {
+      "scene_id": "SC07",
+      "decision": "REUSE",
+      "failed_checks": [],
+      "checks": {
+        "approved_narration_text": true,
+        "source_text_hash": true,
+        "provider_complete": true,
+        "same_scene_order": true,
+        "audio_hash": true,
+        "alignment_hash": true,
+        "alignment_text": true,
+        "alignment_timing": true,
+        "audio_format": true,
+        "duration_matches_provider": true,
+        "playback_speed_1p1": true,
+        "fits_scene": true,
+        "voice_preset": true,
+        "audio_signal": true
+      },
+      "source_audio_sha256": "61b03ebf89cff2f4d412bda607475ead6d75c1180b916e3ad3be5b87277af544",
+      "playback_audio_sha256": "eedce03959b07e6398c712348414445340a561349ecd7375f8ff6bca215678ef",
+      "raw_duration_seconds": 15.36,
+      "playback_duration_seconds": 13.977,
+      "planned_scene_seconds": 24,
+      "provider_request_ids": [
+        "mD7YvGUYJkFVQQFz5Df7"
+      ],
+      "signal": {
+        "peak_dbfs": -1.98,
+        "rms_dbfs": -19.5,
+        "clipped_sample_fraction": 0.0
+      }
+    }
+  ]
+}

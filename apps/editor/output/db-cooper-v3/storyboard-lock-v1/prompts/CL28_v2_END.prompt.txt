@@ -1,0 +1,15 @@
+D.B. COOPER | CL28 | SC07 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01
+FACT GUARD: FBI 수사 종료=사건 해결 아니며 공식 문서 원문 복제 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL28, using its reviewed START as the primary image reference.
+START STATE: 실제 문서의 복제가 아닌 중립적 조사 파일 아이보리 표지
+CAMERA PATH: 문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION
+TARGET STATE AT USED EXIT: 파일이 덮여 화면을 어둡게 가림
+EXIT: 표지의 먹색이 1971년 계단의 어둠으로 연결
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

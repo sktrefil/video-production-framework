@@ -1,0 +1,26 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "clip_id": "CL13",
+  "kind": "END",
+  "prompt_sha256": "2fc610ae6effd96065556f5839d2c2036a5cb1f01a7bb3119641f0dd9a2c9cd2",
+  "start_sha256": "1bb4436fb658d54ec6b413a9301447a06933a4b7d54e2f3dd41450899c76e2fa",
+  "source_clip_sha256": "a7f9241306440973cfaf25d460573e91244eba3b9ebc24819d60a6273596408f",
+  "source_frame_index": 239,
+  "references": [
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    }
+  ],
+  "output_path": "assets/CL13_END_TARGET_v5.png",
+  "output_sha256": "2ede08d94cda260bd06e9ffa538e6e55c3fc08e62358b345b32350a05779c58b",
+  "distinct_from_start": {
+    "mean_absolute_rgb_delta": 23.48,
+    "edge_correlation": -0.024,
+    "method": "320x180 RGB difference and 160x90 edge correlation"
+  },
+  "provider_request_ids": [],
+  "generated_at": "2026-10-10T02:10:44.237Z",
+  "status": "GENERATED_UNREVIEWED",
+  "canonical_approval": false
+}

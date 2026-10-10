@@ -1,0 +1,15 @@
+D.B. COOPER | CL02 | SC01 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01, CAB-01
+FACT GUARD: 실제 당시 객실 배치가 완전 검증된 도면처럼 보이지 않게; 장면상 빈 자리 표현만
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one START image for CL02.
+STORY: 후방 계단의 공백을 리노 착륙 후 빈 객실로 잇는 첫 의문
+START FRAME: 검은 차폐 이후 착륙한 동일 기체의 어두운 객실 통로 정면
+FUTURE CAMERA SPACE: 중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지
+REVEAL TO RESERVE: 5~7초 돈가방의 부재를 빈 공간으로 느끼게 함
+Keep the revealed state out of the START composition. One frame, one information state.

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "jobId": "tts-preview-SC04-414c49c5cdeb",
+  "jobRevision": 1,
+  "projectId": "db_cooper_1971_4m30_v3_preview",
+  "attempt": 1,
+  "status": "COMPLETE",
+  "providerRequestIds": [
+    "K22zohNXkbJLieB5OetV"
+  ],
+  "outputs": [
+    {
+      "role": "narration_section_001",
+      "relativePath": "03_tts/sections/SC04_raw.mp3",
+      "mimeType": "audio/mpeg",
+      "sizeBytes": 736906,
+      "sha256": "14f29bef8606c9e715a687b7cf87725fe55a070f3b0f9714322c593ec428c539",
+      "durationMs": 46000
+    },
+    {
+      "role": "character_alignment_section_001",
+      "relativePath": "03_tts/alignment/SC04.json",
+      "mimeType": "application/json",
+      "sizeBytes": 8624,
+      "sha256": "82f90b884cd6ce8433191858497d7c61a3437e4008f66dc4239c38af24002134"
+    },
+    {
+      "role": "narration_manifest",
+      "relativePath": "03_tts/manifests/SC04.json",
+      "mimeType": "application/json",
+      "sizeBytes": 1895,
+      "sha256": "5df86b02322b9d3cf8576382a0839497c3c733d126706d9e1c88876551547dcd"
+    },
+    {
+      "role": "tts_metadata",
+      "relativePath": "03_tts/metadata/SC04.json",
+      "mimeType": "application/json",
+      "sizeBytes": 757,
+      "sha256": "e77014ad4ed39efcbb42efb1d8fe7c0b17b1925661145cd1eeea151ec3887168"
+    },
+    {
+      "role": "resolved_voice_profile",
+      "relativePath": "03_tts/voice/SC04.json",
+      "mimeType": "application/json",
+      "sizeBytes": 343,
+      "sha256": "e4a0ce168c5b761cdbcb0e13923dc0b01fdbf6d81f1eafc4063e20321b7fde96"
+    }
+  ],
+  "startedAt": "2026-10-09T10:57:24.159Z",
+  "completedAt": "2026-10-09T10:57:43.695Z"
+}

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "jobId": "tts-preview-SC05-45acdd0c6679",
+  "jobRevision": 1,
+  "projectId": "db_cooper_1971_4m30_v3_preview",
+  "provider": "ELEVENLABS",
+  "providerProfileVersion": "1.0.0",
+  "jobType": "TTS_GENERATION",
+  "executionMode": "AUTOMATED",
+  "attempt": 1,
+  "inputHash": "45acdd0c66795920fd043394b9455c9b19a959986296d3ed74b21c246b34e43a",
+  "secretRequirements": [
+    {
+      "envName": "ELEVENLABS_API_KEY",
+      "required": true
+    }
+  ],
+  "input": {
+    "schemaVersion": 1,
+    "providerProfile": {
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    "plan": {
+      "id": "preview-plan-SC05-45acdd0c6679",
+      "revision": 1,
+      "sourceScript": {
+        "id": "DB_Cooper_4min30_script_v3_TTS.txt",
+        "revision": 3,
+        "sha256": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac"
+      },
+      "contentFormat": "LONGFORM",
+      "endpoint": "/v1/text-to-speech/{voice_id}/with-timestamps",
+      "modelId": "eleven_v3",
+      "outputFormat": "mp3_44100_128",
+      "voiceIdResolution": "VOICE_PRESET_THEN_ENV",
+      "voiceIdFallbackEnv": "ELEVENLABS_VOICE_ID",
+      "voicePreset": "HISTORY_MYSTERY_LONGFORM",
+      "configuredVoiceSettings": {
+        "stability": 0.62,
+        "similarityBoost": 0.8,
+        "style": 0.04,
+        "speed": 1,
+        "useSpeakerBoost": true
+      },
+      "effectiveVoiceSettings": {
+        "stability": 0.62,
+        "style": 0.04
+      },
+      "droppedVoiceSettings": [
+        "similarity_boost",
+        "speed",
+        "use_speaker_boost"
+      ],
+      "preserveProviderCadence": true,
+      "narrationMode": "SEGMENTED",
+      "chunks": [
+        {
+          "index": 1,
+          "text": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다. 그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다. 그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+          "textCharacterCount": 172,
+          "outputRelativePath": "03_tts/sections/SC05_raw.mp3",
+          "sectionId": "preview-SC05",
+          "sectionIndex": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "preview-SC05",
+          "index": 1,
+          "sequenceId": "preview-SC05",
+          "sceneIds": [
+            "SC05"
+          ],
+          "text": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다. 그러나 남자도, 낙하산도 발견되지 않습니다. 대규모 수색에서도 결정적인 흔적을 찾지 못한 채 시간이 흐릅니다. 그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+          "textCharacterCount": 172,
+          "audioRelativePath": "03_tts/sections/SC05_raw.mp3",
+          "characterAlignmentRelativePath": "03_tts/alignment/SC05.json"
+        }
+      ],
+      "outputPaths": {
+        "narrationManifest": "03_tts/manifests/SC05.json",
+        "metadata": "03_tts/metadata/SC05.json",
+        "resolvedVoiceProfile": "03_tts/voice/SC05.json"
+      }
+    }
+  }
+}

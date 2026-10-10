@@ -1,0 +1,15 @@
+D.B. COOPER | CL30 | SC07 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01
+FACT GUARD: 살아있음/죽음 어느 쪽도 시각적으로 확정 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL30, using its reviewed START as the primary image reference.
+START STATE: CL29 EXIT의 후방 기체 원경, 계단은 작게 남아 있음
+CAMERA PATH: 안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전
+TARGET STATE AT USED EXIT: 밤하늘 검은 면이 전체 화면을 차지함
+EXIT: 완전한 검정 프레임 (편집 최종 홀드)
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

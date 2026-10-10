@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL01 | SCENE SC01 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, STAIR-01, CAB-01
+FACT GUARD: 이 클립만 원본 10초 전체 사용. 직접 점프 인물·낙하·도달한 지면 금지
+Create one planned END/TARGET still for CL01: 후미로 돌진하는 오프닝.
+Attach the reviewed CL01 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 관객을 비행기 아래의 위험한 공간으로 끌어들여 계단을 최초 공개
+START STATE: 꼬리 아래 727을 먼 원경에서 후방 3/4로 관찰; 중앙 엔진 흡입구와 T-tail 구분
+CAMERA PATH: 원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지
+DESIRED TARGET COMPOSITION: 꼬리 아래의 내장식 airstair가 내려온 모습을 근접 로우앵글에서 읽음
+PLANNED EDITORIAL EXIT AT 10 SECONDS: 검은 계단 공간의 완전 차폐
+SUBJECT ACTION: 비행체는 진행 방향 유지; 계단은 하부 힌지에서만 하강
+ENVIRONMENT MOTION: 잉크로 그린 바람 선과 구름의 전경 패럴랙스, 실제 날씨 확정 암시 금지
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

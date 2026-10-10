@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL18 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 당시 정확한 계기 종류/값 표기를 단정하지 않는 연출적 압력 변화 표현
+Create one planned END/TARGET still for CL18: 20시 10분, 계기가 흔들린다.
+Attach the reviewed CL18 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 지상에서 확인할 수 없는 사건의 유일한 기체 반응 중 하나
+START STATE: 조종실 바늘형 계기(개념적 시각화), 화면 중앙에 바늘
+CAMERA PATH: 바늘을 보도록 점진적 PUSH-IN → 짧은 흔들림 → 카메라 급정지
+DESIRED TARGET COMPOSITION: 압력 변화를 암시하는 바늘의 작은 움직임과 승무원 반응
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 계기 검은 링을 이용해 기체 외부 어둠으로 컷
+SUBJECT ACTION: 계기 바늘만 미세 변화, 인물 얼굴 재현 불필요
+ENVIRONMENT MOTION: 강풍을 직접 객실 안으로 그리지 않음
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

@@ -1,0 +1,53 @@
+{
+  "id": "CL26",
+  "scene": "SC06",
+  "ordinal": 26,
+  "timeline_start": 229,
+  "timeline_end": 238,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL26_START.png",
+  "end_target_asset": "assets/CL26_END_TARGET.png",
+  "video_asset": "clips/CL26.mp4",
+  "prompts": {
+    "start": "prompts/CL26_v2_START.prompt.txt",
+    "end": "prompts/CL26_v2_END.prompt.txt",
+    "video": "prompts/CL26_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "CASH80-01",
+    "ENV-RIVER"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "일련번호 대조가 몸값의 일부임을 확인하지만 지리적 결론은 유보",
+  "action": "번호 연결은 추상 선·편집 글자로만 보이고 착륙 지점은 그리지 않음",
+  "camera": "지폐와 기록지의 번호 열 MATCH→일치 확인 뒤 강변으로 빠른 PULL-BACK",
+  "reveal": "번호 일치로 몸값 일부임은 확인되지만 발견 장소가 착륙 지점은 아니다",
+  "exit": "경로가 비어 있는 강변의 넓은 공간",
+  "sound": "짧은 종이 맞물림→원거리 강물; 확정 착륙음을 만들지 않는다",
+  "narrator_text": "쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 9.091,
+    "scene_audio_end_seconds": 16.145,
+    "spoken_window_seconds": 7.055
+  },
+  "voice_slot_relative": {
+    "start": 0.3,
+    "end": 7.355
+  },
+  "voice_slot_timeline": {
+    "start": 229.3,
+    "end": 236.355
+  },
+  "pre_voice_seconds": 0.3,
+  "post_voice_seconds": 1.645,
+  "nonvoice_seconds": 1.945
+}

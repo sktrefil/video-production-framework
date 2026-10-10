@@ -1,0 +1,46 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL13",
+  "scene": "SC04",
+  "timeline_start": 112,
+  "timeline_end": 121,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "editor_fps": 30,
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL12",
+    "source_clip_path": "clips/CL12.mp4",
+    "source_clip_sha256": "a7f9241306440973cfaf25d460573e91244eba3b9ebc24819d60a6273596408f",
+    "used_exit_frame_index": 239,
+    "used_exit_time_seconds": 9.958333,
+    "exit_path": "exits/CL12_USED_EXIT.png",
+    "exit_sha256": "1bb4436fb658d54ec6b413a9301447a06933a4b7d54e2f3dd41450899c76e2fa",
+    "start_path": "assets/CL13_START.png",
+    "start_sha256": "1bb4436fb658d54ec6b413a9301447a06933a4b7d54e2f3dd41450899c76e2fa"
+  },
+  "end_target_path": "assets/CL13_END_TARGET_v3.png",
+  "video_path": "clips/CL13.mp4",
+  "prompts": {
+    "end": "prompts/CL13_v3_END.prompt.txt",
+    "video": "prompts/CL13_v3_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "end": "c145bffd1040f2f7d69f2f9e699ef0c6433607e8e9061121d42c6fdb64b46793",
+    "video": "a11345177c899a9ed74f96c658886e8a0e56fafd545e9f359acc9a6a038c3e77"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL13_v3_VIDEO.ko.txt",
+    "sha256": "2ebde48c4cc9bd0496e7203f586ab824b66053f16ffb18266c0c6c68fb9947f1",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다.",
+  "voice_slot_relative_seconds": [1.3, 6.173],
+  "motion_budget": "ONE_FAST_CURTAIN_PUSH_THEN_ONE_STABLE_REAR_VESTIBULE_AXIS; SINGLE_HAND_ATTEMPT_THEN_INTERPHONE",
+  "next_clip_handoff": "CL14 is an independent cockpit story cut; its START is generated separately, not extracted from CL13."
+}

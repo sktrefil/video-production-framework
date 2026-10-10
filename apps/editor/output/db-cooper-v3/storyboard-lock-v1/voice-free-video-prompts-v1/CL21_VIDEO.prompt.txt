@@ -1,0 +1,31 @@
+CL21 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL21_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+D.B. COOPER | CL21 | SC05 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: TIE-01, ENV-FOREST
+FACT GUARD: 이동 거리/강 경로를 실제 수사 지도처럼 단정하지 않음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL21. Editor uses 9 seconds at timeline 185-194 seconds.
+START: assets/CL21_START.png (GENERATE_START).
+END/TARGET: assets/CL21_END_TARGET.png
+ACTION: 수색대는 멀리 작은 실루엣으로만
+CAMERA: 검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND
+ENVIRONMENT: 절제된 안개·비대칭 침엽수림 패럴랙스
+REVEAL: 6초 숲의 광활함이 인물 부재를 압도
+USED EXIT: 나무 사이의 좁은 광선으로 이동
+VOICE SLOT IN USED CLIP: 0.500-6.973s; narration: FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다.
+SOUND DESIGN: 짧은 무전 잡음→넓은 바람; 허구의 무전 대사 금지
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.

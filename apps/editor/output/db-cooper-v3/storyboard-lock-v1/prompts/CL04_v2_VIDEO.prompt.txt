@@ -1,0 +1,21 @@
+D.B. COOPER | CL04 | SC02 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 읽을 수 있는 협박 문구 생성 금지, 쪽지 실제 원문으로 주장 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL04. Editor uses 9 seconds at timeline 27-36 seconds.
+START: assets/CL04_START.png (PREVIOUS_USED_EXIT from CL03).
+END/TARGET: assets/CL04_END_TARGET.png
+ACTION: 손 2쌍만 자연스러운 1회의 인계 동작; 손가락 수 고정
+CAMERA: 손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN
+ENVIRONMENT: 배경 승객은 움직임 최소, 시대감 있는 객실 바람/빛
+REVEAL: 5~7초 쪽지가 넘어가며 긴장 장치 발생
+USED EXIT: 쪽지가 화면을 가리는 아이보리 차폐
+VOICE SLOT IN USED CLIP: 1.800-6.273s; narration: 이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다.
+SOUND DESIGN: 엔진을 낮추고 종이 접힘만 전경화; 가짜 대사 금지
+HANDOFF: CONTINUATION
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

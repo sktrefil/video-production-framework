@@ -1,0 +1,27 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "report_revision": "review-v3-after-seven-scene-preview",
+  "source_manifest_sha256": "fb65ff308d62b6554fca470233b15635ee8b061e9f4923d6bdb917bbae5f7c15",
+  "style_start_notice": "DECLARED_VALIDATED",
+  "script_draft": "REVIEWED_V3_TIMING_REVISION_REQUIRED",
+  "tts_preview": "COMPLETE_SEVEN_SCENES_NONCANONICAL",
+  "planned_total_seconds": 270,
+  "preview_1p1_total_seconds": 162.544,
+  "unallocated_seconds": 107.456,
+  "timing_report_sha256": "88d4edc43e43a2bab80ccb287d66dc76d5a88cf264a45bb71f4ae36ef19480a5",
+  "sc06_narration_shortening_candidate": "DEFERRED_NOT_NEEDED_FOR_TIMING",
+  "directing_preflight": "REVISION_REQUIRED",
+  "sequence_qc": "TIMING_REPLAN_REQUIRED",
+  "script_directing_lock": null,
+  "manager_story_gate": "NOT_ADVANCED",
+  "final_tts_allowed": false,
+  "production_approved": false,
+  "unresolved": [
+    "270-second storyboard exceeds measured preview narration by 107.456 seconds",
+    "SC04 has a 31.182-second narration-to-plan difference and needs a new action/information rhythm",
+    "CL01 END v2 and CL29 START v2 are not integrated into a revised shot plan",
+    "Full seven-scene audio and connected visual sequence still need subjective QC",
+    "Canonical D.B. Cooper project.db Story Gate and specialist self-QC remain absent"
+  ],
+  "next_stage": "REVISE_SCRIPT_SCENE_TIMING_AND_SEQUENCE_QC"
+}

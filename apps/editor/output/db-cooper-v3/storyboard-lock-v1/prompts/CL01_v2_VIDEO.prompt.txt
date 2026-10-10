@@ -1,0 +1,21 @@
+D.B. COOPER | CL01 | SC01 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01, CAB-01
+FACT GUARD: 이 클립만 원본 10초 전체 사용. 직접 점프 인물·낙하·도달한 지면 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL01. Editor uses 10 seconds at timeline 0-10 seconds.
+START: assets/CL01_START.png (GENERATE_START).
+END/TARGET: assets/CL01_END_TARGET.png
+ACTION: 비행체는 진행 방향 유지; 계단은 하부 힌지에서만 하강
+CAMERA: 원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지
+ENVIRONMENT: 잉크로 그린 바람 선과 구름의 전경 패럴랙스, 실제 날씨 확정 암시 금지
+REVEAL: 6~8초 계단의 하향 구조 reveal, 8~10초 검은 내부가 화면을 채움
+USED EXIT: 검은 계단 공간의 완전 차폐
+VOICE SLOT IN USED CLIP: 0.300-6.991s; narration: 1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.
+SOUND DESIGN: 엔진 저음→금속 떨림→바람 급확대; 인물 추락음 금지
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

@@ -1,0 +1,20 @@
+CL06 | CASE TO AISLE | VIDEO PROMPT v5
+
+Create one 10-second horizontal 16:9 animated clip using the supplied START and END illustrations as the first frame and target composition.
+START: assets/CL06_START.png — the actual CL05 used exit: a dark briefcase fills the foreground and a hand holds its partly raised lid at the right.
+END TARGET: assets/CL06_END_TARGET_v5.png — a DIFFERENT medium-wide aisle composition: an attendant standing at the seat edge, small memo low by her side, seats converging toward the distant closed cockpit door. The suitcase is no longer the subject.
+
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Preserve the START case, seat geometry, lighting, ink texture and screen direction. Use a bold change of scale from case close-up to low medium-wide aisle view, controlled parallax and a brief speed ramp. No photorealism, live action, hyperrealism, glossy 3D, documentary reenactment or identifiable face.
+
+ACTION AND CAMERA:
+0–2 s: Begin exactly from the START frame. The lid lowers just enough to hide its contents while the camera slides along the case rim. One small latch click may be added in editing. Do not repeat the interior reveal.
+2–4 s: A seat-back edge briefly masks the lens as the camera moves to the aisle side of the same seat. In medium view, a second, cropped attendant's hand makes ONE quick recording gesture on a separate small paper. Keep the paper small in frame, without a push-in, and its marks unreadable.
+4–7 s: The attendant secures the small memo low in one hand and rises from the seat. The camera widens and lowers, revealing the narrow aisle through aligned seat backs. Keep at most a tiny sliver of the case below 8 percent of the frame or hide it behind a seat; the aisle and standing attendant must dominate. No walk down the aisle yet.
+7–9 s: Move at least two metres back from the START close-up, lift the camera to seated-eye height, and settle behind and slightly beside the standing attendant. Redirect focus from the small memo to the aisle and distant closed cockpit door. The aisle must occupy more than half the frame. Reach the supplied END composition before the 9-second edit boundary. CL07 takes over the walk toward the cockpit.
+9–10 s: Hold the END state with only subtle drawn cabin motion. The editor removes this source second.
+
+AV_BEATS_JSON: [{"id":"demand_note_write","narration_phrase":"승무원은 별도의 종이에 적습니다","visual_window_seconds":[2.3,3.5]}]
+
+The END must not resemble the START composition. The memo is only a brief action cue; do not magnify it or repeat the CL04 paper wipe. Do not show readable writing, amounts, numbers, names, dialogue, a face, money or parachutes physically entering the cabin, a functioning device, explosion, subtitles, logos, watermark or four-point generator mark. The approved narration will be added separately during 1.100–6.882 s of the editor-used clip. Add the short writing sound and the first seat-shift/footstep sound separately, below narration.
+
+OUTPUT: clips/CL06.mp4. The editor uses 0–9 seconds at timeline 45–54 seconds. Inspect the actual frame near 8.967 seconds at 30 fps before finalizing the CL06→CL07 graphic cut.

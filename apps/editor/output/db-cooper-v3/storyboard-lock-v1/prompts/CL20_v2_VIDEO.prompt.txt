@@ -1,0 +1,21 @@
+D.B. COOPER | CL20 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 구두/낙하산을 실제 회수된 증거처럼 보이지 않게 인서트 분리
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL20. Editor uses 10 seconds at timeline 175-185 seconds.
+START: assets/CL20_START.png (PREVIOUS_USED_EXIT from CL19).
+END/TARGET: assets/CL20_END_TARGET.png
+ACTION: 실제 착륙이나 생존 장면 대신 기록물 실루엣과 빈 지도만 사용
+CAMERA: 넥타이 선에서 낙하산·구두의 그래픽 인서트로 MATCH→불확실한 넓은 수색 영역으로 PULL-BACK
+ENVIRONMENT: 착륙 후 승무원의 멀어진 발소리, 시각적으로 인물 없음
+REVEAL: 낙하산의 조종 한계·구두·불확실한 위치가 수색을 어렵게 만든다
+USED EXIT: 확정 표시 없는 넓은 수색 영역
+VOICE SLOT IN USED CLIP: 0.300-5.900s; narration: 그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다.
+SOUND DESIGN: 객실 룸톤 감쇠→종이 넘김→넓은 바람; 생존·사망 암시 효과음 금지
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

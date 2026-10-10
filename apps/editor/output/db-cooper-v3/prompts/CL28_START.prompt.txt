@@ -1,0 +1,19 @@
+D.B. COOPER v3 | CL28 | SCENE SC07 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, STAIR-01
+FACT GUARD: FBI 수사 종료=사건 해결 아니며 공식 문서 원문 복제 금지
+Create one START still for CL28: 2016년, 파일은 닫히지만.
+STORY EVENT: FBI는 수사 자원을 재배분했으며 사건이 해결된 것은 아님
+START COMPOSITION: 실제 문서의 복제가 아닌 중립적 조사 파일 아이보리 표지
+TARGET PATH (for geometry only): 파일이 덮여 화면을 어둡게 가림
+CAMERA'S NEXT MOVE: 문서의 가장자리를 FOLLOW → 덮개가 닫히며 OCCLUSION
+SUBJECT IDENTITY/ACTION: 손 하나가 파일을 덮는 작은 동작
+MOTION SPACE TO RESERVE: 6초 서류가 덮이고 판단 보류의 정적
+Keep unknown faces, behavior and exact historical interiors stylized, silhouetted or abstract. No invented readable documents, serial numbers, baked-in text, captions or UI.
+This is a candidate START still, subject to visual QC and manager approval. Do not infer that a board panel is a project-specific approved frame.

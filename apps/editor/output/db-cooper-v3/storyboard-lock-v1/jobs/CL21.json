@@ -1,0 +1,53 @@
+{
+  "id": "CL21",
+  "scene": "SC05",
+  "ordinal": 21,
+  "timeline_start": 185,
+  "timeline_end": 194,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL21_START.png",
+  "end_target_asset": "assets/CL21_END_TARGET.png",
+  "video_asset": "clips/CL21.mp4",
+  "prompts": {
+    "start": "prompts/CL21_v2_START.prompt.txt",
+    "end": "prompts/CL21_v2_END.prompt.txt",
+    "video": "prompts/CL21_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "TIE-01",
+    "ENV-FOREST"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "FBI 수사가 비행기의 자취를 따라 땅으로 내려옴",
+  "action": "수색대는 멀리 작은 실루엣으로만",
+  "camera": "검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND",
+  "reveal": "6초 숲의 광활함이 인물 부재를 압도",
+  "exit": "나무 사이의 좁은 광선으로 이동",
+  "sound": "짧은 무전 잡음→넓은 바람; 허구의 무전 대사 금지",
+  "narrator_text": "FBI의 추적은 이제 하늘에서 땅으로 내려옵니다. 비행 경로를 따라 숲과 강을 수색하고, 기내에 남은 넥타이와 승무원의 진술을 대조합니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 0,
+    "scene_audio_end_seconds": 6.473,
+    "spoken_window_seconds": 6.473
+  },
+  "voice_slot_relative": {
+    "start": 0.5,
+    "end": 6.973
+  },
+  "voice_slot_timeline": {
+    "start": 185.5,
+    "end": 191.973
+  },
+  "pre_voice_seconds": 0.5,
+  "post_voice_seconds": 2.027,
+  "nonvoice_seconds": 2.527
+}

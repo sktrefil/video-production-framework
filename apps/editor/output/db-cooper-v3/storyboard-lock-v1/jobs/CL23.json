@@ -1,0 +1,53 @@
+{
+  "id": "CL23",
+  "scene": "SC05",
+  "ordinal": 23,
+  "timeline_start": 203,
+  "timeline_end": 211,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "SINGLE",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL23_START.png",
+  "end_target_asset": null,
+  "video_asset": "clips/CL23.mp4",
+  "prompts": {
+    "start": "prompts/CL23_v2_START.prompt.txt",
+    "end": null,
+    "video": "prompts/CL23_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "TIE-01",
+    "ENV-FOREST"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "수색 실패와 시간 경과를 시각적 공간의 비어 있음으로 전달",
+  "action": "인물·새로운 증거 등장 없음",
+  "camera": "천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION",
+  "reveal": "6~7초 화면에서 수색 흔적마저 사라짐",
+  "exit": "모래 질감으로 SC06에 편집 매치컷",
+  "sound": "무전 완전 소거→강물; 시간 경과를 대사로 꾸미지 않음",
+  "narrator_text": "그런데 8년여 뒤, 뜻밖의 장소에서 돈이 먼저 나타납니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 11.855,
+    "scene_audio_end_seconds": 14.545,
+    "spoken_window_seconds": 2.691
+  },
+  "voice_slot_relative": {
+    "start": 2,
+    "end": 4.691
+  },
+  "voice_slot_timeline": {
+    "start": 205,
+    "end": 207.691
+  },
+  "pre_voice_seconds": 2,
+  "post_voice_seconds": 3.309,
+  "nonvoice_seconds": 5.309
+}

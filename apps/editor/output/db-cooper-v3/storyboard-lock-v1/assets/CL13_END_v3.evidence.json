@@ -1,0 +1,34 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "clip_id": "CL13",
+  "kind": "END",
+  "prompt_sha256": "c145bffd1040f2f7d69f2f9e699ef0c6433607e8e9061121d42c6fdb64b46793",
+  "start_sha256": "1bb4436fb658d54ec6b413a9301447a06933a4b7d54e2f3dd41450899c76e2fa",
+  "source_clip_sha256": "a7f9241306440973cfaf25d460573e91244eba3b9ebc24819d60a6273596408f",
+  "source_frame_index": 239,
+  "references": [
+    {
+      "role": "BOARD01_STYLE",
+      "sha256": "88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160"
+    },
+    {
+      "role": "BOARD02_MOTION",
+      "sha256": "c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7"
+    },
+    {
+      "role": "BOARD03_SCENE",
+      "sha256": "3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79"
+    }
+  ],
+  "output_path": "assets/CL13_END_TARGET_v3.png",
+  "output_sha256": "484fd91199bbc953fed1c980426ef10927b9b57ee0e7109606abd609687ae9d6",
+  "distinct_from_start": {
+    "mean_absolute_rgb_delta": 26.75,
+    "edge_correlation": 0.01,
+    "method": "320x180 RGB difference and 160x90 edge correlation"
+  },
+  "provider_request_ids": [],
+  "generated_at": "2026-10-10T01:44:32.311Z",
+  "status": "GENERATED_UNREVIEWED",
+  "canonical_approval": false
+}

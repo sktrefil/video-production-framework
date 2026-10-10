@@ -1,0 +1,15 @@
+D.B. COOPER | CL18 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 당시 정확한 계기 종류/값 표기를 단정하지 않는 연출적 압력 변화 표현
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL18, using its reviewed START as the primary image reference.
+START STATE: 인물 없는 727 후방 계단의 외부 실루엣
+CAMERA PATH: 인물 없는 계단 외부 PARALLAX→기체 장거리 FOLLOW→리노 착륙에 맞춰 컷
+TARGET STATE AT USED EXIT: 사람을 보여주지 않은 채 리노에 도착한 항공기 실루엣
+EXIT: 착륙 뒤 빈 객실의 입구
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

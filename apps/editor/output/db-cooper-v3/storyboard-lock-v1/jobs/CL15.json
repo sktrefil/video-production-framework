@@ -1,0 +1,54 @@
+{
+  "id": "CL15",
+  "scene": "SC04",
+  "ordinal": 15,
+  "timeline_start": 130,
+  "timeline_end": 139,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL14"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL15_START.png",
+  "end_target_asset": "assets/CL15_END_TARGET.png",
+  "video_asset": "clips/CL15.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL15_v2_END.prompt.txt",
+    "video": "prompts/CL15_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "후방 계단의 부분적 하강을 알려주는 기체 경고 반응",
+  "action": "커튼 뒤 인물은 숨기고 천·조명·진동만 변화",
+  "camera": "표시등 빛과 커튼 주름을 GRAPHIC MATCH→닫힌 커튼을 따라 측면 TRACK",
+  "reveal": "커튼 때문에 조종실에서는 뒤편을 볼 수 없고 시간이 흐른다",
+  "exit": "커튼 암부에서 인터폰 쪽으로 시선 이동",
+  "sound": "표시등 클릭 소거→커튼 천 스침→시간 경과를 암시하는 엔진 저음; 과장된 경고음 금지",
+  "narrator_text": "하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 10.127,
+    "scene_audio_end_seconds": 13.745,
+    "spoken_window_seconds": 3.618
+  },
+  "voice_slot_relative": {
+    "start": 1.8,
+    "end": 5.418
+  },
+  "voice_slot_timeline": {
+    "start": 131.8,
+    "end": 135.418
+  },
+  "pre_voice_seconds": 1.8,
+  "post_voice_seconds": 3.582,
+  "nonvoice_seconds": 5.382
+}

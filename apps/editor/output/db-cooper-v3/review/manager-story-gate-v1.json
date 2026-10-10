@@ -1,0 +1,81 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "PASS",
+  "script_directing_lock": {
+    "id": "SDL-db_cooper_1971_4m30_v3-r2",
+    "path": "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\review\\script-directing-lock-v2.json",
+    "sha256": "8368eb6280ff33037fa9dec0433aad12edaed5ece97de41a5c4434ee45ae2448"
+  },
+  "manager_story_gate": "PASS",
+  "canonical_project_db": "D:\\git\\video-production-framework-migrated\\apps\\editor\\output\\db-cooper-v3\\canonical-workspace\\projects\\db_cooper_1971_4m30_v3\\project.db",
+  "canonical_script": {
+    "id": "script_c1b9b5c0010d45539e4514874b99dd0c",
+    "revision": 1,
+    "sha256": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+    "approval_id": "apr_aa4b2e05362646698163e8fdc49b34f1"
+  },
+  "canonical_structure_approval_id": "apr_2c9dc5be09c14502867a78575b6f244a",
+  "canonical_chapters": 1,
+  "canonical_sequences": 7,
+  "canonical_scenes": 7,
+  "scene_mapping": [
+    {
+      "source_scene_id": "SC01",
+      "canonical_scene_id": "sc_121fe98f06664120b7b4d04f06727832",
+      "approval_id": "apr_42f08a203c204aa7a00b36b12e91cab6"
+    },
+    {
+      "source_scene_id": "SC02",
+      "canonical_scene_id": "sc_ab51763efc184ea98fbd794154f4f3e2",
+      "approval_id": "apr_294dbb0f89654956b57821041a872aea"
+    },
+    {
+      "source_scene_id": "SC03",
+      "canonical_scene_id": "sc_29d2cc5b722e45029e40362fa2e875ce",
+      "approval_id": "apr_9bb68d5b155b4b9f801021807100d990"
+    },
+    {
+      "source_scene_id": "SC04",
+      "canonical_scene_id": "sc_565da5a13a594f0a830cafb8ba887373",
+      "approval_id": "apr_c89aa97766584463867a5aff7346daba"
+    },
+    {
+      "source_scene_id": "SC05",
+      "canonical_scene_id": "sc_f1c5366d74664863b0f827369817266b",
+      "approval_id": "apr_9c0d6a15cea64a6195315f3bbc2ea31d"
+    },
+    {
+      "source_scene_id": "SC06",
+      "canonical_scene_id": "sc_16f20ef357a54bfabcc1f9651c490323",
+      "approval_id": "apr_312df5f41e8e4ab1add4a3ff2352e62f"
+    },
+    {
+      "source_scene_id": "SC07",
+      "canonical_scene_id": "sc_656e364a573a469790b4f6fa60b94f45",
+      "approval_id": "apr_1adfc49788e94984a0fdc33f9069794e"
+    }
+  ],
+  "checks": {
+    "lock_validated_revision": true,
+    "script_sha256_matches_lock_and_source": true,
+    "scene_graph_sha256_matches_lock": true,
+    "plan_matches_lock": true,
+    "plan_script_scene_provenance": true,
+    "script_directing_qc_pass": true,
+    "no_unresolved_directing_revisions": true,
+    "canonical_structure_approved": true,
+    "canonical_7_scenes_approved": true,
+    "canonical_1_chapter_7_sequences": true,
+    "one_active_final_script": true,
+    "canonical_script_body_matches_locked_source": true,
+    "canonical_final_script_approval": true,
+    "canonical_structure_approval_record": true,
+    "canonical_scene_approval_records": true,
+    "manager_provenance": true,
+    "canonical_scene_order_and_script_segments": true,
+    "nonrealistic_style_lock": true
+  },
+  "final_tts_status": "PENDING_IMMEDIATE_PRE_GENERATION_VALIDATION",
+  "specialist_self_qc": "UNAVAILABLE_UNKNOWN_MODEL_GPT_5_6",
+  "agent1_override_scope": "DEVELOPMENT_PREFLIGHT_CROSS_ARTIFACT_QC_ONLY"
+}

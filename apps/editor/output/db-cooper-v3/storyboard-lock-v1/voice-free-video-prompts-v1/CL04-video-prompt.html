@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D.B. Cooper CL04 | 음성 제외·효과음 포함 영상 프롬프트</title>
+<style>:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;background:#101a21;color:#f0eee8}body{margin:0;line-height:1.6}header{background:#1c303c;padding:32px max(22px,calc((100vw - 980px)/2));border-bottom:2px solid #b68a50}main{max-width:980px;margin:auto;padding:24px 22px 70px}h1{margin:0 0 6px}small,.meta{color:#cad1d1}.alert{border-left:4px solid #e7ae63;background:#24333a;padding:13px 17px;margin:18px 0}article{background:#1b2a33;border:1px solid #4c626c;border-radius:9px;padding:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c161b;border:1px solid #506471;border-radius:6px;padding:18px;font:14px/1.65 Consolas,monospace}button{border:0;border-radius:5px;background:#e5b371;color:#10202b;font-weight:800;padding:10px 14px;cursor:pointer}a{color:#f0c280}</style></head><body>
+<header><small>D.B. COOPER / CL04 / SC02 / VOICE-FREE PACK v1</small><h1>CL04 음성 제외·효과음 포함 영상 프롬프트</h1><span>생성 10초 · 편집 사용 9초 · 타임라인 27–36초</span></header>
+<main><p class="alert"><strong>Google Flow에서 사람 목소리만 생성 금지.</strong> 내레이션·대사·말소리는 만들지 않고 발걸음·문·기계·차량 등 비언어적 효과음과 환경음은 화면에 맞춰 생성합니다. 확정 TTS는 편집에서 넣습니다.</p><p class="alert">이전 클립의 실제 사용 종료 프레임과 현재 START·END 자산을 확인한 뒤 사용하세요. 기존 제작 클립의 원본 프롬프트·해시는 보존됩니다.</p>
+<article><button id="copy" type="button">프롬프트 복사</button><p class="meta">원본: <code>prompts/CL04_v3_VIDEO.prompt.txt</code><br>원본 SHA-256: <code>11c332ce23e245fafb68c0540c8a06fc358e0c284af4d3ef57ceec41062950b0</code><br>이 음성 제외 프롬프트 SHA-256: <code>9ab4065b181a1478646e5d78aa43614e051bed39d4e2de050270585f10095aac</code></p><pre id="prompt">CL04 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL04_v3_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+CL04 | ILLUSTRATED NOTE HANDOFF | VIDEO PROMPT v3
+
+Create one 10-second horizontal 16:9 animated clip using these two supplied illustrations as the first and target frames.
+START: assets/CL04_START.png — the actual used exit from the preceding clip, with a folded ivory note held by a cropped dark-sleeved hand.
+END TARGET: assets/CL04_END_TARGET_v3.png — the note has passed to a second hand and its pale paper fills most of the frame.
+
+STYLE: Strongly stylized hand-drawn 2D ink noir. Preserve the supplied images' charcoal and steel-blue shadows, restrained ivory highlights, seat and window positions, paper shape, hand proportions, and camera axis. Use clear parallax and one continuous hand-height camera path. No photorealism, live action, hyperrealism, glossy 3D, or documentary reenactment. Show no identifiable face or likeness; people remain anonymous cropped sleeves and hands.
+
+ACTION AND TIMING:
+0–1 s: Begin exactly from the START composition. The first hand holds the folded note in a steady position while the camera starts a subtle lateral track.
+1–4 s: A second hand enters naturally from the right. Follow the folded note at hand height. The cabin seats and windows shift in gentle parallax, maintaining the original screen direction.
+4–7 s: Complete one readable handoff. The second hand grasps the note, then the first hand releases it. Keep the fingers anatomically coherent and avoid duplicate hands or extra gestures. The paper stays folded and its writing stays hidden.
+7–9 s: Push toward the pale paper face until it creates a soft ivory wipe while a narrow dark cabin edge remains visible. Reach the END TARGET composition before the 9-second editorial exit. This visual occlusion sets up the next clip.
+9–10 s: Hold the reached composition with only slight drawn motion. This source second is removed in editing; do not put the handoff or wipe here.
+
+Do not reveal note text, add new props, show a device, or invent a visible face. No spoken dialogue, synthetic narration, subtitles, captions, logos, or readable writing. The approved narration occupies 1.800–6.273 s of the editor-used clip and will be placed separately in editing. Generate engine ambience and paper-fold sound with the video, without any human voice.
+
+OUTPUT: clips/CL04.mp4. The editor uses 0–9 seconds at timeline 27–36 seconds. After generation, inspect the actual used exit frame near 8.967 seconds at 30 fps before deriving CL05 START; the planned END still is only a target.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.
+</pre><a href="CL04_VIDEO.prompt.txt">프롬프트 TXT 열기</a></article><p><a href="index.html">전체 30샷 목록</a></p></main>
+<script>document.getElementById('copy').addEventListener('click',async()=>{let b=document.getElementById('copy'),v=document.getElementById('prompt').textContent;try{await navigator.clipboard.writeText(v)}catch{let a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()}b.textContent='복사 완료';setTimeout(()=>b.textContent='프롬프트 복사',1600)});</script></body></html>

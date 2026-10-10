@@ -1,0 +1,15 @@
+D.B. COOPER | CL13 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 실제 계단 장치 조작 절차의 기술적 재현으로 오인되지 않게
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL13, using its reviewed START as the primary image reference.
+START STATE: 닫힌 커튼 뒤에서 조작 구조를 특정하지 않는 손과 계단 부근 실루엣
+CAMERA PATH: 손·레버 TIGHT PUSH-IN→반응 없는 계단 상태→인터폰 신호로 그래픽 이동
+TARGET STATE AT USED EXIT: 반응하지 않는 계단 상태와 인터폰 신호가 같은 축에서 읽히는 구도
+EXIT: 조종실 인터폰으로 이어지는 신호
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

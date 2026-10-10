@@ -1,0 +1,16 @@
+{
+  "project_id": "db_cooper_1971_4m30_v3",
+  "clip_id": "CL01",
+  "source_path": "clips/CL01.mp4",
+  "source_sha256": "d10376857a48d045e9f7d90ae72ac2ae2dd3e56dc8a3bc73b38de0db8fad2cdd",
+  "source_duration_seconds": 10,
+  "source_fps": 24,
+  "source_frame_count": 240,
+  "selected_frame_index": 239,
+  "selected_frame_time_seconds": 9.9583333333,
+  "exit_path": "exits/CL01_USED_EXIT.png",
+  "exit_sha256": "22bf57e66a004ef4444c3aac5f623881687b53350101df396fca981a48b0438e",
+  "use": "GRAPHIC_MATCH_REFERENCE_FOR_CL02_ONLY",
+  "state": "EXTRACTED_VISUALLY_REVIEWED",
+  "canonical_approval": false
+}

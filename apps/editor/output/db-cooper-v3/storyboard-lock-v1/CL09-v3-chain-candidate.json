@@ -1,0 +1,48 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL09",
+  "scene": "SC03",
+  "timeline_start": 72,
+  "timeline_end": 82,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "editor_fps": 30,
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL08",
+    "source_clip_path": "clips/CL08.mp4",
+    "source_clip_sha256": "2a65e073f9f7baf770448100e3d3444dc2e6035c88cc50e8f71ba6fd77f015b1",
+    "used_exit_frame_index": 239,
+    "used_exit_time_seconds": 9.958333,
+    "exit_path": "exits/CL08_USED_EXIT.png",
+    "exit_sha256": "6bf7d618351758c4c2dabfeb64a6f6b71c6e96f59718171a5517fbfe951212c3",
+    "start_path": "assets/CL09_START.png",
+    "start_sha256": "6bf7d618351758c4c2dabfeb64a6f6b71c6e96f59718171a5517fbfe951212c3"
+  },
+  "end_target_path": "assets/CL09_END_TARGET_v3.png",
+  "video_path": "clips/CL09.mp4",
+  "prompts": {
+    "end": "prompts/CL09_v3_END.prompt.txt",
+    "video": "prompts/CL09_v3_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "end": "68d1a9b7d77863eb913ebb9767eb31a4fa525069f7e636ab5ba631a65d44c063",
+    "video": "05d2bf6a224b98dce6b0810274f8afd1e2c236f135e4ea692eea5e0b3dcde93a"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL09_v3_VIDEO.ko.txt",
+    "sha256": "f15278328af63f1dae14112eb64db899796528f33b8faabcd18bbed6b83f84d4",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "승객 36명은 그와 맞바꿔 비행기에서 내려옵니다. 이제 끝난 줄 알았을까요? 쿠퍼는 다시 이륙하라고 요구합니다. 목적지는 멕시코시티.",
+  "voice_slot_relative_seconds": [
+    0.7,
+    7.1
+  ],
+  "next_clip_handoff": "CL10 has an independent START for its flight-condition graphic transition."
+}

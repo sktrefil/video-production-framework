@@ -1,0 +1,1 @@
+{"configuredVoiceSettings":{"similarityBoost":0.8,"speed":1,"stability":0.62,"style":0.04,"useSpeakerBoost":true},"effectiveVoiceSettings":{"stability":0.62,"style":0.04},"modelId":"eleven_v3","preserveProviderCadence":true,"schemaVersion":1,"voiceId":"REDACTED","voiceIdSource":"ELEVENLABS_VOICE_ID","voicePreset":"HISTORY_MYSTERY_LONGFORM"}

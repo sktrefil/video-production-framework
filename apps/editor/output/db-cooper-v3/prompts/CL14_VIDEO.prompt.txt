@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL14 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 확인되지 않은 구체적 대화 내용·정확한 멘트 생성 금지
+SOURCE: assets/CL14_START.png (GENERATE_START)
+END/TARGET: none; use the reviewed START and motion path
+Generate one 10-second 16:9 clip. Intended editor window: timeline 121-130 seconds; use only the first 9 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 9-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL14, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 객실의 오래된 인터폰과 손/정장 소매. CAMERA PATH: 인터폰 CLOSE → 좁은 케이블 길을 도식화하지 않고 조종실로 편집 컷. SUBJECT MOTION: 조종실 승무원이 인터폰을 받는 작은 행동. ENVIRONMENT MOTION: 기내 저음 증가, 인물 표정은 불확정적. KEY REVEAL: 5초 이후 조종실이 문제를 인지. TARGET FRAME: 조종실에서 연락을 받은 승무원 또는 계기판 가장자리. EXIT FRAME: 조종실 패널의 어두운 일부. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: STORY_CUT; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

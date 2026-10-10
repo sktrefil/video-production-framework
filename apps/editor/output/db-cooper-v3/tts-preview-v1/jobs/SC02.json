@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "jobId": "tts-preview-SC02-edb92356049f",
+  "jobRevision": 1,
+  "projectId": "db_cooper_1971_4m30_v3_preview",
+  "provider": "ELEVENLABS",
+  "providerProfileVersion": "1.0.0",
+  "jobType": "TTS_GENERATION",
+  "executionMode": "AUTOMATED",
+  "attempt": 1,
+  "inputHash": "edb92356049fb72426faf25ae583dbfd5ac295d76a58452bff31ccc5ee742574",
+  "secretRequirements": [
+    {
+      "envName": "ELEVENLABS_API_KEY",
+      "required": true
+    }
+  ],
+  "input": {
+    "schemaVersion": 1,
+    "providerProfile": {
+      "resourceId": "ELEVENLABS_V3_HISTORY_V1",
+      "version": "1.0.0",
+      "contentHash": "sha256:f85d629e9125ec931a2858c1219db453d983c4bbe000ee644c36d21c408607e2"
+    },
+    "plan": {
+      "id": "preview-plan-SC02-edb92356049f",
+      "revision": 1,
+      "sourceScript": {
+        "id": "DB_Cooper_4min30_script_v3_TTS.txt",
+        "revision": 3,
+        "sha256": "ee91b760dfd47ff594935356a7ed3c1ecbf69741c523bc57313367f085f14dac"
+      },
+      "contentFormat": "LONGFORM",
+      "endpoint": "/v1/text-to-speech/{voice_id}/with-timestamps",
+      "modelId": "eleven_v3",
+      "outputFormat": "mp3_44100_128",
+      "voiceIdResolution": "VOICE_PRESET_THEN_ENV",
+      "voiceIdFallbackEnv": "ELEVENLABS_VOICE_ID",
+      "voicePreset": "HISTORY_MYSTERY_LONGFORM",
+      "configuredVoiceSettings": {
+        "stability": 0.62,
+        "similarityBoost": 0.8,
+        "style": 0.04,
+        "speed": 1,
+        "useSpeakerBoost": true
+      },
+      "effectiveVoiceSettings": {
+        "stability": 0.62,
+        "style": 0.04
+      },
+      "droppedVoiceSettings": [
+        "similarity_boost",
+        "speed",
+        "use_speaker_boost"
+      ],
+      "preserveProviderCadence": true,
+      "narrationMode": "SEGMENTED",
+      "chunks": [
+        {
+          "index": 1,
+          "text": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼. 이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다. 승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다. 남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개. 쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+          "textCharacterCount": 311,
+          "outputRelativePath": "03_tts/sections/SC02_raw.mp3",
+          "sectionId": "preview-SC02",
+          "sectionIndex": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "preview-SC02",
+          "index": 1,
+          "sequenceId": "preview-SC02",
+          "sceneIds": [
+            "SC02"
+          ],
+          "text": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼. 이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다. 승무원이 옆자리에 앉자 서류가방 뚜껑이 열립니다. 붉은 막대와 전선이 보입니다. 그것이 진짜 폭탄인지는 확인되지 않았습니다. 남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개. 쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+          "textCharacterCount": 311,
+          "audioRelativePath": "03_tts/sections/SC02_raw.mp3",
+          "characterAlignmentRelativePath": "03_tts/alignment/SC02.json"
+        }
+      ],
+      "outputPaths": {
+        "narrationManifest": "03_tts/manifests/SC02.json",
+        "metadata": "03_tts/metadata/SC02.json",
+        "resolvedVoiceProfile": "03_tts/voice/SC02.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL21 | SCENE SC05 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: TIE-01, ENV-FOREST
+FACT GUARD: 이동 거리/강 경로를 실제 수사 지도처럼 단정하지 않음
+Create one planned END/TARGET still for CL21: 공중에서 지상으로.
+Attach the reviewed CL21 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: FBI 수사가 비행기의 자취를 따라 땅으로 내려옴
+START STATE: 증거 넥타이의 검은 선이 차폐; 이어 침엽수림 높은 능선
+CAMERA PATH: 검은 선에서 WIPe → 능선 따라 수평 드론-유사 2D TRUCK → 지상으로 DESCEND
+DESIRED TARGET COMPOSITION: 수색 중인 광활한 북서부 침엽수림의 원경
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 나무 사이의 좁은 광선으로 이동
+SUBJECT ACTION: 수색대는 멀리 작은 실루엣으로만
+ENVIRONMENT MOTION: 절제된 안개·비대칭 침엽수림 패럴랙스
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

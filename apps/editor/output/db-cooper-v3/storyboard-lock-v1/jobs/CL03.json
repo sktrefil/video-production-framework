@@ -1,0 +1,55 @@
+{
+  "id": "CL03",
+  "scene": "SC02",
+  "ordinal": 3,
+  "timeline_start": 18,
+  "timeline_end": 27,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "BIBLE_MATCH",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL03_START.png",
+  "end_target_asset": "assets/CL03_END_TARGET.png",
+  "video_asset": "clips/CL03.mp4",
+  "prompts": {
+    "start": "prompts/CL03_v2_START.prompt.txt",
+    "end": "prompts/CL03_v2_END.prompt.txt",
+    "video": "prompts/CL03_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "1971년 오후 포틀랜드, 가명의 탑승권에서 익명의 정장 남성을 따라감",
+  "action": "쿠퍼의 고개는 거의 정지, 천천히 손을 들어 쪽지를 준비",
+  "camera": "탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회",
+  "reveal": "6초 이후 그의 손에서 접힌 종이 모서리가 보임",
+  "exit": "접힌 종이의 밝은 면을 프레임 끝에 유지",
+  "sound": "탑승권 종이 스침→안정된 엔진음; 주변 대사는 불명료",
+  "narrator_text": "몇 시간 전. 포틀랜드 공항에서 검은 넥타이를 맨 남자가 시애틀행 305편에 오릅니다. 표에 적힌 이름은 댄 쿠퍼.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 0,
+    "scene_audio_end_seconds": 5.818,
+    "spoken_window_seconds": 5.818
+  },
+  "voice_slot_relative": {
+    "start": 0.7,
+    "end": 6.518
+  },
+  "voice_slot_timeline": {
+    "start": 18.7,
+    "end": 24.518
+  },
+  "pre_voice_seconds": 0.7,
+  "post_voice_seconds": 2.482,
+  "nonvoice_seconds": 3.182
+}

@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL20 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 구두/낙하산을 실제 회수된 증거처럼 보이지 않게 인서트 분리
+Create one planned END/TARGET still for CL20: 리노의 빈자리, 생존은 불명.
+Attach the reviewed CL20 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 착륙 후 쿠퍼와 돈이 없는 사실, 이후 낙하산과 복장의 위험을 관객에게 남김
+START STATE: 리노 착륙 후 기내의 빈 좌석과 검은 넥타이를 작은 증거물로 배치
+CAMERA PATH: 통로를 빠르게 FOLLOW → 넥타이 CLOSE → 다시 빈 객실로 PULL-BACK
+DESIRED TARGET COMPOSITION: 비어 있는 통로와 객실 끝의 후방 방향을 넓게 보여줌
+PLANNED EDITORIAL EXIT AT 10 SECONDS: 넥타이의 검은 대각선을 숲 능선으로 연결
+SUBJECT ACTION: 사람·돈가방 미등장, 신발과 낙하산은 개념적 그래픽 인서트로만 가능
+ENVIRONMENT MOTION: 착륙 후 승무원의 멀어진 발소리, 시각적으로 인물 없음
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

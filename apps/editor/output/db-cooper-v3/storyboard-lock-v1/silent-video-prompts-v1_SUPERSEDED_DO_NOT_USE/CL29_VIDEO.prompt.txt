@@ -1,0 +1,31 @@
+CL29 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL29_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | CL29 | SC07 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01
+FACT GUARD: CL01 프레임 기하학을 고정한 채 공간 뒤집기 금지; 점프한 인물 생성 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL29. Editor uses 8 seconds at timeline 254-262 seconds.
+START: assets/CL29_START.png (GENERATE_START).
+END/TARGET: No separate END image; use the motion target in text.
+ACTION: 계단/기체 구조/날씨의 스타일은 CL01과 동일
+CAMERA: SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK
+ENVIRONMENT: 구름과 바람잉크는 뒤로 멀어지고 계단은 계속 비어 있음
+REVEAL: 4~6초 첫 장면인 것을 관객이 알아차림
+USED EXIT: 후방 3/4 기체의 같은 축, 빈 하늘이 확대
+VOICE SLOT IN USED CLIP: 1.400-5.400s; narration: 다시 1971년의 열린 계단. 사람들은 이 장면을 대담한 탈출로 기억합니다.
+SOUND DESIGN: 첫 장면 엔진 저음이 약하게 복귀; CL01 검은 종료 프레임 재사용 금지
+HANDOFF: BIBLE_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

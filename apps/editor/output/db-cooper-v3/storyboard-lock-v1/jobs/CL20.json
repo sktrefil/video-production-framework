@@ -1,0 +1,54 @@
+{
+  "id": "CL20",
+  "scene": "SC04",
+  "ordinal": 20,
+  "timeline_start": 175,
+  "timeline_end": 185,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL19"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL20_START.png",
+  "end_target_asset": "assets/CL20_END_TARGET.png",
+  "video_asset": "clips/CL20.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL20_v2_END.prompt.txt",
+    "video": "prompts/CL20_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "착륙 후 쿠퍼와 돈이 없는 사실, 이후 낙하산과 복장의 위험을 관객에게 남김",
+  "action": "실제 착륙이나 생존 장면 대신 기록물 실루엣과 빈 지도만 사용",
+  "camera": "넥타이 선에서 낙하산·구두의 그래픽 인서트로 MATCH→불확실한 넓은 수색 영역으로 PULL-BACK",
+  "reveal": "낙하산의 조종 한계·구두·불확실한 위치가 수색을 어렵게 만든다",
+  "exit": "확정 표시 없는 넓은 수색 영역",
+  "sound": "객실 룸톤 감쇠→종이 넘김→넓은 바람; 생존·사망 암시 효과음 금지",
+  "narrator_text": "그가 가져간 낙하산은 방향을 조절하기 어려웠고, 구두는 험한 지형에 맞지 않았습니다. 수색할 위치조차 확실하지 않았습니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 36.218,
+    "scene_audio_end_seconds": 41.818,
+    "spoken_window_seconds": 5.6
+  },
+  "voice_slot_relative": {
+    "start": 0.3,
+    "end": 5.9
+  },
+  "voice_slot_timeline": {
+    "start": 175.3,
+    "end": 180.9
+  },
+  "pre_voice_seconds": 0.3,
+  "post_voice_seconds": 4.1,
+  "nonvoice_seconds": 4.4
+}

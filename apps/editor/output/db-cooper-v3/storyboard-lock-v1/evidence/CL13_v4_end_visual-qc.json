@@ -1,0 +1,11 @@
+{
+  "schema": "db-cooper-visual-qc.v1",
+  "clip_id": "CL13",
+  "revision": "v4",
+  "asset": "assets/CL13_END_TARGET_v4.png",
+  "asset_sha256": "8203882854b3d72ba4defb1064ff5fa769e168a747f16ba89cd9a30c447374fb",
+  "status": "REJECTED_OPEN_EXTERIOR",
+  "canonical_approval": false,
+  "observation": "The central rear stair area is a large open aperture showing moon, clouds and city lights. CL13 requires a closed, unlowered stair state.",
+  "disposition": "Preserve v4 for evidence. Generate CL13 END v5 at a new path and visually inspect the opaque panel before using it in a video."
+}

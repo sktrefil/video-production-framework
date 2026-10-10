@@ -1,0 +1,31 @@
+CL26 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL26_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | CL26 | SC06 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: CASH80-01, ENV-RIVER
+FACT GUARD: 실제 serial을 생성/일치 숫자를 꾸미지 않음; 숫자 확인은 편집 데이터 합성
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL26. Editor uses 9 seconds at timeline 229-238 seconds.
+START: assets/CL26_START.png (GENERATE_START).
+END/TARGET: assets/CL26_END_TARGET.png
+ACTION: 번호 연결은 추상 선·편집 글자로만 보이고 착륙 지점은 그리지 않음
+CAMERA: 지폐와 기록지의 번호 열 MATCH→일치 확인 뒤 강변으로 빠른 PULL-BACK
+ENVIRONMENT: 밝은 증거 테이블과 어두운 테두리 대비
+REVEAL: 번호 일치로 몸값 일부임은 확인되지만 발견 장소가 착륙 지점은 아니다
+USED EXIT: 경로가 비어 있는 강변의 넓은 공간
+VOICE SLOT IN USED CLIP: 0.300-7.355s; narration: 쿠퍼에게 지급됐던 현금의 일부였습니다. 오랜 시간 사라졌던 돈의 일부가 모습을 드러낸 겁니다. 하지만 발견 장소가 곧 착륙 장소를 뜻하지는 않습니다.
+SOUND DESIGN: 짧은 종이 맞물림→원거리 강물; 확정 착륙음을 만들지 않는다
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

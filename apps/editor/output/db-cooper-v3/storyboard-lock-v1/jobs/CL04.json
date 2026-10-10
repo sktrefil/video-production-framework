@@ -1,0 +1,55 @@
+{
+  "id": "CL04",
+  "scene": "SC02",
+  "ordinal": 4,
+  "timeline_start": 27,
+  "timeline_end": 36,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL03"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL04_START.png",
+  "end_target_asset": "assets/CL04_END_TARGET.png",
+  "video_asset": "clips/CL04.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL04_v2_END.prompt.txt",
+    "video": "prompts/CL04_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "첫 협박 쪽지를 쿠퍼의 손에서 승무원 손으로 직접 추적",
+  "action": "손 2쌍만 자연스러운 1회의 인계 동작; 손가락 수 고정",
+  "camera": "손높이 평행 트럭 FOLLOW → 손 사이 간격 좁힘 → 종이 가장자리 PUSH-IN",
+  "reveal": "5~7초 쪽지가 넘어가며 긴장 장치 발생",
+  "exit": "쪽지가 화면을 가리는 아이보리 차폐",
+  "sound": "엔진을 낮추고 종이 접힘만 전경화; 가짜 대사 금지",
+  "narrator_text": "이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다. 가방 안에 폭탄이 있다는 내용입니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 5.855,
+    "scene_audio_end_seconds": 10.327,
+    "spoken_window_seconds": 4.473
+  },
+  "voice_slot_relative": {
+    "start": 1.8,
+    "end": 6.273
+  },
+  "voice_slot_timeline": {
+    "start": 28.8,
+    "end": 33.273
+  },
+  "pre_voice_seconds": 1.8,
+  "post_voice_seconds": 2.727,
+  "nonvoice_seconds": 4.527
+}

@@ -1,0 +1,22 @@
+D.B. COOPER | CL01 | SC01 | PROMPT PACKAGE v3
+NON_REALISTIC_STYLIZED: hand-drawn 2D ink noir, bold graphic shadows, visible ink texture and kinetic camera motion. Horizontal 16:9. Images: 1536x864; editor delivery: 1920x1080.
+Use the three attached master boards only for style, camera language and object geometry. Do not reproduce board layouts, captions or lettering in the generated frame.
+STYLE REFERENCE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+MOTION REFERENCE: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+SCENE REFERENCE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY LOCKS: AIR-01 (Boeing 727), STAIR-01 (integrated rear airstair), CAB-01.
+FACT GUARD: No eyewitness view of a jump, falling person, landing, survival or death. The dark space and weather marks are stylized storytelling, not historical proof.
+EXCLUDE: photorealism, live action, documentary reenactment, glossy 3D, text, subtitles, watermark and invented historical writing.
+
+Create ONE continuous 10-second animated 16:9 clip for CL01 using the approved START and END/TARGET images as input frames.
+START IMAGE: assets/CL01_START.png
+END/TARGET IMAGE: assets/CL01_END_TARGET.png
+0–3s: Establish the airborne Boeing 727 from the distant rear three-quarter START. Keep its travel direction stable.
+3–6s: Follow, then make a fast controlled arc around the right rear quarter and a low push toward the integrated rear airstair. Increase parallax and scale without changing the aircraft's identity or teleporting the camera.
+6–8s: Reveal the rear airstair descending from its lower hinge; read its downward structure in a low angle. This is the key new information.
+8–10s: Continue into the dark stairwell space until the same rails are only thin edge shapes and the near-black center occludes the frame. Match the planned END/TARGET at 10s.
+NARRATION SLOT: 0.300–6.991s in the used clip. Text: 1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.
+SOUND INTENT: 엔진의 저음·금속 진동 후 바람이 갑자기 커짐. Leave the final dark occlusion room to breathe; do not imply that a jump was seen.
+QC: Continuous 727 geometry and camera axis; one dominant camera path; no invented text or visible jump; verify the actual used exit frame before deriving any later START image.
+EDITOR USE: source 10s, keep 0–10s unless a reviewed trim preserves the exit.
+SAVE AS: clips/CL01.mp4

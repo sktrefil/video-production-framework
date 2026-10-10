@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D.B. Cooper · CL01 제작 프롬프트</title><style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#10191f;color:#f3efe5}*{box-sizing:border-box}body{margin:0;line-height:1.6}header{padding:44px max(24px,calc((100vw - 1120px)/2));background:linear-gradient(130deg,#1a2d39,#10191f 70%);border-bottom:1px solid #46606d}h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1;margin:8px 0 12px;letter-spacing:.03em}.eyebrow{color:#d8a963;letter-spacing:.18em;font-weight:800}.lead{max-width:740px;color:#ccd2d1}.status{display:inline-block;background:#2d2a20;border:1px solid #a27d43;border-radius:99px;color:#f5d49b;padding:5px 13px;font-size:.88rem}main{max-width:1120px;margin:auto;padding:32px 24px 64px}nav{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 30px}nav a{color:#102029;background:#e4b56d;text-decoration:none;padding:8px 16px;border-radius:5px;font-weight:800}h2{margin:0;font-size:1.45rem}h2 span{font-size:.9rem;color:#bec7c7;font-weight:500;margin-left:8px}.step{font-size:.85rem;color:#e4b56d;font-weight:900;letter-spacing:.1em}.card{background:#1b2932;border:1px solid #44545a;border-radius:12px;padding:24px;margin:20px 0}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:16px}.input{color:#c4d1d2}.input strong{color:#f0be75;font-weight:600;margin-left:8px}button{background:#ddb169;color:#142029;border:0;border-radius:6px;padding:10px 16px;font-weight:800;cursor:pointer;white-space:nowrap}button:hover{background:#f3ca86}details{border:1px solid #52636a;border-radius:8px;overflow:hidden}summary{padding:11px 15px;cursor:pointer;background:#23343d}pre{margin:0;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.7 Consolas,monospace;background:#0e171d;color:#e7edf0}.file{font-size:.85rem}a{color:#f0bf78}h3{margin-top:42px}.boards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.boards figure{margin:0;background:#1b2932;border:1px solid #44545a;border-radius:9px;overflow:hidden}.boards img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}.boards figcaption{padding:10px;font-size:.88rem}.boards small{display:block;color:#aebdc2;font:11px/1.5 Consolas,monospace;overflow-wrap:anywhere;margin-top:4px}.note{border-left:3px solid #d5a866;padding:10px 16px;background:#1d2b31;color:#cad4d3}@media(max-width:700px){.boards{grid-template-columns:1fr}.cardhead{align-items:flex-start;flex-direction:column}header{padding:32px 24px}}
+</style></head><body><header><div class="eyebrow">D.B. COOPER / SC01 / SHOT 01</div><h1>CL01 제작 프롬프트</h1><p class="lead">첫 프레임에서 후미 계단으로 접근하고, 6–8초에 계단을 드러낸 뒤 10초에 검은 내부로 차폐하는 한 컷. START → END/TARGET → VIDEO 순서로 사용합니다.</p><span class="status">현재 v4 프롬프트 패키지</span></header><main><nav><a href="#revision-v4">현재 v4</a><a href="#start">v3 기록</a><a href="#boards">참조 보드</a></nav><section class="card" id="revision-v4"><div class="cardhead"><div><span class="step">CURRENT REVISION</span><h2>v4 · 727 기체 구조 수정</h2></div></div><p class="input">v3 START는 엔진이 네 개처럼 보여 시각 QC에서 반려했습니다. END의 기준 이미지로 사용하지 않습니다.</p><pre>node scripts/generate-db-cooper-cl01-images.mjs --check v4
+node scripts/generate-db-cooper-cl01-images.mjs --generate-start v4
+# CL01_START_v4.png의 엔진 3개와 구도를 눈으로 확인
+node scripts/generate-db-cooper-cl01-images.mjs --accept-start v4
+node scripts/generate-db-cooper-cl01-images.mjs --generate-end v4</pre><p class="file">v4 이미지: assets/CL01_START_v4.png · assets/CL01_END_TARGET_v4.png</p><details><summary>v4 START 프롬프트</summary><pre id="prompt-v4-START">D.B. COOPER | CL01 | SC01 | START IMAGE | CREATIVE REVISION v4
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864. Bold graphic shadow, ink texture, steel-blue night, muted amber lights. No photorealism, live action, documentary reenactment or glossy 3D.
+Use attached boards for style, motion grammar and key-scene intent, but do not copy their layout, lettering or any aircraft anatomy error.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+
+Create ONE opening image. Show a Boeing 727 in flight, seen from a distant rear three-quarter angle. Aircraft occupies about 45 percent of frame width so the camera has room to approach. Keep a clear route around its right rear quarter toward the integrated rear airstair beneath the tail. The airstair remains closed and unrevealed in this START frame.
+
+CRITICAL AIRCRAFT GEOMETRY: Exactly THREE engines, never four. One central engine intake is embedded at the root of the vertical tail. One pod is attached to the left rear fuselage and one pod to the right rear fuselage. These are the only two side pods. Check all three intake positions and all three exhaust positions before rendering. No extra round opening, duplicate nacelle, wing-mounted engine, or fourth engine. One T-tail with a single vertical fin and one horizontal stabilizer. Two wings only. The rear airstair is integrated into the underside of the rear fuselage, not a separate external stair truck.
+
+COMPOSITION: Make the aircraft silhouette and three-engine layout readable against sparse moonlit ink clouds. Keep the lower rear fuselage visible for the later push-in. Avoid a giant close-up; reserve the stair reveal for seconds 6–8 and the near-black interior for seconds 8–10 of the future video. No person, parachute, jump or landing. No frame text, captions, airline lettering or watermarks.
+
+This is a replacement for the v3 START candidate, whose rear engine anatomy failed visual QC. Preserve the approved ink-noir style while correcting the aircraft anatomy.
+SAVE AS: assets/CL01_START_v4.png
+</pre></details><p><button type="button" data-copy="v4-START">v4 START 복사</button></p><details><summary>v4 END 프롬프트</summary><pre id="prompt-v4-END">D.B. COOPER | CL01 | SC01 | END/TARGET IMAGE | CREATIVE REVISION v4
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864. Use the APPROVED CL01_START_v4.png as the primary identity and geometry reference, plus the three project master boards.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+
+Create ONE planned END/TARGET image for the 10-second used exit. The camera has traveled around the right rear quarter of the SAME Boeing 727 and pushed low toward its integrated rear airstair. The stair has descended from its lower hinge. The camera is now so close that a near-black interior fills the center of the frame; only narrow edge light on the same stair rails and ink outlines remains at the sides.
+
+Preserve the approved START's physical axes, silhouette, palette and exact THREE-engine Boeing 727 identity. Do not add, duplicate or rearrange engines, wings, tail, stair rails or fuselage. This is the dark 10-second occlusion, not the brighter 6–8-second stair-reveal frame. No person, parachute, observed jump, landing, text, subtitle or watermark. No photorealism, live action, documentary reenactment or glossy 3D.
+
+This is a planned target, not proof of the generated video's actual exit frame.
+SAVE AS: assets/CL01_END_TARGET_v4.png
+</pre></details><p><button type="button" data-copy="v4-END">v4 END 복사</button></p><details open><summary>v4 VIDEO 프롬프트</summary><pre id="prompt-v4-VIDEO">D.B. COOPER | SC01 | CL01 | VIDEO PROMPT v4
+Create one continuous 10-second horizontal 16:9 hand-drawn 2D ink-noir animation. Use the supplied CL01_START_v4.png as the exact first-frame identity reference and CL01_END_TARGET_v4.png as the planned final-frame target. Preserve the approved steel-blue night, muted amber highlights, rough ink linework and graphic shadows. NON_REALISTIC_STYLIZED only: no photorealism, live action, documentary reenactment or glossy 3D.
+
+START IMAGE: assets/CL01_START_v4.png
+END/TARGET IMAGE: assets/CL01_END_TARGET_v4.png
+PROJECT BOARDS: boards/BOARD01_STYLE.png, boards/BOARD02_MOTION.png, boards/BOARD03_SCENE.png. Use their style, camera grammar and scene intent; never copy board text or panel layout into the clip.
+
+0–3 s — Establish the SAME Boeing 727 in flight from the distant rear three-quarter START. Hold its forward travel direction and T-tail silhouette. Exactly three engines throughout: one at the vertical-tail root and one on each side of the rear fuselage. Do not multiply or morph engine pods.
+3–6 s — Follow the aircraft, arc quickly around its right rear quarter, then lower the camera and push toward the integrated rear airstair beneath the tail. Cloud and ink-wind layers create parallax. The aircraft must stay spatially continuous with no teleport, axis flip or sudden redesign.
+6–8 s — The rear airstair descends from its lower hinge. Show its downward structure clearly in a low-angle reveal. This is the one new visual fact; keep it readable before moving closer.
+8–10 s — Continue the same push into the dark stairwell opening. The rails become thin edge-lit shapes and the near-black interior fills the center. Match the planned END/TARGET at the 10-second used exit. Do not cut to a new location.
+
+Narration will be placed later in the edit from 0.300 to 6.991 s; leave visual space for it. Sound intention: low engine rumble, brief metal vibration, then rising wind, with a short quiet hold in the dark ending. Do not generate spoken narration or burned-in subtitles.
+
+HISTORICAL GUARD: No person jumping or falling, no parachute in the air, no landing, no claim of survival or death. Do not turn stylized moon/cloud/weather marks into factual evidence. No legible invented airline text, captions, titles or watermark.
+
+EDITOR USE: Generate 10 seconds. The planned used interval is 0–10 s at 30 fps. Review the actual final used frame before deriving the next clip's START; the target image alone does not prove continuity.
+SAVE AS: clips/CL01_v4.mp4
+</pre></details><p><button type="button" data-copy="v4-VIDEO">v4 VIDEO 복사</button></p><p class="file">계획된 영상 출력: clips/CL01_v4.mp4. END 이미지의 실제 생성·검수 후 입력 프레임으로 사용하세요.</p></section><section class="card" id="run"><h2>v3 실행 기록</h2><p>아래 명령과 프롬프트는 이전 v3 패키지의 기록입니다. 새 생성은 위 v4 명령을 사용하세요.</p><pre>node scripts/generate-db-cooper-cl01-images.mjs --check
+node scripts/generate-db-cooper-cl01-images.mjs --generate-start
+# CL01_START.png를 열어 구도와 기체 형태를 눈으로 확인
+node scripts/generate-db-cooper-cl01-images.mjs --accept-start
+node scripts/generate-db-cooper-cl01-images.mjs --generate-end</pre><p class="file">v3 START 생성 전에 필수 제작 검증을 통과한 기록을 사용합니다. 이미지 생성 명령은 전체 CI를 반복하지 않고 프로젝트 계획·프롬프트·참조 파일을 확인합니다.</p></section><p class="note">이미지와 영상은 승인된 실제 결과를 다음 단계의 입력으로 사용하세요. END는 계획 목표이며 영상의 실제 종료 프레임은 생성 후 검수해야 합니다. 인물의 점프·착지 장면은 만들지 않습니다.</p><section class="card" id="start"><div class="cardhead"><div><span class="step">01 · v3 ARCHIVE</span><h2>START <span>첫 장면 이미지</span></h2></div></div><p class="input">참조: 마스터보드 3장 <strong>→ assets/CL01_START.png</strong></p><details><summary>v3 프롬프트 기록 보기</summary><pre id="prompt-START">D.B. COOPER | CL01 | SC01 | PROMPT PACKAGE v3
+NON_REALISTIC_STYLIZED: hand-drawn 2D ink noir, bold graphic shadows, visible ink texture and kinetic camera motion. Horizontal 16:9. Images: 1536x864; editor delivery: 1920x1080.
+Use the three attached master boards only for style, camera language and object geometry. Do not reproduce board layouts, captions or lettering in the generated frame.
+STYLE REFERENCE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+MOTION REFERENCE: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+SCENE REFERENCE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY LOCKS: AIR-01 (Boeing 727), STAIR-01 (integrated rear airstair), CAB-01.
+FACT GUARD: No eyewitness view of a jump, falling person, landing, survival or death. The dark space and weather marks are stylized storytelling, not historical proof.
+EXCLUDE: photorealism, live action, documentary reenactment, glossy 3D, text, subtitles, watermark and invented historical writing.
+
+Create ONE opening image for CL01.
+FRAME: 꼬리 아래 727을 먼 원경에서 후방 3/4로 관찰; 중앙 엔진 흡입구와 T-tail 구분. Show the Boeing 727 in flight at night, viewed from a distant rear three-quarter angle, with the center engine intake, T-tail and integrated rear airstair location readable. The airstair is not yet revealed as lowered.
+COMPOSITION: Leave a clear route for a fast camera arc around the aircraft's right rear quarter and a low push toward the stair area. Reserve the stair opening and near-black interior for later in the shot. Strong silhouette, depth layers and graphic ink-cloud parallax; no person jumping.
+ACTION STATE: The aircraft's direction of travel and structural axis must be clear in this single still. Do not combine START, stair reveal and END in one frame.
+SAVE AS: assets/CL01_START.png
+</pre></details><p class="file">기록: <a href="prompts/CL01_v3_START.prompt.txt">prompts/CL01_v3_START.prompt.txt</a></p></section>
+<section class="card" id="end"><div class="cardhead"><div><span class="step">02 · v3 ARCHIVE</span><h2>END <span>10초 종료 목표 이미지</span></h2></div></div><p class="input">참조: 승인한 START + 마스터보드 3장 <strong>→ assets/CL01_END_TARGET.png</strong></p><details><summary>v3 프롬프트 기록 보기</summary><pre id="prompt-END">D.B. COOPER | CL01 | SC01 | PROMPT PACKAGE v3
+NON_REALISTIC_STYLIZED: hand-drawn 2D ink noir, bold graphic shadows, visible ink texture and kinetic camera motion. Horizontal 16:9. Images: 1536x864; editor delivery: 1920x1080.
+Use the three attached master boards only for style, camera language and object geometry. Do not reproduce board layouts, captions or lettering in the generated frame.
+STYLE REFERENCE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+MOTION REFERENCE: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+SCENE REFERENCE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY LOCKS: AIR-01 (Boeing 727), STAIR-01 (integrated rear airstair), CAB-01.
+FACT GUARD: No eyewitness view of a jump, falling person, landing, survival or death. The dark space and weather marks are stylized storytelling, not historical proof.
+EXCLUDE: photorealism, live action, documentary reenactment, glossy 3D, text, subtitles, watermark and invented historical writing.
+
+Create ONE END/TARGET image for CL01 using the approved CL01 START image as the primary continuity reference, plus the three boards.
+TARGET TIME: 10.0s, the actual planned end of the 10-second used clip. This is AFTER the 6–8s stair reveal.
+FRAME: Camera is close to and low under the same 727's rear airstair. The stair has descended from its lower hinge. Only thin edge light on the same stair rails and ink outlines remains at the sides; the near-black interior fills the center and almost fully occludes the frame.
+CONTINUITY: Preserve AIR-01 / STAIR-01 shape, tail and center-engine orientation, camera axis, palette and lighting family from the approved START. The image must read as the end of a continuous approach, not a new aircraft or a separate location.
+DO NOT SHOW: a person, jump, parachute, landing, or the brighter 6–8s reveal as the final frame. This is a planned target, not evidence of the generated clip's actual exit.
+SAVE AS: assets/CL01_END_TARGET.png
+</pre></details><p class="file">기록: <a href="prompts/CL01_v3_END.prompt.txt">prompts/CL01_v3_END.prompt.txt</a></p></section>
+<section class="card" id="video"><div class="cardhead"><div><span class="step">03 · v3 ARCHIVE</span><h2>VIDEO <span>10초 영상 클립</span></h2></div></div><p class="input">참조: 승인한 START + END 이미지 <strong>→ clips/CL01.mp4</strong></p><details><summary>v3 프롬프트 기록 보기</summary><pre id="prompt-VIDEO">D.B. COOPER | CL01 | SC01 | PROMPT PACKAGE v3
+NON_REALISTIC_STYLIZED: hand-drawn 2D ink noir, bold graphic shadows, visible ink texture and kinetic camera motion. Horizontal 16:9. Images: 1536x864; editor delivery: 1920x1080.
+Use the three attached master boards only for style, camera language and object geometry. Do not reproduce board layouts, captions or lettering in the generated frame.
+STYLE REFERENCE: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+MOTION REFERENCE: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+SCENE REFERENCE: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY LOCKS: AIR-01 (Boeing 727), STAIR-01 (integrated rear airstair), CAB-01.
+FACT GUARD: No eyewitness view of a jump, falling person, landing, survival or death. The dark space and weather marks are stylized storytelling, not historical proof.
+EXCLUDE: photorealism, live action, documentary reenactment, glossy 3D, text, subtitles, watermark and invented historical writing.
+
+Create ONE continuous 10-second animated 16:9 clip for CL01 using the approved START and END/TARGET images as input frames.
+START IMAGE: assets/CL01_START.png
+END/TARGET IMAGE: assets/CL01_END_TARGET.png
+0–3s: Establish the airborne Boeing 727 from the distant rear three-quarter START. Keep its travel direction stable.
+3–6s: Follow, then make a fast controlled arc around the right rear quarter and a low push toward the integrated rear airstair. Increase parallax and scale without changing the aircraft's identity or teleporting the camera.
+6–8s: Reveal the rear airstair descending from its lower hinge; read its downward structure in a low angle. This is the key new information.
+8–10s: Continue into the dark stairwell space until the same rails are only thin edge shapes and the near-black center occludes the frame. Match the planned END/TARGET at 10s.
+NARRATION SLOT: 0.300–6.991s in the used clip. Text: 1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.
+SOUND INTENT: 엔진의 저음·금속 진동 후 바람이 갑자기 커짐. Leave the final dark occlusion room to breathe; do not imply that a jump was seen.
+QC: Continuous 727 geometry and camera axis; one dominant camera path; no invented text or visible jump; verify the actual used exit frame before deriving any later START image.
+EDITOR USE: source 10s, keep 0–10s unless a reviewed trim preserves the exit.
+SAVE AS: clips/CL01.mp4
+</pre></details><p class="file">기록: <a href="prompts/CL01_v3_VIDEO.prompt.txt">prompts/CL01_v3_VIDEO.prompt.txt</a></p></section><h3 id="boards">마스터보드 참조</h3><div class="boards"><figure><img src="boards/BOARD01_STYLE.png" alt="STYLE master board" loading="lazy"><figcaption><b>STYLE</b> · 전체 그림체 · 색감 · 질감<small>SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160</small></figcaption></figure>
+<figure><img src="boards/BOARD02_MOTION.png" alt="MOTION master board" loading="lazy"><figcaption><b>MOTION</b> · 카메라 동선 · 속도 변화<small>SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7</small></figcaption></figure>
+<figure><img src="boards/BOARD03_SCENE.png" alt="SCENE master board" loading="lazy"><figcaption><b>SCENE</b> · 후방 계단 · 기체 구조<small>SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79</small></figcaption></figure></div></main><script>
+for(const button of document.querySelectorAll('[data-copy]')) button.addEventListener('click',async()=>{const prompt=document.getElementById('prompt-'+button.dataset.copy).textContent;try{await navigator.clipboard.writeText(prompt)}catch{const area=document.createElement('textarea');area.value=prompt;document.body.append(area);area.select();document.execCommand('copy');area.remove()}const old=button.textContent;button.textContent='복사됨';setTimeout(()=>button.textContent=old,1700)});
+</script></body></html>

@@ -1,0 +1,29 @@
+{
+  "id": "CL21",
+  "scene": "SC05",
+  "ordinal": 21,
+  "timeline_start": 185,
+  "timeline_end": 194,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "start_asset": "assets/CL21_START.png",
+  "end_target_asset": "assets/CL21_END_TARGET.png",
+  "video_asset": "clips/CL21.mp4",
+  "prompts": {
+    "start": "prompts/CL21_START.prompt.txt",
+    "end": "prompts/CL21_END.prompt.txt",
+    "video": "prompts/CL21_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "TIE-01",
+    "ENV-FOREST"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

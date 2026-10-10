@@ -1,0 +1,21 @@
+D.B. COOPER | CL06 | SC02 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 20만 달러 및 낙하산 4개 내용은 TTS 또는 편집 텍스트에서만
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL06. Editor uses 9 seconds at timeline 45-54 seconds.
+START: assets/CL06_START.png (PREVIOUS_USED_EXIT from CL05).
+END/TARGET: assets/CL06_END_TARGET.png
+ACTION: 손이 글씨를 적는 제스처; 실제 읽을 수 있는 글자는 생성하지 않음
+CAMERA: 메모지 위를 근접 PUSH-IN → 손목을 따라 우측 이동 → 클로즈로 종료
+ENVIRONMENT: 승객 배경은 평온하게 움직여 상황의 대비 생성
+REVEAL: 5~7초 종이가 실제 요구 사항을 전달할 도구로 바뀜
+USED EXIT: 손에 잡힌 종이를 화면 오른쪽에 배치
+VOICE SLOT IN USED CLIP: 1.100-6.882s; narration: 남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다. 현금 20만 달러, 모두 20달러짜리. 그리고 낙하산 네 개.
+SOUND DESIGN: 연필 마찰→발걸음; 읽히는 임의 글자는 후반 합성만
+HANDOFF: CONTINUATION
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

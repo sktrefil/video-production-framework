@@ -1,0 +1,21 @@
+D.B. COOPER | CL19 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 쿠퍼가 뛰어내리는 장면/낙하산 펼치는 장면은 보여주지 않음
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL19. Editor uses 9 seconds at timeline 166-175 seconds.
+START: assets/CL19_START.png (GENERATE_START).
+END/TARGET: assets/CL19_END_TARGET.png
+ACTION: 쿠퍼·돈가방 없이 남은 넥타이와 후방 계단만 보여줌
+CAMERA: 착륙 후 객실 통로 FAST PUSH→빈 좌석·돈자리·넥타이 QUICK CUT→빈 계단으로 이동
+ENVIRONMENT: 달·별·기상은 극화 요소로 사용하되 실제 위치 증거처럼 제시 금지
+REVEAL: 리노에서 쿠퍼·돈가방이 없고 넥타이와 열린 계단이 남았다
+USED EXIT: 넥타이 검은 선이 수색할 숲 능선으로 연결
+VOICE SLOT IN USED CLIP: 0.700-6.882s; narration: 뒤쪽 객실을 확인하자, 쿠퍼도 돈가방도 없습니다. 남겨진 검은 넥타이. 열려 있던 후방 계단. 그리고 그 아래 펼쳐졌을 어두운 산림.
+SOUND DESIGN: 착륙 후 기계음→비어 있는 객실 룸톤→원거리 바람
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

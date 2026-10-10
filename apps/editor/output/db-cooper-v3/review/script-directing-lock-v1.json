@@ -1,0 +1,120 @@
+{
+  "lock_id": "SDL-db_cooper_1971_4m30_v3-r1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "development_state": "SCRIPT_DIRECTING_LOCKED",
+  "created_from_revision_round": 3,
+  "research_revision": "fbi-primary-source-review-v1",
+  "script_revision": "v3",
+  "script_hash": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "preflight_revision": "directing-preflight-sequence-qc-v3",
+  "preflight_hash": "cb25223b186fbd2c3149d8b0c29d5482e0069df2b5776086cb18d3348b85652b",
+  "preflight_script_revision": "v3",
+  "preflight_input_script_hash": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "visual_skeleton_revision": "visual-skeleton-v1-script-aligned",
+  "visual_skeleton_hash": "cfe11e6bb2d06b600b63eae80edf7f30302b6e819a9bc610aad480fdaf0ac154",
+  "visual_skeleton_script_revision": "v3",
+  "visual_skeleton_input_script_hash": "9a5878e298b61d5407a70883d4dd2219134a7016dbf543deccafb7a3779c6777",
+  "scene_graph_revision": "scene-candidate-v4-script-aligned",
+  "scene_graph_hash": "61f1774fbd72e88e21a5860e15c21d0ba90b4405ed8b420ce6718b86f93bcb1b",
+  "shot_manifest_revision": "v5-script-aligned-directing-candidate",
+  "shot_manifest_hash": "2642a89bd86e0b882f8b138c095abc35b5e8f5d1da14a74903ff4eb3e06d8148",
+  "directing_plan_revision": "v3-script-aligned-directing-preflight",
+  "directing_plan_hash": "64ea1e4a8db576753d3e2c1fd42aee1cb759f0b160cbb4c671fe1ac34e518013",
+  "style_notice_hash": "64855290d842af553a33806aa9e154713e976e9ba06a83f09596386b62d2ce49",
+  "structural_validation_hash": "6de13e763f278d10021639bba058b4d6b746d820ff2a421d9358d521e2454475",
+  "narrative_spine": "1971년 하늘에서 사라진 남자: 성공한 탈출인지 끝내 알 수 없는 실종인지 질문을 유지한다.",
+  "locked_unit_ids": [
+    "SC01",
+    "SC02",
+    "SC03",
+    "SC04",
+    "SC05",
+    "SC06",
+    "SC07"
+  ],
+  "preflight_unit_ids": [
+    "SC01",
+    "SC02",
+    "SC03",
+    "SC04",
+    "SC05",
+    "SC06",
+    "SC07"
+  ],
+  "visual_skeleton_unit_ids": [
+    "SC01",
+    "SC02",
+    "SC03",
+    "SC04",
+    "SC05",
+    "SC06",
+    "SC07"
+  ],
+  "fact_guardrail_ids": [
+    "FACT-G01",
+    "FACT-G02",
+    "FACT-G03",
+    "FACT-G04",
+    "FACT-G05",
+    "FACT-G06",
+    "FACT-G07",
+    "FACT-G08"
+  ],
+  "fact_guardrails": [
+    {
+      "id": "FACT-G01",
+      "sha256": "0901517135c8e8b4471904bb6f8ac128eb1551f60604f88e5ed2e353c8390264"
+    },
+    {
+      "id": "FACT-G02",
+      "sha256": "d22e575abaf1faaee99fc3f064f16b67387e6ccb54acc9ddcdba48e11f2b716a"
+    },
+    {
+      "id": "FACT-G03",
+      "sha256": "a4574a86fd5423d6665af07382957ef1cf80b266e792f7d01579ef459c67e0b9"
+    },
+    {
+      "id": "FACT-G04",
+      "sha256": "32d3f918e6d895b85242d12f3475f90f6b9baf3d53970e0d793733eddbcd0c52"
+    },
+    {
+      "id": "FACT-G05",
+      "sha256": "8aa4c1f7d69bf859aab17bc5da5217134a0931d1f519cef7f0fad84fa44034ec"
+    },
+    {
+      "id": "FACT-G06",
+      "sha256": "c1d8b0b7b1f32d152dbeecf86554b2b5ecc7061224011fb2a95a665562a469f2"
+    },
+    {
+      "id": "FACT-G07",
+      "sha256": "a0edc47bd7885544b0a9ec02f7f0a47701f08d72d6c45dabcc3d0d3fae76fa32"
+    },
+    {
+      "id": "FACT-G08",
+      "sha256": "7972091727f6af86fca8469f3668fbb602bfbfcdd54c706b593aedac7a9c1d58"
+    }
+  ],
+  "script_qc_status": "PASS",
+  "directing_preflight_status": "PASS",
+  "visual_skeleton_status": "PASS",
+  "sequence_qc_status": "PASS",
+  "fact_status": "PASS",
+  "unresolved_revision_count": 0,
+  "final_tts_generated": false,
+  "development_tts_permission": "GRANTED",
+  "canonical_manager_story_gate": "PENDING",
+  "specialist_self_qc": "UNAVAILABLE_UNKNOWN_MODEL_GPT_5_6",
+  "agent1_override_scope": "DEVELOPMENT_PREFLIGHT_CROSS_ARTIFACT_QC_ONLY",
+  "canonical_approval": false,
+  "invalidation_triggers": [
+    "SCRIPT_MEANING_CHANGE",
+    "SCRIPT_HASH_MISMATCH",
+    "UNIT_SPLIT_MERGE_REORDER",
+    "UNIT_SET_MISMATCH",
+    "EVIDENCE_OR_FACT_GUARDRAIL_CHANGE",
+    "PREFLIGHT_INPUT_PROVENANCE_MISMATCH",
+    "VISUAL_SKELETON_INPUT_PROVENANCE_MISMATCH",
+    "VISUAL_SKELETON_STRUCTURAL_CHANGE",
+    "PREFLIGHT_REOPENED"
+  ]
+}

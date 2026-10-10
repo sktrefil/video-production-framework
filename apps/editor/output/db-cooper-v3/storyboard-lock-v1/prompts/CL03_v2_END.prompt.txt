@@ -1,0 +1,15 @@
+D.B. COOPER | CL03 | SC02 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 실제 얼굴 확정 금지, 과장된 수상한 행동·모자 추가 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL03, using its reviewed START as the primary image reference.
+START STATE: 시대감 있는 탑승권과 어두운 정장 소매의 근접 샷
+CAMERA PATH: 탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회
+TARGET STATE AT USED EXIT: 1971년 항공기 좌석에 앉은 쿠퍼의 등/검은 넥타이 부분만 보여줌
+EXIT: 접힌 종이의 밝은 면을 프레임 끝에 유지
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

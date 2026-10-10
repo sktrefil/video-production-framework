@@ -1,0 +1,19 @@
+D.B. COOPER v3 | CL10 | SCENE SC03 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: AIR-01, MONEY-01, PARA-01, CAB-01
+FACT GUARD: 당시 대사 임의 인용, 입모양 싱크 동작 과장 금지
+Create one START still for CL10: 남자는 내리지 않는다.
+STORY EVENT: 다른 사람들과 반대로 남아 있는 쿠퍼, 비행을 다시 요구
+START COMPOSITION: 착륙한 항공기 객실의 비워진 좌석 중 한쪽 쿠퍼의 등
+TARGET PATH (for geometry only): 쿠퍼만 남은 후방 방향의 객실과 객실 승무원 실루엣
+CAMERA'S NEXT MOVE: 빈 통로를 따라 쿠퍼의 뒷모습으로 PUSH-IN → 그의 시선 방향에 계단 없는 후방 벽
+SUBJECT IDENTITY/ACTION: 쿠퍼는 몸을 작게 돌려 앞쪽 승무원에게 말하는 제스처
+MOTION SPACE TO RESERVE: 7초 상대방이 사라지자 남아 있는 남자/빈 좌석 대비
+Keep unknown faces, behavior and exact historical interiors stylized, silhouetted or abstract. No invented readable documents, serial numbers, baked-in text, captions or UI.
+This is a candidate START still, subject to visual QC and manager approval. Do not infer that a board panel is a project-specific approved frame.

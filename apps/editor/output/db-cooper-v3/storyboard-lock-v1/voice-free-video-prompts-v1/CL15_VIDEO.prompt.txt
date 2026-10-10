@@ -1,0 +1,31 @@
+CL15 | GOOGLE FLOW VOICE-FREE VIDEO REVISION | SOURCE CL15_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+NO GENERATED VOICES — KEEP SOUND EFFECTS.
+For Google Flow, do not generate narration, dialogue, speech, singing, humming, human crowd voices or airport announcements. Approved Korean TTS is added separately in editing; never imitate or regenerate it. Generate synchronized NONVERBAL sound effects and ambience with the video. Use the SOUND DESIGN, SOUND INTENT and visible actions below to time footsteps, doors, machinery, vehicles, wind and other physical effects. Keep effects restrained for later TTS. Do not request a silent video or remove the audio track. Add music only when the shot's approved plan explicitly calls for it.
+
+SOURCE VISUAL AND SOUND DIRECTING FOLLOWS:
+
+D.B. COOPER | CL15 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 계기판의 정확한 영어 경고문구를 생성하지 말고 필요 시 편집 합성
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL15. Editor uses 9 seconds at timeline 130-139 seconds.
+START: assets/CL15_START.png (PREVIOUS_USED_EXIT from CL14).
+END/TARGET: assets/CL15_END_TARGET.png
+ACTION: 커튼 뒤 인물은 숨기고 천·조명·진동만 변화
+CAMERA: 표시등 빛과 커튼 주름을 GRAPHIC MATCH→닫힌 커튼을 따라 측면 TRACK
+ENVIRONMENT: 기체 흔들림은 미세한 잉크 진동에 한정
+REVEAL: 커튼 때문에 조종실에서는 뒤편을 볼 수 없고 시간이 흐른다
+USED EXIT: 커튼 암부에서 인터폰 쪽으로 시선 이동
+VOICE SLOT IN USED CLIP: 1.800-5.418s; narration: 하지만 커튼이 닫혀 있어 조종실에서는 뒤쪽을 볼 수 없습니다. 시간이 흐릅니다.
+SOUND DESIGN: 표시등 클릭 소거→커튼 천 스침→시간 경과를 암시하는 엔진 저음; 과장된 경고음 금지
+HANDOFF: EXIT_MATCH
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. Add approved Korean TTS later in editing.

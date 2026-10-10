@@ -1,0 +1,15 @@
+D.B. COOPER | CL17 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 마지막 교신 원문 대사 임의 창작 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL17, using its reviewed START as the primary image reference.
+START STATE: 형식을 특정하지 않은 조종실 계기의 바늘과 어두운 링
+CAMERA PATH: 계기 바늘 CLOSE→한 번의 미세 진동에서 급정지→검은 링으로 MATCH CUT
+TARGET STATE AT USED EXIT: 20시 10분 무렵 한 번 움직인 바늘을 추상적으로 표현한 프레임
+EXIT: 계기 링의 검은 면
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

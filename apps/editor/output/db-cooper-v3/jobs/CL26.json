@@ -1,0 +1,29 @@
+{
+  "id": "CL26",
+  "scene": "SC06",
+  "ordinal": 26,
+  "timeline_start": 229,
+  "timeline_end": 238,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "start_asset": "assets/CL26_START.png",
+  "end_target_asset": "assets/CL26_END_TARGET.png",
+  "video_asset": "clips/CL26.mp4",
+  "prompts": {
+    "start": "prompts/CL26_START.prompt.txt",
+    "end": "prompts/CL26_END.prompt.txt",
+    "video": "prompts/CL26_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "CASH80-01",
+    "ENV-RIVER"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

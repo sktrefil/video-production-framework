@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL15 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 계기판의 정확한 영어 경고문구를 생성하지 말고 필요 시 편집 합성
+Create one planned END/TARGET still for CL15: 계단 경고등.
+Attach the reviewed CL15 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 후방 계단의 부분적 하강을 알려주는 기체 경고 반응
+START STATE: 1971년형 항공기 조종실 패널의 작은 등화, 손과 시선은 부분만
+CAMERA PATH: 느린 패널 트럭 → 경고등에 FAST PUSH-IN → 손가락 근처에서 정지
+DESIRED TARGET COMPOSITION: 한 개의 앰버/적색 계열 경고등이 켜진 모습
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 작은 경고등의 빛 → 커튼 암부
+SUBJECT ACTION: 승무원은 계기 쪽으로 고개를 짧게 돌림
+ENVIRONMENT MOTION: 기체 흔들림은 미세한 잉크 진동에 한정
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

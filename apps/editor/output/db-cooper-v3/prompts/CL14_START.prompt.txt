@@ -1,0 +1,19 @@
+D.B. COOPER v3 | CL14 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 확인되지 않은 구체적 대화 내용·정확한 멘트 생성 금지
+Create one START still for CL14: 조종실로 이어지는 연락.
+STORY EVENT: 계단 조작 난항 소식이 객실에서 조종실로 전달됨
+START COMPOSITION: 객실의 오래된 인터폰과 손/정장 소매
+TARGET PATH (for geometry only): 조종실에서 연락을 받은 승무원 또는 계기판 가장자리
+CAMERA'S NEXT MOVE: 인터폰 CLOSE → 좁은 케이블 길을 도식화하지 않고 조종실로 편집 컷
+SUBJECT IDENTITY/ACTION: 조종실 승무원이 인터폰을 받는 작은 행동
+MOTION SPACE TO RESERVE: 5초 이후 조종실이 문제를 인지
+Keep unknown faces, behavior and exact historical interiors stylized, silhouetted or abstract. No invented readable documents, serial numbers, baked-in text, captions or UI.
+This is a candidate START still, subject to visual QC and manager approval. Do not infer that a board panel is a project-specific approved frame.

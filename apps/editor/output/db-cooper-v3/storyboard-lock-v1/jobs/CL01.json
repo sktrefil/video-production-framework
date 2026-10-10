@@ -1,0 +1,54 @@
+{
+  "id": "CL01",
+  "scene": "SC01",
+  "ordinal": 1,
+  "timeline_start": 0,
+  "timeline_end": 10,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL01_START.png",
+  "end_target_asset": "assets/CL01_END_TARGET.png",
+  "video_asset": "clips/CL01.mp4",
+  "prompts": {
+    "start": "prompts/CL01_v2_START.prompt.txt",
+    "end": "prompts/CL01_v2_END.prompt.txt",
+    "video": "prompts/CL01_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "STAIR-01",
+    "CAB-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "관객을 비행기 아래의 위험한 공간으로 끌어들여 계단을 최초 공개",
+  "action": "비행체는 진행 방향 유지; 계단은 하부 힌지에서만 하강",
+  "camera": "원경 FOLLOW → 후미 우측으로 빠른 아크 → 하부 계단으로 낮은 PUSH-IN; 암흑을 향해 정지",
+  "reveal": "6~8초 계단의 하향 구조 reveal, 8~10초 검은 내부가 화면을 채움",
+  "exit": "검은 계단 공간의 완전 차폐",
+  "sound": "엔진 저음→금속 떨림→바람 급확대; 인물 추락음 금지",
+  "narrator_text": "1971년 11월 24일 밤. 비행 중인 여객기 꼬리 아래, 계단이 열립니다. 그리고 한 남자가 사라집니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 0,
+    "scene_audio_end_seconds": 6.691,
+    "spoken_window_seconds": 6.691
+  },
+  "voice_slot_relative": {
+    "start": 0.3,
+    "end": 6.991
+  },
+  "voice_slot_timeline": {
+    "start": 0.3,
+    "end": 6.991
+  },
+  "pre_voice_seconds": 0.3,
+  "post_voice_seconds": 3.009,
+  "nonvoice_seconds": 3.309
+}

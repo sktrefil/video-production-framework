@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>D.B. Cooper CL03 | 무음 영상 프롬프트</title>
+<style>:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;background:#101a21;color:#f0eee8}body{margin:0;line-height:1.6}header{background:#1c303c;padding:32px max(22px,calc((100vw - 980px)/2));border-bottom:2px solid #b68a50}main{max-width:980px;margin:auto;padding:24px 22px 70px}h1{margin:0 0 6px}small,.meta{color:#cad1d1}.alert{border-left:4px solid #e7ae63;background:#24333a;padding:13px 17px;margin:18px 0}article{background:#1b2a33;border:1px solid #4c626c;border-radius:9px;padding:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c161b;border:1px solid #506471;border-radius:6px;padding:18px;font:14px/1.65 Consolas,monospace}button{border:0;border-radius:5px;background:#e5b371;color:#10202b;font-weight:800;padding:10px 14px;cursor:pointer}a{color:#f0c280}</style></head><body>
+<header><small>D.B. COOPER / CL03 / SC02 / SILENT PACK v1</small><h1>CL03 무음 영상 프롬프트</h1><span>생성 10초 · 편집 사용 9초 · 타임라인 18–27초</span></header>
+<main><p class="alert"><strong>Google Flow에서 모든 오디오 생성 금지.</strong> 음성·대사·효과음·음악·환경음·자동 사운드트랙을 생성하지 않습니다. Flow 오디오 옵션을 끄고, 확정 TTS와 음향은 편집에서 넣습니다.</p><p class="alert">이전 클립의 실제 사용 종료 프레임과 현재 START·END 자산을 확인한 뒤 사용하세요. 기존 제작 클립의 원본 프롬프트·해시는 보존됩니다.</p>
+<article><button id="copy" type="button">프롬프트 복사</button><p class="meta">원본: <code>prompts/CL03_v4_VIDEO.prompt.txt</code><br>원본 SHA-256: <code>2346f5eecd98357f751d29783246d7172e4910c23fac901f56eb99abeec03288</code><br>이 무음 프롬프트 SHA-256: <code>62e0c7944b565ecdfe9abc4e92004f902a0c5bd52c1a9804f89e3d4a7b97c0f2</code></p><pre id="prompt">CL03 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL03_v4_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+CL03 | ILLUSTRATED CABIN SHOT | VIDEO PROMPT v4
+
+Animate the two supplied START and END illustrations into one 10-second horizontal 16:9 clip. Preserve their framing, drawn linework, seat layout, paper shapes, black suit, warm highlights and camera direction. This is a strongly stylized graphic 2D ink-noir animation, never photorealistic, live action, hyperreal or documentary reenactment. The person is an original, anonymous, featureless silhouette seen only through cropped clothing and hands. Do not invent a face, recognizable likeness, spoken dialogue or readable writing.
+
+START: assets/CL03_START_v3.png — a close view of a blank illustrated boarding pass beside a dark sleeve.
+END TARGET: assets/CL03_END_TARGET_v3.png — the same cabin axis, with a folded paper edge raised in the foreground.
+
+MOTION:
+0–1 s: A slight tilt of the boarding pass establishes the paper. Keep the START composition recognizable.
+1–4 s: The camera follows the paper smoothly from left to right. Seat backs pass in layered parallax without changing their layout.
+4–6 s: The camera continues around one seat back toward the dark, cropped shoulder and hand. Preserve one continuous camera path.
+6–9 s: The hand slowly raises one small folded note. Only its pale edge becomes visible. Reach the supplied END composition before the 9-second edit boundary; do not open the note or show its contents.
+9–10 s: Hold the END composition with subtle drawn motion. This final source second is removed in editing.
+
+Keep every human face outside the frame or as an indistinct dark shape. No facial reconstruction, identity cues, extra people entering the foreground, new props, jump cuts, camera teleportation, subtitles, logos, or readable ticket or note text. No voice generation; narration and sound will be added separately in editing.
+
+OUTPUT: clips/CL03.mp4. The editor uses 0–9 seconds, so the note-edge reveal must be present in the actual frame near 8.967 seconds at 30 fps. Review that frame before using it as the next clip's START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.
+</pre><a href="CL03_VIDEO.prompt.txt">프롬프트 TXT 열기</a></article><p><a href="index.html">전체 30샷 목록</a></p></main>
+<script>document.getElementById('copy').addEventListener('click',async()=>{let b=document.getElementById('copy'),v=document.getElementById('prompt').textContent;try{await navigator.clipboard.writeText(v)}catch{let a=document.createElement('textarea');a.value=v;document.body.append(a);a.select();document.execCommand('copy');a.remove()}b.textContent='복사 완료';setTimeout(()=>b.textContent='프롬프트 복사',1600)});</script></body></html>

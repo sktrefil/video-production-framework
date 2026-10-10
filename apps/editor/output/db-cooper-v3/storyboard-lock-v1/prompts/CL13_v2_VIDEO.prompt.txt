@@ -1,0 +1,21 @@
+D.B. COOPER | CL13 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 실제 계단 장치 조작 절차의 기술적 재현으로 오인되지 않게
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL13. Editor uses 9 seconds at timeline 112-121 seconds.
+START: assets/CL13_START.png (PREVIOUS_USED_EXIT from CL12).
+END/TARGET: assets/CL13_END_TARGET.png
+ACTION: 손이 한 번 조작하고 인터폰 연락으로 넘어가되 실제 조작 절차는 만들지 않음
+CAMERA: 손·레버 TIGHT PUSH-IN→반응 없는 계단 상태→인터폰 신호로 그래픽 이동
+ENVIRONMENT: 객실 조명과 진동·차폐 강조
+REVEAL: 쿠퍼의 후방 계단 조작이 잘되지 않아 조종실에 연락한다
+USED EXIT: 조종실 인터폰으로 이어지는 신호
+VOICE SLOT IN USED CLIP: 1.300-6.173s; narration: 뒤쪽에 혼자 남은 쿠퍼가 계단을 내리려 합니다. 그런데 뜻대로 되지 않습니다. 조종실에 연락이 들어옵니다.
+SOUND DESIGN: 불규칙 바람과 금속 떨림→인터폰 연결음; 임의 조작 절차나 정확한 대사 금지
+HANDOFF: CONTINUATION
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

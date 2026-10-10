@@ -1,0 +1,50 @@
+{
+  "schema": "db-cooper-shot-chain-candidate.v1",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "status": "DIRECTING_CANDIDATE_NOT_CANONICAL",
+  "canonical_approval": false,
+  "base_plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "clip_id": "CL12",
+  "scene": "SC03",
+  "timeline_start": 102,
+  "timeline_end": 112,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "editor_fps": 30,
+  "transition": "PREVIOUS_USED_EXIT_WITH_FAST_CLOUD_TO_CABIN_WIPE",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL11",
+    "source_clip_path": "clips/CL11.mp4",
+    "source_clip_sha256": "cff2f618bf4b916b26b9e4bf348b5ea45623806125a6d53cc8aaa14d0571f294",
+    "used_exit_frame_index": 239,
+    "used_exit_time_seconds": 9.958333,
+    "exit_path": "exits/CL11_USED_EXIT.png",
+    "exit_sha256": "a761e5782ad8deebf46b61757d025e807c697913e0e5c064c96ae2d5a3f2b55e",
+    "start_path": "assets/CL12_START.png",
+    "start_sha256": "a761e5782ad8deebf46b61757d025e807c697913e0e5c064c96ae2d5a3f2b55e"
+  },
+  "end_target_path": "assets/CL12_END_TARGET_v3.png",
+  "video_path": "clips/CL12.mp4",
+  "prompts": {
+    "end": "prompts/CL12_v3_END.prompt.txt",
+    "video": "prompts/CL12_v3_VIDEO.prompt.txt"
+  },
+  "prompt_sha256": {
+    "end": "3451836fba42b40faf57e0a155f4a77499e47cf079c5fdf7fe88b671b6e74a88",
+    "video": "4b7917f47ab62b226744eb660df86a921865fdb99e0d306d53bdf8a7fb9f000f"
+  },
+  "video_prompt_korean_translation": {
+    "path": "prompts/CL12_v3_VIDEO.ko.txt",
+    "sha256": "416fe30ce69bfef5b6b8c1a4cf4a80cb2ab11f9d92d5a4b7b1b9b6b08741c5d0",
+    "role": "REVIEW_ONLY_NOT_SENT_TO_GOOGLE_FLOW"
+  },
+  "audio_generation": "GENERATE_NONVERBAL_SFX_AND_AMBIENCE; NO_GENERATED_VOICES; FINAL_TTS_ADDED_IN_EDITING",
+  "narration": "쿠퍼는 낙하산 줄로 돈가방을 동여맵니다. 마지막 객실 승무원이 조종실로 들어가고, 뒤쪽 커튼이 닫힙니다. 이제 쿠퍼와 후방 계단 사이에는 아무도 없습니다.",
+  "voice_slot_relative_seconds": [
+    0.2,
+    7.4
+  ],
+  "motion_budget": "FAST_HIDDEN_CUT_THEN_ONE_STABLE_CABIN_AXIS_AND_SINGLE_KNOT; CURTAIN_WIPE_HANDOFF",
+  "next_clip_handoff": "CL13 START must be extracted from CL12 actual 10-second used exit, not from planned END."
+}

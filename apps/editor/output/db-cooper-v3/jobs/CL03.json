@@ -1,0 +1,31 @@
+{
+  "id": "CL03",
+  "scene": "SC02",
+  "ordinal": 3,
+  "timeline_start": 18,
+  "timeline_end": 27,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "BIBLE_MATCH",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "start_asset": "assets/CL03_START.png",
+  "end_target_asset": "assets/CL03_END_TARGET.png",
+  "video_asset": "clips/CL03.mp4",
+  "prompts": {
+    "start": "prompts/CL03_START.prompt.txt",
+    "end": "prompts/CL03_END.prompt.txt",
+    "video": "prompts/CL03_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

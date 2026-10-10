@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL25 | SCENE SC06 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: CASH80-01, ENV-RIVER
+FACT GUARD: 돈은 5,800달러, 전량 20만 달러가 아님; 새 돈/현대 지폐 디자인 금지
+Create one planned END/TARGET still for CL25: 5,800달러 드러나다.
+Attach the reviewed CL25 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 20달러 지폐 세 묶음이 모래 속에서 드러나는 발견의 순간
+START STATE: 손이 구겨진 젖은 지폐 모서리 가까이 있음
+CAMERA PATH: 지폐 모서리 REVEAL → 조심스러운 아래쪽 ARC → 세 묶음의 규모를 확인
+DESIRED TARGET COMPOSITION: 낡고 손상된 $20 세 묶음이 부분적으로 모래 위로 노출
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 가장 선명한 한 장의 지폐 번호 위치로 접근
+SUBJECT ACTION: 손은 지폐를 천천히 들어 올리되 변형 없이 유지
+ENVIRONMENT MOTION: 물기·모래 알갱이 작은 움직임
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

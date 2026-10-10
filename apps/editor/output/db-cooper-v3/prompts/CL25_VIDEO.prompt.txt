@@ -1,0 +1,20 @@
+D.B. COOPER v3 | CL25 | SCENE SC06 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: CASH80-01, ENV-RIVER
+FACT GUARD: 돈은 5,800달러, 전량 20만 달러가 아님; 새 돈/현대 지폐 디자인 금지
+SOURCE: assets/CL25_START.png (PREVIOUS_USED_EXIT from CL24)
+END/TARGET: assets/CL25_END_TARGET.png
+Generate one 10-second 16:9 clip. Intended editor window: timeline 220-229 seconds; use only the first 9 seconds unless a revised cut is reviewed.
+The important reveal must happen within the USED 9-second window. A target reached only in the discarded source tail does not satisfy the shot.
+If the generator accepts only a first and final frame at the full source duration, treat the END/TARGET still as a guide and inspect the actual frame at the edit boundary. Do not claim it is the used exit.
+
+Create a single 10-second 16:9 hand-drawn 2D ink-noir animated shot for CL25, using locked BOARD01 style and the same Boeing 727 / cabin / character / prop identities. START FRAME: 손이 구겨진 젖은 지폐 모서리 가까이 있음. CAMERA PATH: 지폐 모서리 REVEAL → 조심스러운 아래쪽 ARC → 세 묶음의 규모를 확인. SUBJECT MOTION: 손은 지폐를 천천히 들어 올리되 변형 없이 유지. ENVIRONMENT MOTION: 물기·모래 알갱이 작은 움직임. KEY REVEAL: 5~7초 여러 묶음이 한 번에 읽힘. TARGET FRAME: 낡고 손상된 $20 세 묶음이 부분적으로 모래 위로 노출. EXIT FRAME: 가장 선명한 한 장의 지폐 번호 위치로 접근. Keep all object geometry and camera axes physically continuous; no scene teleport, no invented legible writing, no photorealism or 3D, no lip sync required. Never show an eyewitness jump, actual landing, definitive survival or death. Generate the full 10 seconds, then EDITOR KEEP the first 9 seconds only unless a QC-approved in/out trim preserves the designated EXIT.
+
+HANDOFF: CONTINUATION; extract the exact last used frame from the accepted video before deriving a dependent next START. Keep clip audio/SFX as a separate review item.
+STATUS: candidate prompt only. Final media requires script/directing lock, manager Story Gate, verified timing and independent visual/sequence QC.

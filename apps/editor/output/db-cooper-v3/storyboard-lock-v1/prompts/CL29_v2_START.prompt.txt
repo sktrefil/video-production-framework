@@ -1,0 +1,16 @@
+D.B. COOPER | CL29 | SC07 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01
+FACT GUARD: CL01 프레임 기하학을 고정한 채 공간 뒤집기 금지; 점프한 인물 생성 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+CL29: attach a reviewed CL01 frame from 6-8 seconds as geometry reference only; generate an independent wide START. Do not use the black 10-second EXIT.
+Create one START image for CL29.
+STORY: SC01 계단과 동일 기체·같은 계단 구조를 관점만 바꿔 재등장
+START FRAME: 열린 후방 계단의 6~8초 공개 상태를 시각 참조로 삼아 별도 생성한 START. 같은 T-tail·중앙 엔진·계단 축을 유지하며 10초 검은 EXIT와 혼동하지 않는다.
+FUTURE CAMERA SPACE: SC01 계단 축에서 시작, 부드럽게 REVERSE DOLLY/PULL-BACK
+REVEAL TO RESERVE: 4~6초 첫 장면인 것을 관객이 알아차림
+Keep the revealed state out of the START composition. One frame, one information state.

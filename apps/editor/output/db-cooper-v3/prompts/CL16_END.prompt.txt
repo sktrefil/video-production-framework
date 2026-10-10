@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL16 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 쿠퍼의 실제 행동을 임의로 카메라 뒤에서 보여주지 않음
+Create one planned END/TARGET still for CL16: 보이지 않는 뒤편.
+Attach the reviewed CL16 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 조종실과 후방 사이에 닫힌 커튼이 있어 누구도 그 장면을 보지 못함
+START STATE: 조종실 방향에서 본 깊은 객실 통로, 끝에는 닫힌 커튼
+CAMERA PATH: 빈 좌석 사이 LOW TRACK → 커튼 초근접 → 움직임 완전 정지
+DESIRED TARGET COMPOSITION: 카메라는 커튼에 가까워지지만 끝내 그 뒤로 넘어가지 않음
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 커튼 어두운 주름에 정지
+SUBJECT ACTION: 커튼은 바람에 거의 흔들리지 않음, 인물 등장 금지
+ENVIRONMENT MOTION: 멀리서 들리는 금속음만 시각적 어둠에 대응
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.

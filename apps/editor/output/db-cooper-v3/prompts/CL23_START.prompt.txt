@@ -1,0 +1,19 @@
+D.B. COOPER v3 | CL23 | SCENE SC05 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: TIE-01, ENV-FOREST
+FACT GUARD: 시간 경과는 편집 자막에서 연도 표기; 지도나 실제 위치 경로를 그리지 않음
+Create one START still for CL23: 8년여의 공백.
+STORY EVENT: 수색 실패와 시간 경과를 시각적 공간의 비어 있음으로 전달
+START COMPOSITION: 수색 불빛이 사라진 숲 가장자리
+TARGET PATH (for geometry only): 어둠에서 밝아지는 강변 모래의 추상적 질감
+CAMERA'S NEXT MOVE: 천천히 PULL-BACK해 텅 빈 숲 → 어두운 진흙 표면으로 OCCLUSION
+SUBJECT IDENTITY/ACTION: 인물·새로운 증거 등장 없음
+MOTION SPACE TO RESERVE: 6~7초 화면에서 수색 흔적마저 사라짐
+Keep unknown faces, behavior and exact historical interiors stylized, silhouetted or abstract. No invented readable documents, serial numbers, baked-in text, captions or UI.
+This is a candidate START still, subject to visual QC and manager approval. Do not infer that a board panel is a project-specific approved frame.

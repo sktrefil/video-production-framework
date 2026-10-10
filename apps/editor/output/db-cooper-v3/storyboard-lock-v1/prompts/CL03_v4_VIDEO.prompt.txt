@@ -1,0 +1,17 @@
+CL03 | ILLUSTRATED CABIN SHOT | VIDEO PROMPT v4
+
+Animate the two supplied START and END illustrations into one 10-second horizontal 16:9 clip. Preserve their framing, drawn linework, seat layout, paper shapes, black suit, warm highlights and camera direction. This is a strongly stylized graphic 2D ink-noir animation, never photorealistic, live action, hyperreal or documentary reenactment. The person is an original, anonymous, featureless silhouette seen only through cropped clothing and hands. Do not invent a face, recognizable likeness, spoken dialogue or readable writing.
+
+START: assets/CL03_START_v3.png — a close view of a blank illustrated boarding pass beside a dark sleeve.
+END TARGET: assets/CL03_END_TARGET_v3.png — the same cabin axis, with a folded paper edge raised in the foreground.
+
+MOTION:
+0–1 s: A slight tilt of the boarding pass establishes the paper. Keep the START composition recognizable.
+1–4 s: The camera follows the paper smoothly from left to right. Seat backs pass in layered parallax without changing their layout.
+4–6 s: The camera continues around one seat back toward the dark, cropped shoulder and hand. Preserve one continuous camera path.
+6–9 s: The hand slowly raises one small folded note. Only its pale edge becomes visible. Reach the supplied END composition before the 9-second edit boundary; do not open the note or show its contents.
+9–10 s: Hold the END composition with subtle drawn motion. This final source second is removed in editing.
+
+Keep every human face outside the frame or as an indistinct dark shape. No facial reconstruction, identity cues, extra people entering the foreground, new props, jump cuts, camera teleportation, subtitles, logos, or readable ticket or note text. No voice generation; narration and sound will be added separately in editing.
+
+OUTPUT: clips/CL03.mp4. The editor uses 0–9 seconds, so the note-edge reveal must be present in the actual frame near 8.967 seconds at 30 fps. Review that frame before using it as the next clip's START.

@@ -1,0 +1,29 @@
+{
+  "id": "CL27",
+  "scene": "SC06",
+  "ordinal": 27,
+  "timeline_start": 238,
+  "timeline_end": 246,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "START_TARGET",
+  "transition": "EXIT_MATCH",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL26"
+  },
+  "start_asset": "assets/CL27_START.png",
+  "end_target_asset": "assets/CL27_END_TARGET.png",
+  "video_asset": "clips/CL27.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL27_END.prompt.txt",
+    "video": "prompts/CL27_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "CASH80-01",
+    "ENV-RIVER"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "SPEC_ONLY_NOT_GENERATED"
+}

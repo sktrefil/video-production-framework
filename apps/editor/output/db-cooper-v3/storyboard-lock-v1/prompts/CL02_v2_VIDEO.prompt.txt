@@ -1,0 +1,21 @@
+D.B. COOPER | CL02 | SC01 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01, CAB-01
+FACT GUARD: 실제 당시 객실 배치가 완전 검증된 도면처럼 보이지 않게; 장면상 빈 자리 표현만
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL02. Editor uses 8 seconds at timeline 10-18 seconds.
+START: assets/CL02_START.png (GENERATE_START).
+END/TARGET: No separate END image; use the motion target in text.
+ACTION: 승객과 쿠퍼는 등장하지 않음; 남겨진 소품만 최소한
+CAMERA: 중앙 통로를 낮게 전진 → 뒷부분을 작은 회전으로 재확인 → 빈 자리에서 정지
+ENVIRONMENT: 형광등이 아닌 1971년식 온기 있는 약한 객실 조명
+REVEAL: 5~7초 돈가방의 부재를 빈 공간으로 느끼게 함
+USED EXIT: 좌석의 검은 프레임/탑승권 검은 잉크 면으로 편집 컷
+VOICE SLOT IN USED CLIP: 1.200-6.364s; narration: 착륙한 비행기엔 그도, 20만 달러도 없었습니다. 놀랍게도 점프를 본 사람은 아무도 없었습니다.
+SOUND DESIGN: 바람을 끊고 낮은 객실 룸톤과 멀어진 기체 울림
+HANDOFF: STORY_CUT
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.

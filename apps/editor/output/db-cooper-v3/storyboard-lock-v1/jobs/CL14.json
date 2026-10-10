@@ -1,0 +1,54 @@
+{
+  "id": "CL14",
+  "scene": "SC04",
+  "ordinal": 14,
+  "timeline_start": 121,
+  "timeline_end": 130,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "SINGLE",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL14_START.png",
+  "end_target_asset": null,
+  "video_asset": "clips/CL14.mp4",
+  "prompts": {
+    "start": "prompts/CL14_v2_START.prompt.txt",
+    "end": null,
+    "video": "prompts/CL14_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "계단 조작 난항 소식이 객실에서 조종실로 전달됨",
+  "action": "인터폰을 받는 움직임과 표시등 한 번 점등만 보여줌",
+  "camera": "인터폰 CLOSE→조종실 표시등으로 짧은 컷→점등 순간 PUSH-IN",
+  "reveal": "조종실이 어려움을 듣고, 이어 계단 경고등이 켜지지만 인물 행방은 알 수 없다",
+  "exit": "표시등 빛이 닫힌 커튼 주름으로 넘어감",
+  "sound": "인터폰 잡음→짧은 금속음→표시등 클릭 한 번; 경보 사이렌 금지",
+  "narrator_text": "계단을 내리는 데 어려움이 있다는 겁니다. 잠시 뒤 계단 경고등이 켜집니다. 적어도 일부가 내려갔다는 신호입니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 4.945,
+    "scene_audio_end_seconds": 10.036,
+    "spoken_window_seconds": 5.091
+  },
+  "voice_slot_relative": {
+    "start": 1,
+    "end": 6.091
+  },
+  "voice_slot_timeline": {
+    "start": 122,
+    "end": 127.091
+  },
+  "pre_voice_seconds": 1,
+  "post_voice_seconds": 2.909,
+  "nonvoice_seconds": 3.909
+}

@@ -1,0 +1,18 @@
+CL08 | SEATTLE STOP AND CARGO TRANSFER | VIDEO PROMPT v4
+
+Create one 10-second horizontal 16:9 NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir animation from the supplied START and END illustrations. The editor uses all 10 seconds at timeline 62–72 seconds. Begin exactly on assets/CL08_START.png, a NEW exterior Seattle apron scene. Reach assets/CL08_END_TARGET_v3.png by the last used frame around 9.967 seconds. CL07 ends on a closed dark cockpit door; CL08 opens outside with a dark left-edge shadow for a deliberate scene cut, not a copied CL07 START.
+
+NO GENERATED VOICES — KEEP SOUND EFFECTS. In Google Flow, do not create narration, dialogue, spoken words, singing, humming, human crowd voices or airport announcements. Do not imitate the approved Korean TTS; it will be added during editing. Generate synchronized NONVERBAL sound effects and ambience with the video: the aircraft engine settling, service-vehicle tires on the damp apron, vehicle braking, cargo handles and the bag brushing the aircraft threshold. Keep effects restrained enough for later TTS. Do not request a silent video or remove its audio track.
+
+START: the same stylized stationary Boeing 727-100 on Seattle's low-light apron, small service vehicle in the distance, no visible cash or parachutes and no passengers leaving. Preserve the AIR-01 T-tail, rear engine arrangement, grounded wheels, livery color blocks and camera axis. No readable airline wordmarks or registration.
+
+0–1.5 s: wipe from the dark left foreground into a lateral apron track. Establish that the aircraft has stopped. Give a clear side silhouette and grounded wheels. No new cargo yet.
+1.5–3.5 s: track toward the small service vehicle as it approaches the plane. Keep the aircraft in the same spatial axis and a hint of closed cabin windows; do not invent a visible Cooper at a specific seat. No passenger descent yet.
+3.5–6.5 s: vehicle brakes under the aircraft. Ground workers, anonymous silhouettes only, reveal ONE dark bag and FOUR compact parachute packs in a readable group. The camera changes scale from plane to cargo through foreground parallax; no money close-up or readable banknotes. Move the four packs across the aft aircraft threshold, then start carrying the bag toward it before the narration finishes its cargo phrase.
+6.5–10 s: the dark bag begins to cross the aircraft threshold by about 7.2 s; all four packs are already inside. Track with the bag and settle on its partly visible silhouette at the lit doorway with the vehicle just behind it, matching the supplied END target. This single transfer continues into CL09, when passengers begin to leave. Never cut backward to the distant vehicle or leave a duplicate bag resting on a cart after it has entered the aircraft.
+
+AV_BEATS_JSON: [{"id":"seattle_apron","narration_phrase":"시애틀의 활주로","visual_window_seconds":[0.4,1.7]},{"id":"vehicle_approaches","narration_phrase":"공항 차량이 다가오고","visual_window_seconds":[2.0,4.2]},{"id":"cash_and_parachutes_transfer","narration_phrase":"20만 달러와 낙하산 네 개가 기내로 들어옵니다","visual_window_seconds":[4.4,7.2]}]
+
+NARRATION SLOT IN USED CLIP: 0.400–7.164 s. Narration is added only during editing. Generate nonverbal engine, vehicle-wheel and cargo-handle effects at their matching actions. No airport announcement or other automatic speech.
+
+Do not depict passengers leaving in CL08, an open parachute, a jump, cockpit interior, an invented exchange with Cooper, readable money or documents, subtitles, logos, watermark or four-point generator mark. The project boards define style, aircraft geometry and motion; do not copy their panel layout or captions. Output clips/CL08.mp4. After generation review the actual last frame at the 10-second boundary before deriving CL09 START.

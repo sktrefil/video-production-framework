@@ -1,0 +1,19 @@
+D.B. COOPER v3 | CL19 | SCENE SC04 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 쿠퍼가 뛰어내리는 장면/낙하산 펼치는 장면은 보여주지 않음
+Create one START still for CL19: 직접 보지 못한 후방 계단.
+STORY EVENT: 인물을 보여주지 않고 비행 중 열린 계단 자체만으로 실종을 표현
+START COMPOSITION: 꼬리 아래에서 보이는 열린 내장식 계단, CL01 AIR-01와 일치
+TARGET PATH (for geometry only): 계단 밖에 빈 어둠과 멀리 지나가는 숲의 질감만 존재
+CAMERA'S NEXT MOVE: 기체 후방 바깥을 짧게 PARALLAX → 계단 가장자리로 접근 → 인물 없이 EMPTY HOLD
+SUBJECT IDENTITY/ACTION: 사람 낙하·낙하산 실루엣·착지 장면 없음
+MOTION SPACE TO RESERVE: 6~8초 카메라가 계단을 보지만 아무도 없는 상태
+Keep unknown faces, behavior and exact historical interiors stylized, silhouetted or abstract. No invented readable documents, serial numbers, baked-in text, captions or UI.
+This is a candidate START still, subject to visual QC and manager approval. Do not infer that a board panel is a project-specific approved frame.

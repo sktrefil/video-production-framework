@@ -1,0 +1,55 @@
+{
+  "id": "CL07",
+  "scene": "SC02",
+  "ordinal": 7,
+  "timeline_start": 54,
+  "timeline_end": 62,
+  "source_seconds": 10,
+  "keep_seconds": 8,
+  "image_mode": "START_TARGET",
+  "transition": "STORY_CUT",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL07_START.png",
+  "end_target_asset": "assets/CL07_END_TARGET.png",
+  "video_asset": "clips/CL07.mp4",
+  "prompts": {
+    "start": "prompts/CL07_v2_START.prompt.txt",
+    "end": "prompts/CL07_v2_END.prompt.txt",
+    "video": "prompts/CL07_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "COO-01",
+    "NOTE-01",
+    "BRF-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "요구 메모가 객실을 통과해 조종실로 들어가며 납치 상황 확대",
+  "action": "승무원이 통로를 따라 걷고 문 쪽으로 몸을 돌림",
+  "camera": "뒤에서 낮게 FOLLOW → 승무원 어깨 너머 조종실 문으로 짧게 PUSH-IN",
+  "reveal": "4~6초 메모가 조종실로 이동, 권력이 넘어감",
+  "exit": "닫히는 조종실 문/어두운 벽으로 완전 차폐",
+  "sound": "발걸음→문 잠금→활주로 저음; 대화 내용 생성 금지",
+  "narrator_text": "쪽지가 좁은 통로를 지나 조종실로 들어갑니다. 다른 승객들은 아직 무슨 일이 벌어지는지 모릅니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 22.473,
+    "scene_audio_end_seconds": 26.836,
+    "spoken_window_seconds": 4.364
+  },
+  "voice_slot_relative": {
+    "start": 1.5,
+    "end": 5.864
+  },
+  "voice_slot_timeline": {
+    "start": 55.5,
+    "end": 59.864
+  },
+  "pre_voice_seconds": 1.5,
+  "post_voice_seconds": 2.136,
+  "nonvoice_seconds": 3.636
+}

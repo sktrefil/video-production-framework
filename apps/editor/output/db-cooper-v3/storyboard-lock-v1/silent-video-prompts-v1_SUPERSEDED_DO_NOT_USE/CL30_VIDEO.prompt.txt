@@ -1,0 +1,31 @@
+CL30 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL30_v2_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+D.B. COOPER | CL30 | SC07 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: AIR-01, STAIR-01
+FACT GUARD: 살아있음/죽음 어느 쪽도 시각적으로 확정 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one 10-second 16:9 animated clip for CL30. Editor uses 8 seconds at timeline 262-270 seconds.
+START: assets/CL30_START.png (PREVIOUS_USED_EXIT from CL29).
+END/TARGET: assets/CL30_END_TARGET.png
+ACTION: 인물/낙하산/착지 흔적은 새로 생기지 않음
+CAMERA: 안정된 PULL-BACK → 기체가 작아짐 → 마지막 2초 암전
+ENVIRONMENT: 구름은 완만한 패럴랙스, 번쩍이는 UFO·반전 시각화 금지
+REVEAL: 5~6초 기체 소실, 6~8초 검은 하늘+정적
+USED EXIT: 완전한 검정 프레임 (편집 최종 홀드)
+VOICE SLOT IN USED CLIP: 0.600-5.618s; narration: 그러나 확인된 것은, 그가 비행기에서 사라졌다는 사실. 그가 땅에 살아 도착했다는 증거는 지금도 없습니다.
+SOUND DESIGN: 엔진음 감쇠→짧은 저역 잔향→거의 무음
+HANDOFF: CONTINUATION
+Preserve continuous object geometry and one dominant camera path. Do not invent a witnessed jump or landing. Review the actual used exit frame before creating a dependent START.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

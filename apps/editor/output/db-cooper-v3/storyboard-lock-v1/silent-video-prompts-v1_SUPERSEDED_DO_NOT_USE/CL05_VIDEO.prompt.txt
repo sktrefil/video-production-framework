@@ -1,0 +1,28 @@
+CL05 | GOOGLE FLOW SILENT VIDEO REVISION | SOURCE CL05_v3_VIDEO.prompt.txt
+
+NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir video only: no photorealism, live action or documentary reenactment.
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO.
+For Google Flow, create the video visuals only. Do not generate voice, narration, dialogue, spoken words, singing, humming, crowd voices, sound effects, music, ambience, airport announcements, engine sounds, wind, footsteps or an automatic soundtrack. Do not create an audio track. Disable automatic audio and export mute / without an audio stream if the tool supports it. Approved Korean TTS and all sound design will be added separately in editing. Never imitate or regenerate the approved narration. Any SOUND DESIGN, SOUND INTENT or sound cue in the source directing text below is an EDITING NOTE ONLY, never a request to synthesize audio.
+
+SOURCE VISUAL DIRECTING FOLLOWS:
+
+CL05 | ILLUSTRATED BRIEFCASE REVEAL | VIDEO PROMPT v3
+
+Create one 10-second horizontal 16:9 animated clip using the supplied START and END illustrations as the first frame and target composition.
+START: assets/CL05_START.png — an ivory folded note fills almost all the frame, with a thumb at the right and dark cabin edges.
+END TARGET: assets/CL05_END_TARGET_v3.png — a dark briefcase is open only slightly; its rim points toward an attendant's cropped hand.
+
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, bold graphic shadows and controlled parallax. Preserve the paper texture, cabin geometry, seat and window direction, anonymous hands, charcoal/steel-blue palette and warm ivory highlights. No photorealism, live action, hyperrealism, glossy 3D or documentary reenactment. No identifiable face or likeness.
+
+ACTION AND CAMERA:
+0–1 s: Begin exactly from the START paper occlusion. The folded note moves aside while the camera pulls back just enough to reveal the same cabin space. Do not cut to another room.
+1–4 s: Continue the camera along the dark edge of a briefcase on the passenger's lap. Use a short, readable lateral arc and increasing parallax. The case remains closed until the camera reaches its hinge.
+4–6 s: A cropped hand raises the lid slightly. Around 5 seconds, the narrow opening gives the first incomplete glimpse of red cylindrical shapes and dark loose wires. Keep most of the interior in shadow and never explain or demonstrate how anything works.
+6–9 s: Hold the incomplete reveal briefly, then redirect the camera along the black case rim toward the attendant's hand at the right. Reach the supplied END composition before the 9-second edit boundary. Maintain one continuous cabin axis and stable case geometry.
+9–10 s: Hold the END composition with subtle drawn motion only. The editor removes this source second.
+
+The objects' purpose is uncertain. Do not show a functioning device, timer, trigger, assembly, explosion, readable labels or invented writing. Keep human faces outside frame. No speech, synthetic narration, captions, subtitles, logos or watermark. The approved narration will be added separately in editing during 0.800–6.909 s of the used clip. Sound design is also added separately: one quiet case-latch click and reduced cabin ambience, without any operating or explosive sound.
+
+OUTPUT: clips/CL05.mp4. The editor uses 0–9 seconds at project timeline 36–45 seconds. Inspect the actual used exit frame near 8.967 seconds at 30 fps before deriving CL06 START; a target image alone does not prove this state was reached.
+
+SILENT VIDEO ONLY — DO NOT GENERATE AUDIO. Add approved TTS and all sound later in editing.

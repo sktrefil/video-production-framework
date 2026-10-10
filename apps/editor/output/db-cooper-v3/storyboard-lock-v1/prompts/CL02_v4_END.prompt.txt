@@ -1,0 +1,16 @@
+D.B. COOPER | SC01 | CL02 | END/TARGET IMAGE | v4 START-linked revision
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir, horizontal 16:9, 1536x864. Steel-blue and charcoal shadows, rough ink texture, restrained warm cabin light. No photorealism, live action, documentary reenactment or glossy 3D.
+
+PRIMARY SAME-SHOT REFERENCE: assets/CL02_START_v3.png. Preserve its cabin identity, seat shape family, aisle axis, ink palette, light direction and low camera height. This is CL02's planned END, not CL01's END. Do not reuse the CL01 exterior staircase as cabin geometry.
+SECONDARY TRANSITION REFERENCE: exits/CL01_USED_EXIT.png | SHA-256 22bf57e66a004ef4444c3aac5f623881687b53350101df396fca981a48b0438e. Keep only the graphic language of dark central space and edge light. CL02 is a separate landed-cabin scene after a cut, not a physical continuation from the airborne exterior.
+STYLE BOARD: boards/BOARD01_STYLE.png | SHA-256 88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+MOTION BOARD: boards/BOARD02_MOTION.png | SHA-256 c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+SCENE BOARD: boards/BOARD03_SCENE.png | SHA-256 3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Use the boards for style and scene intent only. Do not reproduce their panels, captions or lettering.
+
+Create ONE image of the TARGET STATE AT THE EDITOR-USED 8-SECOND EXIT. From the CL02 START aisle axis, the camera has pushed forward at low height and made a small turn toward a vacant seat near the rear. One dark seat frame occupies a strong foreground edge. The unoccupied space where a person and money bag might have been is now the focal absence. Weak warm cabin practical light catches a few seat edges; the middle stays deep charcoal. A nearly black seat edge or ink plane gives the editor a readable cut surface for the following scene.
+
+No passenger, Cooper, money bag, cash, parachute or invented document text. Do not suggest that any actual witness saw a jump. The exact historical cabin arrangement is uncertain; keep it stylized rather than a measured reconstruction. No subtitles, title, watermark or legible airline marks.
+
+TIMING: CL02 source video is planned for 10 seconds, but only its first 8 seconds are used. Design this target for the frame near 7.967 seconds at 30 fps. If a generator binds the target to the full 10-second output, request arrival by 8 seconds and a 2-second hold. Verify the actual used exit after video generation.
+SAVE AS: assets/CL02_END_TARGET_v4.png

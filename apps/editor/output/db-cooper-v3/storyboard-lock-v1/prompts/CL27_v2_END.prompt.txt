@@ -1,0 +1,15 @@
+D.B. COOPER | CL27 | SC06 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: CASH80-01, ENV-RIVER
+FACT GUARD: 실제 돈이 이동한 경로·물살 방향을 증명하는 그래픽 금지
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL27, using its reviewed START as the primary image reference.
+START STATE: 1980년 강변 모래톱의 좁은 프레임
+CAMERA PATH: 지폐 위치에서 계속 PULL-BACK → 강 물길/모래톱 너머 원경
+TARGET STATE AT USED EXIT: 카메라가 멀리 물러나 사람 없는 광활한 강변만 남음
+EXIT: 물의 검은 영역이 SC07 서류 암부로 자연 이어짐
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

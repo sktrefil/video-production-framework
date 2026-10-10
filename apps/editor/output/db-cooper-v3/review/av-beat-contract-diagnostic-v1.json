@@ -1,0 +1,137 @@
+{
+  "schema": "longform-av-beat-contract.v1",
+  "status": "DIAGNOSTIC_CURRENT_PLAN_NOT_APPROVED",
+  "project_id": "db_cooper_1971_4m30_v3",
+  "plan_sha256": "2ba677e976e231d8d7af49f45a41a651e61c148134f7d0c3f1b383a32ef6a260",
+  "final_tts_manifest_sha256": "da11bc1bb9e661e02a0aa80a13d2ea33a407402890aeb7dad6d22f63698ce6b6",
+  "shots": [
+    {
+      "id": "CL01",
+      "scene": "SC01",
+      "keep_seconds": 10,
+      "video_prompt": "prompts/CL01_v2_VIDEO.prompt.txt",
+      "video_prompt_sha256": "89134bfef56e5105dbf2bb1e20f3a0ee71efacf31bc93dac56a6458f1d770d02",
+      "information_gain": "6~8초 계단의 하향 구조 reveal, 8~10초 검은 내부가 화면을 채움",
+      "start_state_key": "plane_in_flight",
+      "exit_state_key": "open_stairs",
+      "dominant_visual_motif": "aircraft_rear",
+      "beats": [
+        {
+          "narration_phrase": "비행 중인 여객기 꼬리 아래, 계단이 열립니다",
+          "visual_window_seconds": [
+            6,
+            7
+          ],
+          "tolerance_seconds": 0.35
+        }
+      ]
+    },
+    {
+      "id": "CL02",
+      "scene": "SC01",
+      "keep_seconds": 8,
+      "video_prompt": "prompts/CL02_v2_VIDEO.prompt.txt",
+      "video_prompt_sha256": "14858248f11c60c89859ee8047d43dbaa636bb0a4342aa1c1765645f5b2ee81f",
+      "information_gain": "5~7초 돈가방의 부재를 빈 공간으로 느끼게 함",
+      "start_state_key": "empty_cabin",
+      "exit_state_key": "empty_seat",
+      "dominant_visual_motif": "empty_cabin",
+      "beats": [
+        {
+          "narration_phrase": "착륙한 비행기엔 그도, 20만 달러도 없었습니다",
+          "visual_window_seconds": [
+            5,
+            6
+          ],
+          "tolerance_seconds": 0.35
+        }
+      ],
+      "cut_reason": "Intentional time or spatial change described by the scene plan."
+    },
+    {
+      "id": "CL03",
+      "scene": "SC02",
+      "keep_seconds": 9,
+      "video_prompt": "prompts/CL03_v2_VIDEO.prompt.txt",
+      "video_prompt_sha256": "b15da8116e5b663c4861056ae10ac3350ad5b7d1e307c5b6c25ddc3c6f7a334e",
+      "information_gain": "6초 이후 그의 손에서 접힌 종이 모서리가 보임",
+      "start_state_key": "ticket_at_seat",
+      "exit_state_key": "note_in_hand",
+      "dominant_visual_motif": "boarding_pass",
+      "beats": [
+        {
+          "narration_phrase": "표에 적힌 이름은 댄 쿠퍼",
+          "visual_window_seconds": [
+            5.5,
+            6.5
+          ],
+          "tolerance_seconds": 0.35
+        }
+      ],
+      "cut_reason": "Intentional time or spatial change described by the scene plan."
+    },
+    {
+      "id": "CL04",
+      "scene": "SC02",
+      "keep_seconds": 9,
+      "video_prompt": "prompts/CL04_v2_VIDEO.prompt.txt",
+      "video_prompt_sha256": "f16522ba93abbdedb5616c0f34933cc42441f2c966b0a3cecd0fdf06dacb2f50",
+      "information_gain": "5~7초 쪽지가 넘어가며 긴장 장치 발생",
+      "start_state_key": "note_in_hand",
+      "exit_state_key": "paper_occlusion",
+      "dominant_visual_motif": "paper_closeup",
+      "beats": [
+        {
+          "narration_phrase": "이륙 직후, 그의 손에서 작은 쪽지가 승무원에게 넘어갑니다",
+          "visual_window_seconds": [
+            4,
+            5.5
+          ],
+          "tolerance_seconds": 0.35
+        }
+      ]
+    },
+    {
+      "id": "CL05",
+      "scene": "SC02",
+      "keep_seconds": 9,
+      "video_prompt": "prompts/CL05_v2_VIDEO.prompt.txt",
+      "video_prompt_sha256": "2fc213c2a853786d57c771b2bf175f956cd4c602af086ac1c5ed0ed700019158",
+      "information_gain": "5초 내용물이 처음 보이나 정체는 단정하지 않음",
+      "start_state_key": "paper_occlusion",
+      "exit_state_key": "case_partly_open",
+      "dominant_visual_motif": "briefcase_closeup",
+      "beats": [
+        {
+          "narration_phrase": "붉은 막대와 전선이 보입니다",
+          "visual_window_seconds": [
+            5.2,
+            6
+          ],
+          "tolerance_seconds": 0.35
+        }
+      ]
+    },
+    {
+      "id": "CL06",
+      "scene": "SC02",
+      "keep_seconds": 9,
+      "video_prompt": "prompts/CL06_v4_VIDEO.prompt.txt",
+      "video_prompt_sha256": "e0b49eaf564cbbcb2daec910f655033cdbc4a4f36fbaa0eac935619bb89415ca",
+      "information_gain": "5~7초 종이가 실제 요구 사항을 전달할 도구로 바뀜",
+      "start_state_key": "case_partly_open",
+      "exit_state_key": "attendant_at_aisle",
+      "dominant_visual_motif": "aisle_reveal",
+      "beats": [
+        {
+          "narration_phrase": "남자는 조건을 말하고, 승무원은 별도의 종이에 적습니다",
+          "visual_window_seconds": [
+            2.3,
+            3.5
+          ],
+          "tolerance_seconds": 0.35
+        }
+      ]
+    }
+  ]
+}

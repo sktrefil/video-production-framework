@@ -1,0 +1,54 @@
+{
+  "id": "CL17",
+  "scene": "SC04",
+  "ordinal": 17,
+  "timeline_start": 148,
+  "timeline_end": 157,
+  "source_seconds": 10,
+  "keep_seconds": 9,
+  "image_mode": "START_TARGET",
+  "transition": "CONTINUATION",
+  "start_binding": {
+    "kind": "PREVIOUS_USED_EXIT",
+    "source_clip": "CL16"
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL17_START.png",
+  "end_target_asset": "assets/CL17_END_TARGET.png",
+  "video_asset": "clips/CL17.mp4",
+  "prompts": {
+    "start": null,
+    "end": "prompts/CL17_v2_END.prompt.txt",
+    "video": "prompts/CL17_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "STAIR-01",
+    "CAB-01",
+    "TIE-01"
+  ],
+  "fact_class": "PARTLY_INFERRED_VISUALIZATION",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "조종실에서 상태를 확인하고 마지막 응답 이후 연락이 끊기는 구간",
+  "action": "정확한 계기 형식·원인을 특정하지 않고 바늘 변화만 추상화",
+  "camera": "계기 바늘 CLOSE→한 번의 미세 진동에서 급정지→검은 링으로 MATCH CUT",
+  "reveal": "20시 10분 무렵의 계기 변화는 움직임의 단서일 뿐 점프를 목격한 기록이 아니다",
+  "exit": "계기 링의 검은 면",
+  "sound": "기체 저음→미세한 진동 1회→짧은 절제; 점프·충돌 효과음 금지",
+  "narrator_text": "밤 여덟 시 십 분 무렵. 조종실의 계기 바늘이 흔들립니다. 계단에 무게가 실리거나 움직일 때 나타날 수 있는 변화였습니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 18.4,
+    "scene_audio_end_seconds": 23.636,
+    "spoken_window_seconds": 5.236
+  },
+  "voice_slot_relative": {
+    "start": 0.8,
+    "end": 6.036
+  },
+  "voice_slot_timeline": {
+    "start": 148.8,
+    "end": 154.036
+  },
+  "pre_voice_seconds": 0.8,
+  "post_voice_seconds": 2.964,
+  "nonvoice_seconds": 3.764
+}

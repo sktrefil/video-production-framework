@@ -1,0 +1,55 @@
+{
+  "id": "CL10",
+  "scene": "SC03",
+  "ordinal": 10,
+  "timeline_start": 82,
+  "timeline_end": 92,
+  "source_seconds": 10,
+  "keep_seconds": 10,
+  "image_mode": "START_TARGET",
+  "transition": "BIBLE_MATCH",
+  "start_binding": {
+    "kind": "GENERATE_START",
+    "source_clip": null
+  },
+  "reference_dependency": null,
+  "start_asset": "assets/CL10_START.png",
+  "end_target_asset": "assets/CL10_END_TARGET.png",
+  "video_asset": "clips/CL10.mp4",
+  "prompts": {
+    "start": "prompts/CL10_v2_START.prompt.txt",
+    "end": "prompts/CL10_v2_END.prompt.txt",
+    "video": "prompts/CL10_v2_VIDEO.prompt.txt"
+  },
+  "reference_locks": [
+    "AIR-01",
+    "MONEY-01",
+    "PARA-01",
+    "CAB-01"
+  ],
+  "fact_class": "CONFIRMED_EVENTS_WITH_STYLIZED_CAMERA",
+  "state": "DESIGN_LOCKED_MEDIA_NOT_GENERATED",
+  "story": "다른 사람들과 반대로 남아 있는 쿠퍼, 비행을 다시 요구",
+  "action": "기체 조건 세 가지를 추상 도식으로 제시하고 실제로 열린 계단 이륙은 보여주지 않음",
+  "camera": "빈 객실에서 기체 측면으로 그래픽 전환→착륙장치·속도선·닫힌 후방 계단을 순서대로 스케일 변경",
+  "reveal": "낮은 속도·내린 착륙장치·열린 후방 계단을 요구했다는 세 비행 조건",
+  "exit": "이륙 전 닫힌 후방 계단의 윤곽",
+  "sound": "객실 룸톤→엔진 저음 감속→닫힌 계단의 금속음; 실제 비행 조건의 수치·가짜 교신 대사 금지",
+  "narrator_text": "그는 착륙장치를 내리고 속도를 낮춰 비행하라고 요구합니다. 심지어 후방 계단을 내린 채 이륙하라고 지시합니다.",
+  "final_tts_scene_audio_window": {
+    "scene_audio_start_seconds": 13.334,
+    "scene_audio_end_seconds": 18.4,
+    "spoken_window_seconds": 5.066
+  },
+  "voice_slot_relative": {
+    "start": 1.8,
+    "end": 6.866
+  },
+  "voice_slot_timeline": {
+    "start": 83.8,
+    "end": 88.866
+  },
+  "pre_voice_seconds": 1.8,
+  "post_voice_seconds": 3.134,
+  "nonvoice_seconds": 4.934
+}

@@ -1,0 +1,15 @@
+D.B. COOPER | CL15 | SC04 | STORYBOARD LOCK v1
+NON_REALISTIC_STYLIZED hand-drawn 2D ink noir. Horizontal 16:9, 1536x864 image target, 1920x1080 editorial delivery.
+Use the boards as style, motion, and scene geometry references. Do not copy board panels or their text into a frame.
+BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+CONTINUITY: STAIR-01, CAB-01, TIE-01
+FACT GUARD: 계기판의 정확한 영어 경고문구를 생성하지 말고 필요 시 편집 합성
+No photorealism, live-action, documentary reenactment, glossy 3D, subtitles, watermarks, or invented historical writing.
+Create one END/TARGET image for CL15, using its reviewed START as the primary image reference.
+START STATE: 조종실에서 보이는 닫힌 커튼과 가려진 후방 객실
+CAMERA PATH: 표시등 빛과 커튼 주름을 GRAPHIC MATCH→닫힌 커튼을 따라 측면 TRACK
+TARGET STATE AT USED EXIT: 시간이 지나도 안쪽이 보이지 않는 같은 커튼
+EXIT: 커튼 암부에서 인터폰 쪽으로 시선 이동
+Preserve the same object geometry, camera axis, light family and palette. This target is not proof of an actual generated-video exit.

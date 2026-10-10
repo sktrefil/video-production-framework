@@ -1,0 +1,21 @@
+D.B. COOPER v3 | CL03 | SCENE SC02 | DRAFT PRODUCTION PROMPT
+STYLE: NON_REALISTIC_STYLIZED hand-drawn 2D ink noir; graphic/fantasy motion, never photorealistic, live-action, documentary reenactment, hyperreal or glossy 3D.
+FORMAT: horizontal 16:9. Still image generation: LONGFORM_16X9_V1, 1536x864. Canonical editor delivery: 1920x1080.
+MASTER REFERENCES (style/motion/scene guidance, not literal panel copies):
+- BOARD01_STYLE: boards/BOARD01_STYLE.png | sha256:88aea441c4f2d7745114387d3828bb17609fbf9196abe98f675b47db363d2160
+- BOARD02_MOTION: boards/BOARD02_MOTION.png | sha256:c18f9d84619abb7dc169489cf9e3ae4043d025edeaa810d21b8b22a493f3dce7
+- BOARD03_SCENE: boards/BOARD03_SCENE.png | sha256:3687a1257d54c90b012ffec6f34854678ff2fafd4504b002294afa4c741aed79
+Do not copy board titles, typography, composited panels, or invented facial details into the image.
+CONTINUITY LOCKS: COO-01, NOTE-01, BRF-01, CAB-01
+FACT GUARD: 실제 얼굴 확정 금지, 과장된 수상한 행동·모자 추가 금지
+Create one planned END/TARGET still for CL03: 평범한 승객의 입장.
+Attach the reviewed CL03 START image when it exists. Preserve its subject identity, camera axis, object geometry, lighting family and continuity locks.
+STORY EVENT: 1971년 오후 포틀랜드, 가명의 탑승권에서 익명의 정장 남성을 따라감
+START STATE: 시대감 있는 탑승권과 어두운 정장 소매의 근접 샷
+CAMERA PATH: 탑승권을 따라 좌→우 FOLLOW, 좌석 등받이를 지나 쿠퍼 옆자리 뒤편으로 우회
+DESIRED TARGET COMPOSITION: 1971년 항공기 좌석에 앉은 쿠퍼의 등/검은 넥타이 부분만 보여줌
+PLANNED EDITORIAL EXIT AT 9 SECONDS: 접힌 종이의 밝은 면을 프레임 끝에 유지
+SUBJECT ACTION: 쿠퍼의 고개는 거의 정지, 천천히 손을 들어 쪽지를 준비
+ENVIRONMENT MOTION: 오후 창밖 하늘을 절제된 스틸블루로 유지
+This still is a creative target, not the actual final used video frame. After a clip is generated, extract its actual last USED frame for any dependent START.
+Do not add an eyewitness jump, landing, confirmed survival/death, photorealistic reconstruction, fake historical words, subtitles or logos.
