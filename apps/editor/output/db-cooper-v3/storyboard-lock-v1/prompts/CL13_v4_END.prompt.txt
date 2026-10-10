@@ -1,0 +1,8 @@
+D.B. COOPER | SC04 | CL13 END TARGET | v4
+Create one horizontal 16:9, 1536x864 still frame in the approved NON_REALISTIC_STYLIZED hand-drawn 2D ink-noir style. This is the target composition for CL13's USED EDIT EXIT near 8.967 seconds, held through the video's 10-second end. It is not evidence of a generated video exit.
+
+From one stable camera axis inside the same dark rear vestibule of the 1971 Boeing 727, show the upper edge of the rear stair opening at center. The edge is still in place, not visibly lowered. A single anonymous shadowed hand rests at the edge after one restrained attempt; no lever or technical mechanism is shown. On the right wall, a plain interphone unit is ALREADY VISIBLE AND STATIONARY in this one composition. Its small muted amber indicator is lit, suggesting contact toward the cockpit without showing another hand action or a new location. A sliver of the dark curtain may remain at the far left. Make the stair silhouette the main focus and the interphone indicator a small secondary cue. No lifted handset, no second gesture, no cockpit view.
+
+Charcoal black, steel blue, sparse bone-ivory edge light, one muted amber point, expressive ink linework and rough paper texture. Keep the rear vestibule architecture and negative space readable. Unknown person remains a silhouette; no identifiable face or invented uniform. The frame must differ clearly from the curtain-filled CL13 START.
+
+Use BOARD01_STYLE, BOARD02_MOTION and BOARD03_SCENE as style and geometry references only. No copied board panels or words. No photorealism, live action, documentary reenactment, hyperrealism, glossy 3D, captions, readable labels, subtitles, fabricated historical writing, extra people, open parachute, jump, logo, watermark or generator mark.
